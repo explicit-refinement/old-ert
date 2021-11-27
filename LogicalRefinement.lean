@@ -1,62 +1,59 @@
 import Init.Data.Nat
 
-mutual
+inductive Untyped: Nat -> Type 0 where
+  -- Types
+  | nat: Untyped n
+  | pi (A: Untyped n) (B: Untyped (n + 1)): Untyped n
+  | sigma (A: Untyped n) (B: Untyped (n + 1)): Untyped n
+  | coprod (A: Untyped n) (B: Untyped n): Untyped n
+  | set (A: Untyped n) (φ: Untyped (n + 1)): Untyped n
+  | assume (φ: Untyped n) (A: Untyped n): Untyped n
+  | intersect (A: Untyped n) (B: Untyped (n + 1)): Untyped n
+  | union (A: Untyped n) (B: Untyped (n + 1)): Untyped n
 
-  inductive Ty: Nat -> Type where
-    | nat: Ty n
-    | pi (A: Ty n) (B: Ty (1 + n)): Ty n
-    | sigma (A: Ty n) (B: Ty (1 + n)): Ty n
-    | coprod (A: Ty n) (B: Ty n): Ty n
-    | set (A: Ty n) (φ: Pr (1 + n)): Ty n
-    | assume (φ: Pr n) (A: Ty n): Ty n
-    | intersect (A: Ty n) (B: Ty (1 + n)): Ty n
-    | union (A: Ty n) (B: Ty (1 + n)): Ty n
+  -- Proposition s
+  | top: Untyped n
+  | bot: Untyped n
+  | and (φ: Untyped n) (ψ: Untyped n): Untyped n
+  | or (φ: Untyped n) (ψ: Untyped n): Untyped n
+  | implies (φ: Untyped n) (ψ: Untyped n): Untyped n
+  | forall_ (A: Untyped n) (φ: Untyped (n + 1)): Untyped n
+  | exists_ (A: Untyped n) (φ: Untyped (n + 1)): Untyped n
+  | eq (A: Untyped n) (e: Untyped n) (e': Untyped n): Untyped n
 
-  inductive Pr: Nat -> Type where
-    | top: Pr n
-    | bot: Pr n
-    | and (φ: Pr n) (ψ: Pr n): Pr n
-    | or (φ: Pr n) (ψ: Pr n): Pr n
-    | implies (φ: Pr n) (ψ: Pr n): Pr n
-    | forall_ (A: Ty n) (φ: Pr (1 + n)): Pr n
-    | exists_ (A: Ty n) (φ: Pr (1 + n)): Pr n
-    | eq (A: Ty n) (e: Term n) (e': Term n): Pr n
+  -- Terms
+  | var (m: Fin n): Untyped n
+  | lam (A: Untyped n) (e: Untyped (n + 1)): Untyped n
+  | app (l: Untyped n) (r: Untyped n): Untyped n
+  | pair (l: Untyped n) (r: Untyped n): Untyped n
+  | proj (b: Bool) (e: Untyped n): Untyped n
+  | inj (b: Bool) (e: Untyped n): Untyped n
+  | case (e: Untyped n) (l: Untyped n) (r: Untyped n): Untyped n
+  | mkset (e: Untyped n) (p: Untyped n): Untyped n
+  | letset (e: Untyped (n + 2)): Untyped n
+  | lam_pr (φ: Untyped n) (e: Untyped (n + 1)): Untyped n
+  | app_pr (e: Untyped n) (p: Untyped n): Untyped n
+  | lam_irrel (A: Untyped n) (e: Untyped (n + 1)): Untyped n
+  | app_irrel (l: Untyped n) (r: Untyped n): Untyped n
+  | repr (l: Untyped n) (r: Untyped n): Untyped n
+  | let_repr (e: Untyped (n + 2)): Untyped n
 
-  inductive Term: Nat -> Type where
-    | var (m: Fin n): Term n
-    | lam (A: Ty n) (e: Term (1 + n)): Term n
-    | app (l: Term n) (r: Term n): Term n
-    | pair (l: Term n) (r: Term n): Term n
-    | proj (b: Bool) (e: Term n): Term n
-    | inj (b: Bool) (e: Term n): Term n
-    | case (e: Term n) (l: Term n) (r: Term n): Term n
-    | mkset (e: Term n) (p: Proof n): Term n
-    | letset (e: Term (2 + n)): Term n
-    | lam_pr (φ: Proof n) (e: Term (1 + n)): Term n
-    | app_pr (e: Term n) (p: Proof (1 + n)): Term n
-    | lam_irrel (A: Ty n) (e: Term (1 + n)): Term n
-    | app_irrel (l: Term n) (r: Term n): Term n
-    | repr (l: Term n) (r: Term n): Term n
-    | let_repr (e: Term (2 + n)): Term n
-
-  inductive Proof: Nat -> Type where
-    | var (m: Fin n): Proof n
-    | nil: Proof n
-    | abort (p: Proof n): Proof n
-    | conj (l: Proof n) (r: Proof n): Proof n
-    | proj (b: Bool) (p: Proof n): Proof n
-    | disj (b: Bool) (p: Proof n): Proof n
-    | case (p: Proof n) (l: Proof n) (r: Proof n): Proof n
-    | lam (φ: Proof n) (p: Proof (1 + n)): Proof n
-    | app (l: Proof n) (r: Proof n): Proof n
-    | general (A: Ty n) (p: Proof (1 + n)): Proof n
-    | inst (p: Proof n) (e: Term n): Proof n
-    | witness (e: Term n) (p: Proof n): Proof n
-    | let_wit (p: Proof (2 + n)): Proof n
-    | refl (e: Term n): Proof n
-    --TODO: equality axioms...
-
-end
+  -- Proofs
+  | prf (m: Fin n): Untyped n
+  | nil: Untyped n
+  | abort (p: Untyped n): Untyped n
+  | conj (l: Untyped n) (r: Untyped n): Untyped n
+  | comp (b: Bool) (p: Untyped n): Untyped n
+  | disj (b: Bool) (p: Untyped n): Untyped n
+  | case_pr (p: Untyped n) (l: Untyped n) (r: Untyped n): Untyped n
+  | imp (φ: Untyped n) (p: Untyped (n + 1)): Untyped n
+  | mp (l: Untyped n) (r: Untyped n): Untyped n
+  | general (A: Untyped n) (p: Untyped (n + 1)): Untyped n
+  | inst (p: Untyped n) (e: Untyped n): Untyped n
+  | witness (e: Untyped n) (p: Untyped n): Untyped n
+  | let_wit (p: Untyped (n + 2)): Untyped n
+  | refl (e: Untyped n): Untyped n
+  --TODO: equality axioms...
 
 inductive Wk: Nat -> Nat -> Type 0 where
   | id: Wk n n
@@ -83,23 +80,66 @@ def wkVar: Wk n m -> Fin m -> Fin n
   | Wk.lift ρ, Fin.mk 0 p => Fin.zero
   | Wk.lift ρ, Fin.mk (Nat.succ n) p => Fin.succ (wkVar ρ (Fin.mk n (Nat.lt_of_succ_lt_succ p)))
 
-mutual
+def wk (ρ: Wk n m): Untyped m -> Untyped n
 
-  def wkTy: Wk n m -> Ty n -> Ty m := sorry
+  -- Types
+  | Untyped.nat => Untyped.nat
+  | Untyped.pi A B => Untyped.pi (wk ρ A) (wk (Wk.lift ρ) B)
+  | Untyped.sigma A B => Untyped.sigma (wk ρ A) (wk (Wk.lift ρ) B)
+  | Untyped.coprod A B => Untyped.coprod (wk ρ A) (wk ρ B)
+  | Untyped.set A φ => Untyped.set (wk ρ A) (wk (Wk.lift ρ) φ)
+  | Untyped.assume φ A => Untyped.assume (wk ρ φ) (wk ρ A)
+  | Untyped.intersect A B => Untyped.intersect (wk ρ A) (wk (Wk.lift ρ) B)
+  | Untyped.union A B => Untyped.union (wk ρ A) (wk (Wk.lift ρ) B)
 
-  def wkPr: Wk n m -> Pr n -> Pr m := sorry
+  -- Propositions
+  | Untyped.top => Untyped.top
+  | Untyped.bot => Untyped.bot
+  | Untyped.and φ ψ => Untyped.and (wk ρ φ) (wk ρ ψ)
+  | Untyped.or φ ψ => Untyped.or (wk ρ φ) (wk ρ ψ)
+  | Untyped.implies φ ψ => Untyped.implies (wk ρ φ) (wk ρ ψ)
+  | Untyped.forall_ A φ => Untyped.forall_ (wk ρ A) (wk (Wk.lift ρ) φ)
+  | Untyped.exists_ A φ => Untyped.exists_ (wk ρ A) (wk (Wk.lift ρ) φ)
+  | Untyped.eq A l r => Untyped.eq (wk ρ A) (wk ρ l) (wk ρ r)
+  
+  -- Terms
+  | Untyped.var m => Untyped.var (wkVar ρ m)
+  | Untyped.lam A e => Untyped.lam (wk ρ A) (wk (Wk.lift ρ) e)
+  | Untyped.app l r => Untyped.app (wk ρ l) (wk ρ r)
+  | Untyped.pair l r => Untyped.pair (wk ρ l) (wk ρ r)
+  | Untyped.proj b e => Untyped.proj b (wk ρ e)
+  | Untyped.inj b e => Untyped.inj b (wk ρ e)
+  | Untyped.case e l r => Untyped.case (wk ρ e) (wk ρ l) (wk ρ r)
+  | Untyped.mkset e p => Untyped.mkset (wk ρ e) (wk ρ p)
+  | Untyped.letset e => Untyped.letset (wk (Wk.lift (Wk.lift ρ)) e)
+  | Untyped.lam_pr φ e => Untyped.lam_pr (wk ρ φ) (wk (Wk.lift ρ) e)
+  | Untyped.app_pr φ e => Untyped.app_pr (wk ρ φ) (wk ρ e)
+  | Untyped.lam_irrel l r => Untyped.lam_irrel (wk ρ l) (wk (Wk.lift ρ) r)
+  | Untyped.app_irrel l r => Untyped.app_irrel (wk ρ l) (wk ρ r)
+  | Untyped.repr l r => Untyped.repr (wk ρ l) (wk ρ r)
+  | Untyped.let_repr e => Untyped.let_repr (wk (Wk.lift (Wk.lift ρ)) e)
 
-  def wkTerm: Wk n m -> Term n -> Term m := sorry
-
-  def wkProof: Wk n m -> Proof n -> Proof m := sorry
-
-end
+  -- Proofs
+  | Untyped.prf m => Untyped.prf (wkVar ρ m)
+  | Untyped.nil => Untyped.nil
+  | Untyped.abort p => Untyped.abort (wk ρ p)
+  | Untyped.conj l r => Untyped.conj (wk ρ l) (wk ρ r)
+  | Untyped.comp b p => Untyped.comp b (wk ρ p)
+  | Untyped.disj b p => Untyped.disj b (wk ρ p)
+  | Untyped.case_pr p l r => Untyped.case_pr (wk ρ p) (wk ρ l) (wk ρ r)
+  | Untyped.imp φ p => Untyped.imp (wk ρ φ) (wk (Wk.lift ρ) p)
+  | Untyped.mp l r => Untyped.mp (wk ρ l) (wk ρ r)
+  | Untyped.general A p => Untyped.general (wk ρ A) (wk (Wk.lift ρ) p)
+  | Untyped.inst p e => Untyped.inst (wk ρ p) (wk ρ e)
+  | Untyped.witness e p => Untyped.witness (wk ρ e) (wk ρ p)
+  | Untyped.let_wit p => Untyped.let_wit (wk (Wk.lift (Wk.lift ρ)) p)
+  | Untyped.refl e => Untyped.refl (wk ρ e)
 
 inductive Hypothesis (n: Nat) where
-  | comp (A: Ty n)
-  | refine (A: Ty n)
-  | logic (φ: Pr n)
+  | comp (A: Untyped n)
+  | refine (A: Untyped n)
+  | logic (φ: Untyped n)
 
 inductive Con: Nat -> Type where
   | ε: Con 0
-  | cons (H: Hypothesis n) (c: Con n): Con (1 + n)
+  | cons (H: Hypothesis n) (c: Con n): Con (n + 1)
