@@ -1,3 +1,5 @@
+import Init.Data.Nat
+
 mutual
 
 inductive Ty: Nat -> Type where
@@ -62,11 +64,24 @@ inductive Wk: Nat -> Nat -> Type 0 where
   | lift: Wk m n -> Wk (Nat.succ m) (Nat.succ n)
 
 def wk_compose: Wk n m -> Wk m l -> Wk n l
-  | Wk.id, W => W
-  | Wk.step W, W' => Wk.step (wk_compose W W')
-  | Wk.lift W, Wk.id => Wk.lift W
-  | Wk.lift W, Wk.step W' => Wk.step (wk_compose W W')
-  | Wk.lift W, Wk.lift W' => Wk.lift (wk_compose W W')
+  | Wk.id, ρ => ρ
+  | Wk.step ρ, ρ' => Wk.step (wk_compose ρ ρ')
+  | Wk.lift ρ, Wk.id => Wk.lift ρ
+  | Wk.lift ρ, Wk.step ρ' => Wk.step (wk_compose ρ ρ')
+  | Wk.lift ρ, Wk.lift ρ' => Wk.lift (wk_compose ρ ρ')
+
+infixl:30 " ⋅ " => wk_compose
+
+def Fin.succ: Fin n -> Fin (Nat.succ n)
+  | Fin.mk m p => Fin.mk (Nat.succ m) (Nat.lt_succ_of_le p)
+
+def Fin.zero: Fin (Nat.succ n) := Fin.mk 0 (Nat.zero_lt_of_lt (Nat.lt_succ_self _))
+
+def wk_var: Wk n m -> Fin m -> Fin n
+  | Wk.id, v => v
+  | Wk.step ρ, v => Fin.succ (wk_var ρ v)
+  | Wk.lift ρ, Fin.mk 0 p => Fin.zero
+  | Wk.lift ρ, Fin.mk (Nat.succ n) p => Fin.succ (wk_var ρ (Fin.mk n (Nat.lt_of_succ_lt_succ p)))
 
 inductive Hypothesis (n: Nat) where
   | comp (A: Ty n)
