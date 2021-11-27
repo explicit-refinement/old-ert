@@ -1,6 +1,14 @@
+-- Based off https://github.com/mr-ohman/logrel-mltt/blob/master/Definition/Untyped.agda
+
 import Init.Data.Nat
 
+--TODO: factor out generators, using the trick from logrel-mltt...
+
 inductive Untyped: Nat -> Type 0 where
+
+  -- Variables
+  | var (m: Fin n): Untyped n
+
   -- Types
   | nat: Untyped n
   | pi (A: Untyped n) (B: Untyped (n + 1)): Untyped n
@@ -22,7 +30,6 @@ inductive Untyped: Nat -> Type 0 where
   | eq (A: Untyped n) (e: Untyped n) (e': Untyped n): Untyped n
 
   -- Terms
-  | var (m: Fin n): Untyped n
   | lam (A: Untyped n) (e: Untyped (n + 1)): Untyped n
   | app (l: Untyped n) (r: Untyped n): Untyped n
   | pair (l: Untyped n) (r: Untyped n): Untyped n
@@ -39,7 +46,6 @@ inductive Untyped: Nat -> Type 0 where
   | let_repr (e: Untyped (n + 2)): Untyped n
 
   -- Proofs
-  | prf (m: Fin n): Untyped n
   | nil: Untyped n
   | abort (p: Untyped n): Untyped n
   | conj (l: Untyped n) (r: Untyped n): Untyped n
@@ -60,12 +66,20 @@ inductive Wk: Nat -> Nat -> Type 0 where
   | step: Wk m n -> Wk (Nat.succ m) n
   | lift: Wk m n -> Wk (Nat.succ m) (Nat.succ n)
 
-def wk_compose: Wk n m -> Wk m l -> Wk n l
+private def wk_liftn: (l: Nat) -> Wk m n -> Wk (m + l) (n + l)
+  | 0, ρ => ρ
+  | Nat.succ n, ρ => Wk.lift (wk_liftn n ρ)
+
+def Wk.liftn: (l: Nat) -> Wk m n -> Wk (m + l) (n + l) := wk_liftn
+
+private def wk_compose: Wk n m -> Wk m l -> Wk n l
   | Wk.id, ρ => ρ
   | Wk.step ρ, ρ' => Wk.step (wk_compose ρ ρ')
   | Wk.lift ρ, Wk.id => Wk.lift ρ
   | Wk.lift ρ, Wk.step ρ' => Wk.step (wk_compose ρ ρ')
   | Wk.lift ρ, Wk.lift ρ' => Wk.lift (wk_compose ρ ρ')
+
+def Wk.compose: Wk n m -> Wk m l -> Wk n l := wk_compose
 
 infixl:30 " ⋅ " => wk_compose
 
@@ -81,6 +95,9 @@ def wkVar: Wk n m -> Fin m -> Fin n
   | Wk.lift ρ, Fin.mk (Nat.succ n) p => Fin.succ (wkVar ρ (Fin.mk n (Nat.lt_of_succ_lt_succ p)))
 
 def wk (ρ: Wk n m): Untyped m -> Untyped n
+
+  -- Variables
+  | Untyped.var m => Untyped.var (wkVar ρ m)
 
   -- Types
   | Untyped.nat => Untyped.nat
@@ -103,7 +120,6 @@ def wk (ρ: Wk n m): Untyped m -> Untyped n
   | Untyped.eq A l r => Untyped.eq (wk ρ A) (wk ρ l) (wk ρ r)
   
   -- Terms
-  | Untyped.var m => Untyped.var (wkVar ρ m)
   | Untyped.lam A e => Untyped.lam (wk ρ A) (wk (Wk.lift ρ) e)
   | Untyped.app l r => Untyped.app (wk ρ l) (wk ρ r)
   | Untyped.pair l r => Untyped.pair (wk ρ l) (wk ρ r)
@@ -111,16 +127,15 @@ def wk (ρ: Wk n m): Untyped m -> Untyped n
   | Untyped.inj b e => Untyped.inj b (wk ρ e)
   | Untyped.case e l r => Untyped.case (wk ρ e) (wk ρ l) (wk ρ r)
   | Untyped.mkset e p => Untyped.mkset (wk ρ e) (wk ρ p)
-  | Untyped.letset e => Untyped.letset (wk (Wk.lift (Wk.lift ρ)) e)
+  | Untyped.letset e => Untyped.letset (wk (Wk.liftn 2 ρ) e)
   | Untyped.lam_pr φ e => Untyped.lam_pr (wk ρ φ) (wk (Wk.lift ρ) e)
   | Untyped.app_pr φ e => Untyped.app_pr (wk ρ φ) (wk ρ e)
   | Untyped.lam_irrel l r => Untyped.lam_irrel (wk ρ l) (wk (Wk.lift ρ) r)
   | Untyped.app_irrel l r => Untyped.app_irrel (wk ρ l) (wk ρ r)
   | Untyped.repr l r => Untyped.repr (wk ρ l) (wk ρ r)
-  | Untyped.let_repr e => Untyped.let_repr (wk (Wk.lift (Wk.lift ρ)) e)
+  | Untyped.let_repr e => Untyped.let_repr (wk (Wk.liftn 2 ρ) e)
 
   -- Proofs
-  | Untyped.prf m => Untyped.prf (wkVar ρ m)
   | Untyped.nil => Untyped.nil
   | Untyped.abort p => Untyped.abort (wk ρ p)
   | Untyped.conj l r => Untyped.conj (wk ρ l) (wk ρ r)
@@ -132,7 +147,7 @@ def wk (ρ: Wk n m): Untyped m -> Untyped n
   | Untyped.general A p => Untyped.general (wk ρ A) (wk (Wk.lift ρ) p)
   | Untyped.inst p e => Untyped.inst (wk ρ p) (wk ρ e)
   | Untyped.witness e p => Untyped.witness (wk ρ e) (wk ρ p)
-  | Untyped.let_wit p => Untyped.let_wit (wk (Wk.lift (Wk.lift ρ)) p)
+  | Untyped.let_wit p => Untyped.let_wit (wk (Wk.liftn 2 ρ) p)
   | Untyped.refl e => Untyped.refl (wk ρ e)
 
 inductive Hypothesis (n: Nat) where
@@ -143,3 +158,25 @@ inductive Hypothesis (n: Nat) where
 inductive Con: Nat -> Type where
   | ε: Con 0
   | cons (H: Hypothesis n) (c: Con n): Con (n + 1)
+
+def wk1: Wk (n + 1) n := Wk.step Wk.id
+
+def Subst (m: Nat) (n: Nat): Type 0 := Fin n -> Untyped m
+
+def head (σ: Subst m (Nat.succ n)): Untyped m := σ Fin.zero
+
+def tail (σ: Subst m (Nat.succ n)): Subst m n :=  λv => σ (Fin.succ v)
+
+def idSubst: Subst n n := Untyped.var
+
+def wk1Subst (σ: Subst m n): Subst (m + 1) n := λ x => wk wk1 (σ x)
+
+def liftSubst (σ: Subst m n): Subst (m + 1) (n + 1)
+  | Fin.mk 0 p => Untyped.var Fin.zero
+  | Fin.mk (Nat.succ n) p => wk1Subst σ (Fin.mk n (Nat.lt_of_succ_lt_succ p))
+
+def liftSubstn: (l: Nat) -> Subst m n -> Subst (m + l) (n + l)
+  | 0, σ => σ
+  | Nat.succ n, σ => liftSubst (liftSubstn n σ)
+
+def toSubst (ρ: Wk m n): Subst m n := λv => Untyped.var (wkVar ρ v)
