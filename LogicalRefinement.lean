@@ -2,7 +2,7 @@
 
 import Init.Data.Nat
 
---TODO: factor out generators, using the trick from logrel-mltt...
+--TODO: factor out generators, using the trick from logrel-mltt... or just write a tactic?
 
 inductive Untyped: Nat -> Type 0 where
 
@@ -82,6 +82,8 @@ private def wk_compose: Wk n m -> Wk m l -> Wk n l
 def Wk.compose: Wk n m -> Wk m l -> Wk n l := wk_compose
 
 infixl:30 " ⋅ " => wk_compose
+
+--TODO: instantiate weakening to have a composition typeclass?
 
 def Fin.succ: Fin n -> Fin (Nat.succ n)
   | Fin.mk m p => Fin.mk (Nat.succ m) (Nat.lt_succ_of_le p)
@@ -180,3 +182,13 @@ def liftSubstn: (l: Nat) -> Subst m n -> Subst (m + l) (n + l)
   | Nat.succ n, σ => liftSubst (liftSubstn n σ)
 
 def toSubst (ρ: Wk m n): Subst m n := λv => Untyped.var (wkVar ρ v)
+
+--TODO: instantiate coercions from substitutions to weakenings?
+
+def consSubst (σ: Subst m n) (t: Untyped n): Subst m (n + 1) := sorry
+
+def sgSubst (t: Untyped n): Subst n (n + 1) := sorry
+
+def subst (σ: Subst m n) (t: Untyped n): Untyped m := sorry
+
+def Subst.compose (σ: Subst l m) (σ: Subst m n): Subst l n := sorry
