@@ -38,6 +38,7 @@ inductive Term where
   | let_repr (e: Term)
 
 inductive Proof where
+  | var (n: Nat)
   | nil
   | abort (p: Proof)
   | conj (l: Proof) (r: Proof)
@@ -54,3 +55,12 @@ inductive Proof where
   --TODO: equality axioms...
 
 end
+
+inductive Hypothesis where
+  | comp (A: Ty)
+  | refine (A: Ty)
+  | logic (φ: Pr)
+
+inductive Con: Nat -> Type where
+  | ε: Con 0
+  | cons (H: Hypothesis) (c: Con n): Con (n + 1)
