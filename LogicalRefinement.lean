@@ -189,6 +189,12 @@ def consSubst (σ: Subst m n) (t: Untyped n): Subst m (n + 1) := sorry
 
 def sgSubst (t: Untyped n): Subst n (n + 1) := sorry
 
-def subst (σ: Subst m n) (t: Untyped n): Untyped m := sorry
+def subst (σ: Subst m n): Untyped n -> Untyped m
+  | Untyped.var v => σ v
+  | Untyped.nat => Untyped.nat
+  | Untyped.pi A B => Untyped.pi (subst σ A) (subst (liftSubst σ) B)
+  --TODO: ...
+  | _ => sorry
 
-def Subst.compose (σ: Subst l m) (σ: Subst m n): Subst l n := sorry
+def Subst.compose (σ: Subst l m) (τ: Subst m n): Subst l n :=
+  λv => subst σ (τ v)
