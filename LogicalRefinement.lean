@@ -4,6 +4,23 @@ import Init.Data.Nat
 
 --TODO: factor out generators, using the trick from logrel-mltt... or just write a tactic?
 
+inductive GenTs (A: Nat -> Type): Nat -> List Nat -> Type where
+  | nil: GenTs A n []
+  | cons (t: A (h + n)) (ts: GenTs A n l): GenTs A n (h :: l)
+
+inductive Kind: List Nat -> Type 0 where
+  -- Types
+  --TODO: this
+
+  -- Propositions
+  --TODO: this
+
+  -- Terms
+  --TODO: this
+
+  -- Variables
+  --TODO: this
+
 inductive Untyped: Nat -> Type 0 where
 
   -- Variables
@@ -19,7 +36,7 @@ inductive Untyped: Nat -> Type 0 where
   | intersect (A: Untyped n) (B: Untyped (n + 1)): Untyped n
   | union (A: Untyped n) (B: Untyped (n + 1)): Untyped n
 
-  -- Proposition s
+  -- Propositions
   | top: Untyped n
   | bot: Untyped n
   | and (φ: Untyped n) (ψ: Untyped n): Untyped n
