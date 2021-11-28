@@ -173,13 +173,15 @@ def idSubst: Subst n n := Untyped.var
 
 def wk1Subst (σ: Subst m n): Subst (m + 1) n := λ x => wk wk1 (σ x)
 
-def liftSubst (σ: Subst m n): Subst (m + 1) (n + 1)
+def Subst.lift (σ: Subst m n): Subst (m + 1) (n + 1)
   | Fin.mk 0 p => Untyped.var Fin.zero
   | Fin.mk (Nat.succ n) p => wk1Subst σ (Fin.mk n (Nat.lt_of_succ_lt_succ p))
 
-def liftSubstn: (l: Nat) -> Subst m n -> Subst (m + l) (n + l)
+private def liftSubstn: (l: Nat) -> Subst m n -> Subst (m + l) (n + l)
   | 0, σ => σ
-  | Nat.succ n, σ => liftSubst (liftSubstn n σ)
+  | Nat.succ n, σ => Subst.lift (liftSubstn n σ)
+
+def Subst.liftn: (l: Nat) -> Subst m n -> Subst (m + l) (n + l) := liftSubstn
 
 def toSubst (ρ: Wk m n): Subst m n := λv => Untyped.var (wkVar ρ v)
 
@@ -190,11 +192,60 @@ def consSubst (σ: Subst m n) (t: Untyped n): Subst m (n + 1) := sorry
 def sgSubst (t: Untyped n): Subst n (n + 1) := sorry
 
 def subst (σ: Subst m n): Untyped n -> Untyped m
+
+  -- Variables
   | Untyped.var v => σ v
+
+  -- Types
   | Untyped.nat => Untyped.nat
-  | Untyped.pi A B => Untyped.pi (subst σ A) (subst (liftSubst σ) B)
-  --TODO: ...
-  | _ => sorry
+  | Untyped.pi A B => Untyped.pi (subst σ A) (subst (Subst.lift σ) B)
+  | Untyped.sigma A B => Untyped.sigma (subst σ A) (subst (Subst.lift σ) B)
+  | Untyped.coprod A B => Untyped.coprod (subst σ A) (subst σ B)
+  | Untyped.set A φ => Untyped.set (subst σ A) (subst (Subst.lift σ) φ)
+  | Untyped.assume φ A => Untyped.assume (subst σ φ) (subst σ A)
+  | Untyped.intersect A B => Untyped.intersect (subst σ A) (subst (Subst.lift σ) B)
+  | Untyped.union A B => Untyped.union (subst σ A) (subst (Subst.lift σ) B)
+
+  -- Propositions
+  | Untyped.top => Untyped.top
+  | Untyped.bot => Untyped.bot
+  | Untyped.and φ ψ => Untyped.and (subst σ φ) (subst σ ψ)
+  | Untyped.or φ ψ => Untyped.or (subst σ φ) (subst σ ψ)
+  | Untyped.implies φ ψ => Untyped.implies (subst σ φ) (subst σ ψ)
+  | Untyped.forall_ A φ => Untyped.forall_ (subst σ A) (subst (Subst.lift σ) φ)
+  | Untyped.exists_ A φ => Untyped.exists_ (subst σ A) (subst (Subst.lift σ) φ)
+  | Untyped.eq A l r => Untyped.eq (subst σ A) (subst σ l) (subst σ r)
+  
+  -- Terms
+  | Untyped.lam A e => Untyped.lam (subst σ A) (subst (Subst.lift σ) e)
+  | Untyped.app l r => Untyped.app (subst σ l) (subst σ r)
+  | Untyped.pair l r => Untyped.pair (subst σ l) (subst σ r)
+  | Untyped.proj b e => Untyped.proj b (subst σ e)
+  | Untyped.inj b e => Untyped.inj b (subst σ e)
+  | Untyped.case e l r => Untyped.case (subst σ e) (subst σ l) (subst σ r)
+  | Untyped.mkset e p => Untyped.mkset (subst σ e) (subst σ p)
+  | Untyped.letset e => Untyped.letset (subst (Subst.liftn 2 σ) e)
+  | Untyped.lam_pr φ e => Untyped.lam_pr (subst σ φ) (subst (Subst.lift σ) e)
+  | Untyped.app_pr φ e => Untyped.app_pr (subst σ φ) (subst σ e)
+  | Untyped.lam_irrel l r => Untyped.lam_irrel (subst σ l) (subst (Subst.lift σ) r)
+  | Untyped.app_irrel l r => Untyped.app_irrel (subst σ l) (subst σ r)
+  | Untyped.repr l r => Untyped.repr (subst σ l) (subst σ r)
+  | Untyped.let_repr e => Untyped.let_repr (subst (Subst.liftn 2 σ) e)
+
+  -- Proofs
+  | Untyped.nil => Untyped.nil
+  | Untyped.abort p => Untyped.abort (subst σ p)
+  | Untyped.conj l r => Untyped.conj (subst σ l) (subst σ r)
+  | Untyped.comp b p => Untyped.comp b (subst σ p)
+  | Untyped.disj b p => Untyped.disj b (subst σ p)
+  | Untyped.case_pr p l r => Untyped.case_pr (subst σ p) (subst σ l) (subst σ r)
+  | Untyped.imp φ p => Untyped.imp (subst σ φ) (subst (Subst.lift σ) p)
+  | Untyped.mp l r => Untyped.mp (subst σ l) (subst σ r)
+  | Untyped.general A p => Untyped.general (subst σ A) (subst (Subst.lift σ) p)
+  | Untyped.inst p e => Untyped.inst (subst σ p) (subst σ e)
+  | Untyped.witness e p => Untyped.witness (subst σ e) (subst σ p)
+  | Untyped.let_wit p => Untyped.let_wit (subst (Subst.liftn 2 σ) p)
+  | Untyped.refl e => Untyped.refl (subst σ e)
 
 def Subst.compose (σ: Subst l m) (τ: Subst m n): Subst l n :=
   λv => subst σ (τ v)
