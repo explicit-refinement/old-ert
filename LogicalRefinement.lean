@@ -2,71 +2,62 @@
 
 import Init.Data.Nat
 
---TODO: factor out generators, using the trick from logrel-mltt... or just write a tactic?
+inductive Untyped: Nat -> Type 0 where
 
-inductive GenTs (A: Nat -> Type): Nat -> List Nat -> Type where
-  | nil: GenTs A n []
-  | cons (t: A (h + n)) (ts: GenTs A n l): GenTs A n (h :: l)
+  -- Variables
+  | var (m: Fin n): Untyped n
 
---TODO: generated ts lifted mapper... hmm... termsize termination?
--- Think about positive termination checking for `isotope`, too...
-
-inductive Kind: List Nat -> Type 0 where
   -- Types
-  | nat: Kind []
-  | pi: Kind [0, 1]
-  | sigma: Kind [0, 1]
-  | coprod: Kind [0, 0]
-  | set: Kind [0, 1]
-  | assume: Kind [0, 0]
-  | intersect: Kind [0, 0]
-  | union: Kind [0, 1]
+  | nat: Untyped n
+  | pi (A: Untyped n) (B: Untyped (n + 1)): Untyped n
+  | sigma (A: Untyped n) (B: Untyped (n + 1)): Untyped n
+  | coprod (A: Untyped n) (B: Untyped n): Untyped n
+  | set (A: Untyped n) (φ: Untyped (n + 1)): Untyped n
+  | assume (φ: Untyped n) (A: Untyped n): Untyped n
+  | intersect (A: Untyped n) (B: Untyped (n + 1)): Untyped n
+  | union (A: Untyped n) (B: Untyped (n + 1)): Untyped n
 
   -- Propositions
-  | top: Kind []
-  | bot: Kind []
-  | and: Kind [0, 0]
-  | or: Kind [0, 0]
-  | implies: Kind [0, 0]
-  | forall_: Kind [0, 1]
-  | exists_: Kind [0, 1]
-  | eq: Kind [0, 0, 0]
+  | top: Untyped n
+  | bot: Untyped n
+  | and (φ: Untyped n) (ψ: Untyped n): Untyped n
+  | or (φ: Untyped n) (ψ: Untyped n): Untyped n
+  | implies (φ: Untyped n) (ψ: Untyped n): Untyped n
+  | forall_ (A: Untyped n) (φ: Untyped (n + 1)): Untyped n
+  | exists_ (A: Untyped n) (φ: Untyped (n + 1)): Untyped n
+  | eq (A: Untyped n) (e: Untyped n) (e': Untyped n): Untyped n
 
   -- Terms
-  | lam: Kind [0, 1]
-  | app: Kind [0, 0]
-  | pair: Kind [0, 0]
-  | proj: Bool -> Kind [0]
-  | inj: Bool -> Kind [0]
-  | case: Kind [0, 0, 0]
-  | mkset: Kind [0, 0]
-  | letset: Kind [2]
-  | lam_pr: Kind [0, 1]
-  | app_pr: Kind [0, 0] --TODO: fuse with just `app`? Nah, because different hypotheses, right? (see `app_irrel`)
-  | lam_irrel: Kind [0, 1]
-  | app_irrel: Kind [0, 0]
-  | repr: Kind [0, 0]
-  | let_repr: Kind [2]
+  | lam (A: Untyped n) (e: Untyped (n + 1)): Untyped n
+  | app (l: Untyped n) (r: Untyped n): Untyped n
+  | pair (l: Untyped n) (r: Untyped n): Untyped n
+  | proj (b: Bool) (e: Untyped n): Untyped n
+  | inj (b: Bool) (e: Untyped n): Untyped n
+  | case (e: Untyped n) (l: Untyped n) (r: Untyped n): Untyped n
+  | mkset (e: Untyped n) (p: Untyped n): Untyped n
+  | letset (e: Untyped (n + 2)): Untyped n
+  | lam_pr (φ: Untyped n) (e: Untyped (n + 1)): Untyped n
+  | app_pr (e: Untyped n) (p: Untyped n): Untyped n
+  | lam_irrel (A: Untyped n) (e: Untyped (n + 1)): Untyped n
+  | app_irrel (l: Untyped n) (r: Untyped n): Untyped n
+  | repr (l: Untyped n) (r: Untyped n): Untyped n
+  | let_repr (e: Untyped (n + 2)): Untyped n
 
   -- Proofs
-  | nil: Kind []
-  | abort: Kind [0]
-  | conj: Kind [0, 0]
-  | comp: Bool -> Kind [0]
-  | disj: Bool -> Kind [0]
-  | case_pr: Kind [0, 0, 0]
-  | imp: Kind [0, 1]
-  | mp: Kind [0, 0]
-  | general: Kind [0, 1]
-  | inst: Kind [0, 0]
-  | witness: Kind [0, 0]
-  | let_wit: Kind [2]
-  | refl: Kind [0]
-  --TODO: equality axioms... could have an interesting case here for using metavariable bindings...
-
-inductive Untyped: Nat -> Type 0 where
-  | var (m: Fin n): Untyped n
-  | gen: Kind l -> GenTs Untyped n l -> Untyped n
+  | nil: Untyped n
+  | abort (p: Untyped n): Untyped n
+  | conj (l: Untyped n) (r: Untyped n): Untyped n
+  | comp (b: Bool) (p: Untyped n): Untyped n
+  | disj (b: Bool) (p: Untyped n): Untyped n
+  | case_pr (p: Untyped n) (l: Untyped n) (r: Untyped n): Untyped n
+  | imp (φ: Untyped n) (p: Untyped (n + 1)): Untyped n
+  | mp (l: Untyped n) (r: Untyped n): Untyped n
+  | general (A: Untyped n) (p: Untyped (n + 1)): Untyped n
+  | inst (p: Untyped n) (e: Untyped n): Untyped n
+  | witness (e: Untyped n) (p: Untyped n): Untyped n
+  | let_wit (p: Untyped (n + 2)): Untyped n
+  | refl (e: Untyped n): Untyped n
+  --TODO: equality axioms...
 
 inductive Wk: Nat -> Nat -> Type 0 where
   | id: Wk n n
@@ -104,9 +95,60 @@ def wkVar: Wk n m -> Fin m -> Fin n
   | Wk.lift ρ, Fin.mk (Nat.succ n) p => Fin.succ (wkVar ρ (Fin.mk n (Nat.lt_of_succ_lt_succ p)))
 
 def wk (ρ: Wk n m): Untyped m -> Untyped n
-  | Untyped.var m => Untyped.var (wkVar ρ m)
-  | Untyped.gen _ _ => sorry
 
+  -- Variables
+  | Untyped.var m => Untyped.var (wkVar ρ m)
+
+  -- Types
+  | Untyped.nat => Untyped.nat
+  | Untyped.pi A B => Untyped.pi (wk ρ A) (wk (Wk.lift ρ) B)
+  | Untyped.sigma A B => Untyped.sigma (wk ρ A) (wk (Wk.lift ρ) B)
+  | Untyped.coprod A B => Untyped.coprod (wk ρ A) (wk ρ B)
+  | Untyped.set A φ => Untyped.set (wk ρ A) (wk (Wk.lift ρ) φ)
+  | Untyped.assume φ A => Untyped.assume (wk ρ φ) (wk ρ A)
+  | Untyped.intersect A B => Untyped.intersect (wk ρ A) (wk (Wk.lift ρ) B)
+  | Untyped.union A B => Untyped.union (wk ρ A) (wk (Wk.lift ρ) B)
+
+  -- Propositions
+  | Untyped.top => Untyped.top
+  | Untyped.bot => Untyped.bot
+  | Untyped.and φ ψ => Untyped.and (wk ρ φ) (wk ρ ψ)
+  | Untyped.or φ ψ => Untyped.or (wk ρ φ) (wk ρ ψ)
+  | Untyped.implies φ ψ => Untyped.implies (wk ρ φ) (wk ρ ψ)
+  | Untyped.forall_ A φ => Untyped.forall_ (wk ρ A) (wk (Wk.lift ρ) φ)
+  | Untyped.exists_ A φ => Untyped.exists_ (wk ρ A) (wk (Wk.lift ρ) φ)
+  | Untyped.eq A l r => Untyped.eq (wk ρ A) (wk ρ l) (wk ρ r)
+  
+  -- Terms
+  | Untyped.lam A e => Untyped.lam (wk ρ A) (wk (Wk.lift ρ) e)
+  | Untyped.app l r => Untyped.app (wk ρ l) (wk ρ r)
+  | Untyped.pair l r => Untyped.pair (wk ρ l) (wk ρ r)
+  | Untyped.proj b e => Untyped.proj b (wk ρ e)
+  | Untyped.inj b e => Untyped.inj b (wk ρ e)
+  | Untyped.case e l r => Untyped.case (wk ρ e) (wk ρ l) (wk ρ r)
+  | Untyped.mkset e p => Untyped.mkset (wk ρ e) (wk ρ p)
+  | Untyped.letset e => Untyped.letset (wk (Wk.liftn 2 ρ) e)
+  | Untyped.lam_pr φ e => Untyped.lam_pr (wk ρ φ) (wk (Wk.lift ρ) e)
+  | Untyped.app_pr φ e => Untyped.app_pr (wk ρ φ) (wk ρ e)
+  | Untyped.lam_irrel l r => Untyped.lam_irrel (wk ρ l) (wk (Wk.lift ρ) r)
+  | Untyped.app_irrel l r => Untyped.app_irrel (wk ρ l) (wk ρ r)
+  | Untyped.repr l r => Untyped.repr (wk ρ l) (wk ρ r)
+  | Untyped.let_repr e => Untyped.let_repr (wk (Wk.liftn 2 ρ) e)
+
+  -- Proofs
+  | Untyped.nil => Untyped.nil
+  | Untyped.abort p => Untyped.abort (wk ρ p)
+  | Untyped.conj l r => Untyped.conj (wk ρ l) (wk ρ r)
+  | Untyped.comp b p => Untyped.comp b (wk ρ p)
+  | Untyped.disj b p => Untyped.disj b (wk ρ p)
+  | Untyped.case_pr p l r => Untyped.case_pr (wk ρ p) (wk ρ l) (wk ρ r)
+  | Untyped.imp φ p => Untyped.imp (wk ρ φ) (wk (Wk.lift ρ) p)
+  | Untyped.mp l r => Untyped.mp (wk ρ l) (wk ρ r)
+  | Untyped.general A p => Untyped.general (wk ρ A) (wk (Wk.lift ρ) p)
+  | Untyped.inst p e => Untyped.inst (wk ρ p) (wk ρ e)
+  | Untyped.witness e p => Untyped.witness (wk ρ e) (wk ρ p)
+  | Untyped.let_wit p => Untyped.let_wit (wk (Wk.liftn 2 ρ) p)
+  | Untyped.refl e => Untyped.refl (wk ρ e)
 
 inductive Hypothesis (n: Nat) where
   | comp (A: Untyped n)
@@ -148,8 +190,60 @@ def consSubst (σ: Subst m n) (t: Untyped n): Subst m (n + 1) := sorry
 def sgSubst (t: Untyped n): Subst n (n + 1) := sorry
 
 def subst (σ: Subst m n): Untyped n -> Untyped m
+
+  -- Variables
   | Untyped.var v => σ v
-  | Untyped.gen _ _ => sorry
+
+  -- Types
+  | Untyped.nat => Untyped.nat
+  | Untyped.pi A B => Untyped.pi (subst σ A) (subst (Subst.lift σ) B)
+  | Untyped.sigma A B => Untyped.sigma (subst σ A) (subst (Subst.lift σ) B)
+  | Untyped.coprod A B => Untyped.coprod (subst σ A) (subst σ B)
+  | Untyped.set A φ => Untyped.set (subst σ A) (subst (Subst.lift σ) φ)
+  | Untyped.assume φ A => Untyped.assume (subst σ φ) (subst σ A)
+  | Untyped.intersect A B => Untyped.intersect (subst σ A) (subst (Subst.lift σ) B)
+  | Untyped.union A B => Untyped.union (subst σ A) (subst (Subst.lift σ) B)
+
+  -- Propositions
+  | Untyped.top => Untyped.top
+  | Untyped.bot => Untyped.bot
+  | Untyped.and φ ψ => Untyped.and (subst σ φ) (subst σ ψ)
+  | Untyped.or φ ψ => Untyped.or (subst σ φ) (subst σ ψ)
+  | Untyped.implies φ ψ => Untyped.implies (subst σ φ) (subst σ ψ)
+  | Untyped.forall_ A φ => Untyped.forall_ (subst σ A) (subst (Subst.lift σ) φ)
+  | Untyped.exists_ A φ => Untyped.exists_ (subst σ A) (subst (Subst.lift σ) φ)
+  | Untyped.eq A l r => Untyped.eq (subst σ A) (subst σ l) (subst σ r)
+  
+  -- Terms
+  | Untyped.lam A e => Untyped.lam (subst σ A) (subst (Subst.lift σ) e)
+  | Untyped.app l r => Untyped.app (subst σ l) (subst σ r)
+  | Untyped.pair l r => Untyped.pair (subst σ l) (subst σ r)
+  | Untyped.proj b e => Untyped.proj b (subst σ e)
+  | Untyped.inj b e => Untyped.inj b (subst σ e)
+  | Untyped.case e l r => Untyped.case (subst σ e) (subst σ l) (subst σ r)
+  | Untyped.mkset e p => Untyped.mkset (subst σ e) (subst σ p)
+  | Untyped.letset e => Untyped.letset (subst (Subst.liftn 2 σ) e)
+  | Untyped.lam_pr φ e => Untyped.lam_pr (subst σ φ) (subst (Subst.lift σ) e)
+  | Untyped.app_pr φ e => Untyped.app_pr (subst σ φ) (subst σ e)
+  | Untyped.lam_irrel l r => Untyped.lam_irrel (subst σ l) (subst (Subst.lift σ) r)
+  | Untyped.app_irrel l r => Untyped.app_irrel (subst σ l) (subst σ r)
+  | Untyped.repr l r => Untyped.repr (subst σ l) (subst σ r)
+  | Untyped.let_repr e => Untyped.let_repr (subst (Subst.liftn 2 σ) e)
+
+  -- Proofs
+  | Untyped.nil => Untyped.nil
+  | Untyped.abort p => Untyped.abort (subst σ p)
+  | Untyped.conj l r => Untyped.conj (subst σ l) (subst σ r)
+  | Untyped.comp b p => Untyped.comp b (subst σ p)
+  | Untyped.disj b p => Untyped.disj b (subst σ p)
+  | Untyped.case_pr p l r => Untyped.case_pr (subst σ p) (subst σ l) (subst σ r)
+  | Untyped.imp φ p => Untyped.imp (subst σ φ) (subst (Subst.lift σ) p)
+  | Untyped.mp l r => Untyped.mp (subst σ l) (subst σ r)
+  | Untyped.general A p => Untyped.general (subst σ A) (subst (Subst.lift σ) p)
+  | Untyped.inst p e => Untyped.inst (subst σ p) (subst σ e)
+  | Untyped.witness e p => Untyped.witness (subst σ e) (subst σ p)
+  | Untyped.let_wit p => Untyped.let_wit (subst (Subst.liftn 2 σ) p)
+  | Untyped.refl e => Untyped.refl (subst σ e)
 
 def Subst.compose (σ: Subst l m) (τ: Subst m n): Subst l n :=
   λv => subst σ (τ v)
