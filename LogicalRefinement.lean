@@ -64,33 +64,33 @@ inductive Wk: Nat -> Nat -> Type 0 where
   | step: Wk m n -> Wk (Nat.succ m) n
   | lift: Wk m n -> Wk (Nat.succ m) (Nat.succ n)
 
-private def wk_liftn: (l: Nat) -> Wk m n -> Wk (m + l) (n + l)
+def wk_liftn: (l: Nat) -> Wk m n -> Wk (m + l) (n + l)
   | 0, ρ => ρ
   | Nat.succ n, ρ => Wk.lift (wk_liftn n ρ)
 
 def Wk.liftn: (l: Nat) -> Wk m n -> Wk (m + l) (n + l) := wk_liftn
 
-private def wk_comp: Wk n m -> Wk m l -> Wk n l
-  | Wk.id, ρ => ρ
-  | Wk.step ρ, ρ' => Wk.step (wk_comp ρ ρ')
-  | Wk.lift ρ, Wk.id => Wk.lift ρ
-  | Wk.lift ρ, Wk.step ρ' => Wk.step (wk_comp ρ ρ')
-  | Wk.lift ρ, Wk.lift ρ' => Wk.lift (wk_comp ρ ρ')
+def wk_comp {n m l: Nat} (ρ: Wk n m) (σ: Wk m l): Wk n l :=
+  match n, m, l, ρ, σ with
+    | _, _, _, Wk.id, σ => σ
+    | _, _, _, Wk.step ρ, σ => Wk.step (wk_comp ρ σ)
+    | _, _, _, Wk.lift ρ, Wk.id => Wk.lift ρ
+    | _, _, _, Wk.lift ρ, Wk.step σ => Wk.step (wk_comp ρ σ)
+    | _, _, _, Wk.lift ρ, Wk.lift σ => Wk.lift (wk_comp ρ σ)
 
 def Wk.comp: Wk n m -> Wk m l -> Wk n l := wk_comp
-
---TODO: instantiate weakening to have a composition typeclass?
 
 def Fin.succ: Fin n -> Fin (Nat.succ n)
   | Fin.mk m p => Fin.mk (Nat.succ m) (Nat.lt_succ_of_le p)
 
-def Fin.zero: Fin (Nat.succ n) := Fin.mk 0 (Nat.zero_lt_of_lt (Nat.lt_succ_self _))
+def Fin.zero: Fin (Nat.succ n) := Fin.mk 0 sorry
 
-def wkVar: Wk n m -> Fin m -> Fin n
-  | Wk.id, v => v
-  | Wk.step ρ, v => Fin.succ (wkVar ρ v)
-  | Wk.lift ρ, Fin.mk 0 p => Fin.zero
-  | Wk.lift ρ, Fin.mk (Nat.succ n) p => Fin.succ (wkVar ρ (Fin.mk n (Nat.lt_of_succ_lt_succ p)))
+def wkVar {n m: Nat} (σ: Wk n m) (v: Fin m): Fin n := 
+  match n, m, σ, v with
+    | _, _, Wk.id, v => v
+    | _, _, Wk.step ρ, v => Fin.succ (wkVar ρ v)
+    | _, _, Wk.lift ρ, Fin.mk 0 p => Fin.zero
+    | _, _, Wk.lift ρ, Fin.mk (Nat.succ n) p => Fin.succ (wkVar ρ (Fin.mk n (Nat.succ_lt_succ p)))
 
 def wk (ρ: Wk n m): Untyped m -> Untyped n
 
@@ -171,9 +171,9 @@ def Subst.wk1 (σ: Subst m n): Subst (m + 1) n := λ x => wk Wk.wk1 (σ x)
 
 def Subst.lift (σ: Subst m n): Subst (m + 1) (n + 1)
   | Fin.mk 0 p => Untyped.var Fin.zero
-  | Fin.mk (Nat.succ n) p => Subst.wk1 σ (Fin.mk n (Nat.lt_of_succ_lt_succ p))
+  | Fin.mk (Nat.succ n) p => Subst.wk1 σ (Fin.mk n (Nat.succ_lt_succ p))
 
-private def liftSubstn: (l: Nat) -> Subst m n -> Subst (m + l) (n + l)
+def liftSubstn: (l: Nat) -> Subst m n -> Subst (m + l) (n + l)
   | 0, σ => σ
   | Nat.succ n, σ => Subst.lift (liftSubstn n σ)
 
@@ -186,7 +186,7 @@ instance {m n: Nat}: Coe (Wk m n) (Subst m n) where
 
 def Subst.cons (σ: Subst m n) (t: Untyped m): Subst m (n + 1)
   | (Fin.mk 0 _) => t
-  | (Fin.mk (Nat.succ n) p) => σ (Fin.mk n (Nat.lt_of_succ_lt_succ p))
+  | (Fin.mk (Nat.succ n) p) => σ (Fin.mk n (Nat.succ_lt_succ p))
 
 def Subst.sg: Untyped n -> Subst n (n + 1) := Subst.cons Subst.id
 
@@ -248,3 +248,4 @@ def subst (σ: Subst m n): Untyped n -> Untyped m
 
 def Subst.comp (σ: Subst l m) (τ: Subst m n): Subst l n :=
   λv => subst σ (τ v)
+
