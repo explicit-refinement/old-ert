@@ -44,6 +44,9 @@ theorem raw_wk_comp_id_left_id {ρ: RawWk}: RawWk.comp RawWk.id ρ = ρ := rfl
     apply raw_wk_comp_assoc
   }
 
+@[simp] theorem raw_wk_lift_comp {ρ σ: RawWk}: 
+  RawWk.comp (RawWk.lift ρ) (RawWk.lift σ) = RawWk.lift (RawWk.comp ρ σ) := rfl
+
 @[simp] def RawWk.var: RawWk -> Nat -> Nat
   | RawWk.id, n => n
   | RawWk.step ρ, n => (var ρ n) + 1
@@ -102,20 +105,23 @@ structure Wk (m n: Nat) := (val: RawWk) (p: wk_maps m n val)
   | 0, ρ => ρ
   | Nat.succ n, ρ => Wk.lift (liftn n ρ)
 
-@[simp] def Wk.comp {m n l: Nat} (ρ: Wk m n) (σ: Wk n l): Wk m l :=
+@[simp] def Wk.comp (ρ: Wk m n) (σ: Wk n l): Wk m l :=
   Wk.mk (RawWk.comp ρ.val σ.val) (wk_maps_comp ρ.p σ.p)
 
-@[simp] theorem wk_comp_assoc {m n l p: Nat} (ρ: Wk m n) (σ: Wk n l) (τ: Wk l p):
+@[simp] theorem wk_comp_assoc (ρ: Wk m n) (σ: Wk n l) (τ: Wk l p):
   Wk.comp ρ (Wk.comp σ τ) = Wk.comp (Wk.comp ρ σ) τ := by {
   simp
 }
 
-@[simp] def Wk.raw_var {m n: Nat} (ρ: Wk m n): Nat -> Nat := RawWk.var ρ.val
+@[simp] def Wk.raw_var (ρ: Wk m n): Nat -> Nat := RawWk.var ρ.val
 
-@[simp] def Wk.var {m n: Nat} (ρ: Wk m n): Fin n -> Fin m
+@[simp] def Wk.var (ρ: Wk m n): Fin n -> Fin m
   | Fin.mk v p => Fin.mk (Wk.raw_var ρ v) (ρ.p v p)
 
-@[simp] theorem wk_var_comp {m n l: Nat} (ρ: Wk m n) (σ: Wk n l) (v: Fin l):
+@[simp] theorem wk_var_comp (ρ: Wk m n) (σ: Wk n l) (v: Fin l):
   Wk.var ρ (Wk.var σ v) = Wk.var (Wk.comp ρ σ) v := by {
   simp
 }
+
+@[simp] theorem wk_lift_comp {ρ: Wk m n} {σ: Wk n l}: 
+  Wk.comp (Wk.lift ρ) (Wk.lift σ) = Wk.lift (Wk.comp ρ σ) := rfl

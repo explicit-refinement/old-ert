@@ -60,12 +60,12 @@ inductive Untyped: Nat -> Type 0 where
   | refl (e: Untyped n): Untyped n
   --TODO: equality axioms...
 
-def Fin.succ: Fin n -> Fin (Nat.succ n)
+@[simp] def Fin.succ: Fin n -> Fin (Nat.succ n)
   | Fin.mk m p => Fin.mk (Nat.succ m) (Nat.lt_succ_of_le p)
 
-def Fin.zero: Fin (Nat.succ n) := Fin.mk 0 (Nat.zero_lt_succ _)
+@[simp] def Fin.zero: Fin (Nat.succ n) := Fin.mk 0 (Nat.zero_lt_succ _)
 
-def wk (ρ: Wk n m): Untyped m -> Untyped n
+@[simp] def wk (ρ: Wk n m): Untyped m -> Untyped n
 
   -- Variables
   | Untyped.var m => Untyped.var (Wk.var ρ m)
@@ -120,6 +120,63 @@ def wk (ρ: Wk n m): Untyped m -> Untyped n
   | Untyped.witness e p => Untyped.witness (wk ρ e) (wk ρ p)
   | Untyped.let_wit p => Untyped.let_wit (wk (Wk.liftn 2 ρ) p)
   | Untyped.refl e => Untyped.refl (wk ρ e)
+
+--TODO: shorten...
+theorem wk_comp (ρ: Wk n m) (σ: Wk m l): (u: Untyped l) -> wk ρ (wk σ u) = wk (Wk.comp ρ σ) u
+  
+  -- Variables
+  | Untyped.var _ => by simp
+  
+  -- Types
+  | Untyped.nat => rfl
+  | Untyped.pi A B => by { simp only [wk]; simp only [wk_comp, wk_lift_comp] }
+  | Untyped.sigma A B => by { simp only [wk]; simp only [wk_comp, wk_lift_comp] }
+  | Untyped.coprod A B => by { simp only [wk]; simp only [wk_comp, wk_lift_comp] }
+  | Untyped.set A B => by { simp only [wk]; simp only [wk_comp, wk_lift_comp] }
+  | Untyped.assume φ A => by { simp only [wk]; simp only [wk_comp, wk_lift_comp] }
+  | Untyped.intersect A B => by { simp only [wk]; simp only [wk_comp, wk_lift_comp] }
+  | Untyped.union A B => by { simp only [wk]; simp only [wk_comp, wk_lift_comp] }
+
+  -- Propositions
+  | Untyped.top => rfl
+  | Untyped.bot => rfl
+  | Untyped.and φ ψ => by { simp only [wk]; simp only [wk_comp, wk_lift_comp] }  
+  | Untyped.or φ ψ => by { simp only [wk]; simp only [wk_comp, wk_lift_comp] }  
+  | Untyped.implies φ ψ => by { simp only [wk]; simp only [wk_comp, wk_lift_comp] }  
+  | Untyped.forall_ A φ => by { simp only [wk]; simp only [wk_comp, wk_lift_comp] }  
+  | Untyped.exists_ A φ => by { simp only [wk]; simp only [wk_comp, wk_lift_comp] }  
+  | Untyped.eq A l r => by { simp only [wk]; simp only [wk_comp, wk_lift_comp] }  
+  
+  -- Terms
+  | Untyped.lam A e => by { simp only [wk]; simp only [wk_comp, wk_lift_comp] }  
+  | Untyped.app l r => by { simp only [wk]; simp only [wk_comp, wk_lift_comp] }  
+  | Untyped.pair l r => by { simp only [wk]; simp only [wk_comp, wk_lift_comp] }  
+  | Untyped.proj b e => by { simp only [wk]; simp only [wk_comp, wk_lift_comp] }  
+  | Untyped.inj b e => by { simp only [wk]; simp only [wk_comp, wk_lift_comp] }  
+  | Untyped.case e l r => by { simp only [wk]; simp only [wk_comp, wk_lift_comp] }  
+  | Untyped.mkset e p => by { simp only [wk]; simp only [wk_comp, wk_lift_comp] }  
+  | Untyped.letset e => by { simp only [wk, Wk.liftn]; simp only [wk_comp, wk_lift_comp] }  
+  | Untyped.lam_pr φ e => by { simp only [wk]; simp only [wk_comp, wk_lift_comp] }  
+  | Untyped.app_pr φ e => by { simp only [wk]; simp only [wk_comp, wk_lift_comp] }  
+  | Untyped.lam_irrel l r => by { simp only [wk]; simp only [wk_comp, wk_lift_comp] }  
+  | Untyped.app_irrel l r => by { simp only [wk]; simp only [wk_comp, wk_lift_comp] }  
+  | Untyped.repr l r => by { simp only [wk]; simp only [wk_comp, wk_lift_comp] }  
+  | Untyped.let_repr e => by { simp only [wk, Wk.liftn]; simp only [wk_comp, wk_lift_comp] }  
+
+  -- Proofs
+  | Untyped.nil => rfl
+  | Untyped.abort p => by { simp only [wk]; simp only [wk_comp, wk_lift_comp] }  
+  | Untyped.conj l r => by { simp only [wk]; simp only [wk_comp, wk_lift_comp] }  
+  | Untyped.comp b p => by { simp only [wk]; simp only [wk_comp, wk_lift_comp] }  
+  | Untyped.disj b p => by { simp only [wk]; simp only [wk_comp, wk_lift_comp] }  
+  | Untyped.case_pr p l r => by { simp only [wk]; simp only [wk_comp, wk_lift_comp] }  
+  | Untyped.imp φ p => by { simp only [wk]; simp only [wk_comp, wk_lift_comp] }  
+  | Untyped.mp l r => by { simp only [wk]; simp only [wk_comp, wk_lift_comp] }  
+  | Untyped.general A p => by { simp only [wk]; simp only [wk_comp, wk_lift_comp] }  
+  | Untyped.inst p e => by { simp only [wk]; simp only [wk_comp, wk_lift_comp] }  
+  | Untyped.witness e p => by { simp only [wk]; simp only [wk_comp, wk_lift_comp] }  
+  | Untyped.let_wit p => by { simp only [wk, Wk.liftn]; simp only [wk_comp, wk_lift_comp] }  
+  | Untyped.refl e => by { simp only [wk]; simp only [wk_comp, wk_lift_comp] }  
 
 def Wk.wk1: Wk (n + 1) n := Wk.step Wk.id
 
