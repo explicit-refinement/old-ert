@@ -122,7 +122,7 @@ inductive Untyped: Nat -> Type 0 where
   | Untyped.refl e => Untyped.refl (wk ρ e)
 
 --TODO: shorten...
-theorem wk_comp (ρ: Wk n m) (σ: Wk m l): (u: Untyped l) -> wk ρ (wk σ u) = wk (Wk.comp ρ σ) u
+@[simp] theorem wk_comp (ρ: Wk n m) (σ: Wk m l): (u: Untyped l) -> wk ρ (wk σ u) = wk (Wk.comp ρ σ) u
   
   -- Variables
   | Untyped.var _ => by simp
@@ -177,8 +177,6 @@ theorem wk_comp (ρ: Wk n m) (σ: Wk m l): (u: Untyped l) -> wk ρ (wk σ u) = w
   | Untyped.witness e p => by { simp only [wk]; simp only [wk_comp, wk_lift_comp] }  
   | Untyped.let_wit p => by { simp only [wk, Wk.liftn]; simp only [wk_comp, wk_lift_comp] }  
   | Untyped.refl e => by { simp only [wk]; simp only [wk_comp, wk_lift_comp] }  
-
-def Wk.wk1: Wk (n + 1) n := Wk.step Wk.id
 
 def Subst (m: Nat) (n: Nat): Type 0 := Fin n -> Untyped m
 

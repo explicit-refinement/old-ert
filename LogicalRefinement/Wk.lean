@@ -125,3 +125,5 @@ structure Wk (m n: Nat) := (val: RawWk) (p: wk_maps m n val)
 
 @[simp] theorem wk_lift_comp {ρ: Wk m n} {σ: Wk n l}: 
   Wk.comp (Wk.lift ρ) (Wk.lift σ) = Wk.lift (Wk.comp ρ σ) := rfl
+
+@[simp] def Wk.wk1: Wk (n + 1) n := Wk.step Wk.id
