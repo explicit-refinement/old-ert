@@ -159,21 +159,21 @@ inductive Con: Nat -> Type where
   | ε: Con 0
   | cons (H: Hypothesis n) (c: Con n): Con (n + 1)
 
-def wk1: Wk (n + 1) n := Wk.step Wk.id
+def Wk.wk1: Wk (n + 1) n := Wk.step Wk.id
 
 def Subst (m: Nat) (n: Nat): Type 0 := Fin n -> Untyped m
 
-def head (σ: Subst m (Nat.succ n)): Untyped m := σ Fin.zero
+def Subst.head (σ: Subst m (Nat.succ n)): Untyped m := σ Fin.zero
 
-def tail (σ: Subst m (Nat.succ n)): Subst m n :=  λv => σ (Fin.succ v)
+def Subst.tail (σ: Subst m (Nat.succ n)): Subst m n :=  λv => σ (Fin.succ v)
 
-def idSubst: Subst n n := Untyped.var
+def Subst.id: Subst n n := Untyped.var
 
-def wk1Subst (σ: Subst m n): Subst (m + 1) n := λ x => wk wk1 (σ x)
+def Subst.wk1 (σ: Subst m n): Subst (m + 1) n := λ x => wk Wk.wk1 (σ x)
 
 def Subst.lift (σ: Subst m n): Subst (m + 1) (n + 1)
   | Fin.mk 0 p => Untyped.var Fin.zero
-  | Fin.mk (Nat.succ n) p => wk1Subst σ (Fin.mk n (Nat.lt_of_succ_lt_succ p))
+  | Fin.mk (Nat.succ n) p => Subst.wk1 σ (Fin.mk n (Nat.lt_of_succ_lt_succ p))
 
 private def liftSubstn: (l: Nat) -> Subst m n -> Subst (m + l) (n + l)
   | 0, σ => σ
@@ -185,9 +185,11 @@ def toSubst (ρ: Wk m n): Subst m n := λv => Untyped.var (wkVar ρ v)
 
 --TODO: instantiate coercions from substitutions to weakenings?
 
-def consSubst (σ: Subst m n) (t: Untyped n): Subst m (n + 1) := sorry
+def Subst.cons (σ: Subst m n) (t: Untyped m): Subst m (n + 1)
+  | (Fin.mk 0 _) => t
+  | (Fin.mk (Nat.succ n) p) => σ (Fin.mk n (Nat.lt_of_succ_lt_succ p))
 
-def sgSubst (t: Untyped n): Subst n (n + 1) := sorry
+def Subst.sg: Untyped n -> Subst n (n + 1) := Subst.cons Subst.id
 
 def subst (σ: Subst m n): Untyped n -> Untyped m
 
