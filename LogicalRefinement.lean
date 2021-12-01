@@ -64,13 +64,13 @@ inductive Wk: Nat -> Nat -> Type 0 where
   | step: Wk m n -> Wk (Nat.succ m) n
   | lift: Wk m n -> Wk (Nat.succ m) (Nat.succ n)
 
-def wk_liftn: (l: Nat) -> Wk m n -> Wk (m + l) (n + l)
+@[simp] def wk_liftn: (l: Nat) -> Wk m n -> Wk (m + l) (n + l)
   | 0, ρ => ρ
   | Nat.succ n, ρ => Wk.lift (wk_liftn n ρ)
 
-def Wk.liftn: (l: Nat) -> Wk m n -> Wk (m + l) (n + l) := wk_liftn
+@[simp] def Wk.liftn: (l: Nat) -> Wk m n -> Wk (m + l) (n + l) := wk_liftn
 
-def wk_comp {n m l: Nat} (ρ: Wk n m) (σ: Wk m l): Wk n l :=
+@[simp] def wk_comp {n m l: Nat} (ρ: Wk n m) (σ: Wk m l): Wk n l :=
   match n, m, l, ρ, σ with
     | _, _, _, Wk.id, σ => σ
     | _, _, _, Wk.step ρ, σ => Wk.step (wk_comp ρ σ)
@@ -78,19 +78,21 @@ def wk_comp {n m l: Nat} (ρ: Wk n m) (σ: Wk m l): Wk n l :=
     | _, _, _, Wk.lift ρ, Wk.step σ => Wk.step (wk_comp ρ σ)
     | _, _, _, Wk.lift ρ, Wk.lift σ => Wk.lift (wk_comp ρ σ)
 
-def Wk.comp: Wk n m -> Wk m l -> Wk n l := wk_comp
+@[simp] def Wk.comp: Wk n m -> Wk m l -> Wk n l := wk_comp
+
+theorem wk_comp_id_id {m n} {ρ: Wk m n}: @wk_comp m m n (@Wk.id m) ρ = ρ := sorry
 
 def Fin.succ: Fin n -> Fin (Nat.succ n)
   | Fin.mk m p => Fin.mk (Nat.succ m) (Nat.lt_succ_of_le p)
 
-def Fin.zero: Fin (Nat.succ n) := Fin.mk 0 sorry
+def Fin.zero: Fin (Nat.succ n) := Fin.mk 0 (Nat.zero_lt_succ _)
 
 def wkVar {n m: Nat} (σ: Wk n m) (v: Fin m): Fin n := 
   match n, m, σ, v with
     | _, _, Wk.id, v => v
     | _, _, Wk.step ρ, v => Fin.succ (wkVar ρ v)
     | _, _, Wk.lift ρ, Fin.mk 0 p => Fin.zero
-    | _, _, Wk.lift ρ, Fin.mk (Nat.succ n) p => Fin.succ (wkVar ρ (Fin.mk n (Nat.succ_lt_succ p)))
+    | _, _, Wk.lift ρ, Fin.mk (Nat.succ n) p => Fin.succ (wkVar ρ (Fin.mk n (Nat.lt_of_succ_lt_succ p)))
 
 def wk (ρ: Wk n m): Untyped m -> Untyped n
 
@@ -148,15 +150,6 @@ def wk (ρ: Wk n m): Untyped m -> Untyped n
   | Untyped.let_wit p => Untyped.let_wit (wk (Wk.liftn 2 ρ) p)
   | Untyped.refl e => Untyped.refl (wk ρ e)
 
-inductive Hypothesis (n: Nat) where
-  | comp (A: Untyped n)
-  | refine (A: Untyped n)
-  | logic (φ: Untyped n)
-
-inductive Con: Nat -> Type where
-  | ε: Con 0
-  | cons (H: Hypothesis n) (c: Con n): Con (n + 1)
-
 def Wk.wk1: Wk (n + 1) n := Wk.step Wk.id
 
 def Subst (m: Nat) (n: Nat): Type 0 := Fin n -> Untyped m
@@ -171,7 +164,7 @@ def Subst.wk1 (σ: Subst m n): Subst (m + 1) n := λ x => wk Wk.wk1 (σ x)
 
 def Subst.lift (σ: Subst m n): Subst (m + 1) (n + 1)
   | Fin.mk 0 p => Untyped.var Fin.zero
-  | Fin.mk (Nat.succ n) p => Subst.wk1 σ (Fin.mk n (Nat.succ_lt_succ p))
+  | Fin.mk (Nat.succ n) p => Subst.wk1 σ (Fin.mk n (Nat.lt_of_succ_lt_succ p))
 
 def liftSubstn: (l: Nat) -> Subst m n -> Subst (m + l) (n + l)
   | 0, σ => σ
@@ -186,7 +179,7 @@ instance {m n: Nat}: Coe (Wk m n) (Subst m n) where
 
 def Subst.cons (σ: Subst m n) (t: Untyped m): Subst m (n + 1)
   | (Fin.mk 0 _) => t
-  | (Fin.mk (Nat.succ n) p) => σ (Fin.mk n (Nat.succ_lt_succ p))
+  | (Fin.mk (Nat.succ n) p) => σ (Fin.mk n (Nat.lt_of_succ_lt_succ p))
 
 def Subst.sg: Untyped n -> Subst n (n + 1) := Subst.cons Subst.id
 
