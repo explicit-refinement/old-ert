@@ -70,16 +70,14 @@ private def wk_liftn: (l: Nat) -> Wk m n -> Wk (m + l) (n + l)
 
 def Wk.liftn: (l: Nat) -> Wk m n -> Wk (m + l) (n + l) := wk_liftn
 
-private def wk_compose: Wk n m -> Wk m l -> Wk n l
+private def wk_comp: Wk n m -> Wk m l -> Wk n l
   | Wk.id, ρ => ρ
-  | Wk.step ρ, ρ' => Wk.step (wk_compose ρ ρ')
+  | Wk.step ρ, ρ' => Wk.step (wk_comp ρ ρ')
   | Wk.lift ρ, Wk.id => Wk.lift ρ
-  | Wk.lift ρ, Wk.step ρ' => Wk.step (wk_compose ρ ρ')
-  | Wk.lift ρ, Wk.lift ρ' => Wk.lift (wk_compose ρ ρ')
+  | Wk.lift ρ, Wk.step ρ' => Wk.step (wk_comp ρ ρ')
+  | Wk.lift ρ, Wk.lift ρ' => Wk.lift (wk_comp ρ ρ')
 
-def Wk.compose: Wk n m -> Wk m l -> Wk n l := wk_compose
-
-infixl:30 " ⋅ " => wk_compose
+def Wk.comp: Wk n m -> Wk m l -> Wk n l := wk_comp
 
 --TODO: instantiate weakening to have a composition typeclass?
 
@@ -183,7 +181,8 @@ def Subst.liftn: (l: Nat) -> Subst m n -> Subst (m + l) (n + l) := liftSubstn
 
 def toSubst (ρ: Wk m n): Subst m n := λv => Untyped.var (wkVar ρ v)
 
---TODO: instantiate coercions from substitutions to weakenings?
+instance {m n: Nat}: Coe (Wk m n) (Subst m n) where
+  coe w := toSubst w
 
 def Subst.cons (σ: Subst m n) (t: Untyped m): Subst m (n + 1)
   | (Fin.mk 0 _) => t
@@ -247,5 +246,5 @@ def subst (σ: Subst m n): Untyped n -> Untyped m
   | Untyped.let_wit p => Untyped.let_wit (subst (Subst.liftn 2 σ) p)
   | Untyped.refl e => Untyped.refl (subst σ e)
 
-def Subst.compose (σ: Subst l m) (τ: Subst m n): Subst l n :=
+def Subst.comp (σ: Subst l m) (τ: Subst m n): Subst l n :=
   λv => subst σ (τ v)
