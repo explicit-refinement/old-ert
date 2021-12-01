@@ -1,6 +1,7 @@
 -- Based off https://github.com/mr-ohman/logrel-mltt/blob/master/Definition/Untyped.agda
 
 import Init.Data.Nat
+import LogicalRefinement.Wk
 
 inductive Untyped: Nat -> Type 0 where
 
@@ -59,45 +60,15 @@ inductive Untyped: Nat -> Type 0 where
   | refl (e: Untyped n): Untyped n
   --TODO: equality axioms...
 
-inductive Wk: Nat -> Nat -> Type 0 where
-  | id: Wk n n
-  | step: Wk m n -> Wk (Nat.succ m) n
-  | lift: Wk m n -> Wk (Nat.succ m) (Nat.succ n)
-
-@[simp] def wk_liftn: (l: Nat) -> Wk m n -> Wk (m + l) (n + l)
-  | 0, ρ => ρ
-  | Nat.succ n, ρ => Wk.lift (wk_liftn n ρ)
-
-@[simp] def Wk.liftn: (l: Nat) -> Wk m n -> Wk (m + l) (n + l) := wk_liftn
-
-@[simp] def wk_comp {n m l: Nat} (ρ: Wk n m) (σ: Wk m l): Wk n l :=
-  match n, m, l, ρ, σ with
-    | _, _, _, Wk.id, σ => σ
-    | _, _, _, Wk.step ρ, σ => Wk.step (wk_comp ρ σ)
-    | _, _, _, Wk.lift ρ, Wk.id => Wk.lift ρ
-    | _, _, _, Wk.lift ρ, Wk.step σ => Wk.step (wk_comp ρ σ)
-    | _, _, _, Wk.lift ρ, Wk.lift σ => Wk.lift (wk_comp ρ σ)
-
-@[simp] def Wk.comp: Wk n m -> Wk m l -> Wk n l := wk_comp
-
-theorem wk_comp_id_id {m n} {ρ: Wk m n}: @wk_comp m m n (@Wk.id m) ρ = ρ := sorry
-
 def Fin.succ: Fin n -> Fin (Nat.succ n)
   | Fin.mk m p => Fin.mk (Nat.succ m) (Nat.lt_succ_of_le p)
 
 def Fin.zero: Fin (Nat.succ n) := Fin.mk 0 (Nat.zero_lt_succ _)
 
-def wkVar {n m: Nat} (σ: Wk n m) (v: Fin m): Fin n := 
-  match n, m, σ, v with
-    | _, _, Wk.id, v => v
-    | _, _, Wk.step ρ, v => Fin.succ (wkVar ρ v)
-    | _, _, Wk.lift ρ, Fin.mk 0 p => Fin.zero
-    | _, _, Wk.lift ρ, Fin.mk (Nat.succ n) p => Fin.succ (wkVar ρ (Fin.mk n (Nat.lt_of_succ_lt_succ p)))
-
 def wk (ρ: Wk n m): Untyped m -> Untyped n
 
   -- Variables
-  | Untyped.var m => Untyped.var (wkVar ρ m)
+  | Untyped.var m => Untyped.var (Wk.var ρ m)
 
   -- Types
   | Untyped.nat => Untyped.nat
@@ -172,7 +143,7 @@ def liftSubstn: (l: Nat) -> Subst m n -> Subst (m + l) (n + l)
 
 def Subst.liftn: (l: Nat) -> Subst m n -> Subst (m + l) (n + l) := liftSubstn
 
-def toSubst (ρ: Wk m n): Subst m n := λv => Untyped.var (wkVar ρ v)
+def toSubst (ρ: Wk m n): Subst m n := λv => Untyped.var (Wk.var ρ v)
 
 instance {m n: Nat}: Coe (Wk m n) (Subst m n) where
   coe w := toSubst w
