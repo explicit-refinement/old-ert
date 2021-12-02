@@ -266,7 +266,7 @@ instance {m n: Nat}: Coe (Wk m n) (Subst m n) where
 def Subst.comp (σ: Subst l m) (τ: Subst m n): Subst l n :=
   λv => subst σ (τ v)
 
-theorem subst_wk_inner_lift (ρ: Wk n m): (v: Fin (m + 1)) -> 
+private theorem subst_wk_lift_inner (ρ: Wk n m): (v: Fin (m + 1)) -> 
   Subst.lift (toSubst ρ) v = toSubst (Wk.lift ρ) v
   | Fin.mk 0 _ => by simp [Subst.lift, toSubst]
   | Fin.mk (Nat.succ n) _ => by simp [Subst.lift, Subst.wk1, toSubst, wk]
@@ -274,10 +274,10 @@ theorem subst_wk_inner_lift (ρ: Wk n m): (v: Fin (m + 1)) ->
 @[simp] theorem subst_wk_lift (ρ: Wk n m):
   Subst.lift (toSubst ρ) = toSubst (Wk.lift ρ) := by {
     funext v;
-    simp only [subst_wk_inner_lift]
+    apply subst_wk_lift_inner
   }
 
-@[simp] theorem subst_wk_inner (ρ: Wk n m): (u: Untyped m) -> subst ρ u = wk ρ u
+private theorem subst_wk_inner (ρ: Wk n m): (u: Untyped m) -> subst ρ u = wk ρ u
   -- Variables
   | Untyped.var _ => by simp [subst, wk, toSubst]
   
@@ -309,13 +309,15 @@ theorem subst_wk_inner_lift (ρ: Wk n m): (v: Fin (m + 1)) ->
   | Untyped.inj b e => by { simp only [subst]; simp only [subst_wk_lift, wk, subst_wk_inner] }    
   | Untyped.case e l r => by { simp only [subst]; simp only [subst_wk_lift, wk, subst_wk_inner] }    
   | Untyped.mkset e p => by { simp only [subst]; simp only [subst_wk_lift, wk, subst_wk_inner] }  
-  | Untyped.letset e => by { simp only [subst, Subst.liftn]; simp only [Wk.liftn, subst_wk_lift, wk, subst_wk_inner] }  
+  | Untyped.letset e => 
+    by { simp only [subst, Subst.liftn]; simp only [Wk.liftn, subst_wk_lift, wk, subst_wk_inner] }  
   | Untyped.lam_pr φ e => by { simp only [subst]; simp only [subst_wk_lift, wk, subst_wk_inner] }    
   | Untyped.app_pr φ e => by { simp only [subst]; simp only [subst_wk_lift, wk, subst_wk_inner] }    
   | Untyped.lam_irrel l r => by { simp only [subst]; simp only [subst_wk_lift, wk, subst_wk_inner] }    
   | Untyped.app_irrel l r => by { simp only [subst]; simp only [subst_wk_lift, wk, subst_wk_inner] }    
   | Untyped.repr l r => by { simp only [subst]; simp only [subst_wk_lift, wk, subst_wk_inner] }    
-  | Untyped.let_repr e => by { simp only [subst, Subst.liftn]; simp only [Wk.liftn, subst_wk_lift, wk, subst_wk_inner] }  
+  | Untyped.let_repr e => 
+    by { simp only [subst, Subst.liftn]; simp only [Wk.liftn, subst_wk_lift, wk, subst_wk_inner] }  
 
   -- Proofs
   | Untyped.nil => rfl
@@ -329,16 +331,23 @@ theorem subst_wk_inner_lift (ρ: Wk n m): (v: Fin (m + 1)) ->
   | Untyped.general A p => by { simp only [subst]; simp only [subst_wk_lift, wk, subst_wk_inner] }    
   | Untyped.inst p e => by { simp only [subst]; simp only [subst_wk_lift, wk, subst_wk_inner] }    
   | Untyped.witness e p => by { simp only [subst]; simp only [subst_wk_lift, wk, subst_wk_inner] }    
-  | Untyped.let_wit p => by { simp only [subst, Subst.liftn]; simp only [Wk.liftn, subst_wk_lift, wk, subst_wk_inner] }  
+  | Untyped.let_wit p => 
+    by { simp only [subst, Subst.liftn]; simp only [Wk.liftn, subst_wk_lift, wk, subst_wk_inner] }  
   | Untyped.refl e => by { simp only [subst]; simp only [subst_wk_lift, wk, subst_wk_inner] }    
+
+
+theorem subst_wk (ρ: Wk n m): subst ρ = wk ρ := by {
+  funext u;
+  apply subst_wk_inner
+}
 
 @[simp] theorem subst_lift_comp (σ: Subst n m) (τ: Subst m l):
   Subst.comp (Subst.lift σ) (Subst.lift τ) = Subst.lift (Subst.comp σ τ) := by {
     funext (Fin.mk v p);
+    simp [Subst.comp];
     cases v with
-    | zero => simp [Subst.lift, Subst.comp]
+    | zero => rfl
     | succ v => 
-      simp [Subst.lift, Subst.comp]
       sorry
   }
 
