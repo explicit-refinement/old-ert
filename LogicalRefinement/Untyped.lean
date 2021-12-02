@@ -65,7 +65,7 @@ inductive Untyped: Nat -> Type 0 where
 
 @[simp] def Fin.zero: Fin (Nat.succ n) := Fin.mk 0 (Nat.zero_lt_succ _)
 
-@[simp] def wk (ρ: Wk n m): Untyped m -> Untyped n
+def wk (ρ: Wk n m): Untyped m -> Untyped n
 
   -- Variables
   | Untyped.var m => Untyped.var (Wk.var ρ m)
@@ -125,7 +125,7 @@ inductive Untyped: Nat -> Type 0 where
 @[simp] theorem wk_comp (ρ: Wk n m) (σ: Wk m l): (u: Untyped l) -> wk ρ (wk σ u) = wk (Wk.comp ρ σ) u
   
   -- Variables
-  | Untyped.var _ => by simp
+  | Untyped.var _ => by simp [wk]
   
   -- Types
   | Untyped.nat => rfl
@@ -180,7 +180,7 @@ inductive Untyped: Nat -> Type 0 where
 
 def Subst (m: Nat) (n: Nat): Type 0 := Fin n -> Untyped m
 
-def Subst.head (σ: Subst m (Nat.succ n)): Untyped m := σ Fin.zero
+@[simp] def Subst.head (σ: Subst m (Nat.succ n)): Untyped m := σ Fin.zero
 
 def Subst.tail (σ: Subst m (Nat.succ n)): Subst m n :=  λv => σ (Fin.succ v)
 
@@ -192,7 +192,7 @@ def Subst.lift (σ: Subst m n): Subst (m + 1) (n + 1)
   | Fin.mk 0 p => Untyped.var Fin.zero
   | Fin.mk (Nat.succ n) p => Subst.wk1 σ (Fin.mk n (Nat.lt_of_succ_lt_succ p))
 
-def Subst.liftn: (l: Nat) -> Subst m n -> Subst (m + l) (n + l)
+@[simp] def Subst.liftn: (l: Nat) -> Subst m n -> Subst (m + l) (n + l)
   | 0, σ => σ
   | Nat.succ n, σ => Subst.lift (liftn n σ)
 
@@ -201,11 +201,11 @@ def toSubst (ρ: Wk m n): Subst m n := λv => Untyped.var (Wk.var ρ v)
 instance {m n: Nat}: Coe (Wk m n) (Subst m n) where
   coe w := toSubst w
 
-def Subst.cons (σ: Subst m n) (t: Untyped m): Subst m (n + 1)
+@[simp] def Subst.cons (σ: Subst m n) (t: Untyped m): Subst m (n + 1)
   | (Fin.mk 0 _) => t
   | (Fin.mk (Nat.succ n) p) => σ (Fin.mk n (Nat.lt_of_succ_lt_succ p))
 
-def Subst.sg: Untyped n -> Subst n (n + 1) := Subst.cons Subst.id
+@[simp] def Subst.sg: Untyped n -> Subst n (n + 1) := Subst.cons Subst.id
 
 @[simp] def subst (σ: Subst m n): Untyped n -> Untyped m
 
@@ -263,16 +263,24 @@ def Subst.sg: Untyped n -> Subst n (n + 1) := Subst.cons Subst.id
   | Untyped.let_wit p => Untyped.let_wit (subst (Subst.liftn 2 σ) p)
   | Untyped.refl e => Untyped.refl (subst σ e)
 
-@[simp] def Subst.comp (σ: Subst l m) (τ: Subst m n): Subst l n :=
+def Subst.comp (σ: Subst l m) (τ: Subst m n): Subst l n :=
   λv => subst σ (τ v)
 
-@[simp] theorem subst_lift_comp {σ: Subst m n} {τ: Subst n l}:
-  Subst.comp (Subst.lift σ) (Subst.lift τ) = Subst.lift (Subst.comp σ τ) := sorry
+@[simp] theorem subst_lift_comp (σ: Subst n m) (τ: Subst m l):
+  Subst.comp (Subst.lift σ) (Subst.lift τ) = Subst.lift (Subst.comp σ τ) := by {
+    funext (Fin.mk v p);
+    cases v with
+    | zero => simp [Subst.lift, Subst.comp]
+    | succ v => 
+      simp [Subst.lift, Subst.comp]
+      sorry
+  }
 
 --TODO: shorten...
-@[simp] theorem subst_comp (ρ: Subst n m) (σ: Subst m l): (u: Untyped l) -> subst ρ (subst σ u) = subst (Subst.comp ρ σ) u
+@[simp] theorem subst_comp (σ: Subst n m) (τ: Subst m l): (u: Untyped l) -> 
+  subst σ (subst τ u) = subst (Subst.comp σ τ) u
   -- Variables
-  | Untyped.var _ => by simp
+  | Untyped.var _ => by simp [Subst.comp, subst]
   
   -- Types
   | Untyped.nat => rfl
