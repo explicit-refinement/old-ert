@@ -336,24 +336,29 @@ private theorem subst_wk_inner (ρ: Wk n m): (u: Untyped m) -> subst ρ u = wk �
     by { simp only [subst, Subst.liftn]; simp only [Wk.liftn, subst_wk_lift, wk, subst_wk_inner] }  
   | Untyped.refl e => by { simp only [subst]; simp only [subst_wk_lift, wk, subst_wk_inner] }    
 
-
 theorem subst_wk (ρ: Wk n m): subst ρ = wk ρ := by {
   funext u;
   apply subst_wk_inner
 }
 
-@[simp] theorem subst_wk1_lift (σ: Subst n m): (u: Untyped m) -> 
-  subst (Subst.lift σ) (wk Wk.wk1 u) = wk Wk.wk1 (subst σ u)
+def Wk.wk_liftn (l: Nat): Wk (m + (l + 1)) (m + l) := by {
+  have a: (m + (l + 1)) = m + 1 + l := sorry;
+  rw [a];
+  exact (Wk.liftn l Wk.wk1)
+}
+
+@[simp] theorem subst_wk1_liftn (σ: Subst n m): (l: Nat) -> (u: Untyped (m + l)) -> 
+  subst (Subst.liftn (l + 1) σ) (wk (Wk.wk_liftn l) u) = wk (Wk.wk_liftn l) (subst (Subst.liftn l σ) u)
 
   -- Variables
-  | Untyped.var (Fin.mk 0 _) => rfl
-  | Untyped.var (Fin.mk (Nat.succ n) _) => rfl
-
-  | _ => sorry
+  | _, Untyped.var (Fin.mk 0 _) => sorry
+  | _, Untyped.var (Fin.mk (Nat.succ n) _) => sorry
 
   -- Types
-  -- | Untyped.nat => rfl
-  -- | Untyped.pi A B => by { 
+  | _, Untyped.nat => sorry
+  | _, Untyped.pi A B => sorry
+  
+  | _, _ => sorry
   -- | Untyped.sigma A B => by { simp only [subst]; simp only [subst_wk_lift, wk, subst_wk_inner] }  
   -- | Untyped.coprod A B => by { simp only [subst]; simp only [subst_wk_lift, wk, subst_wk_inner] }  
   -- | Untyped.set A B => by { simp only [subst]; simp only [subst_wk_lift, wk, subst_wk_inner] }  
@@ -404,6 +409,10 @@ theorem subst_wk (ρ: Wk n m): subst ρ = wk ρ := by {
   -- | Untyped.let_wit p => 
   --   by { simp only [subst, Subst.liftn]; simp only [Wk.liftn, subst_wk_lift, wk, subst_wk_inner] }  
   -- | Untyped.refl e => by { simp only [subst]; simp only [subst_wk_lift, wk, subst_wk_inner] }    
+
+
+@[simp] theorem subst_wk1_lift (σ: Subst n m) (u: Untyped m):
+  subst (Subst.lift σ) (wk Wk.wk1 u) = wk Wk.wk1 (subst σ u) := subst_wk1_liftn σ 0 u
 
 @[simp] theorem subst_lift_comp (σ: Subst n m) (τ: Subst m l):
   Subst.comp (Subst.lift σ) (Subst.lift τ) = Subst.lift (Subst.comp σ τ) := by {
