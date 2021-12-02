@@ -192,11 +192,9 @@ def Subst.lift (σ: Subst m n): Subst (m + 1) (n + 1)
   | Fin.mk 0 p => Untyped.var Fin.zero
   | Fin.mk (Nat.succ n) p => Subst.wk1 σ (Fin.mk n (Nat.lt_of_succ_lt_succ p))
 
-def liftSubstn: (l: Nat) -> Subst m n -> Subst (m + l) (n + l)
+def Subst.liftn: (l: Nat) -> Subst m n -> Subst (m + l) (n + l)
   | 0, σ => σ
-  | Nat.succ n, σ => Subst.lift (liftSubstn n σ)
-
-def Subst.liftn: (l: Nat) -> Subst m n -> Subst (m + l) (n + l) := liftSubstn
+  | Nat.succ n, σ => Subst.lift (liftn n σ)
 
 def toSubst (ρ: Wk m n): Subst m n := λv => Untyped.var (Wk.var ρ v)
 
@@ -209,7 +207,7 @@ def Subst.cons (σ: Subst m n) (t: Untyped m): Subst m (n + 1)
 
 def Subst.sg: Untyped n -> Subst n (n + 1) := Subst.cons Subst.id
 
-def subst (σ: Subst m n): Untyped n -> Untyped m
+@[simp] def subst (σ: Subst m n): Untyped n -> Untyped m
 
   -- Variables
   | Untyped.var v => σ v
@@ -265,6 +263,64 @@ def subst (σ: Subst m n): Untyped n -> Untyped m
   | Untyped.let_wit p => Untyped.let_wit (subst (Subst.liftn 2 σ) p)
   | Untyped.refl e => Untyped.refl (subst σ e)
 
-def Subst.comp (σ: Subst l m) (τ: Subst m n): Subst l n :=
+@[simp] def Subst.comp (σ: Subst l m) (τ: Subst m n): Subst l n :=
   λv => subst σ (τ v)
 
+@[simp] theorem subst_lift_comp {σ: Subst m n} {τ: Subst n l}:
+  Subst.comp (Subst.lift σ) (Subst.lift τ) = Subst.lift (Subst.comp σ τ) := sorry
+
+--TODO: shorten...
+@[simp] theorem subst_comp (ρ: Subst n m) (σ: Subst m l): (u: Untyped l) -> subst ρ (subst σ u) = subst (Subst.comp ρ σ) u
+  -- Variables
+  | Untyped.var _ => by simp
+  
+  -- Types
+  | Untyped.nat => rfl
+  | Untyped.pi A B => by { simp only [subst]; simp only [subst_comp, subst_lift_comp] }
+  | Untyped.sigma A B => by { simp only [subst]; simp only [subst_comp, subst_lift_comp] }
+  | Untyped.coprod A B => by { simp only [subst]; simp only [subst_comp, subst_lift_comp] }
+  | Untyped.set A B => by { simp only [subst]; simp only [subst_comp, subst_lift_comp] }
+  | Untyped.assume φ A => by { simp only [subst]; simp only [subst_comp, subst_lift_comp] }
+  | Untyped.intersect A B => by { simp only [subst]; simp only [subst_comp, subst_lift_comp] }
+  | Untyped.union A B => by { simp only [subst]; simp only [subst_comp, subst_lift_comp] }
+
+  -- Propositions
+  | Untyped.top => rfl
+  | Untyped.bot => rfl
+  | Untyped.and φ ψ => by { simp only [subst]; simp only [subst_comp, subst_lift_comp] }  
+  | Untyped.or φ ψ => by { simp only [subst]; simp only [subst_comp, subst_lift_comp] }  
+  | Untyped.implies φ ψ => by { simp only [subst]; simp only [subst_comp, subst_lift_comp] }  
+  | Untyped.forall_ A φ => by { simp only [subst]; simp only [subst_comp, subst_lift_comp] }  
+  | Untyped.exists_ A φ => by { simp only [subst]; simp only [subst_comp, subst_lift_comp] }  
+  | Untyped.eq A l r => by { simp only [subst]; simp only [subst_comp, subst_lift_comp] }  
+  
+  -- Terms
+  | Untyped.lam A e => by { simp only [subst]; simp only [subst_comp, subst_lift_comp] }  
+  | Untyped.app l r => by { simp only [subst]; simp only [subst_comp, subst_lift_comp] }  
+  | Untyped.pair l r => by { simp only [subst]; simp only [subst_comp, subst_lift_comp] }  
+  | Untyped.proj b e => by { simp only [subst]; simp only [subst_comp, subst_lift_comp] }  
+  | Untyped.inj b e => by { simp only [subst]; simp only [subst_comp, subst_lift_comp] }  
+  | Untyped.case e l r => by { simp only [subst]; simp only [subst_comp, subst_lift_comp] }  
+  | Untyped.mkset e p => by { simp only [subst]; simp only [subst_comp, subst_lift_comp] }  
+  | Untyped.letset e => by { simp only [subst, Subst.liftn]; simp only [subst_comp, subst_lift_comp] }  
+  | Untyped.lam_pr φ e => by { simp only [subst]; simp only [subst_comp, subst_lift_comp] }  
+  | Untyped.app_pr φ e => by { simp only [subst]; simp only [subst_comp, subst_lift_comp] }  
+  | Untyped.lam_irrel l r => by { simp only [subst]; simp only [subst_comp, subst_lift_comp] }  
+  | Untyped.app_irrel l r => by { simp only [subst]; simp only [subst_comp, subst_lift_comp] }  
+  | Untyped.repr l r => by { simp only [subst]; simp only [subst_comp, subst_lift_comp] }  
+  | Untyped.let_repr e => by { simp only [subst, Subst.liftn]; simp only [subst_comp, subst_lift_comp] }  
+
+  -- Proofs
+  | Untyped.nil => rfl
+  | Untyped.abort p => by { simp only [subst]; simp only [subst_comp, subst_lift_comp] }  
+  | Untyped.conj l r => by { simp only [subst]; simp only [subst_comp, subst_lift_comp] }  
+  | Untyped.comp b p => by { simp only [subst]; simp only [subst_comp, subst_lift_comp] }  
+  | Untyped.disj b p => by { simp only [subst]; simp only [subst_comp, subst_lift_comp] }  
+  | Untyped.case_pr p l r => by { simp only [subst]; simp only [subst_comp, subst_lift_comp] }  
+  | Untyped.imp φ p => by { simp only [subst]; simp only [subst_comp, subst_lift_comp] }  
+  | Untyped.mp l r => by { simp only [subst]; simp only [subst_comp, subst_lift_comp] }  
+  | Untyped.general A p => by { simp only [subst]; simp only [subst_comp, subst_lift_comp] }  
+  | Untyped.inst p e => by { simp only [subst]; simp only [subst_comp, subst_lift_comp] }  
+  | Untyped.witness e p => by { simp only [subst]; simp only [subst_comp, subst_lift_comp] }  
+  | Untyped.let_wit p => by { simp only [subst, Subst.liftn]; simp only [subst_comp, subst_lift_comp] }  
+  | Untyped.refl e => by { simp only [subst]; simp only [subst_comp, subst_lift_comp] }  
