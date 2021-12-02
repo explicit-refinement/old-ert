@@ -267,7 +267,9 @@ def Subst.comp (σ: Subst l m) (τ: Subst m n): Subst l n :=
   λv => subst σ (τ v)
 
 theorem subst_wk_inner_lift (ρ: Wk n m): (v: Fin (m + 1)) -> 
-  Subst.lift (toSubst ρ) v = toSubst (Wk.lift ρ) v := sorry
+  Subst.lift (toSubst ρ) v = toSubst (Wk.lift ρ) v
+  | Fin.mk 0 _ => by simp [Subst.lift, toSubst]
+  | Fin.mk (Nat.succ n) _ => by simp [Subst.lift, Subst.wk1, toSubst, wk]
   
 @[simp] theorem subst_wk_lift (ρ: Wk n m):
   Subst.lift (toSubst ρ) = toSubst (Wk.lift ρ) := by {
