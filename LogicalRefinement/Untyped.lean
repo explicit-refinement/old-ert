@@ -278,6 +278,7 @@ private theorem subst_wk_lift_inner (ρ: Wk n m): (v: Fin (m + 1)) ->
   }
 
 private theorem subst_wk_inner (ρ: Wk n m): (u: Untyped m) -> subst ρ u = wk ρ u
+
   -- Variables
   | Untyped.var _ => by simp [subst, wk, toSubst]
   
@@ -341,6 +342,69 @@ theorem subst_wk (ρ: Wk n m): subst ρ = wk ρ := by {
   apply subst_wk_inner
 }
 
+@[simp] theorem subst_wk1_lift (σ: Subst n m): (u: Untyped m) -> 
+  subst (Subst.lift σ) (wk Wk.wk1 u) = wk Wk.wk1 (subst σ u)
+
+  -- Variables
+  | Untyped.var (Fin.mk 0 _) => rfl
+  | Untyped.var (Fin.mk (Nat.succ n) _) => rfl
+
+  | _ => sorry
+
+  -- Types
+  -- | Untyped.nat => rfl
+  -- | Untyped.pi A B => by { 
+  -- | Untyped.sigma A B => by { simp only [subst]; simp only [subst_wk_lift, wk, subst_wk_inner] }  
+  -- | Untyped.coprod A B => by { simp only [subst]; simp only [subst_wk_lift, wk, subst_wk_inner] }  
+  -- | Untyped.set A B => by { simp only [subst]; simp only [subst_wk_lift, wk, subst_wk_inner] }  
+  -- | Untyped.assume φ A => by { simp only [subst]; simp only [subst_wk_lift, wk, subst_wk_inner] }  
+  -- | Untyped.intersect A B => by { simp only [subst]; simp only [subst_wk_lift, wk, subst_wk_inner] }  
+  -- | Untyped.union A B => by { simp only [subst]; simp only [subst_wk_lift, wk, subst_wk_inner] }  
+
+  -- -- Propositions
+  -- | Untyped.top => rfl
+  -- | Untyped.bot => rfl
+  -- | Untyped.and φ ψ => by { simp only [subst]; simp only [subst_wk_lift, wk, subst_wk_inner] }    
+  -- | Untyped.or φ ψ => by { simp only [subst]; simp only [subst_wk_lift, wk, subst_wk_inner] }    
+  -- | Untyped.implies φ ψ => by { simp only [subst]; simp only [subst_wk_lift, wk, subst_wk_inner] }    
+  -- | Untyped.forall_ A φ => by { simp only [subst]; simp only [subst_wk_lift, wk, subst_wk_inner] }    
+  -- | Untyped.exists_ A φ => by { simp only [subst]; simp only [subst_wk_lift, wk, subst_wk_inner] }    
+  -- | Untyped.eq A l r => by { simp only [subst]; simp only [subst_wk_lift, wk, subst_wk_inner] }    
+  
+  -- -- Terms
+  -- | Untyped.lam A e => by { simp only [subst]; simp only [subst_wk_lift, wk, subst_wk_inner] }    
+  -- | Untyped.app l r => by { simp only [subst]; simp only [subst_wk_lift, wk, subst_wk_inner] }    
+  -- | Untyped.pair l r => by { simp only [subst]; simp only [subst_wk_lift, wk, subst_wk_inner] }    
+  -- | Untyped.proj b e => by { simp only [subst]; simp only [subst_wk_lift, wk, subst_wk_inner] }    
+  -- | Untyped.inj b e => by { simp only [subst]; simp only [subst_wk_lift, wk, subst_wk_inner] }    
+  -- | Untyped.case e l r => by { simp only [subst]; simp only [subst_wk_lift, wk, subst_wk_inner] }    
+  -- | Untyped.mkset e p => by { simp only [subst]; simp only [subst_wk_lift, wk, subst_wk_inner] }  
+  -- | Untyped.letset e => 
+  --   by { simp only [subst, Subst.liftn]; simp only [Wk.liftn, subst_wk_lift, wk, subst_wk_inner] }  
+  -- | Untyped.lam_pr φ e => by { simp only [subst]; simp only [subst_wk_lift, wk, subst_wk_inner] }    
+  -- | Untyped.app_pr φ e => by { simp only [subst]; simp only [subst_wk_lift, wk, subst_wk_inner] }    
+  -- | Untyped.lam_irrel l r => by { simp only [subst]; simp only [subst_wk_lift, wk, subst_wk_inner] }    
+  -- | Untyped.app_irrel l r => by { simp only [subst]; simp only [subst_wk_lift, wk, subst_wk_inner] }    
+  -- | Untyped.repr l r => by { simp only [subst]; simp only [subst_wk_lift, wk, subst_wk_inner] }    
+  -- | Untyped.let_repr e => 
+  --   by { simp only [subst, Subst.liftn]; simp only [Wk.liftn, subst_wk_lift, wk, subst_wk_inner] }  
+
+  -- -- Proofs
+  -- | Untyped.nil => rfl
+  -- | Untyped.abort p => by { simp only [subst]; simp only [subst_wk_lift, wk, subst_wk_inner] }    
+  -- | Untyped.conj l r => by { simp only [subst]; simp only [subst_wk_lift, wk, subst_wk_inner] }    
+  -- | Untyped.comp b p => by { simp only [subst]; simp only [subst_wk_lift, wk, subst_wk_inner] }    
+  -- | Untyped.disj b p => by { simp only [subst]; simp only [subst_wk_lift, wk, subst_wk_inner] }    
+  -- | Untyped.case_pr p l r => by { simp only [subst]; simp only [subst_wk_lift, wk, subst_wk_inner] }    
+  -- | Untyped.imp φ p => by { simp only [subst]; simp only [subst_wk_lift, wk, subst_wk_inner] }    
+  -- | Untyped.mp l r => by { simp only [subst]; simp only [subst_wk_lift, wk, subst_wk_inner] }    
+  -- | Untyped.general A p => by { simp only [subst]; simp only [subst_wk_lift, wk, subst_wk_inner] }    
+  -- | Untyped.inst p e => by { simp only [subst]; simp only [subst_wk_lift, wk, subst_wk_inner] }    
+  -- | Untyped.witness e p => by { simp only [subst]; simp only [subst_wk_lift, wk, subst_wk_inner] }    
+  -- | Untyped.let_wit p => 
+  --   by { simp only [subst, Subst.liftn]; simp only [Wk.liftn, subst_wk_lift, wk, subst_wk_inner] }  
+  -- | Untyped.refl e => by { simp only [subst]; simp only [subst_wk_lift, wk, subst_wk_inner] }    
+
 @[simp] theorem subst_lift_comp (σ: Subst n m) (τ: Subst m l):
   Subst.comp (Subst.lift σ) (Subst.lift τ) = Subst.lift (Subst.comp σ τ) := by {
     funext (Fin.mk v p);
@@ -348,7 +412,9 @@ theorem subst_wk (ρ: Wk n m): subst ρ = wk ρ := by {
     cases v with
     | zero => rfl
     | succ v => 
-      sorry
+      simp [Subst.lift, Subst.wk1];
+      rw [←subst_wk1_lift];
+      rfl
   }
 
 --TODO: shorten...
