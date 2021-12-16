@@ -170,9 +170,15 @@ inductive RawUntyped: Type where
   | refl (e: RawUntyped)
 
 
-@[simp] def nary: Nat -> Type -> Type
-  | 0, A => A
-  | Nat.succ n, A => A -> (nary n A)
+@[simp] def nargs (A B: Type): Nat -> Type
+  | 0 => B
+  | Nat.succ n => A -> (nargs A B n)
+
+@[simp] def nary (n: Nat) (A: Type): Type := nargs A A n
+
+@[simp] def const_nargs {A B: Type} (b: B): (n: Nat) -> nargs A B n
+  | 0 => b
+  | Nat.succ n => λ_ => const_nargs b n
 
 @[simp] def UntypedKind.constructorType (k: UntypedKind): Type := nary (arity k) RawUntyped
 
@@ -228,8 +234,6 @@ inductive RawUntyped: Type where
   | UntypedKind.witness => RawUntyped.witness
   | UntypedKind.let_wit => RawUntyped.let_wit
   | UntypedKind.refl => RawUntyped.refl
-
-#check RawUntyped.mk UntypedKind.app
 
 @[simp] def RawUntyped.cons: (k: RawUntyped) -> Option UntypedKind
   | RawUntyped.var _ => Option.none
@@ -337,11 +341,70 @@ notation "genRecRawUntyped" u "=>" var "," f "," rec_br => match u with
   | RawUntyped.let_wit p => rec_br UntypedKind.let_wit (f 2 p)
   | RawUntyped.refl e => rec_br UntypedKind.refl (f 0 e)
 
+notation "genPropRawUntyped" u "=>" prop => match u with
+  | RawUntyped.var v => prop
+
+  | RawUntyped.nats => prop
+  | RawUntyped.pi A B => prop
+  | RawUntyped.sigma A B => prop
+  | RawUntyped.coprod A B => prop
+  | RawUntyped.set A φ => prop
+  | RawUntyped.assume φ A => prop
+  | RawUntyped.intersect A B => prop
+  | RawUntyped.union A B => prop
+
+  | RawUntyped.top => prop
+  | RawUntyped.bot => prop
+  | RawUntyped.and φ ψ => prop
+  | RawUntyped.or φ ψ => prop
+  | RawUntyped.implies φ ψ => prop
+  | RawUntyped.forall_ A φ => prop
+  | RawUntyped.exists_ A φ => prop
+  | RawUntyped.eq A e e' => prop
+  
+  | RawUntyped.nat n => prop
+  | RawUntyped.lam A e => prop
+  | RawUntyped.app s t => prop
+  | RawUntyped.pair l r => prop
+  | RawUntyped.proj b e => prop
+  | RawUntyped.inj b e => prop
+  | RawUntyped.case e l r => prop
+  | RawUntyped.mkset e p => prop
+  | RawUntyped.letset e => prop
+  | RawUntyped.lam_pr φ e => prop
+  | RawUntyped.app_pr e p => prop
+  | RawUntyped.lam_irrel A e => prop
+  | RawUntyped.app_irrel l r => prop
+  | RawUntyped.repr l r => prop
+  | RawUntyped.let_repr e => prop
+
+  | RawUntyped.nil => prop
+  | RawUntyped.abort p => prop
+  | RawUntyped.conj l r => prop
+  | RawUntyped.comp b p => prop
+  | RawUntyped.disj b p => prop
+  | RawUntyped.case_pr p l r => prop
+  | RawUntyped.imp φ p => prop
+  | RawUntyped.mp l r => prop
+  | RawUntyped.general A p => prop
+  | RawUntyped.inst p e => prop
+  | RawUntyped.witness e p => prop
+  | RawUntyped.let_wit p => prop
+  | RawUntyped.refl e => prop
+
 def RawUntyped.wk (ρ: RawWk) (u: RawUntyped): RawUntyped :=
   genRecRawUntyped u => 
     (λ v => RawUntyped.var (RawWk.var ρ v)),
     (λ m t => wk (RawWk.liftn m ρ) t),
     mk
+
+def RawUntyped.wk_comp (ρ: RawWk) (σ: RawWk) (u: RawUntyped):
+  wk ρ (wk σ u) = wk (RawWk.comp ρ σ) u :=
+  genPropRawUntyped u =>
+    by { 
+      try simp only [wk, RawWk.liftn, RawWk.var, raw_wk_var_comp];
+      try simp only [wk_comp, raw_wk_lift_comp]
+    }
 
 @[simp] def maxList: List Nat -> Nat
   | List.nil => 0
