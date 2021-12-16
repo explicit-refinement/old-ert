@@ -57,6 +57,59 @@ inductive UntypedKind: Type where
   | let_wit
   | refl
 
+def UntypedKind.arity: UntypedKind -> Nat
+  -- Types
+  | nats => 0
+  | pi => 2
+  | sigma => 2
+  | coprod => 2
+  | set => 2
+  | assume => 2
+  | intersect => 2
+  | union => 2
+
+  -- Propositions
+  | top => 0
+  | bot => 0
+  | and => 2
+  | or => 2
+  | implies => 2
+  | forall_ => 2
+  | exists_ => 2
+  | eq => 3
+
+  -- Terms
+  | nat _ => 0
+  | lam => 2
+  | app => 2
+  | pair => 2
+  | proj _ => 1
+  | inj _ => 1
+  | case => 3
+  | mkset => 2
+  | letset => 1
+  | lam_pr => 2
+  | app_pr => 2
+  | lam_irrel => 2
+  | app_irrel => 2
+  | repr => 2
+  | let_repr => 1
+
+  -- Proofs
+  | nil => 0
+  | abort => 1
+  | conj => 2
+  | comp _ => 1
+  | disj _ => 1
+  | case_pr => 3
+  | imp => 2
+  | mp => 2
+  | general => 2
+  | inst => 2
+  | witness => 2
+  | let_wit => 1
+  | refl => 1
+
 inductive RawUntyped: Type where
 
   -- Variables
@@ -116,6 +169,121 @@ inductive RawUntyped: Type where
   | let_wit (p: RawUntyped)
   | refl (e: RawUntyped)
 
+
+@[simp] def nary: Nat -> Type -> Type
+  | 0, A => A
+  | Nat.succ n, A => A -> (nary n A)
+
+@[simp] def UntypedKind.constructorType (k: UntypedKind): Type := nary (arity k) RawUntyped
+
+@[simp] def RawUntyped.mk: (k: UntypedKind) -> UntypedKind.constructorType k
+  -- Types
+  | UntypedKind.nats => RawUntyped.nats
+  | UntypedKind.pi => RawUntyped.pi
+  | UntypedKind.sigma => RawUntyped.sigma
+  | UntypedKind.coprod => RawUntyped.coprod
+  | UntypedKind.set => RawUntyped.set
+  | UntypedKind.assume => RawUntyped.assume
+  | UntypedKind.intersect => RawUntyped.intersect
+  | UntypedKind.union => RawUntyped.union
+
+  -- Propositions
+  | UntypedKind.top => RawUntyped.top
+  | UntypedKind.bot => RawUntyped.bot
+  | UntypedKind.and => RawUntyped.and
+  | UntypedKind.or => RawUntyped.or
+  | UntypedKind.implies => RawUntyped.implies
+  | UntypedKind.forall_ => RawUntyped.forall_
+  | UntypedKind.exists_ => RawUntyped.exists_
+  | UntypedKind.eq => RawUntyped.eq
+
+  -- Terms
+  | UntypedKind.nat n => RawUntyped.nat n
+  | UntypedKind.lam => RawUntyped.lam
+  | UntypedKind.app => RawUntyped.app
+  | UntypedKind.pair => RawUntyped.pair
+  | UntypedKind.proj b => RawUntyped.proj b
+  | UntypedKind.inj b => RawUntyped.inj b
+  | UntypedKind.case => RawUntyped.case
+  | UntypedKind.mkset => RawUntyped.mkset
+  | UntypedKind.letset => RawUntyped.letset
+  | UntypedKind.lam_pr => RawUntyped.lam_pr
+  | UntypedKind.app_pr => RawUntyped.app_pr
+  | UntypedKind.lam_irrel => RawUntyped.lam_irrel
+  | UntypedKind.app_irrel => RawUntyped.app_irrel
+  | UntypedKind.repr => RawUntyped.repr
+  | UntypedKind.let_repr => RawUntyped.let_repr
+
+  -- Proofs
+  | UntypedKind.nil => RawUntyped.nil
+  | UntypedKind.abort => RawUntyped.abort
+  | UntypedKind.conj => RawUntyped.conj
+  | UntypedKind.comp b => RawUntyped.comp b
+  | UntypedKind.disj b => RawUntyped.disj b
+  | UntypedKind.case_pr => RawUntyped.case_pr
+  | UntypedKind.imp => RawUntyped.imp
+  | UntypedKind.mp => RawUntyped.mp
+  | UntypedKind.general => RawUntyped.general
+  | UntypedKind.inst => RawUntyped.inst
+  | UntypedKind.witness => RawUntyped.witness
+  | UntypedKind.let_wit => RawUntyped.let_wit
+  | UntypedKind.refl => RawUntyped.refl
+
+@[simp] def RawUntyped.cons: (k: RawUntyped) -> Option UntypedKind
+  | RawUntyped.var _ => Option.none
+
+  -- Types
+  | RawUntyped.nats => UntypedKind.nats
+  | RawUntyped.pi _ _ => UntypedKind.pi
+  | RawUntyped.sigma _ _ => UntypedKind.sigma
+  | RawUntyped.coprod _ _ => UntypedKind.coprod
+  | RawUntyped.set _ _ => UntypedKind.set
+  | RawUntyped.assume _ _ => UntypedKind.assume
+  | RawUntyped.intersect _ _ => UntypedKind.intersect
+  | RawUntyped.union _ _ => UntypedKind.union
+
+  -- Propositions
+  | RawUntyped.top => UntypedKind.top
+  | RawUntyped.bot => UntypedKind.bot
+  | RawUntyped.and _ _ => UntypedKind.and
+  | RawUntyped.or _ _ => UntypedKind.or
+  | RawUntyped.implies _ _ => UntypedKind.implies
+  | RawUntyped.forall_ _ _ => UntypedKind.forall_
+  | RawUntyped.exists_ _ _ => UntypedKind.exists_
+  | RawUntyped.eq _ _ _ => UntypedKind.eq
+
+  -- Terms
+  | RawUntyped.nat n => UntypedKind.nat n
+  | RawUntyped.lam _ _ => UntypedKind.lam
+  | RawUntyped.app _ _ => UntypedKind.app
+  | RawUntyped.pair _ _ => UntypedKind.pair
+  | RawUntyped.proj b _ => UntypedKind.proj b
+  | RawUntyped.inj b _ => UntypedKind.inj b
+  | RawUntyped.case _ _ _ => UntypedKind.case
+  | RawUntyped.mkset _ _ => UntypedKind.mkset
+  | RawUntyped.letset _ => UntypedKind.letset
+  | RawUntyped.lam_pr _ _ => UntypedKind.lam_pr
+  | RawUntyped.app_pr _ _ => UntypedKind.app_pr
+  | RawUntyped.lam_irrel _ _ => UntypedKind.lam_irrel
+  | RawUntyped.app_irrel _ _ => UntypedKind.app_irrel
+  | RawUntyped.repr _ _ => UntypedKind.repr
+  | RawUntyped.let_repr _ => UntypedKind.let_repr
+
+  -- Proofs
+  | RawUntyped.nil => UntypedKind.nil
+  | RawUntyped.abort _ => UntypedKind.abort
+  | RawUntyped.conj _ _ => UntypedKind.conj
+  | RawUntyped.comp b _ => UntypedKind.comp b
+  | RawUntyped.disj b _ => UntypedKind.disj b
+  | RawUntyped.case_pr _ _ _ => UntypedKind.case_pr
+  | RawUntyped.imp _ _ => UntypedKind.imp
+  | RawUntyped.mp _ _ => UntypedKind.mp
+  | RawUntyped.general _ _ => UntypedKind.general
+  | RawUntyped.inst _ _ => UntypedKind.inst
+  | RawUntyped.witness _ _ => UntypedKind.witness
+  | RawUntyped.let_wit _ => UntypedKind.let_wit
+  | RawUntyped.refl _ => UntypedKind.refl
+
 notation "genRecRawUntyped" u "=>" var "," f "," r => match u with
   | RawUntyped.var v => var v
 
@@ -166,4 +334,3 @@ notation "genRecRawUntyped" u "=>" var "," f "," r => match u with
   | RawUntyped.witness e p => r (UntypedKind.witness) (f 0 e) (f 0 p)
   | RawUntyped.let_wit p => r (UntypedKind.let_wit) (f 2 p)
   | RawUntyped.refl e => r (UntypedKind.refl) (f 0 e)
-
