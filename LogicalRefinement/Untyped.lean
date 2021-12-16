@@ -398,7 +398,7 @@ def RawUntyped.wk (ρ: RawWk) (u: RawUntyped): RawUntyped :=
     (λ m t => wk (RawWk.liftn m ρ) t),
     mk
 
-def RawUntyped.wk_comp (ρ: RawWk) (σ: RawWk) (u: RawUntyped):
+@[simp] def RawUntyped.wk_comp (ρ: RawWk) (σ: RawWk) (u: RawUntyped):
   wk ρ (wk σ u) = wk (RawWk.comp ρ σ) u :=
   genPropRawUntyped u =>
     by { 
@@ -406,13 +406,13 @@ def RawUntyped.wk_comp (ρ: RawWk) (σ: RawWk) (u: RawUntyped):
       try simp only [wk_comp, raw_wk_lift_comp]
     }
 
-def RawSubst := Nat -> RawUntyped
+@[simp] def RawSubst := Nat -> RawUntyped
 
 def RawSubst.lift (σ: RawSubst): RawSubst
   | 0 => RawUntyped.var 0
   | Nat.succ n => RawUntyped.wk RawWk.wk1 (σ n)
 
-def RawSubst.liftn: (l: Nat) -> RawSubst -> RawSubst
+@[simp] def RawSubst.liftn: (l: Nat) -> RawSubst -> RawSubst
   | 0, σ => σ
   | Nat.succ n, σ => lift (liftn n σ)
 
