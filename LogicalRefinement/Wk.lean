@@ -3,7 +3,7 @@ inductive RawWk: Type 0 where
   | step: RawWk -> RawWk
   | lift: RawWk -> RawWk
 
-@[simp] def RawWk.wk1: RawWk := RawWk.lift RawWk.id
+@[simp] def RawWk.wk1: RawWk := RawWk.step RawWk.id
 
 @[simp] def RawWk.liftn: (l: Nat) -> RawWk -> RawWk
   | 0, ρ => ρ

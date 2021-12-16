@@ -408,7 +408,9 @@ def RawUntyped.wk (ρ: RawWk) (u: RawUntyped): RawUntyped :=
 
 @[simp] def RawSubst := Nat -> RawUntyped
 
-def RawSubst.lift (σ: RawSubst): RawSubst := sorry
+def RawSubst.lift (σ: RawSubst): RawSubst
+  | 0 => RawUntyped.var 0
+  | Nat.succ n => RawUntyped.wk RawWk.wk1 (σ n)
 
 @[simp] def RawSubst.liftn: (l: Nat) -> RawSubst -> RawSubst
   | 0, σ => σ
@@ -423,7 +425,15 @@ def RawUntyped.subst (σ: RawSubst) (u: RawUntyped): RawUntyped :=
 def RawSubst.wk (ρ: RawWk): RawSubst :=
   λ n => RawUntyped.var (RawWk.var ρ n)
 
-def RawSubst.wk_wk_lift (ρ: RawWk): RawSubst.lift (wk ρ) = wk (RawWk.lift ρ) := sorry
+def RawSubst.wk_wk_lift (ρ: RawWk): RawSubst.lift (wk ρ) = wk (RawWk.lift ρ) := by {
+  funext n;
+  simp only [lift, wk]
+  cases n with
+  | zero => rfl
+  | succ n => {
+    simp only [RawUntyped.wk, RawWk.var]
+  }
+}
 
 private def RawUntyped.wk_is_wk_inner (ρ: RawWk) (u: RawUntyped):
   subst (RawSubst.wk ρ) u = RawUntyped.wk ρ u :=
