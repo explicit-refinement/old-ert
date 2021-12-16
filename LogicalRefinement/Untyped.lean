@@ -290,8 +290,8 @@ inductive RawUntyped: Type where
   | RawUntyped.let_wit _ => UntypedKind.let_wit
   | RawUntyped.refl _ => UntypedKind.refl
 
-notation "genRecRawUntyped" u "=>" var "," f "," rec_br => match u with
-  | RawUntyped.var v => var v
+notation "genRecRawUntyped" u "=>" v_case "," f "," rec_br => match u with
+  | RawUntyped.var v => v_case v
 
   | RawUntyped.nats => rec_br UntypedKind.nats
   | RawUntyped.pi A B => rec_br UntypedKind.pi (f 0 A) (f 1 B)
@@ -341,8 +341,8 @@ notation "genRecRawUntyped" u "=>" var "," f "," rec_br => match u with
   | RawUntyped.let_wit p => rec_br UntypedKind.let_wit (f 2 p)
   | RawUntyped.refl e => rec_br UntypedKind.refl (f 0 e)
 
-notation "genPropRawUntyped" u "=>" prop => match u with
-  | RawUntyped.var v => prop
+notation "genVarPropRawUntyped" u "=>" v_case "," prop => match u with
+  | RawUntyped.var v => v_case
 
   | RawUntyped.nats => prop
   | RawUntyped.pi A B => prop
@@ -391,6 +391,8 @@ notation "genPropRawUntyped" u "=>" prop => match u with
   | RawUntyped.witness e p => prop
   | RawUntyped.let_wit p => prop
   | RawUntyped.refl e => prop
+
+notation "genPropRawUntyped" u "=>" prop => genVarPropRawUntyped u => prop, prop
 
 def RawUntyped.wk (ρ: RawWk) (u: RawUntyped): RawUntyped :=
   genRecRawUntyped u => 
@@ -466,3 +468,11 @@ macro_rules
 @[simp] def RawUntyped.fv := RawUntyped.fv_shifted 0
 
 structure Untyped (n: Nat) := (val: RawUntyped) (p: RawUntyped.fv val ≤ n)
+
+def Untyped.wk (ρ: Wk m n): Untyped n -> Untyped m
+  | Untyped.mk u p => Untyped.mk (RawUntyped.wk ρ.val u) sorry
+
+structure Subst (m n: Nat) := (val: RawSubst) (p: (v: Nat) -> n < v -> RawUntyped.fv (val n) ≤ m)
+
+def Untyped.subst (σ: Subst m n): Untyped n -> Untyped m
+  | Untyped.mk u p => Untyped.mk (RawUntyped.subst σ.val u) sorry
