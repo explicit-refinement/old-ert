@@ -406,6 +406,22 @@ def RawUntyped.wk_comp (ρ: RawWk) (σ: RawWk) (u: RawUntyped):
       try simp only [wk_comp, raw_wk_lift_comp]
     }
 
+def RawSubst := Nat -> RawUntyped
+
+def RawSubst.lift (σ: RawSubst): RawSubst
+  | 0 => RawUntyped.var 0
+  | Nat.succ n => RawUntyped.wk RawWk.wk1 (σ n)
+
+def RawSubst.liftn: (l: Nat) -> RawSubst -> RawSubst
+  | 0, σ => σ
+  | Nat.succ n, σ => lift (liftn n σ)
+
+def RawUntyped.subst (σ: RawSubst) (u: RawUntyped): RawUntyped :=
+  genRecRawUntyped u =>
+    σ,
+    (λ m t => subst (RawSubst.liftn m σ) t),
+    mk
+
 @[simp] def maxList: List Nat -> Nat
   | List.nil => 0
   | List.cons x xs => Nat.max x (maxList xs)
