@@ -340,7 +340,7 @@ notation "genRecRawUntyped" u "=>" var "," f "," rec_br => match u with
 def RawUntyped.wk (ρ: RawWk) (u: RawUntyped): RawUntyped :=
   genRecRawUntyped u => 
     (λ v => RawUntyped.var (RawWk.var ρ v)),
-    (λ m t => wk ρ t),
+    (λ m t => wk (RawWk.liftn m ρ) t),
     mk
 
 @[simp] def maxList: List Nat -> Nat
