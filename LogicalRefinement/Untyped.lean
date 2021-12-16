@@ -57,7 +57,7 @@ inductive UntypedKind: Type where
   | let_wit
   | refl
 
-def UntypedKind.arity: UntypedKind -> Nat
+@[simp] def UntypedKind.arity: UntypedKind -> Nat
   -- Types
   | nats => 0
   | pi => 2
@@ -229,6 +229,8 @@ inductive RawUntyped: Type where
   | UntypedKind.let_wit => RawUntyped.let_wit
   | UntypedKind.refl => RawUntyped.refl
 
+#check RawUntyped.mk UntypedKind.app
+
 @[simp] def RawUntyped.cons: (k: RawUntyped) -> Option UntypedKind
   | RawUntyped.var _ => Option.none
 
@@ -284,53 +286,76 @@ inductive RawUntyped: Type where
   | RawUntyped.let_wit _ => UntypedKind.let_wit
   | RawUntyped.refl _ => UntypedKind.refl
 
-notation "genRecRawUntyped" u "=>" var "," f "," r => match u with
+notation "genRecRawUntyped" u "=>" var "," f "," rec_br => match u with
   | RawUntyped.var v => var v
 
-  | RawUntyped.nats => r UntypedKind.nats
-  | RawUntyped.pi A B => r UntypedKind.pi (f 0 A) (f 1 B)
-  | RawUntyped.sigma A B => r UntypedKind.sigma (f 0 A) (f 1 B)
-  | RawUntyped.coprod A B => r UntypedKind.coprod (f 0 A) (f 0 B)
-  | RawUntyped.set A φ => r UntypedKind.set (f 0 A) (f 1 φ)
-  | RawUntyped.assume φ A => r UntypedKind.assume (f 0 φ) (f 0 A)
-  | RawUntyped.intersect A B => r UntypedKind.intersect (f 0 A) (f 1 B)
-  | RawUntyped.union A B => r UntypedKind.union (f 0 A) (f 1 B)
+  | RawUntyped.nats => rec_br UntypedKind.nats
+  | RawUntyped.pi A B => rec_br UntypedKind.pi (f 0 A) (f 1 B)
+  | RawUntyped.sigma A B => rec_br UntypedKind.sigma (f 0 A) (f 1 B)
+  | RawUntyped.coprod A B => rec_br UntypedKind.coprod (f 0 A) (f 0 B)
+  | RawUntyped.set A φ => rec_br UntypedKind.set (f 0 A) (f 1 φ)
+  | RawUntyped.assume φ A => rec_br UntypedKind.assume (f 0 φ) (f 0 A)
+  | RawUntyped.intersect A B => rec_br UntypedKind.intersect (f 0 A) (f 1 B)
+  | RawUntyped.union A B => rec_br UntypedKind.union (f 0 A) (f 1 B)
 
-  | RawUntyped.top φ ψ => r UntypedKind.top
-  | RawUntyped.bot φ ψ => r UntypedKind.bot
-  | RawUntyped.and φ ψ => r UntypedKind.and (f 0 φ) (f 0 ψ)
-  | RawUntyped.or φ ψ => r UntypedKind.or (f 0 φ) (f 0 ψ)
-  | RawUntyped.implies φ Ψ => r UntypedKind.implies (f 0 φ) (f 0 ψ)
-  | RawUntyped.forall_ A φ => r UntypedKind.forall_ (f 0 A) (f 1 φ)
-  | RawUntyped.exists_ A φ => r UntypedKind.exists_ (f 0 A) (f 1 φ)
-  | RawUntyped.eq A e e' => r UntypedKind.exists (f 0 A) (f 0 e) (f 0 e')
+  | RawUntyped.top => rec_br UntypedKind.top
+  | RawUntyped.bot => rec_br UntypedKind.bot
+  | RawUntyped.and φ ψ => rec_br UntypedKind.and (f 0 φ) (f 0 ψ)
+  | RawUntyped.or φ ψ => rec_br UntypedKind.or (f 0 φ) (f 0 ψ)
+  | RawUntyped.implies φ ψ => rec_br UntypedKind.implies (f 0 φ) (f 0 ψ)
+  | RawUntyped.forall_ A φ => rec_br UntypedKind.forall_ (f 0 A) (f 1 φ)
+  | RawUntyped.exists_ A φ => rec_br UntypedKind.exists_ (f 0 A) (f 1 φ)
+  | RawUntyped.eq A e e' => rec_br UntypedKind.eq (f 0 A) (f 0 e) (f 0 e')
   
-  | RawUntyped.nat n => r (UntypedKind.nat n)
-  | RawUntyped.lam A e => r UntypedKind.lam (f 0 A) (f 1 e)
-  | RawUntyped.app l r => r UntypedKind.app (f 0 l) (f 0 r)
-  | RawUntyped.pair l r => r UntypedKind.pair (f 0 l) (f 0 r)
-  | RawUntyped.proj b e => r (UntypedKind.proj b) (f 0 e)
-  | RawUntyped.inj b e => r (UntypedKind.inj b) (f 0 e)
-  | RawUntyped.case e l r => r (UntypedKind.case) (f 0 e) (f 0 l) (f 0 r)
-  | RawUntyped.mkset e p => r (UntypedKind.mkset) (f 0 e) (f 1 p)
-  | RawUntyped.letset e => r (UntypedKind.letset) (f 2 e)
-  | RawUntyped.lam_pr φ e => r (UntypedKind.lam_pr) (f 0 φ) (f 1 e)
-  | RawUntyped.app_pr e p => r (UntypedKind.app_pr) (f 0 e) (f 0 p)
-  | RawUntyped.lam_irrel A e => r (UntypedKind.lam_irrel) (f 0 A) (f 1 e)
-  | RawUntyped.app_irrel l r => r (UntypedKind.app_irrel) (f 0 l) (f 0 r)
-  | RawUntyped.repr l r => r (UntypedKind.repr) (f 0 l) (f 0 r)
-  | RawUntyped.let_repr e => r (UntypedKind.let_repr) (f 2 e)
+  | RawUntyped.nat n => rec_br (UntypedKind.nat n)
+  | RawUntyped.lam A e => rec_br UntypedKind.lam (f 0 A) (f 1 e)
+  | RawUntyped.app s t => rec_br UntypedKind.app (f 0 s) (f 0 t)
+  | RawUntyped.pair l r => rec_br UntypedKind.pair (f 0 l) (f 0 r)
+  | RawUntyped.proj b e => rec_br (UntypedKind.proj b) (f 0 e)
+  | RawUntyped.inj b e => rec_br (UntypedKind.inj b) (f 0 e)
+  | RawUntyped.case e l r => rec_br (UntypedKind.case) (f 0 e) (f 0 l) (f 0 r)
+  | RawUntyped.mkset e p => rec_br (UntypedKind.mkset) (f 0 e) (f 1 p)
+  | RawUntyped.letset e => rec_br (UntypedKind.letset) (f 2 e)
+  | RawUntyped.lam_pr φ e => rec_br (UntypedKind.lam_pr) (f 0 φ) (f 1 e)
+  | RawUntyped.app_pr e p => rec_br (UntypedKind.app_pr) (f 0 e) (f 0 p)
+  | RawUntyped.lam_irrel A e => rec_br (UntypedKind.lam_irrel) (f 0 A) (f 1 e)
+  | RawUntyped.app_irrel l r => rec_br (UntypedKind.app_irrel) (f 0 l) (f 0 r)
+  | RawUntyped.repr l r => rec_br (UntypedKind.repr) (f 0 l) (f 0 r)
+  | RawUntyped.let_repr e => rec_br (UntypedKind.let_repr) (f 2 e)
 
-  | RawUntyped.nil => r (UntypedKind.nil)
-  | RawUntyped.abort p => r (UntypedKind.abort) (f 0 p)
-  | RawUntyped.conj l r => r (UntypedKind.conj) (f 0 l) (f 0 r)
-  | RawUntyped.comp b p => r (UntypedKind.comp b) (f 0 p)
-  | RawUntyped.disj b p => r (UntypedKind.disj b) (f 0 p)
-  | RawUntyped.case_pr p l r => r (UntypedKind.case_pr) (f 0 p) (f 0 l) (f 0 r)
-  | RawUntyped.imp φ p => r (UntypedKind.imp) (f φ p)
-  | RawUntyped.mp l r => r (UntypedKind.mp) (f 0 l) (f 0 r)
-  | RawUntyped.general A p => r (UntypedKind.general) (f 0 A) (f 1 p)
-  | RawUntyped.inst p e => r (UntypedKind.inst) (f 0 p) (f 0 e)
-  | RawUntyped.witness e p => r (UntypedKind.witness) (f 0 e) (f 0 p)
-  | RawUntyped.let_wit p => r (UntypedKind.let_wit) (f 2 p)
-  | RawUntyped.refl e => r (UntypedKind.refl) (f 0 e)
+  | RawUntyped.nil => rec_br UntypedKind.nil
+  | RawUntyped.abort p => rec_br UntypedKind.abort (f 0 p)
+  | RawUntyped.conj l r => rec_br UntypedKind.conj (f 0 l) (f 0 r)
+  | RawUntyped.comp b p => rec_br (UntypedKind.comp b) (f 0 p)
+  | RawUntyped.disj b p => rec_br (UntypedKind.disj b) (f 0 p)
+  | RawUntyped.case_pr p l r => rec_br (UntypedKind.case_pr) (f 0 p) (f 0 l) (f 0 r)
+  | RawUntyped.imp φ p => rec_br UntypedKind.imp (f 0 φ) (f 0 p)
+  | RawUntyped.mp l r => rec_br (UntypedKind.mp) (f 0 l) (f 0 r)
+  | RawUntyped.general A p => rec_br UntypedKind.general (f 0 A) (f 1 p)
+  | RawUntyped.inst p e => rec_br UntypedKind.inst (f 0 p) (f 0 e)
+  | RawUntyped.witness e p => rec_br UntypedKind.witness (f 0 e) (f 0 p)
+  | RawUntyped.let_wit p => rec_br UntypedKind.let_wit (f 2 p)
+  | RawUntyped.refl e => rec_br UntypedKind.refl (f 0 e)
+
+def RawUntyped.wk (ρ: RawWk) (u: RawUntyped): RawUntyped :=
+  genRecRawUntyped u => 
+    (λ v => RawUntyped.var (RawWk.var ρ v)),
+    (λ m t => wk ρ t),
+    mk
+
+@[simp] def maxList: List Nat -> Nat
+  | List.nil => 0
+  | List.cons x xs => Nat.max x (maxList xs)
+
+macro_rules
+  | `(maxVariadic2 $f $x:term*) => `(maxList [$x,*])
+
+@[simp] def RawUntyped.fv_shifted (n: Nat) (u: RawUntyped): Nat :=
+  genRecRawUntyped u => 
+    (λ v => v - n + 1), 
+    (λ  m t => fv_shifted (n + m) t), 
+    maxVariadic2
+
+@[simp] def RawUntyped.fv := RawUntyped.fv_shifted 0
+
+structure Untyped (n: Nat) := (val: RawUntyped) (p: RawUntyped.fv val ≤ n)
