@@ -491,6 +491,15 @@ def RawUntyped.subst_fv (u: RawUntyped):
   | _ => sorry
 }
 
+structure Untyped (n: Nat) := (val: RawUntyped) (p: RawUntyped.fv val ≤ n)
+
+structure Subst (m n: Nat) := (val: RawSubst) (p: (v: Nat) -> v < n -> RawUntyped.fv (val v) ≤ m)
+
+def Untyped.subst (σ: Subst m n): Untyped n -> Untyped m
+  | Untyped.mk u p => Untyped.mk (RawUntyped.subst σ.val u) (
+    RawUntyped.subst_fv u m n σ.val σ.p p
+  )
+
 def RawUntyped.wk_fv (u: RawUntyped):
   (m n: Nat) ->
   (ρ: RawWk) ->
@@ -498,15 +507,7 @@ def RawUntyped.wk_fv (u: RawUntyped):
   fv u ≤ n ->
   fv (wk ρ u) ≤ m := sorry
 
-structure Untyped (n: Nat) := (val: RawUntyped) (p: RawUntyped.fv val ≤ n)
-
-
 def Untyped.wk (ρ: Wk m n): Untyped n -> Untyped m
   | Untyped.mk u p => Untyped.mk (RawUntyped.wk ρ.val u) (
     RawUntyped.wk_fv u m n ρ.val ρ.p p
   )
-
-structure Subst (m n: Nat) := (val: RawSubst) (p: (v: Nat) -> n < v -> RawUntyped.fv (val n) ≤ m)
-
-def Untyped.subst (σ: Subst m n): Untyped n -> Untyped m
-  | Untyped.mk u p => Untyped.mk (RawUntyped.subst σ.val u) sorry
