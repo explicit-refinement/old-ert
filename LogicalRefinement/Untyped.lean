@@ -467,17 +467,16 @@ macro_rules
 
 @[simp] def RawUntyped.fv := RawUntyped.fv_shifted 0
 
-structure Untyped (n: Nat) := (val: RawUntyped) (p: RawUntyped.fv val ≤ n)
-
-def RawUntyped.wk_fv (u: RawUntyped):
+def RawUntyped.subst_fv (u: RawUntyped):
   (m n: Nat) ->
-  (ρ: RawWk) ->
-  ((l: Nat) -> l < n -> RawWk.var ρ l < m) ->
+  (σ: RawSubst) ->
+  ((l: Nat) -> l < n -> fv (σ l) ≤ m) ->
   fv u ≤ n ->
-  fv (wk ρ u) ≤ m := by {
+  fv (subst σ u) ≤ m := by {
   induction u with
   | var => {
-    intros m n ρ H Hu;
+    intros m n σ H Hu;
+    simp only [subst];
     apply H;
     apply Hu
   }
@@ -492,8 +491,20 @@ def RawUntyped.wk_fv (u: RawUntyped):
   | _ => sorry
 }
 
+def RawUntyped.wk_fv (u: RawUntyped):
+  (m n: Nat) ->
+  (ρ: RawWk) ->
+  ((l: Nat) -> l < n -> RawWk.var ρ l < m) ->
+  fv u ≤ n ->
+  fv (wk ρ u) ≤ m := sorry
+
+structure Untyped (n: Nat) := (val: RawUntyped) (p: RawUntyped.fv val ≤ n)
+
+
 def Untyped.wk (ρ: Wk m n): Untyped n -> Untyped m
-  | Untyped.mk u p => Untyped.mk (RawUntyped.wk ρ.val u) sorry
+  | Untyped.mk u p => Untyped.mk (RawUntyped.wk ρ.val u) (
+    RawUntyped.wk_fv u m n ρ.val ρ.p p
+  )
 
 structure Subst (m n: Nat) := (val: RawSubst) (p: (v: Nat) -> n < v -> RawUntyped.fv (val n) ≤ m)
 
