@@ -469,6 +469,29 @@ macro_rules
 
 structure Untyped (n: Nat) := (val: RawUntyped) (p: RawUntyped.fv val ≤ n)
 
+def RawUntyped.wk_fv (u: RawUntyped):
+  (m n: Nat) ->
+  (ρ: RawWk) ->
+  ((l: Nat) -> l < n -> RawWk.var ρ l < m) ->
+  fv u ≤ n ->
+  fv (wk ρ u) ≤ m := by {
+  induction u with
+  | var => {
+    intros m n ρ H Hu;
+    apply H;
+    apply Hu
+  }
+  | nats => {
+    intros;
+    apply Nat.zero_le;
+  }
+  | pi => {
+    simp;
+    sorry
+  }
+  | _ => sorry
+}
+
 def Untyped.wk (ρ: Wk m n): Untyped n -> Untyped m
   | Untyped.mk u p => Untyped.mk (RawUntyped.wk ρ.val u) sorry
 
