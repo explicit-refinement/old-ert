@@ -462,7 +462,7 @@ macro_rules
 @[simp] def RawUntyped.fv_shifted (n: Nat) (u: RawUntyped): Nat :=
   genRecRawUntyped u => 
     (λ v => v - n + 1), 
-    (λ  m t => fv_shifted (n + m) t), 
+    (λ m t => fv_shifted (n + m) t), 
     maxVariadic2
 
 @[simp] def RawUntyped.fv := RawUntyped.fv_shifted 0
@@ -484,7 +484,8 @@ def RawUntyped.subst_fv (u: RawUntyped):
     intros;
     apply Nat.zero_le;
   }
-  | pi => {
+  | pi A B HA HB => {
+    intros m n σ H Hu;
     simp;
     sorry
   }
