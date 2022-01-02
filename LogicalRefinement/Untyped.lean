@@ -459,13 +459,12 @@ private def RawUntyped.wk_is_wk_inner (ρ: RawWk) (u: RawUntyped):
 macro_rules
   | `(maxVariadic2 $f $x:term*) => `(maxList [$x,*])
 
-@[simp] def RawUntyped.fv_shifted (n: Nat) (u: RawUntyped): Nat :=
+@[simp] def RawUntyped.fv (u: RawUntyped): Nat :=
   genRecRawUntyped u => 
-    (λ v => v - n + 1), 
-    (λ m t => fv_shifted (n + m) t), 
+    (λ v => Nat.succ v), 
+    (λ m t => (fv t) - m), 
     maxVariadic2
 
-@[simp] def RawUntyped.fv := RawUntyped.fv_shifted 0
 
 def RawUntyped.subst_fv (u: RawUntyped):
   (m n: Nat) ->
@@ -474,9 +473,9 @@ def RawUntyped.subst_fv (u: RawUntyped):
   fv u ≤ n ->
   fv (subst σ u) ≤ m := by {
   induction u with
-  | var => {
+  | var v => {
     intros m n σ H Hu;
-    simp only [subst];
+    simp only [subst, fv];
     apply H;
     apply Hu
   }
