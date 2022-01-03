@@ -2,6 +2,7 @@
 
 import Init.Data.Nat
 import LogicalRefinement.Wk
+import LogicalRefinement.Utils
 
 inductive UntypedKind: Type where
 
@@ -465,18 +466,19 @@ macro_rules
     (λ m t => (fv t) - m), 
     maxVariadic2
 
+def subst_bounded (σ: RawSubst) (m n: Nat) := (v: Nat) -> v < n -> RawUntyped.fv (σ v) ≤ m
 
 def RawUntyped.subst_fv (u: RawUntyped):
-  (m n: Nat) ->
   (σ: RawSubst) ->
-  ((l: Nat) -> l < n -> fv (σ l) ≤ m) ->
+  (m n: Nat) ->
+  subst_bounded σ m n ->
   fv u ≤ n ->
   fv (subst σ u) ≤ m := by {
   induction u with
   | var v => {
-    intros m n σ H Hu;
+    intros σ m n Hσ Hu;
     simp only [subst, fv];
-    apply H;
+    apply Hσ;
     apply Hu
   }
   | nats => {
@@ -484,8 +486,8 @@ def RawUntyped.subst_fv (u: RawUntyped):
     apply Nat.zero_le;
   }
   | pi A B HA HB => {
-    intros m n σ H Hu;
-    simp;
+    intros σ m n Hσ Hu;
+    simp only [fv, maxList, RawSubst.liftn, Nat.sub_zero];
     sorry
   }
   | _ => sorry
@@ -493,11 +495,11 @@ def RawUntyped.subst_fv (u: RawUntyped):
 
 structure Untyped (n: Nat) := (val: RawUntyped) (p: RawUntyped.fv val ≤ n)
 
-structure Subst (m n: Nat) := (val: RawSubst) (p: (v: Nat) -> v < n -> RawUntyped.fv (val v) ≤ m)
+structure Subst (m n: Nat) := (val: RawSubst) (p: subst_bounded val m n)
 
 def Untyped.subst (σ: Subst m n): Untyped n -> Untyped m
   | Untyped.mk u p => Untyped.mk (RawUntyped.subst σ.val u) (
-    RawUntyped.subst_fv u m n σ.val σ.p p
+    RawUntyped.subst_fv u σ.val m n σ.p p
   )
 
 def RawUntyped.wk_fv (u: RawUntyped):
