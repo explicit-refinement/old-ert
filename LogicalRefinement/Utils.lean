@@ -2,7 +2,7 @@ import Init.Data.Nat
 
 def eq_zero_is_le_zero: (m ≤ 0) = (m = 0) := propext (
   Iff.intro
-  (by { sorry })
+  (by { intro H; apply Nat.eq_zero_of_le_zero; apply H })
   (by { sorry })
 )
 
