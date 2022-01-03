@@ -1,10 +1,7 @@
 import Init.Data.Nat
 
-def Nat.eq_zero_is_le_zero: (m ≤ 0) = (m = 0) := propext (
-  Iff.intro
-  Nat.eq_zero_of_le_zero
-  (by { sorry })
-)
+def Nat.eq_zero_is_le_zero: (m ≤ 0) = (m = 0) := 
+  propext (Iff.intro Nat.eq_zero_of_le_zero Nat.le_of_eq)
 
 def max_zero_left: (m: Nat) -> Nat.max m 0 = m
   | 0 => rfl
