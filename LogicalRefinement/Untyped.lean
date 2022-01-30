@@ -59,6 +59,8 @@ inductive UntypedKind: List Nat -> Type where
   | refl: UntypedKind [0]
 
 inductive Untyped: Type
+  | var (v: Nat) (A: Untyped)
+
   | const (c: UntypedKind [])
   | unary (k: UntypedKind [0]) (t: Untyped)
   -- TODO: let n?
