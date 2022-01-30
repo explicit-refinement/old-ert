@@ -59,14 +59,24 @@ inductive UntypedKind: List Nat -> Type
   | refl: UntypedKind [0]
 
 inductive Untyped: Type
-  | var (v: Nat) (A: Untyped)
+  | var (v: Nat)
 
   | const (c: UntypedKind [])
   | unary (k: UntypedKind [0]) (t: Untyped)
   -- TODO: let n?
-  | let_bin (k: UntypedKind [2]) (t: Untyped)
-  -- TODO: abs n?
+  | let_bin (k: UntypedKind [2]) (e: Untyped)
+  -- TODO: bin n? Can't, due to, of course, lack of nested inductive types...
   | bin (k: UntypedKind [0, 0]) (l: Untyped) (r: Untyped)
+  -- TODO: abs n?
   | abs (k: UntypedKind [0, 1]) (A: Untyped) (t: Untyped)
   -- TODO: no cases?
   | cases (k: UntypedKind [0, 0, 0]) (d: Untyped) (l: Untyped) (r: Untyped)
+
+def Untyped.fv: Untyped -> Nat
+  | var v => v
+  | const c => 0
+  | unary _ t => fv t
+  | let_bin _ e => (fv e) - 2
+  | bin _ l r => Nat.max (fv l) (fv r)
+  | abs _ A t => Nat.max (fv A) (fv t - 1)
+  | cases _ d l r => Nat.max (fv d) (Nat.max (fv l) (fv r))
