@@ -99,9 +99,10 @@ def Untyped.fv: Untyped n -> Fin (n + 1)
   | cases k d l r => cases k (wk ρ d) (wk ρ l) (wk ρ r)
 
 def RawUntyped.wk_bounds (ρ: RawWk): (u: RawUntyped) ->
-  wk_maps n m ρ -> fv u ≤ n -> fv (wk ρ u) ≤ m
+  wk_maps n m ρ -> fv u ≤ m -> fv (wk ρ u) ≤ n
   | var v => by {
-    sorry
+    intros Hm.
+    apply Hm
   }
   | const c => λ _ _ => by {
     simp.
