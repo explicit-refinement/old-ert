@@ -104,8 +104,8 @@ def RawUntyped.wk_bounds (ρ: RawWk): (u: RawUntyped) ->
     intros Hm.
     apply Hm
   }
-  | const c => λ _ _ => by {
-    simp.
+  | const c => by {
+    intros Hm Hk.
     apply Nat.zero_le
   }
   | _ => sorry
