@@ -72,7 +72,7 @@ inductive RawUntyped: Type
   -- TODO: no cases?
   | cases (k: UntypedKind [0, 0, 0]) (d: RawUntyped) (l: RawUntyped) (r: RawUntyped)
 
-def RawUntyped.fv: RawUntyped -> Nat
+@[simp] def RawUntyped.fv: RawUntyped -> Nat
   | var v => Nat.succ v
   | const c => 0
   | unary _ t => fv t
@@ -89,7 +89,7 @@ def Untyped.raw (val: RawUntyped): Untyped (RawUntyped.fv val) :=
 def Untyped.fv: Untyped n -> Fin (n + 1) 
   | Untyped.mk val p => Fin.mk (RawUntyped.fv val) (Nat.le_lt_succ p)
 
-def RawUntyped.wk (ρ: RawWk): RawUntyped -> RawUntyped
+@[simp] def RawUntyped.wk (ρ: RawWk): RawUntyped -> RawUntyped
   | var v => var (RawWk.var ρ v)
   | const c => const c
   | unary k t => unary k (wk ρ t)
@@ -97,3 +97,14 @@ def RawUntyped.wk (ρ: RawWk): RawUntyped -> RawUntyped
   | bin k l r => bin k (wk ρ l) (wk ρ r)
   | abs k A t => abs k (wk ρ A) (wk (RawWk.lift ρ) t)
   | cases k d l r => cases k (wk ρ d) (wk ρ l) (wk ρ r)
+
+def RawUntyped.wk_bounds (ρ: RawWk): (u: RawUntyped) ->
+  wk_maps n m ρ -> fv u ≤ n -> fv (wk ρ u) ≤ m
+  | var v => by {
+    sorry
+  }
+  | const c => λ _ _ => by {
+    simp.
+    apply Nat.zero_le
+  }
+  | _ => sorry
