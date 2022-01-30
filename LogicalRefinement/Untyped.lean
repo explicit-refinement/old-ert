@@ -58,25 +58,33 @@ inductive UntypedKind: List Nat -> Type
   | let_wit: UntypedKind [2]
   | refl: UntypedKind [0]
 
-inductive Untyped: Type
+inductive RawUntyped: Type
   | var (v: Nat)
 
   | const (c: UntypedKind [])
-  | unary (k: UntypedKind [0]) (t: Untyped)
+  | unary (k: UntypedKind [0]) (t: RawUntyped)
   -- TODO: let n?
-  | let_bin (k: UntypedKind [2]) (e: Untyped)
+  | let_bin (k: UntypedKind [2]) (e: RawUntyped)
   -- TODO: bin n? Can't, due to, of course, lack of nested inductive types...
-  | bin (k: UntypedKind [0, 0]) (l: Untyped) (r: Untyped)
+  | bin (k: UntypedKind [0, 0]) (l: RawUntyped) (r: RawUntyped)
   -- TODO: abs n?
-  | abs (k: UntypedKind [0, 1]) (A: Untyped) (t: Untyped)
+  | abs (k: UntypedKind [0, 1]) (A: RawUntyped) (t: RawUntyped)
   -- TODO: no cases?
-  | cases (k: UntypedKind [0, 0, 0]) (d: Untyped) (l: Untyped) (r: Untyped)
+  | cases (k: UntypedKind [0, 0, 0]) (d: RawUntyped) (l: RawUntyped) (r: RawUntyped)
 
-def Untyped.fv: Untyped -> Nat
-  | var v => v
+def RawUntyped.fv: RawUntyped -> Nat
+  | var v => Nat.succ v
   | const c => 0
   | unary _ t => fv t
   | let_bin _ e => (fv e) - 2
   | bin _ l r => Nat.max (fv l) (fv r)
   | abs _ A t => Nat.max (fv A) (fv t - 1)
   | cases _ d l r => Nat.max (fv d) (Nat.max (fv l) (fv r))
+
+structure Untyped (n: Nat) := (val: RawUntyped) (p: RawUntyped.fv val ≤ n)
+
+def Untyped.raw (val: RawUntyped): Untyped (RawUntyped.fv val) :=
+  Untyped.mk val (Nat.le_of_eq rfl)
+
+def Untyped.fv: Untyped n -> Fin (n + 1) 
+  | Untyped.mk val p => Fin.mk (RawUntyped.fv val) (Nat.le_lt_succ p)
