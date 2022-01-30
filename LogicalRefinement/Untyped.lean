@@ -5,7 +5,7 @@ import LogicalRefinement.Wk
 import LogicalRefinement.Utils
 
 -- Term kinds
-inductive UntypedKind: List Nat -> Type where
+inductive UntypedKind: List Nat -> Type
   -- Types
   | nats: UntypedKind []
   | pi: UntypedKind [0, 1]
