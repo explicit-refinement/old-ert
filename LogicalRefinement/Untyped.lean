@@ -88,3 +88,12 @@ def Untyped.raw (val: RawUntyped): Untyped (RawUntyped.fv val) :=
 
 def Untyped.fv: Untyped n -> Fin (n + 1) 
   | Untyped.mk val p => Fin.mk (RawUntyped.fv val) (Nat.le_lt_succ p)
+
+def RawUntyped.wk (ρ: RawWk): RawUntyped -> RawUntyped
+  | var v => var (RawWk.var ρ v)
+  | const c => const c
+  | unary k t => unary k (wk ρ t)
+  | let_bin k e => let_bin k (wk (RawWk.liftn 2 ρ) e)
+  | bin k l r => bin k (wk ρ l) (wk ρ r)
+  | abs k A t => abs k (wk ρ A) (wk (RawWk.lift ρ) t)
+  | cases k d l r => cases k (wk ρ d) (wk ρ l) (wk ρ r)
