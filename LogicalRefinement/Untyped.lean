@@ -98,14 +98,21 @@ def Untyped.fv: Untyped n -> Fin (n + 1)
   | abs k A t => abs k (wk ρ A) (wk (RawWk.lift ρ) t)
   | cases k d l r => cases k (wk ρ d) (wk ρ l) (wk ρ r)
 
-def RawUntyped.wk_bounds (ρ: RawWk): (u: RawUntyped) ->
-  wk_maps n m ρ -> fv u ≤ m -> fv (wk ρ u) ≤ n
-  | var v => by {
-    intros Hm.
-    apply Hm
+def RawUntyped.wk_bounds {u: RawUntyped}: {n m: Nat} -> {ρ: RawWk} ->
+  wk_maps n m ρ -> fv u ≤ m -> fv (wk ρ u) ≤ n := by {
+    induction u with
+    | var v => intros _ _ ρ Hm. apply Hm
+    | const => intros. apply Nat.zero_le
+    | unary k t IHt => 
+      intros _ _ ρ Hm. 
+      (apply IHt).
+      apply Hm
+    | let_bin =>
+      intros n m ρ Hm.
+      simp.
+      intros Hf.
+      sorry
+    | bin => sorry
+    | abs => sorry
+    | cases => sorry
   }
-  | const c => by {
-    intros Hm Hk.
-    apply Nat.zero_le
-  }
-  | _ => sorry
