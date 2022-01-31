@@ -107,11 +107,12 @@ def RawUntyped.wk_bounds {u: RawUntyped}: {n m: Nat} -> {ρ: RawWk} ->
       intros _ _ ρ Hm. 
       (apply IHt).
       apply Hm
-    | let_bin =>
+    | let_bin k e IHe =>
+      simp only [fv, Nat.le_sub_is_le_add].
       intros n m ρ Hm.
-      simp.
-      intros Hf.
-      sorry
+      (apply IHe).
+      (apply wk_maps_liftn).
+      apply Hm
     | bin => sorry
     | abs => sorry
     | cases => sorry

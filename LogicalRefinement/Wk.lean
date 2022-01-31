@@ -88,6 +88,17 @@ theorem wk_maps_lift {m n: Nat} {ρ: RawWk}:
   | succ => simp; apply Nat.succ_lt_succ; apply Hρ; apply Nat.lt_of_succ_lt_succ; apply Hl
 }
 
+theorem wk_maps_liftn {l m n: Nat} {ρ: RawWk}: 
+  wk_maps m n ρ -> wk_maps (m + l) (n + l) (RawWk.liftn l ρ) := by {
+  induction l with
+  | zero => intros Hρ. apply Hρ
+  | succ l I => 
+    intros Hρ.
+    (apply wk_maps_lift).
+    (apply I).
+    apply Hρ
+}
+
 theorem wk_maps_comp {m n l: Nat} {ρ σ: RawWk}:
   wk_maps m n ρ -> wk_maps n l σ -> wk_maps m l (RawWk.comp ρ σ) := by {
   intros Hρ Hσ l Hl;
