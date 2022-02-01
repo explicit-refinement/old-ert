@@ -15,6 +15,16 @@ def Nat.max_zero_right: {m: Nat} -> Nat.max 0 m = m
   | 0 => rfl
   | Nat.succ n => by { simp [Nat.max, Nat.zero_le] }
 
+@[simp]
+def Nat.le_refl_bool {l: Nat}: (decLe l l).decide = true := sorry
+
+@[simp]
+def Nat.max_idempotent {l: Nat}: Nat.max l l = l := by {
+  unfold Nat.max
+  rw [if_pos]
+  apply Nat.le_refl
+}
+
 def Nat.max_val_l {l r: Nat}: r ≤ l -> Nat.max l r = l := sorry
 
 def Nat.max_val_r {l r: Nat}: l ≤ r -> Nat.max l r = r := sorry
