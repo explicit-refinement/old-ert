@@ -15,17 +15,29 @@ def Nat.max_zero_right: {m: Nat} -> Nat.max 0 m = m
   | 0 => rfl
   | Nat.succ n => by { simp [Nat.max, Nat.zero_le] }
 
-def Nat.max_gt_l {l r: Nat}: Nat.max l r ≥ l := sorry
-
-def Nat.max_gt_r {l r: Nat}: Nat.max l r ≥ r := sorry
-
-def Nat.max_lt_l {l r: Nat}: l ≤ Nat.max l r := sorry
- 
-def Nat.max_lt_r {l r: Nat}: r ≤ Nat.max l r := sorry
-
 def Nat.max_val_l {l r: Nat}: r ≤ l -> Nat.max l r = l := sorry
 
 def Nat.max_val_r {l r: Nat}: l ≤ r -> Nat.max l r = r := sorry
+
+def Nat.max_lt_l {l r: Nat}: l ≤ Nat.max l r := by {
+  cases Nat.le_total l r with
+  | inl Hlr =>
+    rw [Nat.max_val_r Hlr]
+    apply Hlr
+  | inr Hrl =>
+    rw [Nat.max_val_l Hrl]
+    apply Nat.le_refl
+}
+ 
+def Nat.max_lt_r {l r: Nat}: r ≤ Nat.max l r := by {
+  cases Nat.le_total l r with
+  | inl Hlr =>
+    rw [Nat.max_val_r Hlr]
+    apply Nat.le_refl
+  | inr Hrl =>
+    rw [Nat.max_val_l Hrl]
+    apply Hrl
+}
 
 def Nat.max_le_split: (Nat.max l r ≤ m) = (l ≤ m ∧ r ≤ m) := by {
   apply propext;
