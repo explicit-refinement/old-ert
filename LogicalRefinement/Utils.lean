@@ -16,37 +16,50 @@ def Nat.max_zero_right: {m: Nat} -> Nat.max 0 m = m
   | Nat.succ n => by { simp [Nat.max, Nat.zero_le] }
 
 @[simp]
-def Nat.le_refl_bool {l: Nat}: (decLe l l).decide = true := sorry
-
-@[simp]
 def Nat.max_idempotent {l: Nat}: Nat.max l l = l := by {
   unfold Nat.max
   rw [if_pos]
   apply Nat.le_refl
 }
 
-def Nat.max_val_l {l r: Nat}: r ≤ l -> Nat.max l r = l := sorry
+def Nat.max_val_l {l r: Nat} (p: r ≤ l): Nat.max l r = l := by {
+  unfold Nat.max
+  cases (Nat.decLe l r).em with
+  | inl Ht =>
+    rw [if_pos Ht]
+    exact Nat.le_antisymm p Ht
+  | inr Hf =>
+    rw [if_neg Hf]
+}
 
-def Nat.max_val_r {l r: Nat}: l ≤ r -> Nat.max l r = r := sorry
+def Nat.max_val_r {l r: Nat} (p: l ≤ r): Nat.max l r = r := by {
+  unfold Nat.max
+  rw [if_pos]
+  exact p
+}
 
 def Nat.max_lt_l {l r: Nat}: l ≤ Nat.max l r := by {
-  cases Nat.le_total l r with
-  | inl Hlr =>
-    rw [Nat.max_val_r Hlr]
-    apply Hlr
-  | inr Hrl =>
-    rw [Nat.max_val_l Hrl]
+  unfold Nat.max
+  cases (Nat.decLe l r).em with
+  | inl Ht =>
+    rw [if_pos Ht]
+    apply Ht
+  | inr Hf =>
+    rw [if_neg Hf]
     apply Nat.le_refl
 }
  
 def Nat.max_lt_r {l r: Nat}: r ≤ Nat.max l r := by {
-  cases Nat.le_total l r with
-  | inl Hlr =>
-    rw [Nat.max_val_r Hlr]
+  unfold Nat.max
+  cases (Nat.decLe l r).em with
+  | inl Ht =>
+    rw [if_pos Ht]
     apply Nat.le_refl
-  | inr Hrl =>
-    rw [Nat.max_val_l Hrl]
-    apply Hrl
+  | inr Hf =>
+    rw [if_neg Hf]
+    cases (Nat.le_total l r) with
+    | inl Hlr => exact absurd Hlr Hf
+    | inr Hrl => exact Hrl
 }
 
 def Nat.max_le_split: (Nat.max l r ≤ m) = (l ≤ m ∧ r ≤ m) := by {
