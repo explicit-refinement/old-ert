@@ -105,8 +105,7 @@ def RawUntyped.wk_bounds {u: RawUntyped}: {n m: Nat} -> {ρ: RawWk} ->
     | const => intros. apply Nat.zero_le
     | unary k t IHt => 
       intros _ _ ρ Hm. 
-      (apply IHt).
-      apply Hm
+      apply IHt Hm
     | let_bin k e IHe =>
       simp only [fv, Nat.le_sub_is_le_add].
       intros n m ρ Hm.
@@ -114,13 +113,20 @@ def RawUntyped.wk_bounds {u: RawUntyped}: {n m: Nat} -> {ρ: RawWk} ->
       (apply wk_maps_liftn).
       apply Hm
     | bin k l r IHl IHr =>
-      simp only [fv]
+      simp only [fv, Nat.max_le_split]
       intros n m ρ Hm
-      simp only [Nat.max_le_split]
       intro ⟨Hl, Hr⟩
       apply And.intro;
-      case bin.left => sorry
-      case bin.right => sorry
-    | abs => sorry
-    | cases => sorry
+      case bin.left => apply IHl Hm Hl
+      case bin.right => apply IHr Hm Hr
+    | abs k A s IHA IHs =>
+      simp only [fv, Nat.max_le_split, Nat.le_sub_is_le_add]
+      intros n m ρ Hm
+      intro ⟨HA, Hs⟩
+      apply And.intro;
+      case abs.left => apply IHA Hm HA
+      case abs.right => 
+        let Hm' := @wk_maps_liftn 1 n m ρ Hm
+        apply IHs Hm' Hs
+    | cases k d l r IHd IHl IHr => sorry
   }
