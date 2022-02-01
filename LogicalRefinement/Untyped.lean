@@ -139,3 +139,6 @@ def RawUntyped.wk_bounds {u: RawUntyped}: {n m: Nat} -> {ρ: RawWk} ->
         case left => apply IHl Hm Hl
         case right => apply IHr Hm Hr
   }
+
+  @[simp] def Untyped.wk (ρ: Wk n m) (u: Untyped m): Untyped n :=
+    Untyped.mk (RawUntyped.wk ρ.val u.val) (RawUntyped.wk_bounds ρ.p u.p)
