@@ -173,7 +173,6 @@ def RawSubst.wk1 (σ: RawSubst): RawSubst :=
 def RawWk.to_subst (σ: RawWk): RawSubst
   | v => RawUntyped.var (σ.var v)
 
-@[simp]
 def RawSubst.lift (σ: RawSubst): RawSubst
   | 0 => RawUntyped.var 0
   | Nat.succ n => wk1 σ n
@@ -193,20 +192,25 @@ def RawUntyped.subst (σ: RawSubst): RawUntyped -> RawUntyped
   | abs k A t => abs k (subst σ A) (subst (RawSubst.lift σ) t)
   | cases k d l r => cases k (subst σ d) (subst σ l) (subst σ r)
 
-@[simp]
 def RawSubst.comp (σ ρ: RawSubst): RawSubst
   | v => RawUntyped.subst σ (ρ v)
+
+@[simp] theorem RawSubst.lift_comp {ρ σ: RawSubst}: 
+  comp (lift ρ) (lift σ) = lift (comp ρ σ) := sorry
+
+@[simp] theorem RawSubst.comp_assoc {ρ σ τ: RawSubst}:
+  comp ρ (comp σ τ) = comp (comp ρ σ) τ := sorry
 
 @[simp]
 def RawUntyped.subst_composes (u: RawUntyped):
   (σ ρ: RawSubst) -> subst σ (subst ρ u) = subst (RawSubst.comp σ ρ) u
   := by {
   induction u with
-  | var v => simp
+  | var v => simp [RawSubst.comp]
   | const c => simp
   | unary k t I => simp [I]
-  | let_bin k t I => sorry
+  | let_bin k t I => simp [I]
   | bin k l r Il Ir => simp [Il, Ir]
-  | abs k A t IA It => sorry
+  | abs k A t IA It => simp [IA, It]
   | cases k d l r Id Il Ir => simp [Id, Il, Ir]
 }
