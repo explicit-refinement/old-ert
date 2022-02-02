@@ -140,26 +140,16 @@ def RawUntyped.wk_bounds {u: RawUntyped}: {n m: Nat} -> {ρ: RawWk} ->
         case right => apply IHr Hm Hr
   }
 
-@[simp] def RawUntyped.wk_composes (ρ: RawWk) (σ: RawWk) (u: RawUntyped): 
-  wk σ (wk ρ u) = wk (RawWk.comp σ ρ) u := by {
+@[simp] def RawUntyped.wk_composes (u: RawUntyped): 
+  (ρ σ: RawWk) -> wk σ (wk ρ u) = wk (RawWk.comp σ ρ) u := by {
   induction u with
   | var v => simp
-  | const c => rfl
-  | unary k t I =>
-    simp
-    apply I
-  | let_bin k t I =>
-    simp
-    sorry
-  | bin k l r Il Ir =>
-    simp
-    exact (And.intro Il Ir)
-  | abs k A t =>
-    simp
-    sorry
-  | cases k d l r Id Il Ir =>
-    simp
-    exact ⟨Id, Il, Ir⟩
+  | const c => simp
+  | unary k t I => simp [I]
+  | let_bin k t I => simp [I]
+  | bin k l r Il Ir => simp [Il, Ir]
+  | abs k A t IA It => simp [IA, It] 
+  | cases k d l r Id Il Ir => simp [Id, Il, Ir]
 }
 
 @[simp] def Untyped.wk (ρ: Wk n m) (u: Untyped m): Untyped n :=
