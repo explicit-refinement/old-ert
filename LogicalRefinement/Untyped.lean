@@ -160,25 +160,25 @@ def RawUntyped.wk_bounds {u: RawUntyped}: {n m: Nat} -> {ρ: RawWk} ->
 @[simp] def Untyped.wk_composes (σ: Wk n m) (ρ: Wk m l):
   wk σ (wk ρ u) = wk (Wk.comp σ ρ) u := by simp
 
-def RawSubst (n: Nat) := Fin n -> RawUntyped
+def RawSubst := Nat -> RawUntyped
 
 @[simp]
-def RawSubst.id {n: Nat}: RawSubst n
-  | Fin.mk v _ => RawUntyped.var v
+def RawSubst.id: RawSubst := RawUntyped.var
 
 @[simp]
-def RawSubst.wk1 (σ: RawSubst n): RawSubst n :=
+def RawSubst.wk1 (σ: RawSubst): RawSubst :=
   λv => RawUntyped.wk1 (σ v)
 
 @[simp]
-def RawSubst.lift (σ: RawSubst n): RawSubst (n + 1)
-  | Fin.mk 0 _ => RawUntyped.var 0
-  | Fin.mk (Nat.succ n) p => σ (Fin.mk n (Nat.le_of_succ_le_succ p))
+def RawWk.to_subst (σ: RawWk): RawSubst
+  | v => RawUntyped.var (σ.var v)
 
 @[simp]
-def RawSubst.liftn (σ: RawSubst n): (l: Nat) -> RawSubst (n + l)
+def RawSubst.lift (σ: RawSubst): RawSubst
+  | 0 => RawUntyped.var 0
+  | Nat.succ n => wk1 σ n
+
+@[simp]
+def RawSubst.liftn (σ: RawSubst): (l: Nat) -> RawSubst
   | 0 => σ
   | Nat.succ l => lift (liftn σ l)
-
-def RawWk.to_subst (σ: RawWk): RawSubst m
-  | Fin.mk v _ => RawUntyped.var (σ.var v)
