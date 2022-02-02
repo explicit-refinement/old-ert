@@ -182,3 +182,13 @@ def RawSubst.lift (σ: RawSubst): RawSubst
 def RawSubst.liftn (σ: RawSubst): (l: Nat) -> RawSubst
   | 0 => σ
   | Nat.succ l => lift (liftn σ l)
+
+@[simp]
+def RawUntyped.subst (σ: RawSubst): RawUntyped -> RawUntyped
+  | var v => σ v
+  | const c => const c
+  | unary k t => unary k (subst σ t)
+  | let_bin k t => let_bin k (subst (RawSubst.liftn σ 2) t)
+  | bin k l r => bin k (subst σ l) (subst σ r)
+  | abs k A t => abs k (subst σ A) (subst (RawSubst.lift σ) t)
+  | cases k d l r => cases k (subst σ d) (subst σ l) (subst σ r)
