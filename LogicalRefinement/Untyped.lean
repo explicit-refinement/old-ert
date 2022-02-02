@@ -154,3 +154,6 @@ def RawUntyped.wk_bounds {u: RawUntyped}: {n m: Nat} -> {ρ: RawWk} ->
 
 @[simp] def Untyped.wk (ρ: Wk n m) (u: Untyped m): Untyped n :=
   Untyped.mk (RawUntyped.wk ρ.val u.val) (RawUntyped.wk_bounds ρ.p u.p)
+
+@[simp] def Untyped.wk_composes (σ: Wk n m) (ρ: Wk m l):
+  wk σ (wk ρ u) = wk (Wk.comp σ ρ) u := by simp
