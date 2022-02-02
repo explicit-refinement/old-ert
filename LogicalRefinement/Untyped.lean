@@ -165,7 +165,6 @@ def RawSubst := Nat -> RawUntyped
 @[simp]
 def RawSubst.id: RawSubst := RawUntyped.var
 
-@[simp]
 def RawSubst.wk1 (σ: RawSubst): RawSubst :=
   λv => RawUntyped.wk1 (σ v)
 
@@ -196,7 +195,13 @@ def RawSubst.comp (σ ρ: RawSubst): RawSubst
   | v => RawUntyped.subst σ (ρ v)
 
 @[simp] theorem RawSubst.lift_comp {ρ σ: RawSubst}: 
-  comp (lift ρ) (lift σ) = lift (comp ρ σ) := sorry
+  comp (lift ρ) (lift σ) = lift (comp ρ σ) := by {
+    funext v;
+    induction v with
+    | zero => simp [comp, lift]
+    | succ v =>
+      sorry
+  }
 
 @[simp] theorem RawSubst.comp_assoc {ρ σ τ: RawSubst}:
   comp ρ (comp σ τ) = comp (comp ρ σ) τ := sorry
