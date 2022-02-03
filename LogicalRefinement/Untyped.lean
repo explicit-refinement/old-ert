@@ -152,6 +152,15 @@ def Untyped.fv: Untyped n -> Fin (n + 1)
 
 @[simp] def RawUntyped.wk1 (u: RawUntyped) := wk RawWk.wk1 u
 
+theorem RawUntyped.wk1_no_zero_dep (u: RawUntyped): ¬has_dep (wk1 u) 0 := by {
+  induction u with
+  | var v =>
+    simp only [has_dep, wk1, RawWk.var]
+    apply Nat.succ_ne_zero
+  | const c => simp
+  | _ => sorry
+}
+
 def RawUntyped.wk_bounds {u: RawUntyped}: {n m: Nat} -> {ρ: RawWk} ->
   wk_maps n m ρ -> fv u ≤ m -> fv (wk ρ u) ≤ n := by {
     induction u with
