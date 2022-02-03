@@ -318,7 +318,7 @@ theorem RawUntyped.liftn_wk {u: RawUntyped}: {σ: RawSubst} -> (n: Nat) ->
       intros σ n
       simp only [wkn, wk, subst]
       simp only [wkn] at I
-      rw [@I σ n]
+      rw [I]
     | let_bin k e I =>
       intros σ n
       simp only [wkn, wk, subst, RawWk.liftn_wkn_merge]
@@ -326,8 +326,20 @@ theorem RawUntyped.liftn_wk {u: RawUntyped}: {σ: RawSubst} -> (n: Nat) ->
       simp only [wkn] at I
       rw [I]
       simp
-    | bin k l r Il Ir => sorry
-    | abs k A t IA It => sorry
+    | bin k l r Il Ir =>
+      intros σ n
+      simp only [wkn, wk, subst]
+      simp only [wkn] at Il
+      simp only [wkn] at Ir
+      rw [Il]
+      rw [Ir]
+    | abs k A t IA It => 
+      intros σ n
+      simp only [wkn, wk, subst]
+      simp only [wkn] at IA
+      simp only [wkn] at It
+      rw [IA]
+      sorry
     | cases k d l r Id Il Ir => sorry
   }
 
