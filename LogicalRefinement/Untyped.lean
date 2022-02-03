@@ -81,6 +81,47 @@ inductive RawUntyped: Type
   | abs _ A t => Nat.max (fv A) (fv t - 1)
   | cases _ d l r => Nat.max (fv d) (Nat.max (fv l) (fv r))
 
+@[simp] def RawUntyped.has_dep: RawUntyped -> Nat -> Prop
+  | var v, i => v = i
+  | const c, _ => False
+  | unary _ t, i => has_dep t i
+  | let_bin _ e, i => has_dep e (i + 2)
+  | bin _ l r, i => has_dep l i ∨ has_dep r i
+  | abs _ A t, i => has_dep A i ∨ has_dep t (i + 1)
+  | cases _ d l r, i => has_dep d i ∨ has_dep l i ∨ has_dep r i
+
+theorem RawUntyped.has_dep_implies_fv (u: RawUntyped): {i: Nat} ->
+  has_dep u i -> i < fv u := by {
+    induction u with
+    | var v =>
+      simp
+      intro i H
+      apply Nat.le_lt_succ
+      apply Nat.le_of_eq
+      rw [H]
+    | const c => simp
+    | unary _ t I => simp; apply I
+    | let_bin _ e I => sorry
+    | bin _ l r Il Ir =>
+      intro i
+      simp only [has_dep, fv, Nat.max_l_lt_split]
+      intro H
+      cases H with
+      | inl H => exact Or.inl (Il H)
+      | inr H => exact Or.inr (Ir H)
+    | abs _ A t IA It => sorry
+    | cases _ d l r Id Il Ir =>
+      intro i
+      simp only [has_dep, fv, Nat.max_l_lt_split]
+      intro H
+      exact (
+        match H with
+        | Or.inl H => Or.inl (Id H)
+        | Or.inr (Or.inl H) => Or.inr (Or.inl (Il H))
+        | Or.inr (Or.inr H) => Or.inr (Or.inr (Ir H))
+      )
+  }
+
 structure Untyped (n: Nat) := (val: RawUntyped) (p: RawUntyped.fv val ≤ n)
 
 def Untyped.raw (val: RawUntyped): Untyped (RawUntyped.fv val) :=
@@ -115,14 +156,14 @@ def RawUntyped.wk_bounds {u: RawUntyped}: {n m: Nat} -> {ρ: RawWk} ->
       apply wk_maps_liftn
       apply Hm
     | bin k l r IHl IHr =>
-      simp only [fv, Nat.max_le_split]
+      simp only [fv, Nat.max_r_le_split]
       intros n m ρ Hm
       intro ⟨Hl, Hr⟩
       apply And.intro;
       case bin.left => apply IHl Hm Hl
       case bin.right => apply IHr Hm Hr
     | abs k A s IHA IHs =>
-      simp only [fv, Nat.max_le_split, Nat.le_sub_is_le_add]
+      simp only [fv, Nat.max_r_le_split, Nat.le_sub_is_le_add]
       intros n m ρ Hm
       intro ⟨HA, Hs⟩
       apply And.intro;
@@ -131,7 +172,7 @@ def RawUntyped.wk_bounds {u: RawUntyped}: {n m: Nat} -> {ρ: RawWk} ->
         let Hm' := @wk_maps_liftn 1 n m ρ Hm
         apply IHs Hm' Hs
     | cases k d l r IHd IHl IHr => 
-      simp only [fv, Nat.max_le_split]
+      simp only [fv, Nat.max_r_le_split]
       intros n m ρ Hm
       intro ⟨Hd, Hl, Hr⟩
       apply And.intro;
