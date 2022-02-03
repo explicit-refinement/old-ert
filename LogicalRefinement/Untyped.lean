@@ -257,12 +257,13 @@ def RawSubst.comp (σ ρ: RawSubst): RawSubst
 theorem RawSubst.lift_wk {u: RawUntyped}: {σ: RawSubst} ->
   RawUntyped.subst (lift σ) (RawUntyped.wk1 u) 
   = RawUntyped.wk1 (RawUntyped.subst σ u) := by {
+  unfold RawUntyped.wk1
   induction u with
   | var v => simp [wk1]
   | const c => simp
   | unary k t I => 
-    simp only [RawUntyped.subst]
-    sorry
+    intro σ
+    simp only [RawUntyped.subst, RawUntyped.wk1, RawUntyped.wk, I]
   | _ => sorry
 }
 
