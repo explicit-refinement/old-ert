@@ -120,9 +120,10 @@ def Nat.le_sub_is_le_add: {l n m: Nat} -> (n - l ≤ m) = (n ≤ m + l) := by {
       apply I
 }
 
-def Nat.lt_sub_lt_add: {n m l: Nat} -> n + l < m -> n < m - l := by {
-  intros n.
-  induction n with
-  | zero => sorry
-  | succ n I => sorry
-}
+def Nat.lt_is_succ_le: {n m: Nat} -> (n < m) = (Nat.succ n ≤ m) := rfl
+
+def Nat.lt_l_add_lt: {n m l: Nat} -> n + m < l -> n < l := sorry
+
+def Nat.lt_r_add_lt: {n m l: Nat} -> n + m < l -> m < l := sorry
+
+def Nat.lt_sub_lt_add: {n m l: Nat} -> n + m < l -> n < l - m := sorry
