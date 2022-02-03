@@ -101,7 +101,12 @@ theorem RawUntyped.has_dep_implies_fv (u: RawUntyped): {i: Nat} ->
       rw [H]
     | const c => simp
     | unary _ t I => simp; apply I
-    | let_bin _ e I => sorry
+    | let_bin _ e I =>
+      intro i
+      simp only [has_dep, fv]
+      intro H
+      let H' := I H
+      exact Nat.lt_sub_lt_add H'
     | bin _ l r Il Ir =>
       intro i
       simp only [has_dep, fv, Nat.max_l_lt_split]
@@ -109,7 +114,13 @@ theorem RawUntyped.has_dep_implies_fv (u: RawUntyped): {i: Nat} ->
       cases H with
       | inl H => exact Or.inl (Il H)
       | inr H => exact Or.inr (Ir H)
-    | abs _ A t IA It => sorry
+    | abs _ A t IA It => 
+      intro i
+      simp only [has_dep, fv, Nat.max_l_lt_split]
+      intro H
+      cases H with
+      | inl H => exact Or.inl (IA H)
+      | inr H => exact Or.inr (Nat.lt_sub_lt_add (It H))
     | cases _ d l r Id Il Ir =>
       intro i
       simp only [has_dep, fv, Nat.max_l_lt_split]
