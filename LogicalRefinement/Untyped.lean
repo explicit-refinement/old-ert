@@ -197,14 +197,10 @@ def RawSubst.comp (σ ρ: RawSubst): RawSubst
 @[simp] theorem RawSubst.lift_comp {ρ σ: RawSubst}: 
   comp (lift ρ) (lift σ) = lift (comp ρ σ) := by {
     funext v;
-    induction v with
+    cases v with
     | zero => simp [comp, lift]
-    | succ v =>
-      sorry
+    | succ v => sorry
   }
-
-@[simp] theorem RawSubst.comp_assoc {ρ σ τ: RawSubst}:
-  comp ρ (comp σ τ) = comp (comp ρ σ) τ := sorry
 
 @[simp]
 def RawUntyped.subst_composes (u: RawUntyped):
@@ -219,3 +215,9 @@ def RawUntyped.subst_composes (u: RawUntyped):
   | abs k A t IA It => simp [IA, It]
   | cases k d l r Id Il Ir => simp [Id, Il, Ir]
 }
+
+@[simp] theorem RawSubst.comp_assoc {ρ σ τ: RawSubst}:
+  comp ρ (comp σ τ) = comp (comp ρ σ) τ := by {
+    funext v;
+    simp [comp]
+  }
