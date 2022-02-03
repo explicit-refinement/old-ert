@@ -248,6 +248,25 @@ theorem RawSubst.liftn_lift_commute {σ: RawSubst}:
   | succ n I => simp [I] 
 }
 
+theorem RawSubst.liftn_base_nil: (base: Nat) -> (σ: RawSubst) -> 
+  (v: Nat) -> v < base ->
+  liftn base σ v = RawUntyped.var v := by {
+  intros base;
+  induction base with
+  | zero => sorry
+  | succ base I =>
+    intros σ v H;
+    simp only [liftn];
+    cases v with
+    | zero => rfl
+    | succ v => 
+      simp only [lift, wk1]
+      rw [I]
+      simp
+      rw [<-Nat.succ_lt_succ_is_lt]
+      apply H
+}
+
 @[simp]
 def RawUntyped.subst (σ: RawSubst): RawUntyped -> RawUntyped
   | var v => σ v
