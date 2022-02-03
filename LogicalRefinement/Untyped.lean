@@ -237,16 +237,16 @@ def RawSubst.lift_zero (σ: RawSubst):
   lift σ 0 = RawUntyped.var 0 := rfl
 
 @[simp]
-def RawSubst.liftn (σ: RawSubst): (l: Nat) -> RawSubst
-  | 0 => σ
-  | Nat.succ l => lift (liftn σ l)
+def RawSubst.liftn: (l: Nat) -> (σ: RawSubst) -> RawSubst
+  | 0, σ => σ
+  | Nat.succ l, σ => lift (liftn l σ)
 
 @[simp]
 def RawUntyped.subst (σ: RawSubst): RawUntyped -> RawUntyped
   | var v => σ v
   | const c => const c
   | unary k t => unary k (subst σ t)
-  | let_bin k t => let_bin k (subst (RawSubst.liftn σ 2) t)
+  | let_bin k t => let_bin k (subst (RawSubst.liftn 2 σ) t)
   | bin k l r => bin k (subst σ l) (subst σ r)
   | abs k A t => abs k (subst σ A) (subst (RawSubst.lift σ) t)
   | cases k d l r => cases k (subst σ d) (subst σ l) (subst σ r)
@@ -254,17 +254,35 @@ def RawUntyped.subst (σ: RawSubst): RawUntyped -> RawUntyped
 def RawSubst.comp (σ ρ: RawSubst): RawSubst
   | v => RawUntyped.subst σ (ρ v)
 
+theorem RawSubst.liftn_lift_commute {σ: RawSubst}: 
+  liftn n (lift σ) = lift (liftn n σ) := by {
+  induction n with
+  | zero => rfl
+  | succ n I => simp [I] 
+}
+
+theorem RawSubst.liftn_wk {u: RawUntyped}: {σ: RawSubst} -> {n: Nat} ->
+  RawUntyped.subst (liftn n (lift σ)) 
+  (RawUntyped.wk (RawWk.liftn n RawWk.wk1) u) =
+  RawUntyped.wk (RawWk.liftn n RawWk.wk1) (RawUntyped.subst (liftn n σ) u)
+  := by {
+    unfold RawWk.wk1
+    induction u with
+    | var v => sorry
+    | const c => simp
+    | unary k t I => sorry
+    | let_bin k e I => sorry
+    | bin k l r Il Ir => sorry
+    | abs k A t IA It => sorry
+    | cases k d l r Id Il Ir => sorry
+  }
+
 theorem RawSubst.lift_wk {u: RawUntyped}: {σ: RawSubst} ->
   RawUntyped.subst (lift σ) (RawUntyped.wk1 u) 
   = RawUntyped.wk1 (RawUntyped.subst σ u) := by {
-  unfold RawUntyped.wk1
-  induction u with
-  | var v => simp [wk1]
-  | const c => simp
-  | unary k t I => 
-    intro σ
-    simp only [RawUntyped.subst, RawUntyped.wk1, RawUntyped.wk, I]
-  | _ => sorry
+    intros σ
+    let H := @liftn_wk u σ 0;
+    apply H
 }
 
 @[simp] theorem RawSubst.lift_comp {ρ σ: RawSubst}: 
