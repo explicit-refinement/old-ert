@@ -152,15 +152,6 @@ def Untyped.fv: Untyped n -> Fin (n + 1)
 
 @[simp] def RawUntyped.wk1 (u: RawUntyped) := wk RawWk.wk1 u
 
-theorem RawUntyped.wk1_no_zero_dep (u: RawUntyped): ¬has_dep (wk1 u) 0 := by {
-  induction u with
-  | var v =>
-    simp only [has_dep, wk1, RawWk.var]
-    apply Nat.succ_ne_zero
-  | const c => simp
-  | _ => sorry
-}
-
 def RawUntyped.wk_bounds {u: RawUntyped}: {n m: Nat} -> {ρ: RawWk} ->
   wk_maps n m ρ -> fv u ≤ m -> fv (wk ρ u) ≤ n := by {
     induction u with
@@ -263,12 +254,24 @@ def RawUntyped.subst (σ: RawSubst): RawUntyped -> RawUntyped
 def RawSubst.comp (σ ρ: RawSubst): RawSubst
   | v => RawUntyped.subst σ (ρ v)
 
+theorem RawSubst.lift_wk {u: RawUntyped}: {σ: RawSubst} ->
+  RawUntyped.subst (lift σ) (RawUntyped.wk1 u) 
+  = RawUntyped.wk1 (RawUntyped.subst σ u) := by {
+  induction u with
+  | var v => simp [wk1]
+  | const c => simp
+  | unary k t I => 
+    simp only [RawUntyped.subst]
+    sorry
+  | _ => sorry
+}
+
 @[simp] theorem RawSubst.lift_comp {ρ σ: RawSubst}: 
   comp (lift ρ) (lift σ) = lift (comp ρ σ) := by {
     funext v;
     cases v with
     | zero => simp [comp]
-    | succ v => sorry
+    | succ v => simp only [lift_succ, comp, wk1, lift_wk]
   }
 
 @[simp]
