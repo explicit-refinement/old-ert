@@ -177,6 +177,14 @@ def RawSubst.lift (σ: RawSubst): RawSubst
   | Nat.succ n => wk1 σ n
 
 @[simp]
+def RawSubst.lift_succ (σ: RawSubst):
+  lift σ (Nat.succ n) = wk1 σ n := rfl
+
+@[simp]
+def RawSubst.lift_zero (σ: RawSubst):
+  lift σ 0 = RawUntyped.var 0 := rfl
+
+@[simp]
 def RawSubst.liftn (σ: RawSubst): (l: Nat) -> RawSubst
   | 0 => σ
   | Nat.succ l => lift (liftn σ l)
@@ -198,7 +206,7 @@ def RawSubst.comp (σ ρ: RawSubst): RawSubst
   comp (lift ρ) (lift σ) = lift (comp ρ σ) := by {
     funext v;
     cases v with
-    | zero => simp [comp, lift]
+    | zero => simp [comp]
     | succ v => sorry
   }
 
