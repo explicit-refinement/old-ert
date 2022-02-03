@@ -152,6 +152,8 @@ def Untyped.fv: Untyped n -> Fin (n + 1)
 
 @[simp] def RawUntyped.wk1 (u: RawUntyped) := wk RawWk.wk1 u
 
+@[simp] def RawUntyped.wkn (n: Nat) (u: RawUntyped) := wk (RawWk.wkn n) u
+
 def RawUntyped.wk_bounds {u: RawUntyped}: {n m: Nat} -> {ρ: RawWk} ->
   wk_maps n m ρ -> fv u ≤ m -> fv (wk ρ u) ≤ n := by {
     induction u with
@@ -278,15 +280,18 @@ def RawUntyped.subst (σ: RawSubst): RawUntyped -> RawUntyped
   | cases k d l r => cases k (subst σ d) (subst σ l) (subst σ r)
 
 theorem RawUntyped.liftn_wk {u: RawUntyped}: {σ: RawSubst} -> (n: Nat) ->
-  subst (RawSubst.liftn n (RawSubst.lift σ)) 
-  (wk (RawWk.liftn n RawWk.wk1) u) =
-  wk (RawWk.liftn n RawWk.wk1) (subst (RawSubst.liftn n σ) u)
+  subst (RawSubst.liftn (n + 1) σ) (wkn n u) =
+  wkn n (subst (RawSubst.liftn n σ) u)
   := by {
     unfold RawWk.wk1
     induction u with
     | var v => sorry
     | const c => simp
-    | unary k t I => sorry
+    | unary k t I => 
+      intros σ n
+      simp only [wkn, wk, subst]
+      simp only [wkn] at I
+      rw [@I σ n]
     | let_bin k e I => sorry
     | bin k l r Il Ir => sorry
     | abs k A t IA It => sorry
