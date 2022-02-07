@@ -79,7 +79,29 @@ def Nat.max_r_le_split: (Nat.max l r ≤ m) = (l ≤ m ∧ r ≤ m) := by {
       apply Hl
 }
 
-def Nat.max_l_le_split: (m ≤ Nat.max l r) = (m ≤ l ∨ m ≤ r) := sorry
+def Nat.max_l_le_split: (m ≤ Nat.max l r) = (m ≤ l ∨ m ≤ r) := by {
+  apply propext;
+  apply Iff.intro;
+  case a.mp =>
+    intro Hm
+    let Hlr: r ≤ l ∨ l ≤ r := Nat.le_total r l;
+    cases Hlr with
+    | inl Hlr =>
+      apply Or.inl;
+      rw [<-(@Nat.max_val_l l r)]
+      exact Hm
+      exact Hlr
+    | inr Hlr => 
+      apply Or.inr;
+      rw [<-(@Nat.max_val_r l r)]
+      exact Hm
+      exact Hlr
+  case a.mpr =>
+    intro Hm
+    cases Hm with
+    | inl Hm => exact Nat.le_trans Hm max_lt_l
+    | inr Hm => exact Nat.le_trans Hm max_lt_r
+}
 
 def Nat.max_r_lt_split: (Nat.max l r < m) = (l < m ∧ r < m) := sorry
 
