@@ -5,6 +5,9 @@ def Nat.le_lt_succ (p: n ≤ m): (n < succ m) := Nat.lt_succ_of_le p
 def Nat.eq_zero_is_le_zero: (m ≤ 0) = (m = 0) := 
   propext (Iff.intro Nat.eq_zero_of_le_zero Nat.le_of_eq)
 
+def Nat.succ_le_is_le: (succ m ≤ succ n) = (m ≤ n) := 
+  propext (Iff.intro Nat.le_of_succ_le_succ Nat.succ_le_succ)
+
 @[simp]
 def Nat.max_zero_left: {m: Nat} -> Nat.max m 0 = m
   | 0 => rfl
@@ -14,6 +17,18 @@ def Nat.max_zero_left: {m: Nat} -> Nat.max m 0 = m
 def Nat.max_zero_right: {m: Nat} -> Nat.max 0 m = m
   | 0 => rfl
   | Nat.succ n => by { simp [Nat.max, Nat.zero_le] }
+
+@[simp]
+def Nat.max_bin_succ: Nat.max (Nat.succ l) (Nat.succ r) = Nat.succ (Nat.max l r) := by {
+  unfold Nat.max
+  cases (Nat.decLe l r).em with
+  | inl Ht => 
+    rw [if_pos Ht]
+    rw [if_pos (Nat.succ_le_succ Ht)]
+  | inr Ht => 
+    rw [if_neg Ht]
+    rw [if_neg (λAht => Ht (Nat.le_of_succ_le_succ Aht))]
+}
 
 @[simp]
 def Nat.max_idempotent {l: Nat}: Nat.max l l = l := by {
@@ -103,9 +118,21 @@ def Nat.max_l_le_split: (m ≤ Nat.max l r) = (m ≤ l ∨ m ≤ r) := by {
     | inr Hm => exact Nat.le_trans Hm max_lt_r
 }
 
-def Nat.max_r_lt_split: (Nat.max l r < m) = (l < m ∧ r < m) := sorry
+def Nat.max_r_lt_split: (Nat.max l r < m) = (l < m ∧ r < m) := by {
+  cases l with
+  | zero => sorry
+  | succ l => cases r with
+    | zero => sorry
+    | succ r => sorry
+}
 
-def Nat.max_l_lt_split: (m < Nat.max l r) = (m < l ∨ m < r) := sorry
+def Nat.max_l_lt_split: (m < Nat.max l r) = (m < l ∨ m < r) := by {
+  cases l with
+  | zero => sorry
+  | succ l => cases r with
+    | zero => sorry
+    | succ r => sorry
+}
 
 private def Nat.succ_right: n + Nat.succ l = Nat.succ (n + l) := rfl
 
