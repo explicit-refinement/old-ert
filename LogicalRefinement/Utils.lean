@@ -120,9 +120,11 @@ def Nat.max_l_le_split: (m ≤ Nat.max l r) = (m ≤ l ∨ m ≤ r) := by {
 
 def Nat.max_r_lt_split: (Nat.max l r < m) = (l < m ∧ r < m) := by {
   cases l with
-  | zero => sorry
+  | zero => cases m with
+    | zero => simp [Nat.not_lt_zero]
+    | succ m => simp [Nat.zero_lt_succ]
   | succ l => cases r with
-    | zero => sorry
+    | zero => sorry -- why not simp [Nat.zero_lt_succ]
     | succ r => sorry
 }
 
