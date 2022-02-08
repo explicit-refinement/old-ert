@@ -154,6 +154,10 @@ def Untyped.fv: Untyped n -> Fin (n + 1)
 
 @[simp] def RawUntyped.wkn (n: Nat) (u: RawUntyped) := wk (RawWk.wkn n) u
 
+@[simp] def RawUntyped.wknth (n: Nat) (u: RawUntyped) := wk (RawWk.wknth n) u
+
+@[simp] def RawUntyped.wk_id: wk (RawWk.id) u = u := sorry
+
 def RawUntyped.wk_bounds {u: RawUntyped}: {n m: Nat} -> {ρ: RawWk} ->
   wk_maps n m ρ -> fv u ≤ m -> fv (wk ρ u) ≤ n := by {
     induction u with
@@ -302,6 +306,22 @@ theorem RawSubst.liftn_base_nil: (base: Nat) -> (σ: RawSubst) ->
       apply H
 }
 
+theorem RawSubst.liftn_above_wk: (base: Nat) -> (σ: RawSubst) -> 
+  (v: Nat) -> base ≤ v ->
+  liftn base σ v = RawUntyped.wkn base (σ (v - base)) := by {
+    intros base;
+    induction base with
+    | zero => simp
+    | succ base I =>
+      intros σ v H;
+      simp only [liftn, RawUntyped.wkn, RawWk.wkn]
+      cases v with
+      | zero => cases H
+      | succ v => 
+        simp only [lift, wk1, Nat.succ_sub_succ_eq_sub]
+        sorry
+}
+
 @[simp]
 def RawUntyped.subst (σ: RawSubst): RawUntyped -> RawUntyped
   | var v => σ v
@@ -313,8 +333,8 @@ def RawUntyped.subst (σ: RawSubst): RawUntyped -> RawUntyped
   | cases k d l r => cases k (subst σ d) (subst σ l) (subst σ r)
 
 theorem RawSubst.lift_var: {n v: Nat} -> {σ: RawSubst} -> 
-  (liftn (n + 1) σ) (RawWk.var (RawWk.wkn n) v) 
-  = RawUntyped.wkn n (liftn n σ v) 
+  (liftn (n + 1) σ) (RawWk.var (RawWk.wknth n) v) 
+  = RawUntyped.wknth n (liftn n σ v) 
   := by {
     intro n;
     induction n with
@@ -323,19 +343,20 @@ theorem RawSubst.lift_var: {n v: Nat} -> {σ: RawSubst} ->
       intros v σ
       rw [Nat.add_succ, Nat.add_zero]
       rw [<-RawSubst.lift_liftn_merge]
-      rw [<-RawWk.lift_wkn_merge]
+      rw [<-RawWk.lift_wknth_merge]
       let H': liftn (Nat.succ n) σ v = lift (liftn n σ) v := by simp
       rw [H']
       cases v with
       | zero => simp
       | succ v =>
+        simp only [lift, RawSubst.wk1]
         sorry
       exact 0 --TODO: why?
   }
 
 theorem RawUntyped.liftn_wk {u: RawUntyped}: {σ: RawSubst} -> (n: Nat) ->
-  subst (RawSubst.liftn (n + 1) σ) (wkn n u) =
-  wkn n (subst (RawSubst.liftn n σ) u)
+  subst (RawSubst.liftn (n + 1) σ) (wknth n u) =
+  wknth n (subst (RawSubst.liftn n σ) u)
   := by {
     unfold RawWk.wk1
     induction u with
@@ -346,40 +367,40 @@ theorem RawUntyped.liftn_wk {u: RawUntyped}: {σ: RawSubst} -> (n: Nat) ->
     | const c => simp
     | unary k t I => 
       intros σ n
-      simp only [wkn, wk, subst]
-      simp only [wkn] at I
+      simp only [wknth, wk, subst]
+      simp only [wknth] at I
       rw [I]
     | let_bin k e I =>
       intros σ n
-      simp only [wkn, wk, subst, RawWk.liftn_wkn_merge]
+      simp only [wknth, wk, subst, RawWk.liftn_wknth_merge]
       rw [RawSubst.liftn_merge]
-      simp only [wkn] at I
+      simp only [wknth] at I
       rw [I]
       simp
     | bin k l r Il Ir =>
       intros σ n
-      simp only [wkn, wk, subst]
-      simp only [wkn] at Il
-      simp only [wkn] at Ir
+      simp only [wknth, wk, subst]
+      simp only [wknth] at Il
+      simp only [wknth] at Ir
       rw [Il]
       rw [Ir]
     | abs k A t IA It => 
       intros σ n
-      simp only [wkn, wk, subst]
-      simp only [wkn] at IA
-      simp only [wkn] at It
+      simp only [wknth, wk, subst]
+      simp only [wknth] at IA
+      simp only [wknth] at It
       rw [IA]
-      rw [RawWk.lift_wkn_merge]
+      rw [RawWk.lift_wknth_merge]
       rw [RawSubst.lift_liftn_merge]
       rw [RawSubst.lift_liftn_merge]
       rw [It]
       exact 0 -- TODO: why?
     | cases k d l r Id Il Ir =>
       intros σ n
-      simp only [wkn, wk, subst]
-      simp only [wkn] at Id
-      simp only [wkn] at Il
-      simp only [wkn] at Ir
+      simp only [wknth, wk, subst]
+      simp only [wknth] at Id
+      simp only [wknth] at Il
+      simp only [wknth] at Ir
       rw [Id]
       rw [Il]
       rw [Ir]
