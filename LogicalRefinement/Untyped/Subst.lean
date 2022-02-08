@@ -359,7 +359,28 @@ theorem RawUntyped.subst_bounds: {u: RawUntyped} -> {σ: RawSubst} -> {n m: Nat}
     apply @I _ (n + 2) (m + 2) Hv
     apply RawSubst.liftn_subst
     apply Hσ
-  | bin k l r Il Ir => sorry
-  | abs k A s IA Is => sorry
-  | cases k d l r Id Il Ir => sorry
+  | bin k l r Il Ir =>
+    intros σ n m;
+    simp only [RawUntyped.fv, Nat.max_r_le_split]
+    intro ⟨Hl, Hr⟩
+    intro Hσ
+    exact ⟨Il Hl Hσ, Ir Hr Hσ⟩
+  | abs k A s IA Is =>
+    intros σ n m;
+    simp only [RawUntyped.fv, Nat.max_r_le_split, Nat.le_sub_is_le_add]
+    intro ⟨HA, Hs⟩
+    intro Hσ
+    apply And.intro
+    case abs.left => exact IA HA Hσ
+    case abs.right =>
+      apply @Is _ (n + 1) (m + 1)
+      apply Hs
+      apply RawSubst.lift_subst
+      apply Hσ
+  | cases k d l r Id Il Ir =>
+    intros σ n m;
+    simp only [RawUntyped.fv, Nat.max_r_le_split]
+    intro ⟨Hd, Hl, Hr⟩
+    intro Hσ
+    exact ⟨Id Hd Hσ, Il Hl Hσ, Ir Hr Hσ⟩
 }
