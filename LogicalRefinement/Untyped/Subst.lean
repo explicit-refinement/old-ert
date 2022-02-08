@@ -293,10 +293,17 @@ def RawSubst.comp (σ ρ: RawSubst): RawSubst
     rfl
 }
 
-def isSubst (n m: Nat) (σ: RawSubst) := ∀v, v < m -> RawUntyped.fv (σ v) ≤ n
+def subst_maps (n m: Nat) (σ: RawSubst) := ∀v, v < m -> RawUntyped.fv (σ v) ≤ n
+
+def RawSubst.wk_bounds (n m: Nat): 
+  wk_maps n m ρ -> subst_maps n m (RawWk.to_subst ρ) := by {
+  intros Hρ v Hv;
+  simp only [RawWk.to_subst, RawUntyped.fv]
+  exact Hρ _ Hv
+}
 
 def RawSubst.wk1_subst: {σ: RawSubst} -> {n m: Nat} ->
-  isSubst n m σ -> isSubst (n + 1) m (wk1 σ) := by {
+  subst_maps n m σ -> subst_maps (n + 1) m (wk1 σ) := by {
     intros σ n m Hσ v Hv;
     simp only [RawUntyped.fv, wk1]
     apply Nat.le_trans RawUntyped.fv_wk1;
@@ -306,7 +313,7 @@ def RawSubst.wk1_subst: {σ: RawSubst} -> {n m: Nat} ->
   }
 
 def RawSubst.lift_subst: {σ: RawSubst} -> {n m: Nat} -> 
-  isSubst n m σ -> isSubst (n + 1) (m + 1) (lift σ) := by {
+  subst_maps n m σ -> subst_maps (n + 1) (m + 1) (lift σ) := by {
     intros σ n m Hσ v Hv;
     cases v with
     | zero =>
@@ -320,7 +327,7 @@ def RawSubst.lift_subst: {σ: RawSubst} -> {n m: Nat} ->
   }
 
 def RawSubst.liftn_subst:  {l n m: Nat} -> {σ: RawSubst} ->
-  isSubst n m σ -> isSubst (n + l) (m + l) (liftn l σ) := by {
+  subst_maps n m σ -> subst_maps (n + l) (m + l) (liftn l σ) := by {
     intro l;
     induction l with
     | zero => intros n m σ Hσ; exact Hσ
@@ -332,10 +339,10 @@ def RawSubst.liftn_subst:  {l n m: Nat} -> {σ: RawSubst} ->
       apply Hσ
   }
 
-structure Subst (n m: Nat) := (val: RawSubst) (p: isSubst n m σ)
+structure Subst (n m: Nat) := (val: RawSubst) (p: subst_maps n m σ)
 
 theorem RawUntyped.subst_bounds: {u: RawUntyped} -> {σ: RawSubst} -> {n m: Nat} ->
-  fv u ≤ m -> isSubst n m σ -> fv (subst σ u) ≤ n := by {
+  fv u ≤ m -> subst_maps n m σ -> fv (subst σ u) ≤ n := by {
   intro u;
   induction u with
   | var v => 
