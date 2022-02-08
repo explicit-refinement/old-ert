@@ -295,7 +295,7 @@ def RawSubst.comp (σ ρ: RawSubst): RawSubst
 
 def subst_maps (n m: Nat) (σ: RawSubst) := ∀v, v < m -> RawUntyped.fv (σ v) ≤ n
 
-def RawSubst.wk_bounds (n m: Nat): 
+def RawSubst.wk_bounds {n m: Nat}: 
   wk_maps n m ρ -> subst_maps n m (RawWk.to_subst ρ) := by {
   intros Hρ v Hv;
   simp only [RawWk.to_subst, RawUntyped.fv]
@@ -339,7 +339,10 @@ def RawSubst.liftn_subst:  {l n m: Nat} -> {σ: RawSubst} ->
       apply Hσ
   }
 
-structure Subst (n m: Nat) := (val: RawSubst) (p: subst_maps n m σ)
+structure Subst (n m: Nat) := (val: RawSubst) (p: subst_maps n m val)
+
+def Wk.to_subst {n m: Nat} (ρ: Wk n m): Subst n m :=
+  Subst.mk (RawWk.to_subst ρ.val) (RawSubst.wk_bounds ρ.p)
 
 theorem RawUntyped.subst_bounds: {u: RawUntyped} -> {σ: RawSubst} -> {n m: Nat} ->
   fv u ≤ m -> subst_maps n m σ -> fv (subst σ u) ≤ n := by {
