@@ -297,23 +297,30 @@ def isSubst (n m: Nat) (σ: RawSubst) := ∀v, v < m -> RawUntyped.fv (σ v) ≤
 
 structure Subst (n m: Nat) := (val: RawSubst) (p: isSubst n m σ)
 
-theorem RawUntyped.subst_bounds: {u: RawUntyped} -> {σ: RawSubst} ->
+theorem RawUntyped.subst_bounds: {u: RawUntyped} -> {σ: RawSubst} -> {n m: Nat} ->
   fv u ≤ m -> isSubst n m σ -> fv (subst σ u) ≤ n := by {
   intro u;
   induction u with
   | var v => 
-    intros σ Hv Hσ; 
+    intros σ n m Hv Hσ; 
     simp at Hv
     exact Hσ _ Hv
   | const c => 
-    intros σ Hv Hσ; 
+    intros σ n m Hv Hσ; 
     simp only [fv, subst]
     apply Nat.zero_le
   | unary k t I =>
-    intros σ Hv Hσ;
+    intros σ n m Hv Hσ;
     simp only [fv, subst];
     apply I Hv Hσ
-  | let_bin k e I => sorry
+  | let_bin k e I =>
+    intros σ n m Hv Hσ;
+    simp only [fv, subst]
+    rw [Nat.le_sub_is_le_add]
+    simp at Hv
+    rw [Nat.le_sub_is_le_add] at Hv
+    apply @I _ (n + 2) (m + 2) Hv
+    sorry
   | bin k l r Il Ir => sorry
   | abs k A s IA Is => sorry
   | cases k d l r Id Il Ir => sorry
