@@ -96,6 +96,11 @@ def RawUntyped.wk_bounds {u: RawUntyped}: {n m: Nat} -> {ρ: RawWk} ->
         case right => apply IHr Hm Hr
   }
 
+def RawUntyped.fv_wk1: fv (wk1 u) ≤ fv u + 1 := by {
+  apply wk_bounds wk_maps_wk1;
+  exact Nat.le_refl _
+}
+
 @[simp] def RawUntyped.wk_composes (u: RawUntyped): 
   (σ ρ: RawWk) -> wk σ (wk ρ u) = wk (RawWk.comp σ ρ) u := by {
   induction u with

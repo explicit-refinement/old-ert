@@ -295,6 +295,30 @@ def RawSubst.comp (σ ρ: RawSubst): RawSubst
 
 def isSubst (n m: Nat) (σ: RawSubst) := ∀v, v < m -> RawUntyped.fv (σ v) ≤ n
 
+def RawSubst.wk1_subst: {σ: RawSubst} -> {n m: Nat} ->
+  isSubst n m σ -> isSubst (n + 1) m (wk1 σ) := by {
+    intros σ n m Hσ v Hv;
+    simp only [RawUntyped.fv, wk1]
+    apply Nat.le_trans RawUntyped.fv_wk1;
+    apply Nat.succ_le_succ;
+    apply Hσ;
+    apply Hv
+  }
+
+def RawSubst.lift_subst: {σ: RawSubst} -> {n m: Nat} -> 
+  isSubst n m σ -> isSubst (n + 1) (m + 1) (lift σ) := by {
+    intros σ n m Hσ v Hv;
+    cases v with
+    | zero =>
+      simp only [RawUntyped.fv]
+      exact Nat.succ_le_succ (Nat.zero_le _)
+    | succ v =>
+      simp only [RawUntyped.fv, lift]
+      apply wk1_subst Hσ
+      apply Nat.le_of_succ_le_succ
+      apply Hv
+  }
+
 structure Subst (n m: Nat) := (val: RawSubst) (p: isSubst n m σ)
 
 theorem RawUntyped.subst_bounds: {u: RawUntyped} -> {σ: RawSubst} -> {n m: Nat} ->
