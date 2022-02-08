@@ -292,3 +292,7 @@ def RawSubst.comp (σ ρ: RawSubst): RawSubst
     rw [Id, Il, Ir]
     rfl
 }
+
+def isSubst (n m: Nat) (σ: RawSubst) := ∀v, v < m -> RawUntyped.fv (σ v) < n
+
+structure Subst (n m: Nat) := (val: RawSubst) (p: isSubst n m σ)
