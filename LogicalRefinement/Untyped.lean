@@ -175,7 +175,23 @@ def Untyped.fv: Untyped n -> Fin (n + 1)
   | cases k d l r Id Il Ir => intros ρ σ H; simp [Id H, Il H, Ir H]
 }
 
-@[simp] def RawUntyped.wk_id: wk (RawWk.id) u = u := sorry
+@[simp] def RawUntyped.wk_id: wk (RawWk.id) u = u := by {
+  induction u with
+  | var v => simp
+  | const c => simp
+  | unary k t I => simp [I]
+  | let_bin k e I =>
+    simp only [wk]
+    rw [RawUntyped.wk_coherent (RawWk.liftn_id_equiv)]
+    rw [I]
+  | bin k l r Il Ir => simp [Il, Ir]
+  | abs k A s IHA IHs =>
+    simp only [wk]
+    rw [RawUntyped.wk_coherent RawWk.lift_id_equiv]
+    rw [IHA]
+    rw [IHs]
+  | cases k d l r Id Il Ir => simp [Id, Il, Ir]
+}
 
 def RawUntyped.wk_bounds {u: RawUntyped}: {n m: Nat} -> {ρ: RawWk} ->
   wk_maps n m ρ -> fv u ≤ m -> fv (wk ρ u) ≤ n := by {
