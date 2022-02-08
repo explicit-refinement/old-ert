@@ -309,7 +309,10 @@ theorem RawUntyped.subst_bounds: {u: RawUntyped} -> {σ: RawSubst} ->
     intros σ Hv Hσ; 
     simp only [fv, subst]
     apply Nat.zero_le
-  | unary k t I => sorry
+  | unary k t I =>
+    intros σ Hv Hσ;
+    simp only [fv, subst];
+    apply I Hv Hσ
   | let_bin k e I => sorry
   | bin k l r Il Ir => sorry
   | abs k A s IA Is => sorry
