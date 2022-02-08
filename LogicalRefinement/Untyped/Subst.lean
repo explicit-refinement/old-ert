@@ -319,6 +319,19 @@ def RawSubst.lift_subst: {σ: RawSubst} -> {n m: Nat} ->
       apply Hv
   }
 
+def RawSubst.liftn_subst:  {l n m: Nat} -> {σ: RawSubst} ->
+  isSubst n m σ -> isSubst (n + l) (m + l) (liftn l σ) := by {
+    intro l;
+    induction l with
+    | zero => intros n m σ Hσ; exact Hσ
+    | succ l I =>
+      intros n m σ Hσ;
+      simp only [liftn]
+      apply RawSubst.lift_subst
+      apply I
+      apply Hσ
+  }
+
 structure Subst (n m: Nat) := (val: RawSubst) (p: isSubst n m σ)
 
 theorem RawUntyped.subst_bounds: {u: RawUntyped} -> {σ: RawSubst} -> {n m: Nat} ->
