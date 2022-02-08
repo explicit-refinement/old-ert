@@ -218,6 +218,13 @@ def Nat.lt_l_add_lt: {n m l: Nat} -> n + m < l -> n < l := by {
     apply H
 }
 
-def Nat.lt_r_add_lt: {n m l: Nat} -> n + m < l -> m < l := sorry
+def Nat.lt_r_add_lt: {n m l: Nat} -> n + m < l -> m < l := by {
+  intros n m l;
+  rw [Nat.add_comm]
+  apply Nat.lt_l_add_lt
+}
 
-def Nat.lt_sub_lt_add: {n m l: Nat} -> n + m < l -> n < l - m := sorry
+def Nat.lt_sub_lt_add: {n m l: Nat} -> n + m < l -> n < l - m := by {
+  intros n m l;
+  sorry
+}
