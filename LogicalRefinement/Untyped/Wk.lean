@@ -1,0 +1,115 @@
+import LogicalRefinement.Utils
+import LogicalRefinement.Wk
+import LogicalRefinement.Untyped.Basic
+
+@[simp] def RawUntyped.wk (ρ: RawWk): RawUntyped -> RawUntyped
+  | var v => var (RawWk.var ρ v)
+  | const c => const c
+  | unary k t => unary k (wk ρ t)
+  | let_bin k e => let_bin k (wk (RawWk.liftn 2 ρ) e)
+  | bin k l r => bin k (wk ρ l) (wk ρ r)
+  | abs k A t => abs k (wk ρ A) (wk (RawWk.lift ρ) t)
+  | cases k d l r => cases k (wk ρ d) (wk ρ l) (wk ρ r)
+
+@[simp] def RawUntyped.wk1 (u: RawUntyped) := wk RawWk.wk1 u
+
+@[simp] def RawUntyped.wkn (n: Nat) (u: RawUntyped) := wk (RawWk.wkn n) u
+
+@[simp] def RawUntyped.wknth (n: Nat) (u: RawUntyped) := wk (RawWk.wknth n) u
+
+@[simp] def RawUntyped.wk_coherent: {u: RawUntyped} -> {ρ σ: RawWk} ->
+  RawWk.equiv ρ σ -> wk ρ u = wk σ u := by {
+  intro u;
+  induction u with
+  | var v => intros ρ σ H; simp only [wk]; rw [H]
+  | const c => simp
+  | unary k t I => intros ρ σ H; simp [I H]
+  | let_bin k e I => 
+    intros ρ σ H;
+    simp only [wk];
+    simp only [I (@RawWk.liftn_equiv 2 _ _ H)]
+  | bin k l r Il Ir => intros ρ σ H; simp [Il H, Ir H]
+  | abs k A s IHA IHs =>
+    intros ρ σ H;
+    simp only [wk];
+    simp only [IHA H, IHs (RawWk.lift_equiv H)]
+  | cases k d l r Id Il Ir => intros ρ σ H; simp [Id H, Il H, Ir H]
+}
+
+@[simp] def RawUntyped.wk_id: wk (RawWk.id) u = u := by {
+  induction u with
+  | var v => simp
+  | const c => simp
+  | unary k t I => simp [I]
+  | let_bin k e I =>
+    simp only [wk]
+    rw [RawUntyped.wk_coherent (RawWk.liftn_id_equiv)]
+    rw [I]
+  | bin k l r Il Ir => simp [Il, Ir]
+  | abs k A s IHA IHs =>
+    simp only [wk]
+    rw [RawUntyped.wk_coherent RawWk.lift_id_equiv]
+    rw [IHA]
+    rw [IHs]
+  | cases k d l r Id Il Ir => simp [Id, Il, Ir]
+}
+
+def RawUntyped.wk_bounds {u: RawUntyped}: {n m: Nat} -> {ρ: RawWk} ->
+  wk_maps n m ρ -> fv u ≤ m -> fv (wk ρ u) ≤ n := by {
+    induction u with
+    | var v => intros _ _ ρ Hm. apply Hm
+    | const => intros. apply Nat.zero_le
+    | unary k t IHt => 
+      intros _ _ ρ Hm
+      apply IHt Hm
+    | let_bin k e IHe =>
+      simp only [fv, Nat.le_sub_is_le_add]
+      intros n m ρ Hm
+      apply IHe
+      apply wk_maps_liftn
+      apply Hm
+    | bin k l r IHl IHr =>
+      simp only [fv, Nat.max_r_le_split]
+      intros n m ρ Hm
+      intro ⟨Hl, Hr⟩
+      apply And.intro;
+      case bin.left => apply IHl Hm Hl
+      case bin.right => apply IHr Hm Hr
+    | abs k A s IHA IHs =>
+      simp only [fv, Nat.max_r_le_split, Nat.le_sub_is_le_add]
+      intros n m ρ Hm
+      intro ⟨HA, Hs⟩
+      apply And.intro;
+      case abs.left => apply IHA Hm HA
+      case abs.right => 
+        let Hm' := @wk_maps_liftn 1 n m ρ Hm
+        apply IHs Hm' Hs
+    | cases k d l r IHd IHl IHr => 
+      simp only [fv, Nat.max_r_le_split]
+      intros n m ρ Hm
+      intro ⟨Hd, Hl, Hr⟩
+      apply And.intro;
+      case cases.left => apply IHd Hm Hd
+      case cases.right =>
+        apply And.intro;
+        case left => apply IHl Hm Hl
+        case right => apply IHr Hm Hr
+  }
+
+@[simp] def RawUntyped.wk_composes (u: RawUntyped): 
+  (σ ρ: RawWk) -> wk σ (wk ρ u) = wk (RawWk.comp σ ρ) u := by {
+  induction u with
+  | var v => simp
+  | const c => simp
+  | unary k t I => simp [I]
+  | let_bin k t I => simp [I]
+  | bin k l r Il Ir => simp [Il, Ir]
+  | abs k A t IA It => simp [IA, It] 
+  | cases k d l r Id Il Ir => simp [Id, Il, Ir]
+}
+
+@[simp] def Untyped.wk (ρ: Wk n m) (u: Untyped m): Untyped n :=
+  Untyped.mk (RawUntyped.wk ρ.val u.val) (RawUntyped.wk_bounds ρ.p u.p)
+
+@[simp] def Untyped.wk_composes (σ: Wk n m) (ρ: Wk m l):
+  wk σ (wk ρ u) = wk (Wk.comp σ ρ) u := by simp
