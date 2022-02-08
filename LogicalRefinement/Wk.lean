@@ -12,15 +12,15 @@ inductive RawWk: Type 0 where
 @[simp] def RawWk.wkn (n: Nat): RawWk := liftn n wk1
 
 @[simp]
-theorem RawWk.lift_liftn_merge (m n: Nat): 
+theorem RawWk.lift_liftn_merge {m n: Nat}: 
   lift (liftn n σ) = liftn (n + 1) σ := rfl
 
 @[simp]
-theorem RawWk.lift_wkn_merge (m n: Nat): lift (wkn n) = wkn (n + 1) :=
+theorem RawWk.lift_wkn_merge {m n: Nat}: lift (wkn n) = wkn (n + 1) :=
   sorry
 
 @[simp]
-theorem RawWk.liftn_wkn_merge (m n: Nat): liftn m (wkn n) = wkn (n + m) :=
+theorem RawWk.liftn_wkn_merge {m n: Nat}: liftn m (wkn n) = wkn (n + m) :=
   sorry
 
 @[simp] def RawWk.comp: RawWk -> RawWk -> RawWk
@@ -72,7 +72,18 @@ theorem raw_wk_comp_id_left_id {ρ: RawWk}: RawWk.comp RawWk.id ρ = ρ := rfl
   | RawWk.step ρ, n => (var ρ n) + 1
   | RawWk.lift ρ, 0 => 0
   | RawWk.lift ρ, (n + 1) => (var ρ n) + 1
-  
+
+@[simp] def RawWk.wk1_var: var wk1 n = n + 1 := rfl  
+
+@[simp] def RawWk.wkn_succ_0_var: var (wkn (Nat.succ n)) 0 = 0 := rfl
+
+@[simp] def RawWk.wkn_succ_succ_var: 
+  var (wkn (Nat.succ n)) (Nat.succ m) = Nat.succ (var (wkn n) m) := by {
+    rw[<-lift_wkn_merge]
+    simp only [var]
+    exact 0
+}
+
 @[simp] theorem raw_wk_var_comp: (ρ σ: RawWk) -> (n: Nat) ->
   RawWk.var ρ (RawWk.var σ n) = RawWk.var (RawWk.comp ρ σ) n
   | RawWk.id, _, _ => rfl

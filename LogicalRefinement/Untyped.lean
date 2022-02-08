@@ -258,7 +258,7 @@ theorem RawSubst.liftn_commute {σ: RawSubst}:
     simp only [liftn, RawSubst.liftn_lift_commute, I]
 }
 
-theorem RawSubst.lift_liftn_merge (n: Nat) {σ: RawSubst}:
+theorem RawSubst.lift_liftn_merge {n: Nat} {σ: RawSubst}:
   lift (liftn n σ) = liftn (n + 1) σ := rfl
 
 theorem RawSubst.liftn_merge_outer: (m n: Nat) -> {σ: RawSubst} ->
@@ -312,11 +312,25 @@ def RawUntyped.subst (σ: RawSubst): RawUntyped -> RawUntyped
   | abs k A t => abs k (subst σ A) (subst (RawSubst.lift σ) t)
   | cases k d l r => cases k (subst σ d) (subst σ l) (subst σ r)
 
-theorem RawSubst.lift_var: 
+theorem RawSubst.lift_var: {n v: Nat} -> {σ: RawSubst} -> 
   (liftn (n + 1) σ) (RawWk.var (RawWk.wkn n) v) 
   = RawUntyped.wkn n (liftn n σ v) 
   := by {
-    sorry
+    intro n;
+    induction n with
+    | zero => simp [wk1]
+    | succ n I => 
+      intros v σ
+      rw [Nat.add_succ, Nat.add_zero]
+      rw [<-RawSubst.lift_liftn_merge]
+      rw [<-RawWk.lift_wkn_merge]
+      let H': liftn (Nat.succ n) σ v = lift (liftn n σ) v := by simp
+      rw [H']
+      cases v with
+      | zero => simp
+      | succ v =>
+        sorry
+      exact 0 --TODO: why?
   }
 
 theorem RawUntyped.liftn_wk {u: RawUntyped}: {σ: RawSubst} -> (n: Nat) ->
@@ -355,9 +369,9 @@ theorem RawUntyped.liftn_wk {u: RawUntyped}: {σ: RawSubst} -> (n: Nat) ->
       simp only [wkn] at IA
       simp only [wkn] at It
       rw [IA]
-      rw [RawWk.lift_wkn_merge _ _]
-      rw [RawSubst.lift_liftn_merge _]
-      rw [RawSubst.lift_liftn_merge _]
+      rw [RawWk.lift_wkn_merge]
+      rw [RawSubst.lift_liftn_merge]
+      rw [RawSubst.lift_liftn_merge]
       rw [It]
       exact 0 -- TODO: why?
     | cases k d l r Id Il Ir =>
