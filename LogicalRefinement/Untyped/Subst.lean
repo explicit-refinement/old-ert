@@ -357,7 +357,8 @@ theorem RawUntyped.subst_bounds: {u: RawUntyped} -> {σ: RawSubst} -> {n m: Nat}
     simp at Hv
     rw [Nat.le_sub_is_le_add] at Hv
     apply @I _ (n + 2) (m + 2) Hv
-    sorry
+    apply RawSubst.liftn_subst
+    apply Hσ
   | bin k l r Il Ir => sorry
   | abs k A s IA Is => sorry
   | cases k d l r Id Il Ir => sorry
