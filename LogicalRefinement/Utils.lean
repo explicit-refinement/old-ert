@@ -140,11 +140,24 @@ def Nat.max_r_lt_split: (Nat.max l r < m) = (l < m ∧ r < m) := by {
 }
 
 def Nat.max_l_lt_split: (m < Nat.max l r) = (m < l ∨ m < r) := by {
-  cases l with
-  | zero => sorry
-  | succ l => cases r with
-    | zero => sorry
-    | succ r => sorry
+  apply propext;
+  apply Iff.intro;
+  case a.mp =>
+    intro Hm
+    cases Nat.le_total l r with
+    | inl Hlr =>
+      apply Or.inr
+      rw [<-Nat.max_val_r Hlr]
+      apply Hm
+    | inr Hlr =>
+      apply Or.inl
+      rw [<-Nat.max_val_l Hlr]
+      apply Hm
+  case a.mpr =>
+    intro Hm
+    cases Hm with
+    | inl Hl => exact Nat.le_trans Hl Nat.max_le_l
+    | inr Hr => exact Nat.le_trans Hr Nat.max_le_r
 }
 
 private def Nat.succ_right: n + Nat.succ l = Nat.succ (n + l) := rfl
