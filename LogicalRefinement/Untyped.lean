@@ -312,13 +312,23 @@ def RawUntyped.subst (σ: RawSubst): RawUntyped -> RawUntyped
   | abs k A t => abs k (subst σ A) (subst (RawSubst.lift σ) t)
   | cases k d l r => cases k (subst σ d) (subst σ l) (subst σ r)
 
+theorem RawSubst.lift_var: 
+  (liftn (n + 1) σ) (RawWk.var (RawWk.wkn n) v) 
+  = RawUntyped.wkn n (liftn n σ v) 
+  := by {
+    sorry
+  }
+
 theorem RawUntyped.liftn_wk {u: RawUntyped}: {σ: RawSubst} -> (n: Nat) ->
   subst (RawSubst.liftn (n + 1) σ) (wkn n u) =
   wkn n (subst (RawSubst.liftn n σ) u)
   := by {
     unfold RawWk.wk1
     induction u with
-    | var v => sorry
+    | var v =>
+      intros σ n;
+      simp only [subst]
+      rw [RawSubst.lift_var]
     | const c => simp
     | unary k t I => 
       intros σ n
