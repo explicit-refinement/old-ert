@@ -293,6 +293,25 @@ def RawSubst.comp (σ ρ: RawSubst): RawSubst
     rfl
 }
 
-def isSubst (n m: Nat) (σ: RawSubst) := ∀v, v < m -> RawUntyped.fv (σ v) < n
+def isSubst (n m: Nat) (σ: RawSubst) := ∀v, v < m -> RawUntyped.fv (σ v) ≤ n
 
 structure Subst (n m: Nat) := (val: RawSubst) (p: isSubst n m σ)
+
+theorem RawUntyped.subst_bounds: {u: RawUntyped} -> {σ: RawSubst} ->
+  fv u ≤ m -> isSubst n m σ -> fv (subst σ u) ≤ n := by {
+  intro u;
+  induction u with
+  | var v => 
+    intros σ Hv Hσ; 
+    simp at Hv
+    exact Hσ _ Hv
+  | const c => 
+    intros σ Hv Hσ; 
+    simp only [fv, subst]
+    apply Nat.zero_le
+  | unary k t I => sorry
+  | let_bin k e I => sorry
+  | bin k l r Il Ir => sorry
+  | abs k A s IA Is => sorry
+  | cases k d l r Id Il Ir => sorry
+}
