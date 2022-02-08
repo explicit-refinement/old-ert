@@ -239,8 +239,7 @@ def RawSubst.comp (σ ρ: RawSubst): RawSubst
     | succ v => simp only [lift_succ, comp, wk1, lift_wk]
   }
 
-@[simp]
-def RawUntyped.subst_composes (u: RawUntyped):
+@[simp] theorem RawUntyped.subst_composes (u: RawUntyped):
   (σ ρ: RawSubst) -> subst σ (subst ρ u) = subst (RawSubst.comp σ ρ) u
   := by {
   induction u with
@@ -259,8 +258,7 @@ def RawUntyped.subst_composes (u: RawUntyped):
     simp [comp]
   }
 
-@[simp]
-def RawSubst.subst_wk_compat: {u: RawUntyped} -> {ρ: RawWk} ->
+@[simp] theorem RawSubst.subst_wk_compat: {u: RawUntyped} -> {ρ: RawWk} ->
   RawUntyped.subst (RawWk.to_subst ρ) u = RawUntyped.wk ρ u := by {
   intro u;
   induction u with
