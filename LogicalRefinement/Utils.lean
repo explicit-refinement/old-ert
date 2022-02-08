@@ -2,7 +2,14 @@ import Init.Data.Nat
 
 def Nat.le_lt_succ (p: n ≤ m): (n < succ m) := Nat.lt_succ_of_le p
 
-def Nat.le_or_lt (l r: Nat): l < r ∨ r ≤ l := sorry
+def Nat.le_or_lt (l r: Nat): l < r ∨ r ≤ l := by {
+  cases Nat.le_total l r with
+  | inl Hlr => 
+    cases (Nat.decEq l r).em with
+    | inl Heq => apply Or.inr; rw [Heq]; apply Nat.le_refl
+    | inr Hne => exact Or.inl (Nat.lt_of_le_and_ne Hlr Hne)
+  | inr Hrl => exact Or.inr Hrl
+}
 
 def Nat.eq_zero_is_le_zero: (m ≤ 0) = (m = 0) := 
   propext (Iff.intro Nat.eq_zero_of_le_zero Nat.le_of_eq)
