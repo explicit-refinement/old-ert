@@ -394,3 +394,6 @@ theorem RawUntyped.subst_bounds: {u: RawUntyped} -> {σ: RawSubst} -> {n m: Nat}
     intro Hσ
     exact ⟨Id Hd Hσ, Il Hl Hσ, Ir Hr Hσ⟩
 }
+
+def Untyped.subst (σ: Subst n m) (u: Untyped m): Untyped n :=
+  Untyped.mk (RawUntyped.subst σ.val u.val) (RawUntyped.subst_bounds u.p σ.p)
