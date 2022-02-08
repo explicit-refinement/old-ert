@@ -12,6 +12,14 @@ inductive RawWk: Type 0 where
 @[simp] def RawWk.wkn (n: Nat): RawWk := liftn n wk1
 
 @[simp]
+theorem RawWk.lift_liftn_merge (m n: Nat): 
+  lift (liftn n σ) = liftn (n + 1) σ := rfl
+
+@[simp]
+theorem RawWk.lift_wkn_merge (m n: Nat): lift (wkn n) = wkn (n + 1) :=
+  sorry
+
+@[simp]
 theorem RawWk.liftn_wkn_merge (m n: Nat): liftn m (wkn n) = wkn (n + m) :=
   sorry
 
