@@ -224,7 +224,24 @@ def Nat.lt_r_add_lt: {n m l: Nat} -> n + m < l -> m < l := by {
   apply Nat.lt_l_add_lt
 }
 
-def Nat.lt_sub_lt_add: {n m l: Nat} -> n + m < l -> n < l - m := by {
-  intros n m l;
-  sorry
+def Nat.lt_sub_lt_add: {l n m: Nat} -> n + m < l -> n < l - m := by {
+  intros l;
+  induction l with
+  | zero => 
+    intros n m H; 
+    rw [Nat.zero_sub]
+    apply Nat.lt_l_add_lt H
+  | succ l Hl =>
+    intros n m H;
+    cases H with
+    | refl =>
+      let H': succ (n + m) = (succ n) + m := by {
+        rw [Nat.add_comm]
+        rw [<-Nat.add_succ]
+        rw [Nat.add_comm]
+      }
+      rw [H']
+      rw [Nat.add_sub_self_right]
+      apply Nat.le_refl
+    | step => sorry
 }
