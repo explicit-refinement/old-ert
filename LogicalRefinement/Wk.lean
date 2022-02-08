@@ -20,12 +20,34 @@ theorem RawWk.lift_liftn_merge {m n: Nat}:
   lift (liftn n σ) = liftn (n + 1) σ := rfl
 
 @[simp]
-theorem RawWk.lift_wknth_merge {m n: Nat}: lift (wknth n) = wknth (n + 1) :=
-  sorry
+theorem RawWk.liftn_merge: {n m: Nat} -> 
+  liftn n (liftn m σ) = liftn (n + m) σ := by {
+    intro n;
+    induction n with
+    | zero => simp
+    | succ n I =>
+      intros m;
+      rw [Nat.add_comm]
+      rw [Nat.add_succ]
+      rw [Nat.add_comm]
+      simp [I]
+  }
 
 @[simp]
-theorem RawWk.liftn_wknth_merge {m n: Nat}: liftn m (wknth n) = wknth (n + m) :=
-  sorry
+theorem RawWk.lift_wknth_merge {m n: Nat}: lift (wknth n) = wknth (n + 1) 
+  := by {
+  unfold wknth;
+  apply lift_liftn_merge;
+  exact 0
+}
+
+@[simp]
+theorem RawWk.liftn_wknth_merge {m n: Nat}: liftn m (wknth n) = wknth (n + m) 
+  := by {
+  unfold wknth;
+  rw [liftn_merge]
+  rw [Nat.add_comm]
+}
 
 @[simp] def RawWk.comp: RawWk -> RawWk -> RawWk
     | RawWk.id, σ => σ
@@ -78,6 +100,72 @@ def RawWk.step_is_comp_wk1: comp wk1 ρ = step ρ := rfl
   | RawWk.step ρ, n => (var ρ n) + 1
   | RawWk.lift ρ, 0 => 0
   | RawWk.lift ρ, (n + 1) => (var ρ n) + 1
+
+def RawWk.equiv (ρ σ: RawWk) := ∀v: Nat, var ρ v = var σ v
+
+def RawWk.equiv_refl {ρ: RawWk}: equiv ρ ρ := λ_ => rfl
+
+@[simp] def RawWk.equiv_sym {ρ σ: RawWk}: equiv ρ σ = equiv σ ρ := by {
+  simp only [equiv];
+  apply propext;
+  apply Iff.intro;
+  case a.mp => 
+    intros H v
+    simp [H]
+  case a.mpr =>
+    intros H v
+    simp [H]
+}
+
+@[simp] def RawWk.equiv_trans {ρ σ τ: RawWk}: 
+  equiv ρ σ -> equiv σ τ -> equiv ρ τ := by {
+    intros Hρσ Hστ v;
+    rw [Hρσ]
+    rw [Hστ]
+  }
+
+@[simp] def RawWk.lift_equiv {ρ σ: RawWk}:
+  equiv ρ σ -> equiv (lift ρ) (lift σ) := by {
+    intros H v;
+    cases v with
+    | zero => simp
+    | succ v => simp only [var]; rw [H]
+  }
+
+@[simp] def RawWk.liftn_equiv: {n: Nat} -> {ρ σ: RawWk} ->
+  equiv ρ σ -> equiv (liftn n ρ) (liftn n σ) := by {
+    intro n;
+    induction n with
+    | zero => intros ρ σ H; exact H
+    | succ n I => 
+      intros ρ σ H;
+      simp only [liftn]
+      apply RawWk.lift_equiv
+      apply I
+      exact H
+  }
+
+@[simp] def RawWk.lift_id_equiv: equiv (lift id) id := by {
+    intros v;
+    cases v with
+    | zero => rfl
+    | succ v => rfl
+  }
+
+@[simp] def RawWk.liftn_id_equiv: {n: Nat} -> equiv (liftn n id) id := by {
+    intro n;
+    induction n with
+    | zero => exact equiv_refl
+    | succ n I => 
+      simp only [liftn];
+      intros v;
+      cases v with
+      | zero => rfl
+      | succ v =>
+        simp only [var]
+        rw [I]
+        rfl
+  }
 
 @[simp] def RawWk.wk1_var: var wk1 n = n + 1 := rfl  
 
