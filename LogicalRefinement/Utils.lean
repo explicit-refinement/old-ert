@@ -53,7 +53,7 @@ def Nat.max_val_r {l r: Nat} (p: l ≤ r): Nat.max l r = r := by {
   exact p
 }
 
-def Nat.max_lt_l {l r: Nat}: l ≤ Nat.max l r := by {
+def Nat.max_le_l {l r: Nat}: l ≤ Nat.max l r := by {
   unfold Nat.max
   cases (Nat.decLe l r).em with
   | inl Ht =>
@@ -64,7 +64,7 @@ def Nat.max_lt_l {l r: Nat}: l ≤ Nat.max l r := by {
     apply Nat.le_refl
 }
  
-def Nat.max_lt_r {l r: Nat}: r ≤ Nat.max l r := by {
+def Nat.max_le_r {l r: Nat}: r ≤ Nat.max l r := by {
   unfold Nat.max
   cases (Nat.decLe l r).em with
   | inl Ht =>
@@ -82,7 +82,7 @@ def Nat.max_r_le_split: (Nat.max l r ≤ m) = (l ≤ m ∧ r ≤ m) := by {
   apply Iff.intro;
   case a.mp =>
     intro Hm
-    exact ⟨Nat.le_trans max_lt_l Hm, Nat.le_trans max_lt_r Hm⟩
+    exact ⟨Nat.le_trans max_le_l Hm, Nat.le_trans max_le_r Hm⟩
   case a.mpr =>
     intro ⟨Hl, Hr⟩
     cases Nat.le_total l r with
@@ -114,18 +114,29 @@ def Nat.max_l_le_split: (m ≤ Nat.max l r) = (m ≤ l ∨ m ≤ r) := by {
   case a.mpr =>
     intro Hm
     cases Hm with
-    | inl Hm => exact Nat.le_trans Hm max_lt_l
-    | inr Hm => exact Nat.le_trans Hm max_lt_r
+    | inl Hm => exact Nat.le_trans Hm max_le_l
+    | inr Hm => exact Nat.le_trans Hm max_le_r
 }
 
 def Nat.max_r_lt_split: (Nat.max l r < m) = (l < m ∧ r < m) := by {
-  cases l with
-  | zero => cases m with
-    | zero => simp [Nat.not_lt_zero]
-    | succ m => simp [Nat.zero_lt_succ]
-  | succ l => cases r with
-    | zero => sorry -- why not simp [Nat.zero_lt_succ]
-    | succ r => sorry
+  apply propext;
+  apply Iff.intro;
+  case a.mp =>
+    intro Hm
+    apply And.intro
+    case left =>
+      exact Nat.lt_of_le_of_lt Nat.max_le_l Hm
+    case right => 
+      exact Nat.lt_of_le_of_lt Nat.max_le_r Hm
+  case a.mpr =>
+    intro ⟨Hl, Hr⟩
+    cases Nat.le_total l r with
+    | inl Hlr =>
+      rw [Nat.max_val_r Hlr]
+      exact Hr
+    | inr Hlr =>
+      rw [Nat.max_val_l Hlr]
+      exact Hl
 }
 
 def Nat.max_l_lt_split: (m < Nat.max l r) = (m < l ∨ m < r) := by {
