@@ -36,6 +36,8 @@ theorem RawWk.liftn_wknth_merge {m n: Nat}: liftn m (wknth n) = wknth (n + m) :=
 
 theorem raw_wk_comp_id_left_id {ρ: RawWk}: RawWk.comp RawWk.id ρ = ρ := rfl
 
+def RawWk.step_is_comp_wk1: comp wk1 ρ = step ρ := rfl
+
 @[simp] theorem raw_wk_comp_id_right_id: {ρ: RawWk} -> RawWk.comp ρ RawWk.id = ρ
   | RawWk.id => rfl
   | RawWk.lift ρ => rfl

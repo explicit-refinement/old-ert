@@ -318,8 +318,14 @@ theorem RawSubst.liftn_above_wk: (base: Nat) -> (σ: RawSubst) ->
       cases v with
       | zero => cases H
       | succ v => 
-        simp only [lift, wk1, Nat.succ_sub_succ_eq_sub]
-        sorry
+        simp only [lift, wk1, RawUntyped.wk1]
+        rw [Nat.succ_sub_succ_eq_sub]
+        rw [<-RawWk.step_is_comp_wk1]
+        rw [<-RawUntyped.wk_composes]
+        rw [I]
+        simp
+        apply Nat.le_of_succ_le_succ
+        apply H
 }
 
 @[simp]
