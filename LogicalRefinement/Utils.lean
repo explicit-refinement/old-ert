@@ -2,6 +2,8 @@ import Init.Data.Nat
 
 def Nat.le_lt_succ (p: n ≤ m): (n < succ m) := Nat.lt_succ_of_le p
 
+def Nat.le_or_lt (l r: Nat): l < r ∨ r ≤ l := sorry
+
 def Nat.eq_zero_is_le_zero: (m ≤ 0) = (m = 0) := 
   propext (Iff.intro Nat.eq_zero_of_le_zero Nat.le_of_eq)
 

@@ -178,6 +178,22 @@ def RawWk.equiv_refl {ρ: RawWk}: equiv ρ ρ := λ_ => rfl
     exact 0
 }
 
+def RawWk.wknth_small: {n v: Nat} -> v < n -> var (wknth n) v = v := by {
+  intros n;
+  induction n with
+  | zero => intro v H; cases H
+  | succ n I => 
+    intro v H;
+    simp only [wknth, liftn]
+    cases v with
+    | zero => rfl
+    | succ v => 
+      simp only [var]
+      simp only [wknth] at I
+      rw [I]
+      exact Nat.le_of_succ_le_succ H
+}
+
 @[simp] theorem raw_wk_var_comp: (ρ σ: RawWk) -> (n: Nat) ->
   RawWk.var ρ (RawWk.var σ n) = RawWk.var (RawWk.comp ρ σ) n
   | RawWk.id, _, _ => rfl

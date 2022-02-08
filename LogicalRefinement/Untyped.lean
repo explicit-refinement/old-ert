@@ -377,22 +377,15 @@ theorem RawSubst.lift_var: {n v: Nat} -> {σ: RawSubst} ->
   (liftn (n + 1) σ) (RawWk.var (RawWk.wknth n) v) 
   = RawUntyped.wknth n (liftn n σ v) 
   := by {
-    intro n;
-    induction n with
-    | zero => simp [wk1]
-    | succ n I => 
-      intros v σ
-      rw [Nat.add_succ, Nat.add_zero]
-      rw [<-RawSubst.lift_liftn_merge]
-      rw [<-RawWk.lift_wknth_merge]
-      let H': liftn (Nat.succ n) σ v = lift (liftn n σ) v := by simp
-      rw [H']
-      cases v with
-      | zero => simp
-      | succ v =>
-        simp only [lift, RawSubst.wk1]
-        sorry
-      exact 0 --TODO: why?
+    intros n v σ;
+    cases Nat.le_or_lt v n with
+    | inl Hnv =>
+      rw [liftn_base_nil _ _ _ Hnv]
+      rw [liftn_base_nil]
+      simp only [RawUntyped.wknth, RawUntyped.wk]
+      rw [RawWk.wknth_small Hnv]
+      exact Nat.le_step Hnv
+    | inr Hnv => sorry
   }
 
 theorem RawUntyped.liftn_wk {u: RawUntyped}: {σ: RawSubst} -> (n: Nat) ->
