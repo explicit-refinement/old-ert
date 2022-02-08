@@ -286,7 +286,9 @@ theorem RawSubst.liftn_base_nil: (base: Nat) -> (σ: RawSubst) ->
   liftn base σ v = RawUntyped.var v := by {
   intros base;
   induction base with
-  | zero => sorry
+  | zero =>
+    intros σ v H;
+    cases H
   | succ base I =>
     intros σ v H;
     simp only [liftn];
