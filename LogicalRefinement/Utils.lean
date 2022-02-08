@@ -243,5 +243,8 @@ def Nat.lt_sub_lt_add: {l n m: Nat} -> n + m < l -> n < l - m := by {
       rw [H']
       rw [Nat.add_sub_self_right]
       apply Nat.le_refl
-    | step => sorry
+    | step H =>
+      apply Nat.le_trans _ (Nat.sub_le_succ_sub _ _)
+      apply Hl
+      apply H
 }
