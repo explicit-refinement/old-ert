@@ -3,7 +3,6 @@ import LogicalRefinement.Wk
 import LogicalRefinement.Untyped.Basic
 import LogicalRefinement.Untyped.Wk
 
-
 def RawSubst := Nat -> RawUntyped
 
 @[simp]
@@ -20,6 +19,14 @@ def RawSubst.lift (σ: RawSubst): RawSubst
   | 0 => RawUntyped.var 0
   | Nat.succ n => wk1 σ n
 
+def RawWk.to_subst_lift {σ: RawWk}: 
+  RawSubst.lift (to_subst σ) = to_subst (lift σ) := by {
+  funext v;
+  cases v with
+  | zero => simp [RawSubst.lift]
+  | succ n => simp [RawSubst.lift, RawSubst.wk1]
+}
+
 @[simp]
 def RawSubst.lift_succ (σ: RawSubst):
   lift σ (Nat.succ n) = wk1 σ n := rfl
@@ -32,6 +39,18 @@ def RawSubst.lift_zero (σ: RawSubst):
 def RawSubst.liftn: (l: Nat) -> (σ: RawSubst) -> RawSubst
   | 0, σ => σ
   | Nat.succ l, σ => lift (liftn l σ)
+
+def RawWk.to_subst_liftn: {n: Nat} -> {σ: RawWk} ->
+  RawSubst.liftn n (to_subst σ) = to_subst (liftn n σ) := by {
+    intro n;
+    induction n with
+    | zero => simp
+    | succ n I =>
+      intros σ
+      simp only [liftn, RawSubst.liftn]
+      rw [<-to_subst_lift]
+      rw [I]
+}
 
 theorem RawSubst.liftn_lift_commute {σ: RawSubst}: 
   liftn n (lift σ) = lift (liftn n σ) := by {
@@ -239,3 +258,39 @@ def RawUntyped.subst_composes (u: RawUntyped):
     funext v;
     simp [comp]
   }
+
+@[simp]
+def RawSubst.subst_wk_compat: {u: RawUntyped} -> {ρ: RawWk} ->
+  RawUntyped.subst (RawWk.to_subst ρ) u = RawUntyped.wk ρ u := by {
+  intro u;
+  induction u with
+  | var v => simp
+  | const c => simp
+  | unary k t I =>
+    intros ρ;
+    simp only [RawUntyped.subst]
+    rw [I]
+    rfl
+  | let_bin k t I =>
+    intros ρ;
+    simp only [RawUntyped.subst]
+    rw [RawWk.to_subst_liftn]
+    rw [I]
+    rfl
+  | bin k l r Il Ir =>
+    intros ρ;
+    simp only [RawUntyped.subst]
+    rw [Il, Ir]
+    rfl
+  | abs k A t IA It =>
+    intros ρ;
+    simp only [RawUntyped.subst]
+    rw [RawWk.to_subst_lift]
+    rw [IA, It]
+    rfl
+  | cases k d l r Id Il Ir =>
+    intros ρ;
+    simp only [RawUntyped.subst]
+    rw [Id, Il, Ir]
+    rfl
+}
