@@ -385,7 +385,18 @@ theorem RawSubst.lift_var: {n v: Nat} -> {σ: RawSubst} ->
       simp only [RawUntyped.wknth, RawUntyped.wk]
       rw [RawWk.wknth_small Hnv]
       exact Nat.le_step Hnv
-    | inr Hnv => sorry
+    | inr Hnv =>
+      rw [liftn_above_wk _ _ _ Hnv]
+      rw [liftn_above_wk]
+      simp only [
+        RawUntyped.wknth, RawUntyped.wk, RawUntyped.wkn, RawWk.wkn, Nat.add]
+      rw [RawWk.wknth_big Hnv]
+      rw [Nat.succ_sub_succ_eq_sub]
+      rw [RawUntyped.wk_composes]
+      rw [RawUntyped.wk_coherent RawWk.wknth_wkn_equiv]
+      simp
+      rw [RawWk.wknth_big Hnv]
+      exact Nat.succ_le_succ Hnv
   }
 
 theorem RawUntyped.liftn_wk {u: RawUntyped}: {σ: RawSubst} -> (n: Nat) ->

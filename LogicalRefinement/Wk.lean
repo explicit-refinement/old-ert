@@ -105,7 +105,7 @@ def RawWk.equiv (ρ σ: RawWk) := ∀v: Nat, var ρ v = var σ v
 
 def RawWk.equiv_refl {ρ: RawWk}: equiv ρ ρ := λ_ => rfl
 
-@[simp] def RawWk.equiv_sym {ρ σ: RawWk}: equiv ρ σ = equiv σ ρ := by {
+def RawWk.equiv_sym {ρ σ: RawWk}: equiv ρ σ = equiv σ ρ := by {
   simp only [equiv];
   apply propext;
   apply Iff.intro;
@@ -117,14 +117,14 @@ def RawWk.equiv_refl {ρ: RawWk}: equiv ρ ρ := λ_ => rfl
     simp [H]
 }
 
-@[simp] def RawWk.equiv_trans {ρ σ τ: RawWk}: 
+def RawWk.equiv_trans {ρ σ τ: RawWk}: 
   equiv ρ σ -> equiv σ τ -> equiv ρ τ := by {
     intros Hρσ Hστ v;
     rw [Hρσ]
     rw [Hστ]
   }
 
-@[simp] def RawWk.lift_equiv {ρ σ: RawWk}:
+def RawWk.lift_equiv {ρ σ: RawWk}:
   equiv ρ σ -> equiv (lift ρ) (lift σ) := by {
     intros H v;
     cases v with
@@ -132,7 +132,7 @@ def RawWk.equiv_refl {ρ: RawWk}: equiv ρ ρ := λ_ => rfl
     | succ v => simp only [var]; rw [H]
   }
 
-@[simp] def RawWk.liftn_equiv: {n: Nat} -> {ρ σ: RawWk} ->
+def RawWk.liftn_equiv: {n: Nat} -> {ρ σ: RawWk} ->
   equiv ρ σ -> equiv (liftn n ρ) (liftn n σ) := by {
     intro n;
     induction n with
@@ -145,14 +145,14 @@ def RawWk.equiv_refl {ρ: RawWk}: equiv ρ ρ := λ_ => rfl
       exact H
   }
 
-@[simp] def RawWk.lift_id_equiv: equiv (lift id) id := by {
+def RawWk.lift_id_equiv: equiv (lift id) id := by {
     intros v;
     cases v with
     | zero => rfl
     | succ v => rfl
   }
 
-@[simp] def RawWk.liftn_id_equiv: {n: Nat} -> equiv (liftn n id) id := by {
+def RawWk.liftn_id_equiv: {n: Nat} -> equiv (liftn n id) id := by {
     intro n;
     induction n with
     | zero => exact equiv_refl
@@ -192,6 +192,34 @@ def RawWk.wknth_small: {n v: Nat} -> v < n -> var (wknth n) v = v := by {
       simp only [wknth] at I
       rw [I]
       exact Nat.le_of_succ_le_succ H
+}
+
+def RawWk.wknth_big: {n v: Nat} -> n ≤ v -> var (wknth n) v = v + 1 := by {
+  intros n;
+  induction n with
+  | zero => simp
+  | succ n I => 
+    intro v H;
+    simp only [wknth, liftn]
+    cases v with
+    | zero => cases H
+    | succ v => 
+      simp only [var]
+      simp only [wknth] at I
+      rw [I]
+      exact Nat.le_of_succ_le_succ H
+}
+
+def RawWk.wknth_wkn_equiv: equiv (comp (wknth n) (wkn n)) (wkn (n + 1)) := by {
+  induction n with
+  | zero =>
+    exact equiv_refl
+  | succ n I =>
+    intro v;
+    simp only [var]
+    simp only [wknth] at I
+    rw [I v]
+    simp
 }
 
 @[simp] theorem raw_wk_var_comp: (ρ σ: RawWk) -> (n: Nat) ->
