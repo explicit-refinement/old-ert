@@ -27,11 +27,11 @@ inductive UntypedKind: List Nat -> Type
   | lam: UntypedKind [0, 1]
   | app: UntypedKind [0, 0]
   | pair: UntypedKind [0, 0]
-  | proj (b: Bool): UntypedKind [0, 0]
-  | inj (b: Bool): UntypedKind [0, 0]
+  | proj (b: Bool): UntypedKind [0]
+  | inj (b: Bool): UntypedKind [0]
   | case: UntypedKind [0, 0, 0]
-  | mkset: UntypedKind [0, 0]
-  | letset: UntypedKind [2]
+  | elem: UntypedKind [0, 0]
+  | let_set: UntypedKind [2]
   | lam_pr: UntypedKind [0, 1]
   | app_pr: UntypedKind [0, 0]
   | lam_irrel: UntypedKind [0, 1]
@@ -43,8 +43,8 @@ inductive UntypedKind: List Nat -> Type
   | nil: UntypedKind []
   | abort: UntypedKind [0]
   | conj: UntypedKind [0, 0]
-  | comp (b: Bool): UntypedKind [0, 0]
-  | disj (b: Bool): UntypedKind [0, 0]
+  | comp (b: Bool): UntypedKind [0]
+  | disj (b: Bool): UntypedKind [0]
   | case_pr: UntypedKind [0, 0, 0]
   | imp: UntypedKind [0, 0]
   | mp: UntypedKind [0, 0]
@@ -67,6 +67,58 @@ inductive RawUntyped: Type
   | abs (k: UntypedKind [0, 1]) (A: RawUntyped) (t: RawUntyped)
   -- TODO: no cases?
   | cases (k: UntypedKind [0, 0, 0]) (d: RawUntyped) (l: RawUntyped) (r: RawUntyped)
+
+-- Types
+def RawUntyped.nats := const UntypedKind.nats
+def RawUntyped.pi := abs UntypedKind.pi
+def RawUntyped.sigma := abs UntypedKind.sigma
+def RawUntyped.coprod := bin UntypedKind.coprod
+def RawUntyped.set := abs UntypedKind.set
+def RawUntyped.assume := abs UntypedKind.assume
+def RawUntyped.intersect := abs UntypedKind.intersect
+def RawUntyped.union := abs UntypedKind.union
+
+-- Propositions
+def RawUntyped.top := const UntypedKind.top
+def RawUntyped.bot := const UntypedKind.bot
+def RawUntyped.and := bin UntypedKind.and
+def RawUntyped.or := bin UntypedKind.or
+def RawUntyped.implies := bin UntypedKind.implies
+def RawUntyped.forall_ := abs UntypedKind.forall_
+def RawUntyped.exists_ := abs UntypedKind.exists_
+def RawUntyped.eq := cases UntypedKind.eq
+
+-- Terms
+def RawUntyped.nat := λn => const (UntypedKind.nat n)
+def RawUntyped.lam := abs UntypedKind.lam
+def RawUntyped.app := bin UntypedKind.app
+def RawUntyped.pair := bin UntypedKind.pair
+def RawUntyped.proj := λb => unary (UntypedKind.proj b)
+def RawUntyped.inj := λb => unary (UntypedKind.inj b)
+def RawUntyped.case := cases UntypedKind.case
+def RawUntyped.elem := bin UntypedKind.elem
+def RawUntyped.let_set := let_bin UntypedKind.let_set
+def RawUntyped.lam_pr := abs UntypedKind.lam_pr
+def RawUntyped.app_pr := bin UntypedKind.app_pr
+def RawUntyped.lam_irrel := abs UntypedKind.lam_irrel
+def RawUntyped.app_irrel := bin UntypedKind.app_irrel
+def RawUntyped.repr := bin UntypedKind.repr
+def RawUntyped.let_repr := let_bin UntypedKind.let_repr
+
+-- Proofs
+def RawUntyped.nil := const UntypedKind.nil
+def RawUntyped.abort := unary UntypedKind.abort
+def RawUntyped.conj := bin UntypedKind.conj
+def RawUntyped.comp := λb => unary (UntypedKind.comp b)
+def RawUntyped.disj := λb => unary (UntypedKind.disj b)
+def RawUntyped.case_pr := cases UntypedKind.case_pr
+def RawUntyped.imp := bin UntypedKind.imp
+def RawUntyped.mp := bin UntypedKind.mp
+def RawUntyped.general := abs UntypedKind.general
+def RawUntyped.inst := bin UntypedKind.inst
+def RawUntyped.witness := bin UntypedKind.witness
+def RawUntyped.let_wit := let_bin UntypedKind.let_wit
+def RawUntyped.refl := unary UntypedKind.refl
 
 @[simp] def RawUntyped.fv: RawUntyped -> Nat
   | var v => Nat.succ v
