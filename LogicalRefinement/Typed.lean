@@ -6,7 +6,15 @@ inductive Annot
   | prop
   | expr (A: RawUntyped)
 
-def RawContext := List RawUntyped
+structure Hyp := (annot: RawUntyped) (comp: Bool)
+
+def Hyp.upgrade (h: Hyp): Hyp := Hyp.mk (h.annot) true
+
+def RawContext := List Hyp
+
+def RawContext.upgrade: RawContext -> RawContext
+  | [] => []
+  | h::hs => (h.upgrade)::hs
 
 open Annot
 open RawUntyped
@@ -20,20 +28,26 @@ def constAnnot: UntypedKind [] -> Annot
 
 inductive RawPath: RawContext -> RawUntyped -> RawUntyped -> Annot -> Prop
   -- Variables
-  | var {Γ: RawContext} {n: Nat} (p: n < Γ.length):
-    RawPath Γ (var n) (var n) (expr (wkn n (Γ.get n p)))
+  | var {Γ: RawContext} {n: Nat} {A: RawUntyped}:
+    Γ.get? n = some (Hyp.mk A true) ->
+    RawPath Γ (var n) (var n) (expr (wkn n A))
   
   -- Constants
   | const {Γ: RawContext} {c: UntypedKind []}:
     RawPath Γ (const c) (const c) (constAnnot c)
 
-def IsAnnot (Γ: RawContext) (A: RawUntyped) :=  
-  RawPath Γ A A type ∨ RawPath Γ A A prop
+theorem RawPath.upgrade (p: RawPath Γ a b A): RawPath Γ.upgrade a b A := by {
+  induction p with
+  | const => exact const
+  | _ => sorry
+}
 
 inductive IsContext: RawContext -> Prop
   | nil: IsContext []
-  | cons (Γ: RawContext) (A: RawUntyped):
-    IsAnnot Γ A -> IsContext Γ -> IsContext (A::Γ)
+  | cons_typ (Γ: RawContext) (A: RawUntyped) (comp: Bool):
+    RawPath Γ A A type -> IsContext Γ -> IsContext ((Hyp.mk A comp)::Γ)
+  | cons_prop (Γ: RawContext) (A: RawUntyped):
+    RawPath Γ A A type -> IsContext Γ -> IsContext ((Hyp.mk A true)::Γ)
 
 structure Context := (val: RawContext) (p: IsContext val)
 
