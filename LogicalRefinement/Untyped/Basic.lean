@@ -8,7 +8,7 @@ inductive UntypedKind: List Nat -> Type
   | sigma: UntypedKind [0, 1]
   | coprod: UntypedKind [0, 0]
   | set: UntypedKind [0, 1]
-  | assume: UntypedKind [0, 1]
+  | assume: UntypedKind [0, 0]
   | intersect: UntypedKind [0, 1]
   | union: UntypedKind [0, 1]
 
@@ -74,7 +74,7 @@ def RawUntyped.pi := abs UntypedKind.pi
 def RawUntyped.sigma := abs UntypedKind.sigma
 def RawUntyped.coprod := bin UntypedKind.coprod
 def RawUntyped.set := abs UntypedKind.set
-def RawUntyped.assume := abs UntypedKind.assume
+def RawUntyped.assume := bin UntypedKind.assume
 def RawUntyped.intersect := abs UntypedKind.intersect
 def RawUntyped.union := abs UntypedKind.union
 
@@ -235,8 +235,8 @@ def Untyped.coprod: Untyped n -> Untyped n -> Untyped n
   := bin UntypedKind.coprod
 def Untyped.set: Untyped n -> Untyped (n + 1) -> Untyped n 
   := abs UntypedKind.set
-def Untyped.assume: Untyped n -> Untyped (n + 1) -> Untyped n 
-  := abs UntypedKind.assume
+def Untyped.assume: Untyped n -> Untyped n -> Untyped n 
+  := bin UntypedKind.assume
 def Untyped.intersect: Untyped n -> Untyped (n + 1) -> Untyped n 
   := abs UntypedKind.intersect
 def Untyped.union: Untyped n -> Untyped (n + 1) -> Untyped n 
