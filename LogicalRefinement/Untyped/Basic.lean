@@ -188,3 +188,128 @@ def Untyped.raw (val: RawUntyped): Untyped (RawUntyped.fv val) :=
 
 def Untyped.fv: Untyped n -> Fin (n + 1) 
   | Untyped.mk val p => Fin.mk (RawUntyped.fv val) (Nat.le_lt_succ p)
+
+-- Constructors
+def Untyped.var (v: Nat): Untyped (Nat.succ v) :=
+  Untyped.mk (RawUntyped.var v) (Nat.lt_succ_self _)
+def Untyped.const (c: UntypedKind []): Untyped n :=
+  Untyped.mk (RawUntyped.const c) (Nat.zero_le _)
+def Untyped.unary (c: UntypedKind [0]): Untyped n -> Untyped n
+  | u => Untyped.mk (RawUntyped.unary c u.val) u.p
+def Untyped.let_bin (c: UntypedKind [2]): Untyped (n + 2) -> Untyped n
+  | u => Untyped.mk (RawUntyped.let_bin c u.val) (by {
+    simp only [RawUntyped.fv, Nat.le_sub_is_le_add]
+    exact u.p
+  })
+def Untyped.bin (c: UntypedKind [0, 0]): 
+  Untyped n -> Untyped n -> Untyped n
+  | l, r => Untyped.mk (RawUntyped.bin c l.val r.val) (by {
+    simp only [RawUntyped.fv, Nat.max_r_le_split]
+    exact ⟨l.p, r.p⟩
+  })
+def Untyped.abs (c: UntypedKind [0, 1]): 
+  Untyped n -> Untyped (n + 1) -> Untyped n
+  | l, r => Untyped.mk (RawUntyped.abs c l.val r.val) (by {
+    simp only [RawUntyped.fv, Nat.max_r_le_split]
+    apply And.intro;
+    case left => exact l.p
+    case right => 
+      simp only [RawUntyped.fv, Nat.le_sub_is_le_add]
+      exact r.p
+  })
+def Untyped.cases (c: UntypedKind [0, 0, 0]):
+  Untyped n -> Untyped n -> Untyped n -> Untyped n
+  | d, l, r =>
+    Untyped.mk (RawUntyped.cases c d.val l.val r.val) (by {
+      simp only [RawUntyped.fv, Nat.max_r_le_split]
+      exact ⟨d.p, l.p, r.p⟩
+    })
+
+-- Types
+def Untyped.nats: Untyped n := const UntypedKind.nats
+def Untyped.pi: Untyped n -> Untyped (n + 1) -> Untyped n := 
+  abs UntypedKind.pi
+def Untyped.sigma: Untyped n -> Untyped (n + 1) -> Untyped n := 
+  abs UntypedKind.sigma
+def Untyped.coprod: Untyped n -> Untyped n -> Untyped n 
+  := bin UntypedKind.coprod
+def Untyped.set: Untyped n -> Untyped (n + 1) -> Untyped n 
+  := abs UntypedKind.set
+def Untyped.assume: Untyped n -> Untyped (n + 1) -> Untyped n 
+  := abs UntypedKind.assume
+def Untyped.intersect: Untyped n -> Untyped (n + 1) -> Untyped n 
+  := abs UntypedKind.intersect
+def Untyped.union: Untyped n -> Untyped (n + 1) -> Untyped n 
+  := abs UntypedKind.union
+
+-- Propositions
+def Untyped.top: Untyped n := const UntypedKind.top
+def Untyped.bot: Untyped n := const UntypedKind.bot
+def Untyped.and: Untyped n -> Untyped n -> Untyped n 
+  := bin UntypedKind.and
+def Untyped.or: Untyped n -> Untyped n -> Untyped n 
+  := bin UntypedKind.or
+def Untyped.implies: Untyped n -> Untyped n -> Untyped n 
+  := bin UntypedKind.implies
+def Untyped.forall_: Untyped n -> Untyped (n + 1) -> Untyped n
+  := abs UntypedKind.forall_
+def Untyped.exists_: Untyped n -> Untyped (n + 1) -> Untyped n 
+  := abs UntypedKind.exists_
+def Untyped.eq: Untyped n -> Untyped n -> Untyped n -> Untyped n
+  := cases UntypedKind.eq
+
+-- Terms
+def Untyped.nat (m: Nat): Untyped n := const (UntypedKind.nat m)
+def Untyped.lam: Untyped n -> Untyped (n + 1) -> Untyped n
+   := abs UntypedKind.lam
+def Untyped.app: Untyped n -> Untyped n -> Untyped n 
+  := bin UntypedKind.app
+def Untyped.pair: Untyped n -> Untyped n -> Untyped n 
+  := bin UntypedKind.pair
+def Untyped.proj (b: Bool): Untyped n -> Untyped n 
+  := unary (UntypedKind.proj b)
+def Untyped.inj (b: Bool): Untyped n -> Untyped n 
+  := unary (UntypedKind.inj b)
+def Untyped.case: Untyped n -> Untyped n -> Untyped n -> Untyped n 
+  := cases UntypedKind.case
+def Untyped.elem: Untyped n -> Untyped n -> Untyped n 
+  := bin UntypedKind.elem
+def Untyped.let_set: Untyped (n + 2) -> Untyped n := 
+  let_bin UntypedKind.let_set
+def Untyped.lam_pr: Untyped n -> Untyped (n + 1) -> Untyped n
+  := abs UntypedKind.lam_pr
+def Untyped.app_pr: Untyped n -> Untyped n -> Untyped n 
+  := bin UntypedKind.app_pr
+def Untyped.lam_irrel: Untyped n -> Untyped (n + 1) -> Untyped n
+  := abs UntypedKind.lam_irrel
+def Untyped.app_irrel: Untyped n -> Untyped n -> Untyped n
+  := bin UntypedKind.app_irrel
+def Untyped.repr: Untyped n -> Untyped n -> Untyped n 
+  := bin UntypedKind.repr
+def Untyped.let_repr: Untyped (n + 2) -> Untyped n
+  := let_bin UntypedKind.let_repr
+
+-- Proofs
+def Untyped.nil: Untyped n := const UntypedKind.nil
+def Untyped.abort: Untyped n -> Untyped n := unary UntypedKind.abort
+def Untyped.conj: Untyped n -> Untyped n -> Untyped n 
+  := bin UntypedKind.conj
+def Untyped.comp (b: Bool): Untyped n -> Untyped n 
+  := unary (UntypedKind.comp b)
+def Untyped.disj (b: Bool): Untyped n -> Untyped n 
+  := unary (UntypedKind.disj b)
+def Untyped.case_pr: Untyped n -> Untyped n -> Untyped n -> Untyped n 
+  := cases UntypedKind.case_pr
+def Untyped.imp: Untyped n -> Untyped n -> Untyped n 
+  := bin UntypedKind.imp
+def Untyped.mp: Untyped n -> Untyped n -> Untyped n 
+  := bin UntypedKind.mp
+def Untyped.general: Untyped n -> Untyped (n + 1) -> Untyped n
+  := abs UntypedKind.general
+def Untyped.inst: Untyped n -> Untyped n -> Untyped n 
+  := bin UntypedKind.inst
+def Untyped.witness: Untyped n -> Untyped n -> Untyped n 
+  := bin UntypedKind.witness
+def Untyped.let_wit: Untyped (n + 2) -> Untyped n
+  := let_bin UntypedKind.let_wit
+def Untyped.refl: Untyped n -> Untyped n := unary UntypedKind.refl
