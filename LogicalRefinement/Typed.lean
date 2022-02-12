@@ -1,10 +1,22 @@
 import LogicalRefinement.Untyped
 open RawUntyped
 
+inductive RawType
+  | type
+  | prop
+  | expr (A: RawUntyped)
+
 def RawContext := List RawUntyped
 
-inductive HasType: RawContext -> RawUntyped -> RawUntyped -> Prop
-  | var0 {Γ: RawContext} {A: RawUntyped}: HasType (A::Γ) (var 0) A
+open RawType
+open RawUntyped
 
-  | wk {Γ: RawContext} {t: RawUntyped} {A: RawUntyped} (_: HasType Γ t A) (B: RawUntyped)
-  : HasType (B::Γ) (wk1 t) (wk1 A)
+inductive Path: RawContext -> RawUntyped -> RawUntyped -> RawType -> Prop
+  | var {Γ: RawContext} {n: Nat} (p: n < Γ.length):
+    Path Γ (var n) (var n) (expr (Γ.get n p))
+
+def IsType (Γ: RawContext) (A: RawUntyped) := Path Γ A A type
+
+def IsProp (Γ: RawContext) (A: RawUntyped) := Path Γ A A prop
+
+def HasType (Γ: RawContext) (a: RawUntyped) (A: RawUntyped) := Path Γ a a (expr A)
