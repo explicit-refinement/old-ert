@@ -35,7 +35,7 @@ def constAnnot: UntypedKind [] -> Annot
   | UntypedKind.nats => type
   | UntypedKind.top => prop
   | UntypedKind.bot => prop
-  | UntypedKind.nat _ => expr nats
+  | UntypedKind.zero => expr nats
   | UntypedKind.nil => expr top
 
 inductive HasType: RawContext -> RawUntyped -> Annot -> Prop
@@ -105,7 +105,7 @@ inductive HasType: RawContext -> RawUntyped -> Annot -> Prop
 
   -- Basic terms
   | lam {Γ: RawContext} {A s B: RawUntyped}:
-    HasType Γ A type -> HasType ((Hyp.val (wk1 A))::Γ) s (expr B) ->
+    HasType ((Hyp.val (wk1 A))::Γ) s (expr B) ->
     HasType Γ (lam A s) (expr (pi A B))
 
   -- Basic proofs

@@ -141,6 +141,7 @@ def RawUntyped.subst (σ: RawSubst): RawUntyped -> RawUntyped
   | let_bin k t => let_bin k (subst (RawSubst.liftn 2 σ) t)
   | bin k l r => bin k (subst σ l) (subst σ r)
   | abs k A t => abs k (subst σ A) (subst (RawSubst.lift σ) t)
+  | tri k A l r => tri k (subst σ A) (subst σ l) (subst σ r)
   | cases k K d l r => cases k (subst (RawSubst.lift σ) K) (subst σ d) (subst σ l) (subst σ r)
 
 theorem RawSubst.lift_var: {n v: Nat} -> {σ: RawSubst} -> 
@@ -209,6 +210,13 @@ theorem RawUntyped.liftn_wk {u: RawUntyped}: {σ: RawSubst} -> (n: Nat) ->
       rw [RawSubst.lift_liftn_merge]
       rw [It]
       exact 0 -- TODO: why?
+    | tri k A l r IA Il Ir =>
+      intros σ n
+      simp only [wknth, wk, subst]
+      simp only [wknth] at IA
+      simp only [wknth] at Il
+      simp only [wknth] at Ir
+      rw [IA, Il, Ir]
     | cases k K d l r IK Id Il Ir =>
       intros σ n
       simp only [wknth, wk, subst]
@@ -252,6 +260,7 @@ def RawSubst.comp (σ ρ: RawSubst): RawSubst
   | let_bin k t I => simp [I]
   | bin k l r Il Ir => simp [Il, Ir]
   | abs k A t IA It => simp [IA, It]
+  | tri k A l r IA Il Ir => simp [IA, Il, Ir]
   | cases k K d l r IK Id Il Ir => simp [IK, Id, Il, Ir]
 }
 
@@ -288,6 +297,11 @@ def RawSubst.comp (σ ρ: RawSubst): RawSubst
     simp only [RawUntyped.subst]
     rw [RawWk.to_subst_lift]
     rw [IA, It]
+    rfl
+  | tri k A l r IA Il Ir =>
+    intros ρ;
+    simp only [RawUntyped.subst]
+    rw [IA, Il, Ir]
     rfl
   | cases k K d l r IK Id Il Ir =>
     intros ρ;
@@ -391,6 +405,12 @@ theorem RawUntyped.subst_bounds: {u: RawUntyped} -> {σ: RawSubst} -> {n m: Nat}
       apply Hs
       apply RawSubst.lift_subst
       apply Hσ
+  | tri k A l r IA Il Ir =>
+    intros σ n m;
+    simp only [RawUntyped.fv, Nat.max_r_le_split]
+    intro ⟨HA, Hl, Hr⟩
+    intro Hσ
+    exact ⟨IA HA Hσ, Il Hl Hσ, Ir Hr Hσ⟩
   | cases k K d l r IK Id Il Ir =>
     intros σ n m;
     simp only [RawUntyped.fv, Nat.max_r_le_split, Nat.le_sub_is_le_add]
@@ -422,3 +442,6 @@ def Subst.subst0 (u: Untyped n): Subst n (n + 1) :=
       simp only [RawSubst.subst0, RawUntyped.fv]
       exact Nat.lt_of_succ_lt_succ Hv
   })
+
+def RawUntyped.subst0 (u v: RawUntyped): RawUntyped :=
+    subst (RawSubst.subst0 u) v
