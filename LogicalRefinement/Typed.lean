@@ -22,12 +22,26 @@ def Hyp.upgrade: Hyp -> Hyp
   | val A => val A
   | ghost A => val A
 
+@[simp]
+theorem Hyp.upgrade_idem: upgrade (upgrade h) = upgrade h := by {
+  cases h; repeat rfl
+}
+
 def RawContext := List Hyp
 
 @[simp]
 def RawContext.upgrade: RawContext -> RawContext
   | [] => []
   | h::hs => (h.upgrade)::(upgrade hs)
+
+@[simp]
+theorem RawContext.upgrade_idem: upgrade (upgrade Γ) = upgrade Γ := by {
+  induction Γ with
+  | nil => rfl
+  | cons A Γ I => 
+    simp only [upgrade, Hyp.upgrade_idem]; 
+    simp [I]
+}
 
 open Annot
 open RawUntyped
