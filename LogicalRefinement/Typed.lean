@@ -17,13 +17,13 @@ def Annot.wk1: Annot -> Annot
 
 inductive Hyp
   | val (A: RawUntyped) -- Computational
-  | ghost (A: RawUntyped) -- Refinement
+  | gst (A: RawUntyped) -- Refinement
   | log (A: RawUntyped) -- Logical
 
 @[simp]
 def Hyp.upgrade: Hyp -> Hyp
   | val A => val A
-  | ghost A => val A
+  | gst A => val A
   | log A => log A
 
 @[simp]
@@ -87,15 +87,15 @@ inductive HasType: RawContext -> RawUntyped -> Annot -> Prop
   | wk_val_prop {Γ A B}:
     HasType Γ A prop -> HasType Γ B type 
     -> HasType ((Hyp.val B)::Γ) (wk1 a) prop
-  | wk_ghost_term {Γ a A B}:
+  | wk_gst_term {Γ a A B}:
     HasType Γ a (term A) -> HasType Γ B type 
-    -> HasType ((Hyp.ghost B)::Γ) (wk1 a) (term (wk1 A))
-  | wk_ghost_type {Γ A B}:
+    -> HasType ((Hyp.gst B)::Γ) (wk1 a) (term (wk1 A))
+  | wk_gst_type {Γ A B}:
     HasType Γ A type -> HasType Γ B type 
-    -> HasType ((Hyp.ghost B)::Γ) (wk1 a) type
-  | wk_ghost_prop {Γ A B}:
+    -> HasType ((Hyp.gst B)::Γ) (wk1 a) type
+  | wk_gst_prop {Γ A B}:
     HasType Γ A prop -> HasType Γ B type 
-    -> HasType ((Hyp.ghost B)::Γ) (wk1 a) prop
+    -> HasType ((Hyp.gst B)::Γ) (wk1 a) prop
   | wk_log_term {Γ a A B}:
     HasType Γ a (term A) -> HasType Γ B prop 
     -> HasType ((Hyp.log B)::Γ) (wk1 a) (term (wk1 A))
@@ -196,9 +196,9 @@ def HasType.const_lam
 theorem HasType.upgrade (p: HasType Γ a A): HasType Γ.upgrade a A := by {
   induction p;
   
-  case wk_ghost_term Ia IB => exact wk_val_term Ia IB
-  case wk_ghost_type Ia IB => exact wk_val_type Ia IB
-  case wk_ghost_prop Ia IB => exact wk_val_prop Ia IB
+  case wk_gst_term Ia IB => exact wk_val_term Ia IB
+  case wk_gst_type Ia IB => exact wk_val_type Ia IB
+  case wk_gst_prop Ia IB => exact wk_val_prop Ia IB
 
   case var0_val IA => exact var0_val IA
   case var0_log IA => exact var0_log IA
@@ -259,7 +259,7 @@ theorem HasType.proof_regular (p: HasType Γ a (proof A)): HasType Γ A prop
 inductive IsCtx: RawContext -> Prop
   | nil: IsCtx []
   | cons_val {Γ A}: IsCtx Γ -> HasType Γ A type -> IsCtx ((Hyp.val A)::Γ)
-  | cons_ghost {Γ A}: IsCtx Γ -> HasType Γ A type -> IsCtx ((Hyp.ghost A)::Γ)
+  | cons_gst {Γ A}: IsCtx Γ -> HasType Γ A type -> IsCtx ((Hyp.gst A)::Γ)
   | cons_log {Γ A}: IsCtx Γ -> HasType Γ A prop -> IsCtx ((Hyp.log A)::Γ)
 
 theorem HasType.ctx_regular (p: HasType Γ a A): IsCtx Γ := by {
@@ -270,3 +270,19 @@ theorem HasType.ctx_regular (p: HasType Γ a A): IsCtx Γ := by {
 
   repeat sorry
 }
+
+inductive IsHyp: RawContext -> Hyp -> Prop
+  | hyp_val {Γ A}: HasType Γ A type -> IsHyp Γ (Hyp.val A)
+  | hyp_gst {Γ A}: HasType Γ A type -> IsHyp Γ (Hyp.gst A)
+  | hyp_log {Γ A}: HasType Γ A prop -> IsHyp Γ (Hyp.log A)
+
+inductive WkCtx: RawContext -> RawContext -> Type
+  | id: WkCtx [] []
+  --TODO: make H explicit?
+  | step {Γ Δ H}: WkCtx Γ Δ -> IsHyp Γ H -> WkCtx (H::Γ) Δ 
+  | lift {Γ Δ H}: WkCtx Γ Δ -> WkCtx (H::Γ) (H::Δ)
+
+def WkCtx.to_wk: WkCtx Γ Δ -> Wk Γ.length Δ.length
+  | id => Wk.id
+  | step ρ _ => sorry
+  | lift ρ => sorry
