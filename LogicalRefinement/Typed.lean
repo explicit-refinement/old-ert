@@ -70,8 +70,12 @@ inductive HasType: RawContext -> RawUntyped -> Annot -> Prop
     HasType ((Hyp.log A)::Γ) (var 0) (proof (wk1 A))
 
   -- Constants
-  -- | const0 {c: UntypedKind []}:
-  --   HasType [] (const c) (constAnnot c)
+  | nats: HasType [] nats type
+  | top: HasType [] top prop
+  | bot: HasType [] bot prop
+  | zero: HasType [] zero (term nats)
+  | succ: HasType [] succ (term (arrow nats nats))
+  | nil: HasType [] nil (proof top)
   
   -- Weakening (TODO: condense to one rule?)
   | wk_val_term {Γ a A B}:
@@ -80,12 +84,27 @@ inductive HasType: RawContext -> RawUntyped -> Annot -> Prop
   | wk_val_type {Γ A B}:
     HasType Γ A type -> HasType Γ B type 
     -> HasType ((Hyp.val B)::Γ) (wk1 a) type
-  -- | wk_ghost {Γ a A B}:
-  --   HasType Γ a A -> HasType Γ B type 
-  --   -> HasType ((Hyp.ghost B)::Γ) (wk1 a) (wk1 A)
-  -- | wk_log {Γ a A B}:
-  --   HasType Γ a A -> HasType Γ B prop 
-  --   -> HasType ((Hyp.log B)::Γ) (wk1 a) (wk1 A)
+  | wk_val_prop {Γ A B}:
+    HasType Γ A prop -> HasType Γ B type 
+    -> HasType ((Hyp.val B)::Γ) (wk1 a) prop
+  | wk_ghost_term {Γ a A B}:
+    HasType Γ a (term A) -> HasType Γ B type 
+    -> HasType ((Hyp.ghost B)::Γ) (wk1 a) (term (wk1 A))
+  | wk_ghost_type {Γ A B}:
+    HasType Γ A type -> HasType Γ B type 
+    -> HasType ((Hyp.ghost B)::Γ) (wk1 a) type
+  | wk_ghost_prop {Γ A B}:
+    HasType Γ A prop -> HasType Γ B type 
+    -> HasType ((Hyp.ghost B)::Γ) (wk1 a) prop
+  | wk_log_term {Γ a A B}:
+    HasType Γ a (term A) -> HasType Γ B prop 
+    -> HasType ((Hyp.log B)::Γ) (wk1 a) (term (wk1 A))
+  | wk_log_type {Γ A B}:
+    HasType Γ A type -> HasType Γ B prop 
+    -> HasType ((Hyp.log B)::Γ) (wk1 a) type
+  | wk_log_prop {Γ A B}:
+    HasType Γ A prop -> HasType Γ B prop 
+    -> HasType ((Hyp.log B)::Γ) (wk1 a) prop
 
   -- Basic types
   | pi {Γ: RawContext} {A B: RawUntyped}:
@@ -177,15 +196,26 @@ def HasType.const_lam
 theorem HasType.upgrade (p: HasType Γ a A): HasType Γ.upgrade a A := by {
   induction p;
   
-  -- case wk_ghost IA IB => exact wk_val IA IB
+  case wk_ghost_term Ia IB => exact wk_val_term Ia IB
+  case wk_ghost_type Ia IB => exact wk_val_type Ia IB
+  case wk_ghost_prop Ia IB => exact wk_val_prop Ia IB
 
   case var0_val IA => exact var0_val IA
   case var0_log IA => exact var0_log IA
-  --case const0 => exact const0
+
+  case nats => exact nats
+  case top => exact top
+  case bot => exact bot
+  case zero => exact zero
+  case succ => exact succ
+  case nil => exact nil
   
   case wk_val_term Ia IB => exact wk_val_term Ia IB
   case wk_val_type Ia IB => exact wk_val_type Ia IB
-  -- case wk_log Ia IB => exact wk_log Ia IB
+  case wk_val_prop Ia IB => exact wk_val_prop Ia IB
+  case wk_log_term Ia IB => exact wk_log_term Ia IB
+  case wk_log_type Ia IB => exact wk_log_type Ia IB
+  case wk_log_prop Ia IB => exact wk_log_prop Ia IB
   
   case pi IA IB => exact pi IA IB
   case sigma IA IB => exact sigma IA IB
