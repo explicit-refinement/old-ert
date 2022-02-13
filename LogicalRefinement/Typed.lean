@@ -27,16 +27,19 @@ def RawContext := List Hyp
 @[simp]
 def RawContext.upgrade: RawContext -> RawContext
   | [] => []
-  | h::hs => (h.upgrade)::hs
+  | h::hs => (h.upgrade)::(upgrade hs)
 
 open Annot
 open RawUntyped
+
+def RawUntyped.arrow (A B: RawUntyped) := pi A (wk1 B)
 
 def constAnnot: UntypedKind [] -> Annot
   | UntypedKind.nats => type
   | UntypedKind.top => prop
   | UntypedKind.bot => prop
   | UntypedKind.zero => expr nats
+  | UntypedKind.succ => expr (arrow nats nats)
   | UntypedKind.nil => expr top
 
 inductive HasType: RawContext -> RawUntyped -> Annot -> Prop
@@ -105,8 +108,6 @@ inductive HasType: RawContext -> RawUntyped -> Annot -> Prop
     HasType Γ (eq A l r) prop
 
   -- Basic terms
-  | succ {Γ: RawContext} {n: RawUntyped}:
-    HasType Γ n (expr nats) -> HasType Γ (succ n) (expr nats)
   | lam {Γ: RawContext} {A s B: RawUntyped}:
     HasType ((Hyp.val A)::Γ) s (expr B) ->
     HasType Γ (lam A s) (expr (pi A B))
@@ -136,8 +137,6 @@ inductive HasType: RawContext -> RawUntyped -> Annot -> Prop
 
 -- Simple examples
 
-def RawUntyped.arrow (A B: RawUntyped) := pi A (wk1 B)
-
 def HasType.wk_val_ty: HasType Γ a type -> HasType Γ B type 
     -> HasType ((Hyp.val B)::Γ) (wk1 a) type := wk_val
 
@@ -159,5 +158,30 @@ def HasType.const_lam
 
 theorem HasType.upgrade (p: HasType Γ a A): HasType Γ.upgrade a A := by {
   induction p;
-  repeat sorry
+  
+  case wk_ghost IA IB => exact wk_val IA IB
+
+  case var0 IA => exact var0 IA
+  case const0 => exact const0
+  
+  case wk_val Ia IB => exact wk_val Ia IB
+  case wk_prop Ia IB => exact wk_prop Ia IB
+  
+  case pi IA IB => exact pi IA IB
+  case sigma IA IB => exact sigma IA IB
+  case coprod IA IB => exact coprod IA IB
+  case set IA IB => exact set IA IB
+  case assume Iφ IA => exact assume Iφ IA
+  case intersect IA IB => exact intersect IA IB
+  case union IA IB => exact union IA IB
+
+  case and Iφ Iψ => exact and Iφ Iψ
+  case or Iφ Iψ => exact or Iφ Iψ
+  case implies Iφ Iψ => exact implies Iφ Iψ
+  case forall_ IA Iφ => exact forall_ IA Iφ
+  case exists_ IA Iφ => exact exists_ IA Iφ
+  case eq IA Il Ir => exact eq IA Il Ir
+
+  case lam Ib => exact lam Ib
+  case app Il Ir => exact app Il Ir
 }

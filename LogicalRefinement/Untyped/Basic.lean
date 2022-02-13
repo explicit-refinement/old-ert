@@ -24,7 +24,7 @@ inductive UntypedKind: List Nat -> Type
 
   -- Terms
   | zero: UntypedKind []
-  | succ: UntypedKind [0]
+  | succ: UntypedKind []
   | lam: UntypedKind [0, 1]
   | app: UntypedKind [0, 0]
   | pair: UntypedKind [0, 0]
@@ -92,7 +92,7 @@ def RawUntyped.eq := tri UntypedKind.eq
 
 -- Terms
 def RawUntyped.zero := const UntypedKind.zero
-def RawUntyped.succ := unary UntypedKind.succ
+def RawUntyped.succ := const UntypedKind.succ
 def RawUntyped.lam := abs UntypedKind.lam
 def RawUntyped.app := bin UntypedKind.app
 def RawUntyped.pair := bin UntypedKind.pair
@@ -285,7 +285,7 @@ def Untyped.eq: Untyped n -> Untyped n -> Untyped n -> Untyped n
 
 -- Terms
 def Untyped.zero: Untyped n := const (UntypedKind.zero)
-def Untyped.succ: Untyped n -> Untyped n := unary (UntypedKind.succ)
+def Untyped.succ: Untyped n := const (UntypedKind.succ)
 def Untyped.lam: Untyped n -> Untyped (n + 1) -> Untyped n
    := abs UntypedKind.lam
 def Untyped.app: Untyped n -> Untyped n -> Untyped n 
