@@ -257,3 +257,15 @@ theorem HasType.proof_regular (p: HasType Γ a (proof A)): HasType Γ A prop
 
     repeat sorry
   }
+
+inductive IsCtx: RawContext -> Prop
+  | nil: IsCtx []
+  | cons_val {Γ A}: IsCtx Γ -> HasType Γ A type -> IsCtx ((Hyp.val A)::Γ)
+  | cons_ghost {Γ A}: IsCtx Γ -> HasType Γ A type -> IsCtx ((Hyp.ghost A)::Γ)
+  | cons_log {Γ A}: IsCtx Γ -> HasType Γ A prop -> IsCtx ((Hyp.log A)::Γ)
+
+theorem HasType.ctx_regular (p: HasType Γ a A): IsCtx Γ := by {
+  induction p;
+
+  repeat sorry
+}
