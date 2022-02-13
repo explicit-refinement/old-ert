@@ -234,16 +234,26 @@ theorem HasType.upgrade (p: HasType Γ a A): HasType Γ.upgrade a A := by {
 
   case lam Ib => exact lam Ib
   case app Il Ir => exact app Il Ir
+
+  repeat sorry
 }
 
 theorem HasType.term_regular (p: HasType Γ a (term A)): HasType Γ A type 
   := by {
     cases p;
+  
+    case var0_val HA =>
+      apply wk_val_type HA HA
+
     repeat sorry
   }
 
 theorem HasType.proof_regular (p: HasType Γ a (proof A)): HasType Γ A prop 
   := by {
     cases p;
+    
+    case var0_log HA =>
+      apply wk_log_prop HA HA
+
     repeat sorry
   }
