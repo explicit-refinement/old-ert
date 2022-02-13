@@ -443,5 +443,5 @@ def Subst.subst0 (u: Untyped n): Subst n (n + 1) :=
       exact Nat.lt_of_succ_lt_succ Hv
   })
 
-def RawUntyped.subst0 (u v: RawUntyped): RawUntyped :=
-    subst (RawSubst.subst0 u) v
+def RawUntyped.subst0: RawUntyped -> RawUntyped -> RawUntyped
+  | u, v => subst (RawSubst.subst0 v) u

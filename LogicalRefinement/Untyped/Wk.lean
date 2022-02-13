@@ -140,3 +140,4 @@ def RawUntyped.fv_wk1: fv (wk1 u) ≤ fv u + 1 := by {
 
 @[simp] def Untyped.wk_composes (σ: Wk n m) (ρ: Wk m l):
   wk σ (wk ρ u) = wk (Wk.comp σ ρ) u := by simp
+  

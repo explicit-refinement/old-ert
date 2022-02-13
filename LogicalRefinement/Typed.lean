@@ -1,4 +1,5 @@
 import LogicalRefinement.Untyped
+import LogicalRefinement.Untyped.Subst
 open RawUntyped
 
 inductive Annot
@@ -42,7 +43,7 @@ inductive HasType: RawContext -> RawUntyped -> Annot -> Prop
   -- Variables
   | var0 {Γ: RawContext} {A: RawUntyped}:
     HasType Γ A type ->
-    HasType ((Hyp.val A)::Γ) (var 0) (expr A)
+    HasType ((Hyp.val A)::Γ) (var 0) (expr (wk1 A))
 
   -- Constants
   | const0 {c: UntypedKind []}:
@@ -61,25 +62,25 @@ inductive HasType: RawContext -> RawUntyped -> Annot -> Prop
 
   -- Basic types
   | pi {Γ: RawContext} {A B: RawUntyped}:
-    HasType Γ A type -> HasType ((Hyp.val (wk1 A))::Γ) B type ->
+    HasType Γ A type -> HasType ((Hyp.val A)::Γ) B type ->
     HasType Γ (pi A B) type
   | sigma {Γ: RawContext} {A B: RawUntyped}:
-    HasType Γ A type -> HasType ((Hyp.val (wk1 A))::Γ) B type ->
+    HasType Γ A type -> HasType ((Hyp.val A)::Γ) B type ->
     HasType Γ (sigma A B) type
   | coprod {Γ: RawContext} {A B: RawUntyped}:
     HasType Γ A type -> HasType Γ B type ->
     HasType Γ (coprod A B) type
   | set {Γ: RawContext} {A B: RawUntyped}:
-    HasType Γ A type -> HasType ((Hyp.val (wk1 A))::Γ) B prop ->
+    HasType Γ A type -> HasType ((Hyp.val A)::Γ) B prop ->
     HasType Γ (set A B) type
   | assume {Γ: RawContext} {φ A: RawUntyped}:
     HasType Γ φ type  -> HasType Γ B type ->
     HasType Γ (assume φ A) type
   | intersect {Γ: RawContext} {A B: RawUntyped}:
-    HasType Γ A type -> HasType ((Hyp.val (wk1 A))::Γ) B prop ->
+    HasType Γ A type -> HasType ((Hyp.val A)::Γ) B prop ->
     HasType Γ (intersect A B) type
   | union {Γ: RawContext} {A B: RawUntyped}:
-    HasType Γ A type -> HasType ((Hyp.val (wk1 A))::Γ) B prop ->
+    HasType Γ A type -> HasType ((Hyp.val A)::Γ) B prop ->
     HasType Γ (union A B) type
   
   -- Basic propositions
@@ -93,10 +94,10 @@ inductive HasType: RawContext -> RawUntyped -> Annot -> Prop
     HasType Γ φ prop -> HasType Γ ψ prop ->
     HasType Γ (implies φ ψ) prop
   | forall_ {Γ: RawContext} {A φ: RawUntyped}:
-    HasType Γ A type -> HasType ((Hyp.val (wk1 A))::Γ) φ prop ->
+    HasType Γ A type -> HasType ((Hyp.val A)::Γ) φ prop ->
     HasType Γ (forall_ A φ) type
   | exists_ {Γ: RawContext} {A φ: RawUntyped}:
-    HasType Γ A type -> HasType ((Hyp.val (wk1 A))::Γ) φ prop ->
+    HasType Γ A type -> HasType ((Hyp.val A)::Γ) φ prop ->
     HasType Γ (exists_ A φ) type
   | eq {Γ: RawContext} {A l r: RawUntyped}:
     HasType Γ A type -> 
@@ -105,13 +106,37 @@ inductive HasType: RawContext -> RawUntyped -> Annot -> Prop
 
   -- Basic terms
   | lam {Γ: RawContext} {A s B: RawUntyped}:
-    HasType ((Hyp.val (wk1 A))::Γ) s (expr B) ->
+    HasType ((Hyp.val A)::Γ) s (expr B) ->
     HasType Γ (lam A s) (expr (pi A B))
+  | app {Γ: RawContext} {A B l r: RawUntyped}:
+    HasType Γ l (expr (pi A B)) -> HasType Γ r (expr A) ->
+    HasType Γ (app l r) (expr (B.subst0 l))
 
   -- Basic proofs
   --TODO: this
 
-def RawUntyped.arrow (A: RawUntyped) := pi A (wk1 A)
+-- Simple examples
+
+def RawUntyped.arrow (A B: RawUntyped) := pi A (wk1 B)
+
+def HasType.wk_val_ty: HasType Γ a type -> HasType Γ B type 
+    -> HasType ((Hyp.val B)::Γ) (wk1 a) type := wk_val
+
+def HasType.wk_val_expr: HasType Γ a (expr A) -> HasType Γ B type 
+    -> HasType ((Hyp.val B)::Γ) (wk1 a) (expr (wk1 A)) := wk_val
+
+def HasType.arrow (HA: HasType Γ A type) (HB: HasType Γ B type)
+  : HasType Γ (arrow A B) type 
+  := pi HA (wk_val HB HA)
+
+def HasType.lam_id (HA: HasType Γ A type)
+  : HasType Γ (RawUntyped.lam A (var 0)) (expr (RawUntyped.arrow A A)) 
+  := lam (var0 HA)
+
+def HasType.const_lam 
+  (HA: HasType Γ A type) (HB: HasType Γ B type) (Hb: HasType Γ b (expr B))
+  : HasType Γ (RawUntyped.lam A (wk1 b)) (expr (RawUntyped.arrow A B))
+  := lam (wk_val Hb HA)
 
 theorem HasType.upgrade (p: HasType Γ a A): HasType Γ.upgrade a A := by {
   induction p;
