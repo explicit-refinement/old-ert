@@ -407,3 +407,18 @@ theorem RawUntyped.subst_bounds: {u: RawUntyped} -> {σ: RawSubst} -> {n m: Nat}
 
 def Untyped.subst (σ: Subst n m) (u: Untyped m): Untyped n :=
   Untyped.mk (RawUntyped.subst σ.val u.val) (RawUntyped.subst_bounds u.p σ.p)
+
+@[simp]
+def RawSubst.subst0 (u: RawUntyped): RawSubst
+  | 0 => u
+  | Nat.succ n => RawUntyped.var n
+
+def Subst.subst0 (u: Untyped n): Subst n (n + 1) :=
+  Subst.mk (RawSubst.subst0 u.val) (by {
+    intros v Hv;
+    cases v with
+    | zero => exact u.p
+    | succ v => 
+      simp only [RawSubst.subst0, RawUntyped.fv]
+      exact Nat.lt_of_succ_lt_succ Hv
+  })
