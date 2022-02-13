@@ -141,7 +141,7 @@ def RawUntyped.subst (σ: RawSubst): RawUntyped -> RawUntyped
   | let_bin k t => let_bin k (subst (RawSubst.liftn 2 σ) t)
   | bin k l r => bin k (subst σ l) (subst σ r)
   | abs k A t => abs k (subst σ A) (subst (RawSubst.lift σ) t)
-  | cases k d l r => cases k (subst σ d) (subst σ l) (subst σ r)
+  | cases k K d l r => cases k (subst (RawSubst.lift σ) K) (subst σ d) (subst σ l) (subst σ r)
 
 theorem RawSubst.lift_var: {n v: Nat} -> {σ: RawSubst} -> 
   (liftn (n + 1) σ) (RawWk.var (RawWk.wknth n) v) 
@@ -197,8 +197,7 @@ theorem RawUntyped.liftn_wk {u: RawUntyped}: {σ: RawSubst} -> (n: Nat) ->
       simp only [wknth, wk, subst]
       simp only [wknth] at Il
       simp only [wknth] at Ir
-      rw [Il]
-      rw [Ir]
+      rw [Il, Ir]
     | abs k A t IA It => 
       intros σ n
       simp only [wknth, wk, subst]
@@ -210,15 +209,19 @@ theorem RawUntyped.liftn_wk {u: RawUntyped}: {σ: RawSubst} -> (n: Nat) ->
       rw [RawSubst.lift_liftn_merge]
       rw [It]
       exact 0 -- TODO: why?
-    | cases k d l r Id Il Ir =>
+    | cases k K d l r IK Id Il Ir =>
       intros σ n
       simp only [wknth, wk, subst]
+      simp only [wknth] at IK
       simp only [wknth] at Id
       simp only [wknth] at Il
       simp only [wknth] at Ir
-      rw [Id]
-      rw [Il]
-      rw [Ir]
+      rw [Id, Il, Ir]
+      rw [RawWk.lift_wknth_merge]
+      rw [RawSubst.lift_liftn_merge]
+      rw [RawSubst.lift_liftn_merge]
+      rw [IK]
+      exact 0 -- TODO: why?
   }
 
 theorem RawSubst.lift_wk {u: RawUntyped}: {σ: RawSubst} ->
@@ -249,7 +252,7 @@ def RawSubst.comp (σ ρ: RawSubst): RawSubst
   | let_bin k t I => simp [I]
   | bin k l r Il Ir => simp [Il, Ir]
   | abs k A t IA It => simp [IA, It]
-  | cases k d l r Id Il Ir => simp [Id, Il, Ir]
+  | cases k K d l r IK Id Il Ir => simp [IK, Id, Il, Ir]
 }
 
 @[simp] theorem RawSubst.comp_assoc {ρ σ τ: RawSubst}:
@@ -286,10 +289,11 @@ def RawSubst.comp (σ ρ: RawSubst): RawSubst
     rw [RawWk.to_subst_lift]
     rw [IA, It]
     rfl
-  | cases k d l r Id Il Ir =>
+  | cases k K d l r IK Id Il Ir =>
     intros ρ;
     simp only [RawUntyped.subst]
-    rw [Id, Il, Ir]
+    rw [RawWk.to_subst_lift]
+    rw [IK, Id, Il, Ir]
     rfl
 }
 
@@ -387,12 +391,18 @@ theorem RawUntyped.subst_bounds: {u: RawUntyped} -> {σ: RawSubst} -> {n m: Nat}
       apply Hs
       apply RawSubst.lift_subst
       apply Hσ
-  | cases k d l r Id Il Ir =>
+  | cases k K d l r IK Id Il Ir =>
     intros σ n m;
-    simp only [RawUntyped.fv, Nat.max_r_le_split]
-    intro ⟨Hd, Hl, Hr⟩
+    simp only [RawUntyped.fv, Nat.max_r_le_split, Nat.le_sub_is_le_add]
+    intro ⟨HK, Hd, Hl, Hr⟩
     intro Hσ
-    exact ⟨Id Hd Hσ, Il Hl Hσ, Ir Hr Hσ⟩
+    apply And.intro
+    case left =>
+      apply @IK _ (n + 1) (m + 1)
+      apply HK
+      apply RawSubst.lift_subst
+      apply Hσ
+    case right => exact ⟨Id Hd Hσ, Il Hl Hσ, Ir Hr Hσ⟩
 }
 
 def Untyped.subst (σ: Subst n m) (u: Untyped m): Untyped n :=

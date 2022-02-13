@@ -114,6 +114,6 @@ inductive HasType: RawContext -> RawUntyped -> Annot -> Prop
 def RawUntyped.arrow (A: RawUntyped) := pi A (wk1 A)
 
 theorem HasType.upgrade (p: HasType Γ a A): HasType Γ.upgrade a A := by {
-  induction p with
-  | _ => sorry
+  induction p;
+  repeat sorry
 }

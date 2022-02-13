@@ -20,7 +20,7 @@ inductive UntypedKind: List Nat -> Type
   | implies: UntypedKind [0, 0]
   | forall_: UntypedKind [0, 1]
   | exists_: UntypedKind [0, 1]
-  | eq: UntypedKind [0, 0, 0]
+  | eq: UntypedKind [1, 0, 0, 0]
 
   -- Terms
   | nat (n: Nat): UntypedKind []
@@ -29,7 +29,7 @@ inductive UntypedKind: List Nat -> Type
   | pair: UntypedKind [0, 0]
   | proj (b: Bool): UntypedKind [0]
   | inj (b: Bool): UntypedKind [0]
-  | case: UntypedKind [0, 0, 0]
+  | case: UntypedKind [1, 0, 0, 0]
   | elem: UntypedKind [0, 0]
   | let_set: UntypedKind [2]
   | lam_pr: UntypedKind [0, 1]
@@ -45,7 +45,7 @@ inductive UntypedKind: List Nat -> Type
   | conj: UntypedKind [0, 0]
   | comp (b: Bool): UntypedKind [0]
   | disj (b: Bool): UntypedKind [0]
-  | case_pr: UntypedKind [0, 0, 0]
+  | case_pr: UntypedKind [1, 0, 0, 0]
   | imp: UntypedKind [0, 0]
   | mp: UntypedKind [0, 0]
   | general: UntypedKind [0, 1]
@@ -66,7 +66,7 @@ inductive RawUntyped: Type
   -- TODO: abs n?
   | abs (k: UntypedKind [0, 1]) (A: RawUntyped) (t: RawUntyped)
   -- TODO: no cases?
-  | cases (k: UntypedKind [0, 0, 0]) (d: RawUntyped) (l: RawUntyped) (r: RawUntyped)
+  | cases (k: UntypedKind [1, 0, 0, 0]) (K: RawUntyped) (d: RawUntyped) (l: RawUntyped) (r: RawUntyped)
 
 -- Types
 def RawUntyped.nats := const UntypedKind.nats
@@ -127,7 +127,7 @@ def RawUntyped.refl := unary UntypedKind.refl
   | let_bin _ e => (fv e) - 2
   | bin _ l r => Nat.max (fv l) (fv r)
   | abs _ A t => Nat.max (fv A) (fv t - 1)
-  | cases _ d l r => Nat.max (fv d) (Nat.max (fv l) (fv r))
+  | cases _ K d l r => Nat.max (fv K - 1) (Nat.max (fv d) (Nat.max (fv l) (fv r)))
 
 @[simp] def RawUntyped.has_dep: RawUntyped -> Nat -> Prop
   | var v, i => v = i
@@ -136,7 +136,7 @@ def RawUntyped.refl := unary UntypedKind.refl
   | let_bin _ e, i => has_dep e (i + 2)
   | bin _ l r, i => has_dep l i ∨ has_dep r i
   | abs _ A t, i => has_dep A i ∨ has_dep t (i + 1)
-  | cases _ d l r, i => has_dep d i ∨ has_dep l i ∨ has_dep r i
+  | cases _ K d l r, i => has_dep K (i + 1) ∨ has_dep d i ∨ has_dep l i ∨ has_dep r i
 
 theorem RawUntyped.has_dep_implies_fv (u: RawUntyped): {i: Nat} ->
   has_dep u i -> i < fv u := by {
@@ -169,11 +169,13 @@ theorem RawUntyped.has_dep_implies_fv (u: RawUntyped): {i: Nat} ->
       cases H with
       | inl H => exact Or.inl (IA H)
       | inr H => exact Or.inr (Nat.lt_sub_lt_add (It H))
-    | cases _ d l r Id Il Ir =>
+    | cases _ K d l r IK Id Il Ir =>
       intro i
       simp only [has_dep, fv, Nat.max_l_lt_split]
       intro H
-      exact (
+      cases H with
+      | inl H => exact Or.inl (Nat.lt_sub_lt_add (IK H))
+      | inr H => apply Or.inr; exact (
         match H with
         | Or.inl H => Or.inl (Id H)
         | Or.inr (Or.inl H) => Or.inr (Or.inl (Il H))
@@ -217,12 +219,14 @@ def Untyped.abs (c: UntypedKind [0, 1]):
       simp only [RawUntyped.fv, Nat.le_sub_is_le_add]
       exact r.p
   })
-def Untyped.cases (c: UntypedKind [0, 0, 0]):
-  Untyped n -> Untyped n -> Untyped n -> Untyped n
-  | d, l, r =>
-    Untyped.mk (RawUntyped.cases c d.val l.val r.val) (by {
+def Untyped.cases (c: UntypedKind [1, 0, 0, 0]):
+  Untyped (n + 1) -> Untyped n -> Untyped n -> Untyped n -> Untyped n
+  | K, d, l, r =>
+    Untyped.mk (RawUntyped.cases c K.val d.val l.val r.val) (by {
       simp only [RawUntyped.fv, Nat.max_r_le_split]
-      exact ⟨d.p, l.p, r.p⟩
+      apply And.intro;
+      case left => simp only [Nat.le_sub_is_le_add]; apply K.p
+      case right => exact ⟨d.p, l.p, r.p⟩
     })
 
 -- Types
@@ -255,7 +259,7 @@ def Untyped.forall_: Untyped n -> Untyped (n + 1) -> Untyped n
   := abs UntypedKind.forall_
 def Untyped.exists_: Untyped n -> Untyped (n + 1) -> Untyped n 
   := abs UntypedKind.exists_
-def Untyped.eq: Untyped n -> Untyped n -> Untyped n -> Untyped n
+def Untyped.eq: Untyped (n + 1) -> Untyped n -> Untyped n -> Untyped n -> Untyped n
   := cases UntypedKind.eq
 
 -- Terms
@@ -270,7 +274,7 @@ def Untyped.proj (b: Bool): Untyped n -> Untyped n
   := unary (UntypedKind.proj b)
 def Untyped.inj (b: Bool): Untyped n -> Untyped n 
   := unary (UntypedKind.inj b)
-def Untyped.case: Untyped n -> Untyped n -> Untyped n -> Untyped n 
+def Untyped.case: Untyped (n + 1) -> Untyped n -> Untyped n -> Untyped n -> Untyped n 
   := cases UntypedKind.case
 def Untyped.elem: Untyped n -> Untyped n -> Untyped n 
   := bin UntypedKind.elem
@@ -298,7 +302,7 @@ def Untyped.comp (b: Bool): Untyped n -> Untyped n
   := unary (UntypedKind.comp b)
 def Untyped.disj (b: Bool): Untyped n -> Untyped n 
   := unary (UntypedKind.disj b)
-def Untyped.case_pr: Untyped n -> Untyped n -> Untyped n -> Untyped n 
+def Untyped.case_pr: Untyped (n + 1) -> Untyped n -> Untyped n -> Untyped n -> Untyped n 
   := cases UntypedKind.case_pr
 def Untyped.imp: Untyped n -> Untyped n -> Untyped n 
   := bin UntypedKind.imp

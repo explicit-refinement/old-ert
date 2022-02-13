@@ -257,3 +257,9 @@ def Nat.lt_sub_lt_add: {l n m: Nat} -> n + m < l -> n < l - m := by {
       apply Hl
       apply H
 }
+
+theorem function_splitting {f g: A -> B}: f = g /\ x = y -> f x = g y := by {
+  intro ⟨Hf, Hxy⟩;
+  rw [Hf]
+  rw [Hxy]
+}

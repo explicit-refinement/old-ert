@@ -9,7 +9,7 @@ import LogicalRefinement.Untyped.Basic
   | let_bin k e => let_bin k (wk (RawWk.liftn 2 ρ) e)
   | bin k l r => bin k (wk ρ l) (wk ρ r)
   | abs k A t => abs k (wk ρ A) (wk (RawWk.lift ρ) t)
-  | cases k d l r => cases k (wk ρ d) (wk ρ l) (wk ρ r)
+  | cases k K d l r => cases k (wk (RawWk.lift ρ) K) (wk ρ d) (wk ρ l) (wk ρ r)
 
 @[simp] def RawUntyped.wk1 (u: RawUntyped) := wk RawWk.wk1 u
 
@@ -33,7 +33,10 @@ import LogicalRefinement.Untyped.Basic
     intros ρ σ H;
     simp only [wk];
     simp only [IHA H, IHs (RawWk.lift_equiv H)]
-  | cases k d l r Id Il Ir => intros ρ σ H; simp [Id H, Il H, Ir H]
+  | cases k K d l r IK Id Il Ir => 
+    intros ρ σ H; 
+    simp only [wk];
+    simp [IK (RawWk.lift_equiv H), Id H, Il H, Ir H]
 }
 
 @[simp] def RawUntyped.wk_id: wk (RawWk.id) u = u := by {
@@ -49,9 +52,11 @@ import LogicalRefinement.Untyped.Basic
   | abs k A s IHA IHs =>
     simp only [wk]
     rw [RawUntyped.wk_coherent RawWk.lift_id_equiv]
-    rw [IHA]
-    rw [IHs]
-  | cases k d l r Id Il Ir => simp [Id, Il, Ir]
+    rw [IHA, IHs]
+  | cases k K d l r IK Id Il Ir => 
+    simp only [wk]
+    rw [RawUntyped.wk_coherent RawWk.lift_id_equiv]
+    rw [IK, Id, Il, Ir]
 }
 
 def RawUntyped.wk_bounds {u: RawUntyped}: {n m: Nat} -> {ρ: RawWk} ->
@@ -84,16 +89,19 @@ def RawUntyped.wk_bounds {u: RawUntyped}: {n m: Nat} -> {ρ: RawWk} ->
       case abs.right => 
         let Hm' := @wk_maps_liftn 1 n m ρ Hm
         apply IHs Hm' Hs
-    | cases k d l r IHd IHl IHr => 
-      simp only [fv, Nat.max_r_le_split]
+    | cases k K d l r IK IHd IHl IHr => 
+      simp only [fv, Nat.max_r_le_split, Nat.le_sub_is_le_add]
       intros n m ρ Hm
-      intro ⟨Hd, Hl, Hr⟩
+      intro ⟨HK, Hd, Hl, Hr⟩
       apply And.intro;
-      case cases.left => apply IHd Hm Hd
-      case cases.right =>
+      case cases.left => apply IK (@wk_maps_liftn 1 n m ρ Hm) HK
+      case cases.right => 
         apply And.intro;
-        case left => apply IHl Hm Hl
-        case right => apply IHr Hm Hr
+        case left => apply IHd Hm Hd
+        case right =>
+          apply And.intro;
+          case left => apply IHl Hm Hl
+          case right => apply IHr Hm Hr
   }
 
 def RawUntyped.fv_wk1: fv (wk1 u) ≤ fv u + 1 := by {
@@ -110,7 +118,7 @@ def RawUntyped.fv_wk1: fv (wk1 u) ≤ fv u + 1 := by {
   | let_bin k t I => simp [I]
   | bin k l r Il Ir => simp [Il, Ir]
   | abs k A t IA It => simp [IA, It] 
-  | cases k d l r Id Il Ir => simp [Id, Il, Ir]
+  | cases k K d l r IK Id Il Ir => simp [IK, Id, Il, Ir]
 }
 
 @[simp] def Untyped.wk (ρ: Wk n m) (u: Untyped m): Untyped n :=
