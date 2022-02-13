@@ -5,22 +5,26 @@ open RawUntyped
 inductive Annot
   | type
   | prop
-  | expr (A: RawUntyped)
+  | term (A: RawUntyped)
+  | proof (A: RawUntyped)
 
 @[simp]
 def Annot.wk1: Annot -> Annot
   | type => type
   | prop => prop
-  | expr A => expr (RawUntyped.wk1 A)
+  | term A => term (RawUntyped.wk1 A)
+  | proof A => proof (RawUntyped.wk1 A)
 
 inductive Hyp
-  | val (A: RawUntyped)
-  | ghost (A: RawUntyped)
+  | val (A: RawUntyped) -- Computational
+  | ghost (A: RawUntyped) -- Refinement
+  | log (A: RawUntyped) -- Logical
 
 @[simp]
 def Hyp.upgrade: Hyp -> Hyp
   | val A => val A
   | ghost A => val A
+  | log A => log A
 
 @[simp]
 theorem Hyp.upgrade_idem: upgrade (upgrade h) = upgrade h := by {
@@ -52,30 +56,33 @@ def constAnnot: UntypedKind [] -> Annot
   | UntypedKind.nats => type
   | UntypedKind.top => prop
   | UntypedKind.bot => prop
-  | UntypedKind.zero => expr nats
-  | UntypedKind.succ => expr (arrow nats nats)
-  | UntypedKind.nil => expr top
+  | UntypedKind.zero => term nats
+  | UntypedKind.succ => term (arrow nats nats)
+  | UntypedKind.nil => proof top
 
 inductive HasType: RawContext -> RawUntyped -> Annot -> Prop
   -- Variables
-  | var0 {Γ: RawContext} {A: RawUntyped}:
+  | var0_val {Γ: RawContext} {A: RawUntyped}:
     HasType Γ A type ->
-    HasType ((Hyp.val A)::Γ) (var 0) (expr (wk1 A))
+    HasType ((Hyp.val A)::Γ) (var 0) (term (wk1 A))
+  | var0_log {Γ: RawContext} {A: RawUntyped}:
+    HasType Γ A prop ->
+    HasType ((Hyp.log A)::Γ) (var 0) (proof (wk1 A))
 
   -- Constants
-  | const0 {c: UntypedKind []}:
-    HasType [] (const c) (constAnnot c)
+  -- | const0 {c: UntypedKind []}:
+  --   HasType [] (const c) (constAnnot c)
   
-  -- Weakening
+  -- Weakening (TODO: condense to one rule?)
   | wk_val {Γ a A B}:
     HasType Γ a A -> HasType Γ B type 
     -> HasType ((Hyp.val B)::Γ) (wk1 a) (wk1 A)
   | wk_ghost {Γ a A B}:
     HasType Γ a A -> HasType Γ B type 
     -> HasType ((Hyp.ghost B)::Γ) (wk1 a) (wk1 A)
-  | wk_prop {Γ a A B}:
+  | wk_log {Γ a A B}:
     HasType Γ a A -> HasType Γ B prop 
-    -> HasType ((Hyp.val B)::Γ) (wk1 a) (wk1 A)
+    -> HasType ((Hyp.log B)::Γ) (wk1 a) (wk1 A)
 
   -- Basic types
   | pi {Γ: RawContext} {A B: RawUntyped}:
@@ -118,16 +125,16 @@ inductive HasType: RawContext -> RawUntyped -> Annot -> Prop
     HasType Γ (exists_ A φ) type
   | eq {Γ: RawContext} {A l r: RawUntyped}:
     HasType Γ A type -> 
-    HasType Γ.upgrade l (expr A) -> HasType Γ.upgrade r (expr A) ->
+    HasType Γ.upgrade l (term A) -> HasType Γ.upgrade r (term A) ->
     HasType Γ (eq A l r) prop
 
   -- Basic terms
   | lam {Γ: RawContext} {A s B: RawUntyped}:
-    HasType ((Hyp.val A)::Γ) s (expr B) ->
-    HasType Γ (lam A s) (expr (pi A B))
+    HasType ((Hyp.val A)::Γ) s (term B) ->
+    HasType Γ (lam A s) (term (pi A B))
   | app {Γ: RawContext} {A B l r: RawUntyped}:
-    HasType Γ l (expr (pi A B)) -> HasType Γ r (expr A) ->
-    HasType Γ (app l r) (expr (B.subst0 l))
+    HasType Γ l (term (pi A B)) -> HasType Γ r (term A) ->
+    HasType Γ (app l r) (term (B.subst0 l))
   -- | pair {Γ: RawContext} {A B l r: RawUntyped}:
   --   HasType Γ l (expr A) -> HasType Γ r (expr (B.subst0 l)) ->
   --   HasType Γ (pair l r) (expr (sigma A B))
@@ -154,20 +161,20 @@ inductive HasType: RawContext -> RawUntyped -> Annot -> Prop
 def HasType.wk_val_ty: HasType Γ a type -> HasType Γ B type 
     -> HasType ((Hyp.val B)::Γ) (wk1 a) type := wk_val
 
-def HasType.wk_val_expr: HasType Γ a (expr A) -> HasType Γ B type 
-    -> HasType ((Hyp.val B)::Γ) (wk1 a) (expr (wk1 A)) := wk_val
+def HasType.wk_val_expr: HasType Γ a (term A) -> HasType Γ B type 
+    -> HasType ((Hyp.val B)::Γ) (wk1 a) (term (wk1 A)) := wk_val
 
 def HasType.arrow (HA: HasType Γ A type) (HB: HasType Γ B type)
   : HasType Γ (arrow A B) type 
   := pi HA (wk_val HB HA)
 
 def HasType.lam_id (HA: HasType Γ A type)
-  : HasType Γ (RawUntyped.lam A (var 0)) (expr (RawUntyped.arrow A A)) 
-  := lam (var0 HA)
+  : HasType Γ (RawUntyped.lam A (var 0)) (term (RawUntyped.arrow A A)) 
+  := lam (var0_val HA)
 
 def HasType.const_lam 
-  (HA: HasType Γ A type) (HB: HasType Γ B type) (Hb: HasType Γ b (expr B))
-  : HasType Γ (RawUntyped.lam A (wk1 b)) (expr (RawUntyped.arrow A B))
+  (HA: HasType Γ A type) (HB: HasType Γ B type) (Hb: HasType Γ b (term B))
+  : HasType Γ (RawUntyped.lam A (wk1 b)) (term (RawUntyped.arrow A B))
   := lam (wk_val Hb HA)
 
 theorem HasType.upgrade (p: HasType Γ a A): HasType Γ.upgrade a A := by {
@@ -175,11 +182,12 @@ theorem HasType.upgrade (p: HasType Γ a A): HasType Γ.upgrade a A := by {
   
   case wk_ghost IA IB => exact wk_val IA IB
 
-  case var0 IA => exact var0 IA
-  case const0 => exact const0
+  case var0_val IA => exact var0_val IA
+  case var0_log IA => exact var0_log IA
+  --case const0 => exact const0
   
   case wk_val Ia IB => exact wk_val Ia IB
-  case wk_prop Ia IB => exact wk_prop Ia IB
+  case wk_log Ia IB => exact wk_log Ia IB
   
   case pi IA IB => exact pi IA IB
   case sigma IA IB => exact sigma IA IB
@@ -199,3 +207,12 @@ theorem HasType.upgrade (p: HasType Γ a A): HasType Γ.upgrade a A := by {
   case lam Ib => exact lam Ib
   case app Il Ir => exact app Il Ir
 }
+
+theorem HasType.term_regular (p: HasType Γ a (term A)): HasType Γ A type 
+  := by {
+    cases p;
+
+  }
+
+theorem HasType.proof_regular (p: HasType Γ a (proof A)): HasType Γ A prop 
+  := sorry
