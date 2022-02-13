@@ -74,15 +74,18 @@ inductive HasType: RawContext -> RawUntyped -> Annot -> Prop
   --   HasType [] (const c) (constAnnot c)
   
   -- Weakening (TODO: condense to one rule?)
-  | wk_val {Γ a A B}:
-    HasType Γ a A -> HasType Γ B type 
-    -> HasType ((Hyp.val B)::Γ) (wk1 a) (wk1 A)
-  | wk_ghost {Γ a A B}:
-    HasType Γ a A -> HasType Γ B type 
-    -> HasType ((Hyp.ghost B)::Γ) (wk1 a) (wk1 A)
-  | wk_log {Γ a A B}:
-    HasType Γ a A -> HasType Γ B prop 
-    -> HasType ((Hyp.log B)::Γ) (wk1 a) (wk1 A)
+  | wk_val_term {Γ a A B}:
+    HasType Γ a (term A) -> HasType Γ B type 
+    -> HasType ((Hyp.val B)::Γ) (wk1 a) (term (wk1 A))
+  | wk_val_type {Γ A B}:
+    HasType Γ A type -> HasType Γ B type 
+    -> HasType ((Hyp.val B)::Γ) (wk1 a) type
+  -- | wk_ghost {Γ a A B}:
+  --   HasType Γ a A -> HasType Γ B type 
+  --   -> HasType ((Hyp.ghost B)::Γ) (wk1 a) (wk1 A)
+  -- | wk_log {Γ a A B}:
+  --   HasType Γ a A -> HasType Γ B prop 
+  --   -> HasType ((Hyp.log B)::Γ) (wk1 a) (wk1 A)
 
   -- Basic types
   | pi {Γ: RawContext} {A B: RawUntyped}:
@@ -158,15 +161,9 @@ inductive HasType: RawContext -> RawUntyped -> Annot -> Prop
 
 -- Simple examples
 
-def HasType.wk_val_ty: HasType Γ a type -> HasType Γ B type 
-    -> HasType ((Hyp.val B)::Γ) (wk1 a) type := wk_val
-
-def HasType.wk_val_expr: HasType Γ a (term A) -> HasType Γ B type 
-    -> HasType ((Hyp.val B)::Γ) (wk1 a) (term (wk1 A)) := wk_val
-
 def HasType.arrow (HA: HasType Γ A type) (HB: HasType Γ B type)
   : HasType Γ (arrow A B) type 
-  := pi HA (wk_val HB HA)
+  := pi HA (wk_val_type HB HA)
 
 def HasType.lam_id (HA: HasType Γ A type)
   : HasType Γ (RawUntyped.lam A (var 0)) (term (RawUntyped.arrow A A)) 
@@ -175,19 +172,20 @@ def HasType.lam_id (HA: HasType Γ A type)
 def HasType.const_lam 
   (HA: HasType Γ A type) (HB: HasType Γ B type) (Hb: HasType Γ b (term B))
   : HasType Γ (RawUntyped.lam A (wk1 b)) (term (RawUntyped.arrow A B))
-  := lam (wk_val Hb HA)
+  := lam (wk_val_term Hb HA)
 
 theorem HasType.upgrade (p: HasType Γ a A): HasType Γ.upgrade a A := by {
   induction p;
   
-  case wk_ghost IA IB => exact wk_val IA IB
+  -- case wk_ghost IA IB => exact wk_val IA IB
 
   case var0_val IA => exact var0_val IA
   case var0_log IA => exact var0_log IA
   --case const0 => exact const0
   
-  case wk_val Ia IB => exact wk_val Ia IB
-  case wk_log Ia IB => exact wk_log Ia IB
+  case wk_val_term Ia IB => exact wk_val_term Ia IB
+  case wk_val_type Ia IB => exact wk_val_type Ia IB
+  -- case wk_log Ia IB => exact wk_log Ia IB
   
   case pi IA IB => exact pi IA IB
   case sigma IA IB => exact sigma IA IB
@@ -211,8 +209,11 @@ theorem HasType.upgrade (p: HasType Γ a A): HasType Γ.upgrade a A := by {
 theorem HasType.term_regular (p: HasType Γ a (term A)): HasType Γ A type 
   := by {
     cases p;
-
+    repeat sorry
   }
 
 theorem HasType.proof_regular (p: HasType Γ a (proof A)): HasType Γ A prop 
-  := sorry
+  := by {
+    cases p;
+    repeat sorry
+  }
