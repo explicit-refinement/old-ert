@@ -226,6 +226,9 @@ notation Γ "⊢" a ":" A => HasType Γ a A
 notation Γ "⊢" a "∈" A => HasType Γ a (term A)
 notation Γ "⊢" a "∴" A => HasType Γ a (prop A)
 
+structure Typed {Γ: RawContext} {A: Annot} :=
+  (val: RawUntyped) (p: Γ ⊢ val: A)
+
 -- Simple examples
 
 def HasType.arrow (HA: Γ ⊢ A: type) (HB: Γ ⊢ B: type)
@@ -293,8 +296,6 @@ theorem HasType.wk (ρ: WkCtx Γ Δ) (H: Γ ⊢ a: A):
     | step => sorry
     | lift => sorry
   }
-
--- TODO: hastype untyped method?
 
 inductive Annot.regular: Annot -> RawContext -> Prop
   | sort {Γ s}: regular (sort s) Γ
