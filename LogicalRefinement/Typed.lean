@@ -55,6 +55,11 @@ theorem HypKind.upgrade_idem: upgrade (upgrade h) = upgrade h := by {
   cases h; repeat rfl
 }
 
+theorem HypKind.upgrade_regular {s} {h: HypKind} (p: h.regular s): 
+  h.upgrade.regular s := by {
+    cases s <;> cases h <;> { first | constructor | contradiction }
+  }
+
 structure Hyp := (ty: RawUntyped) (kind: HypKind)
 
 @[simp]
@@ -227,7 +232,10 @@ def HasType.const_lam
 
 theorem HasType.upgrade (p: Γ ⊢ a: A): Γ.upgrade ⊢ a: A := by {
   induction p;
-  case wk1 =>
+  case wk1 Ia IB =>
+    simp only [RawContext.upgrade, Hyp.upgrade]
+    apply wk1 Ia IB
+
     sorry
   all_goals { constructor; repeat assumption; }
 }
