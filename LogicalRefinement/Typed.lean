@@ -14,10 +14,6 @@ inductive Annot
 open Annot
 open AnnotSort
 
-inductive AnnotSort.regular: AnnotSort -> Annot -> Prop
-  | term {A: RawUntyped}: regular type (term A)
-  | proof {A: RawUntyped}: regular prop (proof A)
-
 instance annotSortCoe: Coe AnnotSort Annot where
   coe := sort
 
@@ -236,14 +232,28 @@ theorem HasType.upgrade (p: Γ ⊢ a: A): Γ.upgrade ⊢ a: A := by {
   all_goals { constructor; repeat assumption; }
 }
 
+inductive Annot.regular: Annot -> RawContext -> Prop
+  | sort {Γ s}: regular (sort s) Γ
+  | term {Γ A}: (Γ ⊢ A: type) -> regular (term A) Γ
+  | proof {Γ A}: (Γ ⊢ A: prop) -> regular (proof A) Γ
+
+theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
+  induction p;
+  repeat sorry
+}
+
 theorem HasType.term_regular (p: HasType Γ a (term A)): HasType Γ A type 
   := by {
-      sorry
+    let H := regular p;
+    cases H with
+    | term H => exact H
   }
 
 theorem HasType.proof_regular (p: HasType Γ a (proof A)): HasType Γ A prop 
   := by {
-      sorry
+    let H := regular p;
+    cases H with
+    | proof H => exact H
   }
 
 inductive IsCtx: RawContext -> Prop
