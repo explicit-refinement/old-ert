@@ -134,15 +134,16 @@ theorem RawSubst.liftn_above_wk: (base: Nat) -> (σ: RawSubst) ->
 }
 
 @[simp]
-def RawUntyped.subst (σ: RawSubst): RawUntyped -> RawUntyped
-  | var v => σ v
-  | const c => const c
-  | unary k t => unary k (subst σ t)
-  | let_bin k t => let_bin k (subst (σ.liftn 2) t)
-  | bin k l r => bin k (subst σ l) (subst σ r)
-  | abs k A t => abs k (subst σ A) (subst (RawSubst.lift σ) t)
-  | tri k A l r => tri k (subst σ A) (subst σ l) (subst σ r)
-  | cases k K d l r => cases k (subst (RawSubst.lift σ) K) (subst σ d) (subst σ l) (subst σ r)
+def RawUntyped.subst: RawUntyped -> RawSubst -> RawUntyped
+  | var v, σ => σ v
+  | const c, σ => const c
+  | unary k t, σ => unary k (t.subst σ)
+  | let_bin k t, σ => let_bin k (t.subst (σ.liftn 2))
+  | bin k l r, σ => bin k (l.subst σ) (r.subst σ)
+  | abs k A t, σ => abs k (A.subst σ) (t.subst σ.lift)
+  | tri k A l r, σ => tri k (A.subst σ) (l.subst σ) (r.subst σ)
+  | cases k K d l r, σ => 
+    cases k (K.subst σ.lift) (d.subst σ) (l.subst σ) (r.subst σ)
 
 theorem RawSubst.lift_var: {n v: Nat} -> {σ: RawSubst} -> 
   (σ.liftn (n + 1)) (RawWk.var (RawWk.wknth n) v) 
@@ -171,8 +172,8 @@ theorem RawSubst.lift_var: {n v: Nat} -> {σ: RawSubst} ->
   }
 
 theorem RawUntyped.liftn_wk {u: RawUntyped}: {σ: RawSubst} -> (n: Nat) ->
-  subst (σ.liftn (n + 1)) (u.wknth n) =
-  (subst (σ.liftn n) u).wknth n
+  (u.wknth n).subst (σ.liftn (n + 1))  =
+  (u.subst (σ.liftn n)).wknth n
   := by {
     unfold RawWk.wk1
     induction u with
@@ -233,14 +234,13 @@ theorem RawUntyped.liftn_wk {u: RawUntyped}: {σ: RawSubst} -> (n: Nat) ->
   }
 
 theorem RawSubst.lift_wk {u: RawUntyped}: {σ: RawSubst} ->
-  RawUntyped.subst (lift σ) (RawUntyped.wk1 u) 
-  = RawUntyped.wk1 (RawUntyped.subst σ u) := by {
+  u.wk1.subst (σ.lift) = (u.subst σ).wk1 := by {
     intros σ;
     apply RawUntyped.liftn_wk 0
 }
 
 def RawSubst.comp (σ ρ: RawSubst): RawSubst
-  | v => RawUntyped.subst σ (ρ v)
+  | v => (ρ v).subst σ
 
 @[simp] theorem RawSubst.lift_comp {ρ σ: RawSubst}: 
   comp (lift ρ) (lift σ) = lift (comp ρ σ) := by {
@@ -251,7 +251,7 @@ def RawSubst.comp (σ ρ: RawSubst): RawSubst
   }
 
 @[simp] theorem RawUntyped.subst_composes (u: RawUntyped):
-  (σ ρ: RawSubst) -> subst σ (subst ρ u) = subst (RawSubst.comp σ ρ) u
+  (σ ρ: RawSubst) -> (u.subst ρ).subst σ = u.subst (σ.comp ρ)
   := by {
   induction u with
   | var v => simp [RawSubst.comp]
@@ -271,7 +271,7 @@ def RawSubst.comp (σ ρ: RawSubst): RawSubst
   }
 
 @[simp] theorem RawSubst.subst_wk_compat: {u: RawUntyped} -> {ρ: RawWk} ->
-  RawUntyped.subst (RawWk.to_subst ρ) u = u.wk ρ := by {
+  u.subst ρ.to_subst = u.wk ρ := by {
   intro u;
   induction u with
   | var v => simp
@@ -363,7 +363,7 @@ def Wk.to_subst {n m: Nat} (ρ: Wk n m): Subst n m :=
   Subst.mk (RawWk.to_subst ρ.val) (RawSubst.wk_bounds ρ.p)
 
 theorem RawUntyped.subst_bounds: {u: RawUntyped} -> {σ: RawSubst} -> {n m: Nat} ->
-  fv u ≤ m -> subst_maps n m σ -> fv (subst σ u) ≤ n := by {
+  fv u ≤ m -> subst_maps n m σ -> fv (u.subst σ) ≤ n := by {
   intro u;
   induction u with
   | var v => 
@@ -426,22 +426,23 @@ theorem RawUntyped.subst_bounds: {u: RawUntyped} -> {σ: RawSubst} -> {n m: Nat}
 }
 
 def Untyped.subst (σ: Subst n m) (u: Untyped m): Untyped n :=
-  Untyped.mk (RawUntyped.subst σ.val u.val) (RawUntyped.subst_bounds u.p σ.p)
+  Untyped.mk (u.val.subst σ.val) (RawUntyped.subst_bounds u.p σ.p)
 
-@[simp]
-def RawSubst.subst0 (u: RawUntyped): RawSubst
+--@[simp]
+def RawUntyped.to_subst (u: RawUntyped): RawSubst
   | 0 => u
   | Nat.succ n => RawUntyped.var n
 
-def Subst.subst0 (u: Untyped n): Subst n (n + 1) :=
-  Subst.mk (RawSubst.subst0 u.val) (by {
+--@[simp]
+def Untyped.to_subst (u: Untyped n): Subst n (n + 1) :=
+  Subst.mk (u.val.to_subst) (by {
     intros v Hv;
     cases v with
     | zero => exact u.p
     | succ v => 
-      simp only [RawSubst.subst0, RawUntyped.fv]
+      simp only [RawUntyped.to_subst, RawUntyped.fv]
       exact Nat.lt_of_succ_lt_succ Hv
   })
 
 def RawUntyped.subst0: RawUntyped -> RawUntyped -> RawUntyped
-  | u, v => subst (RawSubst.subst0 v) u
+  | u, v => u.subst v.to_subst
