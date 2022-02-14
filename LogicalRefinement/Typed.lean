@@ -22,6 +22,11 @@ def Annot.wk: Annot -> RawWk -> Annot
   | term A, ρ => term (RawUntyped.wk ρ A)
   | proof A, ρ => proof (RawUntyped.wk ρ A)
 
+@[simp]
+def Annot.wk_id {A: Annot}: A.wk RawWk.id = A := by {
+  cases A; repeat simp
+}
+
 inductive Hyp
   | val (A: RawUntyped) -- Computational
   | gst (A: RawUntyped) -- Refinement
@@ -297,5 +302,14 @@ def WkCtx.to_wk: WkCtx Γ Δ -> Wk Γ.length Δ.length
 -- TODO: swap RawUntyped.wk
 theorem HasType.wk (ρ: WkCtx Γ Δ) (H: HasType Γ a A): 
   HasType Δ (RawUntyped.wk ρ.to_wk.val a) (A.wk ρ.to_wk.val) := by {
-    sorry
+    induction ρ with
+    | id =>
+      simp only [WkCtx.to_wk]
+      --TODO: this should be a simp lemma...
+      let H': ∀ n, (@Wk.id n).val = RawWk.id := λn => rfl;
+      rw [H']
+      rw [RawUntyped.wk_id, Annot.wk_id]
+      exact H
+    | step => sorry
+    | lift => sorry
   }
