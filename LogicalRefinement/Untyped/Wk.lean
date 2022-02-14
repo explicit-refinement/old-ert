@@ -123,7 +123,7 @@ def RawUntyped.fv_wk1: fv (wk1 u) ≤ fv u + 1 := by {
 }
 
 @[simp] def RawUntyped.wk_composes {u: RawUntyped}: 
-  (σ ρ: RawWk) -> (u.wk ρ).wk σ = u.wk (RawWk.comp σ ρ) := by {
+  (σ ρ: RawWk) -> (u.wk ρ).wk σ = u.wk (σ.comp ρ) := by {
   induction u with
   | var v => simp
   | const c => simp
@@ -139,5 +139,5 @@ def RawUntyped.fv_wk1: fv (wk1 u) ≤ fv u + 1 := by {
   Untyped.mk (u.val.wk ρ.val) (RawUntyped.wk_bounds ρ.p u.p)
 
 @[simp] def Untyped.wk_composes {u: Untyped l} {σ: Wk n m} {ρ: Wk m l}:
-  (u.wk ρ).wk σ = u.wk (Wk.comp σ ρ) := by simp
+  (u.wk ρ).wk σ = u.wk (σ.comp ρ) := by simp
   
