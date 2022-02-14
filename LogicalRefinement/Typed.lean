@@ -207,20 +207,13 @@ def HasType.const_lam
 
 theorem HasType.upgrade (p: HasType Γ a A): HasType Γ.upgrade a A := by {
   induction p;
-  
+
   case wk_gst_term Ia IB => exact wk_val_term Ia IB
   case wk_gst_type Ia IB => exact wk_val_type Ia IB
   case wk_gst_prop Ia IB => exact wk_val_prop Ia IB
 
   case var0_val IA => exact var0_val IA
   case var0_log IA => exact var0_log IA
-
-  case nats => exact nats
-  case top => exact top
-  case bot => exact bot
-  case zero => exact zero
-  case succ => exact succ
-  case nil => exact nil
   
   case wk_val_term Ia IB => exact wk_val_term Ia IB
   case wk_val_type Ia IB => exact wk_val_type Ia IB
@@ -247,6 +240,9 @@ theorem HasType.upgrade (p: HasType Γ a A): HasType Γ.upgrade a A := by {
   case lam Ib => exact lam Ib
   case app Il Ir => exact app Il Ir
 
+  -- Handle constants
+  all_goals try constructor
+
   repeat sorry
 }
 
@@ -265,7 +261,8 @@ theorem HasType.proof_regular (p: HasType Γ a (proof A)): HasType Γ A prop
     
     case var0_log HA => exact wk_log_prop HA HA
 
-    repeat sorry
+    -- Handle constants
+    all_goals try constructor
   }
 
 inductive IsCtx: RawContext -> Prop
