@@ -277,6 +277,10 @@ inductive IsCtx: RawContext -> Prop
 theorem HasType.ctx_regular (p: HasType Γ a A): IsCtx Γ := by {
   induction p;
 
+  -- Handle constants
+  all_goals try exact IsCtx.nil
+
+  -- Variables
   case var0_val HA IA => exact IsCtx.cons_val IA HA
   case var0_log HA IA => exact IsCtx.cons_log IA HA
 
