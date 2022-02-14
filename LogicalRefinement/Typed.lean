@@ -169,21 +169,21 @@ inductive HasType: RawContext -> RawUntyped -> Annot -> Prop
   | app {Γ: RawContext} {A B l r: RawUntyped}:
     HasType Γ l (term (pi A B)) -> HasType Γ r (term A) ->
     HasType Γ (app l r) (term (B.subst0 l))
-  -- | pair {Γ: RawContext} {A B l r: RawUntyped}:
-  --   HasType Γ l (expr A) -> HasType Γ r (expr (B.subst0 l)) ->
-  --   HasType Γ (pair l r) (expr (sigma A B))
-  -- | proj_ix {Γ: RawContext} {A B e: RawUntyped}:
-  --   HasType Γ e (expr (sigma A B)) ->
-  --   HasType Γ (proj false e) (expr A)
-  -- | proj_dep {Γ: RawContext} {A B e: RawUntyped}:
-  --   HasType Γ e (expr (sigma A B)) ->
-  --   HasType Γ (proj true e) (expr (B.subst0 (proj false e)))
-  -- | inj_l {Γ: RawContext} {A B e: RawUntyped}:
-  --   HasType Γ e (expr A) -> HasType Γ B type ->
-  --   HasType Γ (inj false e) (expr (coprod A B))
-  -- | inj_r {Γ: RawContext} {A B e: RawUntyped}:
-  --   HasType Γ e (expr B) -> HasType Γ A type ->
-  --   HasType Γ (inj true e) (expr (coprod A B))
+  | pair {Γ: RawContext} {A B l r: RawUntyped}:
+    HasType Γ l (term A) -> HasType Γ r (term (B.subst0 l)) ->
+    HasType Γ (pair l r) (term (sigma A B))
+  | proj_ix {Γ: RawContext} {A B e: RawUntyped}:
+    HasType Γ e (term (sigma A B)) ->
+    HasType Γ (proj false e) (term A)
+  | proj_dep {Γ: RawContext} {A B e: RawUntyped}:
+    HasType Γ e (term (sigma A B)) ->
+    HasType Γ (proj true e) (term (B.subst0 (proj false e)))
+  | inj_l {Γ: RawContext} {A B e: RawUntyped}:
+    HasType Γ e (term A) -> HasType Γ B type ->
+    HasType Γ (inj false e) (term (coprod A B))
+  | inj_r {Γ: RawContext} {A B e: RawUntyped}:
+    HasType Γ e (term B) -> HasType Γ A type ->
+    HasType Γ (inj true e) (term (coprod A B))
   
     --TODO: rest
 
