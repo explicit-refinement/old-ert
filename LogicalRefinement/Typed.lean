@@ -8,8 +8,10 @@ inductive AnnotSort
 
 inductive Annot
   | sort (s: AnnotSort)
-  | term (A: RawUntyped)
-  | proof (A: RawUntyped)
+  | expr (s: AnnotSort) (A: RawUntyped)
+
+def Annot.term := expr AnnotSort.type
+def Annot.proof := expr AnnotSort.prop
 
 open Annot
 open AnnotSort
@@ -20,14 +22,12 @@ instance annotSortCoe: Coe AnnotSort Annot where
 @[simp]
 def Annot.wk1: Annot -> Annot
   | sort s => sort s
-  | term A => term (RawUntyped.wk1 A)
-  | proof A => proof (RawUntyped.wk1 A)
+  | expr s A => expr s (RawUntyped.wk1 A)
 
 @[simp]
 def Annot.wk: Annot -> RawWk -> Annot
   | sort s, _ => sort s
-  | term A, ρ => term (A.wk ρ)
-  | proof A, ρ => proof (A.wk ρ)
+  | expr s A, ρ => expr s (A.wk ρ)
 
 @[simp]
 def Annot.wk_id {A: Annot}: A.wk RawWk.id = A := by {
@@ -35,20 +35,17 @@ def Annot.wk_id {A: Annot}: A.wk RawWk.id = A := by {
 }
 
 inductive HypKind
-  | val -- Computational
+  | val (s: AnnotSort) -- Computational/Logical
   | gst -- Refinement
-  | log -- Logical
 
 inductive HypKind.regular: HypKind -> AnnotSort -> Prop
-  | val: regular val type
-  | gst : regular gst type
-  | log: regular log prop
+  | val {s}: regular (val s) s
+  | gst: regular gst type
 
 @[simp]
 def HypKind.upgrade: HypKind -> HypKind
-  | val => val
-  | gst => val
-  | log => log
+  | val s => val s
+  | gst => val type
 
 @[simp]
 theorem HypKind.upgrade_idem: upgrade (upgrade h) = upgrade h := by {
@@ -57,7 +54,7 @@ theorem HypKind.upgrade_idem: upgrade (upgrade h) = upgrade h := by {
 
 theorem HypKind.upgrade_regular {s} {h: HypKind} (p: h.regular s): 
   h.upgrade.regular s := by {
-    cases s <;> cases h <;> { first | constructor | contradiction }
+    cases s <;> cases h <;> cases p <;> constructor
   }
 
 structure Hyp := (ty: RawUntyped) (kind: HypKind)
@@ -70,9 +67,8 @@ theorem Hyp.upgrade_idem: upgrade (upgrade h) = upgrade h := by {
   simp only [upgrade, HypKind.upgrade_idem]
 }
 
-def Hyp.val (A: RawUntyped) := Hyp.mk A HypKind.val
+def Hyp.val (A: RawUntyped) (s: AnnotSort) := Hyp.mk A (HypKind.val s)
 def Hyp.gst (A: RawUntyped) := Hyp.mk A HypKind.gst
-def Hyp.log (A: RawUntyped) := Hyp.mk A HypKind.log
 
 def RawContext := List Hyp
 
@@ -104,12 +100,9 @@ def constAnnot: UntypedKind [] -> Annot
 
 inductive HasType: RawContext -> RawUntyped -> Annot -> Prop
   -- Variables
-  | var0_val {Γ: RawContext} {A: RawUntyped}:
-    HasType Γ A type ->
-    HasType ((Hyp.val A)::Γ) (var 0) (term (wk1 A))
-  | var0_log {Γ: RawContext} {A: RawUntyped}:
-    HasType Γ A prop ->
-    HasType ((Hyp.log A)::Γ) (var 0) (proof (wk1 A))
+  | var0 {Γ: RawContext} {A: RawUntyped} {s: AnnotSort}:
+    HasType Γ A (sort s) ->
+    HasType ((Hyp.val A s)::Γ) (var 0) (expr s (wk1 A))
 
   -- Constants
   | nats: HasType [] nats type
@@ -119,34 +112,50 @@ inductive HasType: RawContext -> RawUntyped -> Annot -> Prop
   | succ: HasType [] succ (term (arrow nats nats))
   | nil: HasType [] nil (proof top)
   
-  -- Weakening (TODO: condense to one rule?)
-  | wk1 {Γ a A B s h}:
-    HasType Γ a A -> 
-    HasType Γ B (sort s) ->
-    h.regular s ->
-    HasType ((Hyp.mk B h)::Γ) a.wk1 A.wk1
+  -- Weakening
+  | wk_sort {Γ A B s s'}:
+    HasType Γ A (sort s) -> 
+    HasType Γ B (sort s') ->
+    HasType ((Hyp.mk B (HypKind.val s'))::Γ) A.wk1 (sort s)
+  | wk_gst_sort {Γ A B s}:
+    HasType Γ A (sort s) -> 
+    HasType Γ B type ->
+    HasType ((Hyp.mk B HypKind.gst)::Γ) A.wk1 (sort s)
+  | wk_expr {Γ a A B s s'}:
+    HasType Γ a (expr s A) -> 
+    HasType Γ B (sort s') ->
+    HasType ((Hyp.mk B (HypKind.val s'))::Γ) a.wk1 (expr s A.wk1)
+  | wk_gst_expr {Γ a A B s}:
+    HasType Γ a (expr s A) -> 
+    HasType Γ B type ->
+    HasType ((Hyp.mk B HypKind.gst)::Γ) a.wk1 (expr s A.wk1)
 
   -- Basic types
   | pi {Γ: RawContext} {A B: RawUntyped}:
-    HasType Γ A type -> HasType ((Hyp.val A)::Γ) B type ->
+    HasType Γ A type -> 
+    HasType ((Hyp.mk A (HypKind.val type))::Γ) B type ->
     HasType Γ (pi A B) type
   | sigma {Γ: RawContext} {A B: RawUntyped}:
-    HasType Γ A type -> HasType ((Hyp.val A)::Γ) B type ->
+    HasType Γ A type -> 
+    HasType ((Hyp.mk A (HypKind.val type))::Γ) B type ->
     HasType Γ (sigma A B) type
   | coprod {Γ: RawContext} {A B: RawUntyped}:
     HasType Γ A type -> HasType Γ B type ->
     HasType Γ (coprod A B) type
   | set {Γ: RawContext} {A B: RawUntyped}:
-    HasType Γ A type -> HasType ((Hyp.val A)::Γ) B prop ->
+    HasType Γ A type -> 
+    HasType ((Hyp.mk A (HypKind.val type))::Γ) B prop ->
     HasType Γ (set A B) type
   | assume {Γ: RawContext} {φ A: RawUntyped}:
     HasType Γ φ type  -> HasType Γ B type ->
     HasType Γ (assume φ A) type
   | intersect {Γ: RawContext} {A B: RawUntyped}:
-    HasType Γ A type -> HasType ((Hyp.val A)::Γ) B prop ->
+    HasType Γ A type -> 
+    HasType ((Hyp.mk A (HypKind.val type))::Γ) B prop ->
     HasType Γ (intersect A B) type
   | union {Γ: RawContext} {A B: RawUntyped}:
-    HasType Γ A type -> HasType ((Hyp.val A)::Γ) B prop ->
+    HasType Γ A type -> 
+    HasType ((Hyp.mk A (HypKind.val type))::Γ) B prop ->
     HasType Γ (union A B) type
   
   -- Basic propositions
@@ -160,10 +169,12 @@ inductive HasType: RawContext -> RawUntyped -> Annot -> Prop
     HasType Γ φ prop -> HasType Γ ψ prop ->
     HasType Γ (implies φ ψ) prop
   | forall_ {Γ: RawContext} {A φ: RawUntyped}:
-    HasType Γ A type -> HasType ((Hyp.val A)::Γ) φ prop ->
+    HasType Γ A type -> 
+    HasType ((Hyp.mk A (HypKind.val type))::Γ) φ prop ->
     HasType Γ (forall_ A φ) type
   | exists_ {Γ: RawContext} {A φ: RawUntyped}:
-    HasType Γ A type -> HasType ((Hyp.val A)::Γ) φ prop ->
+    HasType Γ A type -> 
+    HasType ((Hyp.mk A (HypKind.val type))::Γ) φ prop ->
     HasType Γ (exists_ A φ) type
   | eq {Γ: RawContext} {A l r: RawUntyped}:
     HasType Γ A type -> 
@@ -173,7 +184,7 @@ inductive HasType: RawContext -> RawUntyped -> Annot -> Prop
   -- Basic terms
   | lam {Γ: RawContext} {A s B: RawUntyped}:
     HasType Γ A type ->
-    HasType ((Hyp.val A)::Γ) s (term B) ->
+    HasType ((Hyp.mk A (HypKind.val type))::Γ) s (term B) ->
     HasType Γ (lam A s) (term (pi A B))
   | app {Γ: RawContext} {A B l r: RawUntyped}:
     HasType Γ l (term (pi A B)) -> HasType Γ r (term A) ->
@@ -199,17 +210,17 @@ inductive HasType: RawContext -> RawUntyped -> Annot -> Prop
   -- Basic proofs
   --TODO: this
 
-def HasType.wk_val (Ha: HasType Γ a A) (HB: HasType Γ B type)
-  : HasType ((Hyp.val B)::Γ) a.wk1 A.wk1
+def HasType.wk1 
+  (Ha: HasType Γ a A) (HB: HasType Γ B (sort s)) (Hr: h.regular s):
+  HasType ((Hyp.mk B h)::Γ) a.wk1 A.wk1 := by { sorry }
+
+def HasType.wk_val (Ha: HasType Γ a A) (HB: HasType Γ B (sort s))
+  : HasType ((Hyp.val B s)::Γ) a.wk1 A.wk1
   := wk1 Ha HB HypKind.regular.val
 
 def HasType.wk_gst (Ha: HasType Γ a A) (HB: HasType Γ B type)
   : HasType ((Hyp.gst B)::Γ) a.wk1 A.wk1
   := wk1 Ha HB HypKind.regular.gst
-
-def HasType.wk_log (Ha: HasType Γ a A) (HB: HasType Γ B prop)
-  : HasType ((Hyp.log B)::Γ) a.wk1 A.wk1
-  := wk1 Ha HB HypKind.regular.log
 
 notation Γ "⊢" a ":" A => HasType Γ a A
 notation Γ "⊢" a "∈" A => HasType Γ a (term A)
@@ -219,34 +230,45 @@ notation Γ "⊢" a "∴" A => HasType Γ a (prop A)
 
 def HasType.arrow (HA: Γ ⊢ A: type) (HB: Γ ⊢ B: type)
   : Γ ⊢ (arrow A B): type 
-  := pi HA (wk_val HB HA)
+  := pi HA (wk_sort HB HA)
 
 def HasType.lam_id (HA: Γ ⊢ A: type)
   : Γ ⊢ (RawUntyped.lam A (var 0)) ∈ RawUntyped.arrow A A
-  := lam HA (var0_val HA)
+  := lam HA (var0 HA)
 
 def HasType.const_lam 
   (HA: Γ ⊢ A: type) (HB: Γ ⊢ B: type) (Hb: Γ ⊢ b ∈ B)
   : HasType Γ (RawUntyped.lam A b.wk1) (term (RawUntyped.arrow A B))
-  := lam HA (wk_val Hb HA)
+  := lam HA (wk_expr Hb HA)
 
 theorem HasType.upgrade (p: Γ ⊢ a: A): Γ.upgrade ⊢ a: A := by {
   induction p;
-  case wk1 Ia IB =>
-    simp only [RawContext.upgrade, Hyp.upgrade]
-    apply wk1 Ia IB
-    apply HypKind.upgrade_regular
-    assumption
   all_goals { constructor; repeat assumption; }
 }
 
 inductive Annot.regular: Annot -> RawContext -> Prop
   | sort {Γ s}: regular (sort s) Γ
-  | term {Γ A}: (Γ ⊢ A: type) -> regular (term A) Γ
-  | proof {Γ A}: (Γ ⊢ A: prop) -> regular (proof A) Γ
+  | expr {Γ s A}: (Γ ⊢ A: sort s) -> regular (expr s A) Γ
+
+def Annot.regular_expr: regular (expr s A) Γ -> (Γ ⊢ A: sort s)
+  | Annot.regular.expr Hr => Hr
 
 theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
   induction p;
+
+  all_goals try exact Annot.regular.sort
+
+  case var0 =>
+    constructor ;
+    constructor <;>
+    assumption
+  case lam =>
+    constructor; constructor <;>
+    first | assumption | { apply Annot.regular_expr; assumption }
+  case app => sorry
+
+
+  -- Need substitution for the rest...
   repeat sorry
 }
 
@@ -254,21 +276,24 @@ theorem HasType.term_regular (p: HasType Γ a (term A)): HasType Γ A type
   := by {
     let H := regular p;
     cases H with
-    | term H => exact H
+    | expr H => exact H
   }
 
 theorem HasType.proof_regular (p: HasType Γ a (proof A)): HasType Γ A prop 
   := by {
     let H := regular p;
     cases H with
-    | proof H => exact H
+    | expr H => exact H
   }
 
 inductive IsCtx: RawContext -> Prop
   | nil: IsCtx []
-  | cons_val {Γ A}: IsCtx Γ -> (Γ ⊢ A: type) -> IsCtx ((Hyp.val A)::Γ)
-  | cons_gst {Γ A}: IsCtx Γ -> (Γ ⊢ A: type) -> IsCtx ((Hyp.gst A)::Γ)
-  | cons_log {Γ A}: IsCtx Γ -> (Γ ⊢ A: prop) -> IsCtx ((Hyp.log A)::Γ)
+  | cons_val {Γ A s}: 
+    IsCtx Γ -> (Γ ⊢ A: sort s) 
+    -> IsCtx ((Hyp.mk A (HypKind.val s))::Γ)
+  | cons_gst {Γ A}: 
+    IsCtx Γ -> (Γ ⊢ A: type) -> 
+    IsCtx ((Hyp.mk A HypKind.gst)::Γ)
 
 theorem HasType.ctx_regular (p: Γ ⊢ a: A): IsCtx Γ := by {
   induction p;
@@ -276,17 +301,12 @@ theorem HasType.ctx_regular (p: Γ ⊢ a: A): IsCtx Γ := by {
   -- Handle constants
   all_goals try exact IsCtx.nil
 
-  -- Variables
-  case var0_val HA IA => exact IsCtx.cons_val IA HA
-  case var0_log HA IA => exact IsCtx.cons_log IA HA
-
   repeat sorry
 }
 
 inductive IsHyp: RawContext -> Hyp -> Prop
-  | hyp_val {Γ A}: (Γ ⊢ A: type) -> IsHyp Γ (Hyp.val A)
+  | hyp_val {Γ A s}: (Γ ⊢ A: type) -> IsHyp Γ (Hyp.val A s)
   | hyp_gst {Γ A}: (Γ ⊢ A: type) -> IsHyp Γ (Hyp.gst A)
-  | hyp_log {Γ A}: (Γ ⊢ A: prop) -> IsHyp Γ (Hyp.log A)
 
 inductive WkCtx: RawContext -> RawContext -> Type
   | id: WkCtx [] []
