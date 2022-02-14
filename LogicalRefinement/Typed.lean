@@ -190,22 +190,26 @@ inductive HasType: RawContext -> RawUntyped -> Annot -> Prop
   -- Basic proofs
   --TODO: this
 
+notation Γ "⊢" a ":" A => HasType Γ a A
+notation Γ "⊢" a "∈" A => HasType Γ a (term A)
+notation Γ "⊢" a "∴" A => HasType Γ a (prop A)
+
 -- Simple examples
 
-def HasType.arrow (HA: HasType Γ A type) (HB: HasType Γ B type)
-  : HasType Γ (arrow A B) type 
+def HasType.arrow (HA: Γ ⊢ A: type) (HB: Γ ⊢ B: type)
+  : Γ ⊢ (arrow A B): type 
   := pi HA (wk_val_type HB HA)
 
-def HasType.lam_id (HA: HasType Γ A type)
-  : HasType Γ (RawUntyped.lam A (var 0)) (term (RawUntyped.arrow A A)) 
+def HasType.lam_id (HA: Γ ⊢ A: type)
+  : Γ ⊢ (RawUntyped.lam A (var 0)) ∈ RawUntyped.arrow A A
   := lam (var0_val HA)
 
 def HasType.const_lam 
-  (HA: HasType Γ A type) (HB: HasType Γ B type) (Hb: HasType Γ b (term B))
+  (HA: Γ ⊢ A: type) (HB: Γ ⊢ B: type) (Hb: Γ ⊢ b ∈ B)
   : HasType Γ (RawUntyped.lam A (wk1 b)) (term (RawUntyped.arrow A B))
   := lam (wk_val_term Hb HA)
 
-theorem HasType.upgrade (p: HasType Γ a A): HasType Γ.upgrade a A := by {
+theorem HasType.upgrade (p: Γ ⊢ a: A): Γ.upgrade ⊢ a: A := by {
   induction p;
   case wk_gst_type Ia IB => exact wk_val_type Ia IB
   all_goals { constructor; repeat assumption; }
@@ -235,11 +239,11 @@ theorem HasType.proof_regular (p: HasType Γ a (proof A)): HasType Γ A prop
 
 inductive IsCtx: RawContext -> Prop
   | nil: IsCtx []
-  | cons_val {Γ A}: IsCtx Γ -> HasType Γ A type -> IsCtx ((Hyp.val A)::Γ)
-  | cons_gst {Γ A}: IsCtx Γ -> HasType Γ A type -> IsCtx ((Hyp.gst A)::Γ)
-  | cons_log {Γ A}: IsCtx Γ -> HasType Γ A prop -> IsCtx ((Hyp.log A)::Γ)
+  | cons_val {Γ A}: IsCtx Γ -> (Γ ⊢ A: type) -> IsCtx ((Hyp.val A)::Γ)
+  | cons_gst {Γ A}: IsCtx Γ -> (Γ ⊢ A: type) -> IsCtx ((Hyp.gst A)::Γ)
+  | cons_log {Γ A}: IsCtx Γ -> (Γ ⊢ A: prop) -> IsCtx ((Hyp.log A)::Γ)
 
-theorem HasType.ctx_regular (p: HasType Γ a A): IsCtx Γ := by {
+theorem HasType.ctx_regular (p: Γ ⊢ a: A): IsCtx Γ := by {
   induction p;
 
   -- Handle constants
@@ -253,9 +257,9 @@ theorem HasType.ctx_regular (p: HasType Γ a A): IsCtx Γ := by {
 }
 
 inductive IsHyp: RawContext -> Hyp -> Prop
-  | hyp_val {Γ A}: HasType Γ A type -> IsHyp Γ (Hyp.val A)
-  | hyp_gst {Γ A}: HasType Γ A type -> IsHyp Γ (Hyp.gst A)
-  | hyp_log {Γ A}: HasType Γ A prop -> IsHyp Γ (Hyp.log A)
+  | hyp_val {Γ A}: (Γ ⊢ A: type) -> IsHyp Γ (Hyp.val A)
+  | hyp_gst {Γ A}: (Γ ⊢ A: type) -> IsHyp Γ (Hyp.gst A)
+  | hyp_log {Γ A}: (Γ ⊢ A: prop) -> IsHyp Γ (Hyp.log A)
 
 inductive WkCtx: RawContext -> RawContext -> Type
   | id: WkCtx [] []
@@ -269,8 +273,8 @@ def WkCtx.to_wk: WkCtx Γ Δ -> Wk Γ.length Δ.length
   | lift ρ => Wk.lift (to_wk ρ)
 
 -- TODO: swap RawUntyped.wk
-theorem HasType.wk (ρ: WkCtx Γ Δ) (H: HasType Γ a A): 
-  HasType Δ (a.wk ρ.to_wk.val) (A.wk ρ.to_wk.val) := by {
+theorem HasType.wk (ρ: WkCtx Γ Δ) (H: Γ ⊢ a: A): 
+  Δ ⊢ (a.wk ρ.to_wk.val): (A.wk ρ.to_wk.val) := by {
     induction ρ with
     | id =>
       simp only [WkCtx.to_wk]
@@ -282,3 +286,5 @@ theorem HasType.wk (ρ: WkCtx Γ Δ) (H: HasType Γ a A):
     | step => sorry
     | lift => sorry
   }
+
+-- TODO: hastype untyped method?
