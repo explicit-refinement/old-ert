@@ -113,7 +113,7 @@ theorem RawSubst.liftn_base_nil: (base: Nat) -> (σ: RawSubst) ->
 
 theorem RawSubst.liftn_above_wk: (base: Nat) -> (σ: RawSubst) -> 
   (v: Nat) -> base ≤ v ->
-  liftn base σ v = RawUntyped.wkn base (σ (v - base)) := by {
+  liftn base σ v = (σ (v - base)).wkn base := by {
     intros base;
     induction base with
     | zero => simp
@@ -146,7 +146,7 @@ def RawUntyped.subst (σ: RawSubst): RawUntyped -> RawUntyped
 
 theorem RawSubst.lift_var: {n v: Nat} -> {σ: RawSubst} -> 
   (liftn (n + 1) σ) (RawWk.var (RawWk.wknth n) v) 
-  = RawUntyped.wknth n (liftn n σ v) 
+  = (liftn n σ v).wknth n
   := by {
     intros n v σ;
     cases Nat.le_or_lt v n with
@@ -171,8 +171,8 @@ theorem RawSubst.lift_var: {n v: Nat} -> {σ: RawSubst} ->
   }
 
 theorem RawUntyped.liftn_wk {u: RawUntyped}: {σ: RawSubst} -> (n: Nat) ->
-  subst (RawSubst.liftn (n + 1) σ) (wknth n u) =
-  wknth n (subst (RawSubst.liftn n σ) u)
+  subst (RawSubst.liftn (n + 1) σ) (u.wknth n) =
+  (subst (RawSubst.liftn n σ) u).wknth n
   := by {
     unfold RawWk.wk1
     induction u with
@@ -271,7 +271,7 @@ def RawSubst.comp (σ ρ: RawSubst): RawSubst
   }
 
 @[simp] theorem RawSubst.subst_wk_compat: {u: RawUntyped} -> {ρ: RawWk} ->
-  RawUntyped.subst (RawWk.to_subst ρ) u = RawUntyped.wk ρ u := by {
+  RawUntyped.subst (RawWk.to_subst ρ) u = u.wk ρ := by {
   intro u;
   induction u with
   | var v => simp

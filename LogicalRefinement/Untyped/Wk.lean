@@ -2,24 +2,24 @@ import LogicalRefinement.Utils
 import LogicalRefinement.Wk
 import LogicalRefinement.Untyped.Basic
 
-@[simp] def RawUntyped.wk (ρ: RawWk): RawUntyped -> RawUntyped
-  | var v => var (RawWk.var ρ v)
-  | const c => const c
-  | unary k t => unary k (wk ρ t)
-  | let_bin k e => let_bin k (wk (RawWk.liftn 2 ρ) e)
-  | bin k l r => bin k (wk ρ l) (wk ρ r)
-  | abs k A t => abs k (wk ρ A) (wk (RawWk.lift ρ) t)
-  | tri k A l r => tri k (wk ρ A) (wk ρ l) (wk ρ r)
-  | cases k K d l r => cases k (wk (RawWk.lift ρ) K) (wk ρ d) (wk ρ l) (wk ρ r)
+@[simp] def RawUntyped.wk: RawUntyped -> RawWk -> RawUntyped
+  | var v, ρ => var (RawWk.var ρ v)
+  | const c, ρ => const c
+  | unary k t, ρ => unary k (t.wk ρ)
+  | let_bin k e, ρ => let_bin k (e.wk (RawWk.liftn 2 ρ))
+  | bin k l r, ρ => bin k (l.wk ρ) (r.wk ρ)
+  | abs k A t, ρ => abs k (A.wk ρ) (t.wk (RawWk.lift ρ))
+  | tri k A l r, ρ => tri k (A.wk ρ) (l.wk ρ) (r.wk ρ)
+  | cases k K d l r, ρ => cases k (K.wk (RawWk.lift ρ)) (d.wk ρ) (l.wk ρ) (r.wk ρ)
 
-@[simp] def RawUntyped.wk1 (u: RawUntyped) := wk RawWk.wk1 u
+@[simp] def RawUntyped.wk1 (u: RawUntyped) := u.wk RawWk.wk1
 
-@[simp] def RawUntyped.wkn (n: Nat) (u: RawUntyped) := wk (RawWk.wkn n) u
+@[simp] def RawUntyped.wkn (u: RawUntyped) (n: Nat) := u.wk (RawWk.wkn n)
 
-@[simp] def RawUntyped.wknth (n: Nat) (u: RawUntyped) := wk (RawWk.wknth n) u
+@[simp] def RawUntyped.wknth (u: RawUntyped) (n: Nat) := u.wk (RawWk.wknth n)
 
 @[simp] def RawUntyped.wk_coherent: {u: RawUntyped} -> {ρ σ: RawWk} ->
-  RawWk.equiv ρ σ -> wk ρ u = wk σ u := by {
+  RawWk.equiv ρ σ -> u.wk ρ = u.wk σ := by {
   intro u;
   induction u with
   | var v => intros ρ σ H; simp only [wk]; rw [H]
@@ -41,7 +41,7 @@ import LogicalRefinement.Untyped.Basic
     simp [IK (RawWk.lift_equiv H), Id H, Il H, Ir H]
 }
 
-@[simp] def RawUntyped.wk_id: wk (RawWk.id) u = u := by {
+@[simp] def RawUntyped.wk_id {u: RawUntyped}: u.wk (RawWk.id) = u := by {
   induction u with
   | var v => simp
   | const c => simp
@@ -63,7 +63,7 @@ import LogicalRefinement.Untyped.Basic
 }
 
 def RawUntyped.wk_bounds {u: RawUntyped}: {n m: Nat} -> {ρ: RawWk} ->
-  wk_maps n m ρ -> fv u ≤ m -> fv (wk ρ u) ≤ n := by {
+  wk_maps n m ρ -> fv u ≤ m -> fv (u.wk ρ) ≤ n := by {
     induction u with
     | var v => intros _ _ ρ Hm. apply Hm
     | const => intros. apply Nat.zero_le
@@ -122,8 +122,8 @@ def RawUntyped.fv_wk1: fv (wk1 u) ≤ fv u + 1 := by {
   exact Nat.le_refl _
 }
 
-@[simp] def RawUntyped.wk_composes (u: RawUntyped): 
-  (σ ρ: RawWk) -> wk σ (wk ρ u) = wk (RawWk.comp σ ρ) u := by {
+@[simp] def RawUntyped.wk_composes {u: RawUntyped}: 
+  (σ ρ: RawWk) -> (u.wk ρ).wk σ = u.wk (RawWk.comp σ ρ) := by {
   induction u with
   | var v => simp
   | const c => simp
@@ -135,9 +135,9 @@ def RawUntyped.fv_wk1: fv (wk1 u) ≤ fv u + 1 := by {
   | cases k K d l r IK Id Il Ir => simp [IK, Id, Il, Ir]
 }
 
-@[simp] def Untyped.wk (ρ: Wk n m) (u: Untyped m): Untyped n :=
-  Untyped.mk (RawUntyped.wk ρ.val u.val) (RawUntyped.wk_bounds ρ.p u.p)
+@[simp] def Untyped.wk (u: Untyped m) (ρ: Wk n m): Untyped n :=
+  Untyped.mk (u.val.wk ρ.val) (RawUntyped.wk_bounds ρ.p u.p)
 
-@[simp] def Untyped.wk_composes (σ: Wk n m) (ρ: Wk m l):
-  wk σ (wk ρ u) = wk (Wk.comp σ ρ) u := by simp
+@[simp] def Untyped.wk_composes {u: Untyped l} {σ: Wk n m} {ρ: Wk m l}:
+  (u.wk ρ).wk σ = u.wk (Wk.comp σ ρ) := by simp
   

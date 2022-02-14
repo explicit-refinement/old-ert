@@ -19,8 +19,8 @@ def Annot.wk1: Annot -> Annot
 def Annot.wk: Annot -> RawWk -> Annot
   | type, _ => type
   | prop, _ => prop
-  | term A, ρ => term (RawUntyped.wk ρ A)
-  | proof A, ρ => proof (RawUntyped.wk ρ A)
+  | term A, ρ => term (A.wk ρ)
+  | proof A, ρ => proof (A.wk ρ)
 
 @[simp]
 def Annot.wk_id {A: Annot}: A.wk RawWk.id = A := by {
@@ -270,7 +270,7 @@ def WkCtx.to_wk: WkCtx Γ Δ -> Wk Γ.length Δ.length
 
 -- TODO: swap RawUntyped.wk
 theorem HasType.wk (ρ: WkCtx Γ Δ) (H: HasType Γ a A): 
-  HasType Δ (RawUntyped.wk ρ.to_wk.val a) (A.wk ρ.to_wk.val) := by {
+  HasType Δ (a.wk ρ.to_wk.val) (A.wk ρ.to_wk.val) := by {
     induction ρ with
     | id =>
       simp only [WkCtx.to_wk]
