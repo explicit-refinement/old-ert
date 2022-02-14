@@ -15,6 +15,13 @@ def Annot.wk1: Annot -> Annot
   | term A => term (RawUntyped.wk1 A)
   | proof A => proof (RawUntyped.wk1 A)
 
+@[simp]
+def Annot.wk: Annot -> RawWk -> Annot
+  | type, _ => type
+  | prop, _ => prop
+  | term A, ρ => term (RawUntyped.wk ρ A)
+  | proof A, ρ => proof (RawUntyped.wk ρ A)
+
 inductive Hyp
   | val (A: RawUntyped) -- Computational
   | gst (A: RawUntyped) -- Refinement
@@ -286,3 +293,9 @@ def WkCtx.to_wk: WkCtx Γ Δ -> Wk Γ.length Δ.length
   | id => Wk.id
   | step ρ _ => Wk.step (to_wk ρ)
   | lift ρ => Wk.lift (to_wk ρ)
+
+-- TODO: swap RawUntyped.wk
+theorem HasType.wk (ρ: WkCtx Γ Δ) (H: HasType Γ a A): 
+  HasType Δ (RawUntyped.wk ρ.to_wk.val a) (A.wk ρ.to_wk.val) := by {
+    sorry
+  }
