@@ -284,5 +284,5 @@ inductive WkCtx: RawContext -> RawContext -> Type
 
 def WkCtx.to_wk: WkCtx Γ Δ -> Wk Γ.length Δ.length
   | id => Wk.id
-  | step ρ _ => sorry
-  | lift ρ => sorry
+  | step ρ _ => Wk.step (to_wk ρ)
+  | lift ρ => Wk.lift (to_wk ρ)
