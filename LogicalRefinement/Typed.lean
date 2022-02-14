@@ -207,43 +207,8 @@ def HasType.const_lam
 
 theorem HasType.upgrade (p: HasType Γ a A): HasType Γ.upgrade a A := by {
   induction p;
-
-  case wk_gst_term Ia IB => exact wk_val_term Ia IB
   case wk_gst_type Ia IB => exact wk_val_type Ia IB
-  case wk_gst_prop Ia IB => exact wk_val_prop Ia IB
-
-  case var0_val IA => exact var0_val IA
-  case var0_log IA => exact var0_log IA
-  
-  case wk_val_term Ia IB => exact wk_val_term Ia IB
-  case wk_val_type Ia IB => exact wk_val_type Ia IB
-  case wk_val_prop Ia IB => exact wk_val_prop Ia IB
-  case wk_log_term Ia IB => exact wk_log_term Ia IB
-  case wk_log_type Ia IB => exact wk_log_type Ia IB
-  case wk_log_prop Ia IB => exact wk_log_prop Ia IB
-  
-  case pi IA IB => exact pi IA IB
-  case sigma IA IB => exact sigma IA IB
-  case coprod IA IB => exact coprod IA IB
-  case set IA IB => exact set IA IB
-  case assume Iφ IA => exact assume Iφ IA
-  case intersect IA IB => exact intersect IA IB
-  case union IA IB => exact union IA IB
-
-  case and Iφ Iψ => exact and Iφ Iψ
-  case or Iφ Iψ => exact or Iφ Iψ
-  case implies Iφ Iψ => exact implies Iφ Iψ
-  case forall_ IA Iφ => exact forall_ IA Iφ
-  case exists_ IA Iφ => exact exists_ IA Iφ
-  case eq IA Il Ir => exact eq IA Il Ir
-
-  case lam Ib => exact lam Ib
-  case app Il Ir => exact app Il Ir
-
-  -- Handle constants
-  all_goals try constructor
-
-  repeat sorry
+  all_goals { constructor; repeat assumption; }
 }
 
 theorem HasType.term_regular (p: HasType Γ a (term A)): HasType Γ A type 
