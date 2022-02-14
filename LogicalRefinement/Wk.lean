@@ -5,23 +5,23 @@ inductive RawWk: Type 0 where
 
 @[simp] def RawWk.wk1: RawWk := step id
 
-@[simp] def RawWk.liftn: (l: Nat) -> RawWk -> RawWk
-  | 0, ρ => ρ
-  | Nat.succ n, ρ => RawWk.lift (liftn n ρ)
+@[simp] def RawWk.liftn: RawWk -> Nat -> RawWk
+  | ρ, 0 => ρ
+  | ρ, Nat.succ n => RawWk.lift (ρ.liftn n)
 
 @[simp] def RawWk.wkn: Nat -> RawWk
   | 0 => id
   | Nat.succ n => step (wkn n)
 
-@[simp] def RawWk.wknth (n: Nat): RawWk := liftn n wk1
+@[simp] def RawWk.wknth (n: Nat): RawWk := wk1.liftn n
 
 @[simp]
-theorem RawWk.lift_liftn_merge {m n: Nat}: 
-  lift (liftn n σ) = liftn (n + 1) σ := rfl
+theorem RawWk.lift_liftn_merge {ρ: RawWk} {m n: Nat}: 
+  (ρ.liftn n).lift = ρ.liftn (n + 1) := rfl
 
 @[simp]
-theorem RawWk.liftn_merge: {n m: Nat} -> 
-  liftn n (liftn m σ) = liftn (n + m) σ := by {
+theorem RawWk.liftn_merge {ρ: RawWk}: {n m: Nat} -> 
+  (ρ.liftn m).liftn n = ρ.liftn (n + m) := by {
     intro n;
     induction n with
     | zero => simp
@@ -42,7 +42,7 @@ theorem RawWk.lift_wknth_merge {m n: Nat}: lift (wknth n) = wknth (n + 1)
 }
 
 @[simp]
-theorem RawWk.liftn_wknth_merge {m n: Nat}: liftn m (wknth n) = wknth (n + m) 
+theorem RawWk.liftn_wknth_merge {m n: Nat}: (wknth n).liftn m = wknth (n + m) 
   := by {
   unfold wknth;
   rw [liftn_merge]
@@ -133,7 +133,7 @@ def RawWk.lift_equiv {ρ σ: RawWk}:
   }
 
 def RawWk.liftn_equiv: {n: Nat} -> {ρ σ: RawWk} ->
-  equiv ρ σ -> equiv (liftn n ρ) (liftn n σ) := by {
+  equiv ρ σ -> equiv (ρ.liftn n) (σ.liftn n) := by {
     intro n;
     induction n with
     | zero => intros ρ σ H; exact H
@@ -152,7 +152,7 @@ def RawWk.lift_id_equiv: equiv (lift id) id := by {
     | succ v => rfl
   }
 
-def RawWk.liftn_id_equiv: {n: Nat} -> equiv (liftn n id) id := by {
+def RawWk.liftn_id_equiv: {n: Nat} -> equiv (id.liftn n) id := by {
     intro n;
     induction n with
     | zero => exact equiv_refl
@@ -260,7 +260,7 @@ theorem wk_maps_wk1 {n: Nat}: wk_maps (n + 1) n RawWk.wk1
   := λ v Hv => Nat.succ_le_succ Hv
 
 theorem wk_maps_liftn {l m n: Nat} {ρ: RawWk}: 
-  wk_maps m n ρ -> wk_maps (m + l) (n + l) (RawWk.liftn l ρ) := by {
+  wk_maps m n ρ -> wk_maps (m + l) (n + l) (ρ.liftn l) := by {
   induction l with
   | zero => intros Hρ. apply Hρ
   | succ l I => 

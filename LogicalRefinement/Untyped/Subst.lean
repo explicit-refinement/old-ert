@@ -20,7 +20,7 @@ def RawSubst.lift (σ: RawSubst): RawSubst
   | Nat.succ n => wk1 σ n
 
 def RawWk.to_subst_lift {σ: RawWk}: 
-  RawSubst.lift (to_subst σ) = to_subst (lift σ) := by {
+  (to_subst σ).lift = to_subst σ.lift := by {
   funext v;
   cases v with
   | zero => simp [RawSubst.lift]
@@ -29,11 +29,11 @@ def RawWk.to_subst_lift {σ: RawWk}:
 
 @[simp]
 def RawSubst.lift_succ (σ: RawSubst):
-  lift σ (Nat.succ n) = wk1 σ n := rfl
+  σ.lift (Nat.succ n) = wk1 σ n := rfl
 
 @[simp]
 def RawSubst.lift_zero (σ: RawSubst):
-  lift σ 0 = RawUntyped.var 0 := rfl
+  σ.lift 0 = RawUntyped.var 0 := rfl
 
 @[simp]
 def RawSubst.liftn: (l: Nat) -> (σ: RawSubst) -> RawSubst
@@ -41,7 +41,7 @@ def RawSubst.liftn: (l: Nat) -> (σ: RawSubst) -> RawSubst
   | Nat.succ l, σ => lift (liftn l σ)
 
 def RawWk.to_subst_liftn: {n: Nat} -> {σ: RawWk} ->
-  RawSubst.liftn n (to_subst σ) = to_subst (liftn n σ) := by {
+  RawSubst.liftn n (to_subst σ) = to_subst (σ.liftn n) := by {
     intro n;
     induction n with
     | zero => simp

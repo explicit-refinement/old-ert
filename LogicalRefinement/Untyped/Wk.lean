@@ -6,11 +6,11 @@ import LogicalRefinement.Untyped.Basic
   | var v, ρ => var (RawWk.var ρ v)
   | const c, ρ => const c
   | unary k t, ρ => unary k (t.wk ρ)
-  | let_bin k e, ρ => let_bin k (e.wk (RawWk.liftn 2 ρ))
+  | let_bin k e, ρ => let_bin k (e.wk (ρ.liftn 2))
   | bin k l r, ρ => bin k (l.wk ρ) (r.wk ρ)
-  | abs k A t, ρ => abs k (A.wk ρ) (t.wk (RawWk.lift ρ))
+  | abs k A t, ρ => abs k (A.wk ρ) (t.wk ρ.lift)
   | tri k A l r, ρ => tri k (A.wk ρ) (l.wk ρ) (r.wk ρ)
-  | cases k K d l r, ρ => cases k (K.wk (RawWk.lift ρ)) (d.wk ρ) (l.wk ρ) (r.wk ρ)
+  | cases k K d l r, ρ => cases k (K.wk ρ.lift) (d.wk ρ) (l.wk ρ) (r.wk ρ)
 
 @[simp] def RawUntyped.wk1 (u: RawUntyped) := u.wk RawWk.wk1
 
