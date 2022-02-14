@@ -246,46 +246,6 @@ theorem HasType.upgrade (p: Γ ⊢ a: A): Γ.upgrade ⊢ a: A := by {
   all_goals { constructor; repeat assumption; }
 }
 
-inductive Annot.regular: Annot -> RawContext -> Prop
-  | sort {Γ s}: regular (sort s) Γ
-  | expr {Γ s A}: (Γ ⊢ A: sort s) -> regular (expr s A) Γ
-
-def Annot.regular_expr: regular (expr s A) Γ -> (Γ ⊢ A: sort s)
-  | Annot.regular.expr Hr => Hr
-
-theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
-  induction p;
-
-  all_goals try exact Annot.regular.sort
-
-  case var0 =>
-    constructor ;
-    constructor <;>
-    assumption
-  case lam =>
-    constructor; constructor <;>
-    first | assumption | { apply Annot.regular_expr; assumption }
-  case app => sorry
-
-
-  -- Need substitution for the rest...
-  repeat sorry
-}
-
-theorem HasType.term_regular (p: HasType Γ a (term A)): HasType Γ A type 
-  := by {
-    let H := regular p;
-    cases H with
-    | expr H => exact H
-  }
-
-theorem HasType.proof_regular (p: HasType Γ a (proof A)): HasType Γ A prop 
-  := by {
-    let H := regular p;
-    cases H with
-    | expr H => exact H
-  }
-
 inductive IsCtx: RawContext -> Prop
   | nil: IsCtx []
   | cons_val {Γ A s}: 
@@ -335,3 +295,43 @@ theorem HasType.wk (ρ: WkCtx Γ Δ) (H: Γ ⊢ a: A):
   }
 
 -- TODO: hastype untyped method?
+
+inductive Annot.regular: Annot -> RawContext -> Prop
+  | sort {Γ s}: regular (sort s) Γ
+  | expr {Γ s A}: (Γ ⊢ A: sort s) -> regular (expr s A) Γ
+
+def Annot.regular_expr: regular (expr s A) Γ -> (Γ ⊢ A: sort s)
+  | Annot.regular.expr Hr => Hr
+
+theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
+  induction p;
+
+  all_goals try exact Annot.regular.sort
+
+  case var0 =>
+    constructor ;
+    constructor <;>
+    assumption
+  case lam =>
+    constructor; constructor <;>
+    first | assumption | { apply Annot.regular_expr; assumption }
+  case app => sorry
+
+
+  -- Need substitution for the rest...
+  repeat sorry
+}
+
+theorem HasType.term_regular (p: HasType Γ a (term A)): HasType Γ A type 
+  := by {
+    let H := regular p;
+    cases H with
+    | expr H => exact H
+  }
+
+theorem HasType.proof_regular (p: HasType Γ a (proof A)): HasType Γ A prop 
+  := by {
+    let H := regular p;
+    cases H with
+    | expr H => exact H
+  }
