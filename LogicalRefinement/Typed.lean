@@ -217,6 +217,9 @@ theorem HasType.term_regular (p: HasType Γ a (term A)): HasType Γ A type
   
     case var0_val HA => exact wk_val_type HA HA
 
+    -- Handle constants
+    all_goals try constructor
+
     repeat sorry
   }
 
