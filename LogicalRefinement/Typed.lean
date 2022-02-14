@@ -235,8 +235,8 @@ theorem HasType.upgrade (p: Γ ⊢ a: A): Γ.upgrade ⊢ a: A := by {
   case wk1 Ia IB =>
     simp only [RawContext.upgrade, Hyp.upgrade]
     apply wk1 Ia IB
-
-    sorry
+    apply HypKind.upgrade_regular
+    assumption
   all_goals { constructor; repeat assumption; }
 }
 
