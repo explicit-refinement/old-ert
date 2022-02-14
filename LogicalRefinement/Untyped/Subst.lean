@@ -36,12 +36,12 @@ def RawSubst.lift_zero (σ: RawSubst):
   σ.lift 0 = RawUntyped.var 0 := rfl
 
 @[simp]
-def RawSubst.liftn: (l: Nat) -> (σ: RawSubst) -> RawSubst
-  | 0, σ => σ
-  | Nat.succ l, σ => lift (liftn l σ)
+def RawSubst.liftn: (σ: RawSubst) -> (l: Nat) -> RawSubst
+  | σ, 0 => σ
+  | σ, Nat.succ l => (σ.liftn l).lift
 
 def RawWk.to_subst_liftn: {n: Nat} -> {σ: RawWk} ->
-  RawSubst.liftn n (to_subst σ) = to_subst (σ.liftn n) := by {
+  (to_subst σ).liftn n = to_subst (σ.liftn n) := by {
     intro n;
     induction n with
     | zero => simp
@@ -53,14 +53,14 @@ def RawWk.to_subst_liftn: {n: Nat} -> {σ: RawWk} ->
 }
 
 theorem RawSubst.liftn_lift_commute {σ: RawSubst}: 
-  liftn n (lift σ) = lift (liftn n σ) := by {
+  σ.lift.liftn n = (σ.liftn n).lift := by {
   induction n with
   | zero => rfl
   | succ n I => simp [I] 
 }
 
 theorem RawSubst.liftn_commute {σ: RawSubst}: 
-  liftn n (liftn m σ) = liftn m (liftn n σ) := by {
+  (σ.liftn m).liftn n = (σ.liftn n).liftn m  := by {
   induction n with
   | zero => rfl
   | succ n I =>
@@ -68,10 +68,10 @@ theorem RawSubst.liftn_commute {σ: RawSubst}:
 }
 
 theorem RawSubst.lift_liftn_merge {n: Nat} {σ: RawSubst}:
-  lift (liftn n σ) = liftn (n + 1) σ := rfl
+  (σ.liftn n).lift = σ.liftn (n + 1) := rfl
 
 theorem RawSubst.liftn_merge_outer: (m n: Nat) -> {σ: RawSubst} ->
-  liftn n (liftn m σ) = liftn (n + m) σ := by {
+  (σ.liftn m).liftn n = σ.liftn (n + m) := by {
   intro m;
   induction m with
   | zero => intros n σ; rfl
@@ -83,7 +83,7 @@ theorem RawSubst.liftn_merge_outer: (m n: Nat) -> {σ: RawSubst} ->
 }
 
 theorem RawSubst.liftn_merge: (m n: Nat) -> {σ: RawSubst} ->
-  liftn n (liftn m σ) = liftn (m + n) σ := by {
+  (σ.liftn m).liftn n  = σ.liftn (m + n) := by {
     simp only [liftn_merge_outer]
     intros m n σ;
     rw [Nat.add_comm]
@@ -92,7 +92,7 @@ theorem RawSubst.liftn_merge: (m n: Nat) -> {σ: RawSubst} ->
 
 theorem RawSubst.liftn_base_nil: (base: Nat) -> (σ: RawSubst) -> 
   (v: Nat) -> v < base ->
-  liftn base σ v = RawUntyped.var v := by {
+  σ.liftn base v = RawUntyped.var v := by {
   intros base;
   induction base with
   | zero =>
@@ -113,7 +113,7 @@ theorem RawSubst.liftn_base_nil: (base: Nat) -> (σ: RawSubst) ->
 
 theorem RawSubst.liftn_above_wk: (base: Nat) -> (σ: RawSubst) -> 
   (v: Nat) -> base ≤ v ->
-  liftn base σ v = (σ (v - base)).wkn base := by {
+  σ.liftn base v = (σ (v - base)).wkn base := by {
     intros base;
     induction base with
     | zero => simp
@@ -138,15 +138,15 @@ def RawUntyped.subst (σ: RawSubst): RawUntyped -> RawUntyped
   | var v => σ v
   | const c => const c
   | unary k t => unary k (subst σ t)
-  | let_bin k t => let_bin k (subst (RawSubst.liftn 2 σ) t)
+  | let_bin k t => let_bin k (subst (σ.liftn 2) t)
   | bin k l r => bin k (subst σ l) (subst σ r)
   | abs k A t => abs k (subst σ A) (subst (RawSubst.lift σ) t)
   | tri k A l r => tri k (subst σ A) (subst σ l) (subst σ r)
   | cases k K d l r => cases k (subst (RawSubst.lift σ) K) (subst σ d) (subst σ l) (subst σ r)
 
 theorem RawSubst.lift_var: {n v: Nat} -> {σ: RawSubst} -> 
-  (liftn (n + 1) σ) (RawWk.var (RawWk.wknth n) v) 
-  = (liftn n σ v).wknth n
+  (σ.liftn (n + 1)) (RawWk.var (RawWk.wknth n) v) 
+  = (σ.liftn n v).wknth n
   := by {
     intros n v σ;
     cases Nat.le_or_lt v n with
@@ -171,8 +171,8 @@ theorem RawSubst.lift_var: {n v: Nat} -> {σ: RawSubst} ->
   }
 
 theorem RawUntyped.liftn_wk {u: RawUntyped}: {σ: RawSubst} -> (n: Nat) ->
-  subst (RawSubst.liftn (n + 1) σ) (u.wknth n) =
-  (subst (RawSubst.liftn n σ) u).wknth n
+  subst (σ.liftn (n + 1)) (u.wknth n) =
+  (subst (σ.liftn n) u).wknth n
   := by {
     unfold RawWk.wk1
     induction u with
@@ -345,7 +345,7 @@ def RawSubst.lift_subst: {σ: RawSubst} -> {n m: Nat} ->
   }
 
 def RawSubst.liftn_subst:  {l n m: Nat} -> {σ: RawSubst} ->
-  subst_maps n m σ -> subst_maps (n + l) (m + l) (liftn l σ) := by {
+  subst_maps n m σ -> subst_maps (n + l) (m + l) (σ.liftn l) := by {
     intro l;
     induction l with
     | zero => intros n m σ Hσ; exact Hσ
