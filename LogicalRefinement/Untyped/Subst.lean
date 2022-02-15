@@ -179,14 +179,12 @@ theorem RawUntyped.liftn_wk {u: RawUntyped}: {σ: RawSubst} -> (n: Nat) ->
     induction u with
     | var v =>
       intros σ n;
-      simp only [subst]
-      rw [RawSubst.lift_var]
+      simp only [subst, RawSubst.lift_var]
     | const c => simp
     | unary k t I => 
       intros σ n
-      simp only [wknth, wk, subst]
       simp only [wknth] at I
-      rw [I]
+      simp only [wknth, wk, subst, I]
     | let_bin k e I =>
       intros σ n
       simp only [wknth, wk, subst, RawWk.liftn_wknth_merge]
