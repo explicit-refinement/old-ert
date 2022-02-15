@@ -87,7 +87,7 @@ theorem RawSubst.liftn_base_nil: (base: Nat) -> (σ: RawSubst) ->
     | succ v => 
       simp only [lift, wk1]
       rw [I]
-      simp
+      rfl
       rw [<-Nat.succ_lt_succ_is_lt]
       apply H
 }
@@ -109,7 +109,7 @@ theorem RawSubst.liftn_above_wk: (base: Nat) -> (σ: RawSubst) ->
         rw [<-RawWk.step_is_comp_wk1]
         rw [<-RawUntyped.wk_composes]
         rw [I]
-        simp
+        rfl
         apply Nat.le_of_succ_le_succ
         apply H
 }
@@ -147,7 +147,7 @@ theorem RawSubst.lift_var: {n v: Nat} -> {σ: RawSubst} ->
       rw [Nat.succ_sub_succ_eq_sub]
       rw [RawUntyped.wk_composes]
       rw [RawUntyped.wk_coherent RawWk.wknth_wkn_equiv]
-      simp
+      rfl
       rw [RawWk.wknth_big Hnv]
       exact Nat.succ_le_succ Hnv
   }
