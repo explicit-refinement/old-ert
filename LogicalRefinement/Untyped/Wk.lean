@@ -42,24 +42,12 @@ import LogicalRefinement.Untyped.Basic
 }
 
 @[simp] def RawUntyped.wk_id {u: RawUntyped}: u.wk (RawWk.id) = u := by {
-  induction u with
-  | var v => simp
-  | const c => simp
-  | unary k t I => simp [I]
-  | let_bin k e I =>
-    simp only [wk]
-    rw [RawUntyped.wk_coherent (RawWk.liftn_id_equiv)]
-    rw [I]
-  | bin k l r Il Ir => simp [Il, Ir]
-  | abs k A s IHA IHs =>
-    simp only [wk]
-    rw [RawUntyped.wk_coherent RawWk.lift_id_equiv]
-    rw [IHA, IHs]
-  | tri k A l r IA Il Ir => simp [IA, Il, Ir]
-  | cases k K d l r IK Id Il Ir => 
-    simp only [wk]
-    rw [RawUntyped.wk_coherent RawWk.lift_id_equiv]
-    rw [IK, Id, Il, Ir]
+  induction u;
+  case var => simp
+  repeat simp only [
+    wk, RawUntyped.wk_coherent (RawWk.liftn_id_equiv), 
+    RawUntyped.wk_coherent RawWk.lift_id_equiv,
+  *]
 }
 
 def RawUntyped.wk_bounds {u: RawUntyped}: {n m: Nat} -> {ρ: RawWk} ->
@@ -117,23 +105,12 @@ def RawUntyped.wk_bounds {u: RawUntyped}: {n m: Nat} -> {ρ: RawWk} ->
           case right => apply IHr Hm Hr
   }
 
-def RawUntyped.fv_wk1: fv (wk1 u) ≤ fv u + 1 := by {
-  apply wk_bounds wk_maps_wk1;
-  exact Nat.le_refl _
-}
+def RawUntyped.fv_wk1: fv (wk1 u) ≤ fv u + 1 
+  := by apply wk_bounds wk_maps_wk1; exact Nat.le_refl _
 
 @[simp] def RawUntyped.wk_composes {u: RawUntyped}: 
-  (σ ρ: RawWk) -> (u.wk ρ).wk σ = u.wk (σ.comp ρ) := by {
-  induction u with
-  | var v => simp
-  | const c => simp
-  | unary k t I => simp [I]
-  | let_bin k t I => simp [I]
-  | bin k l r Il Ir => simp [Il, Ir]
-  | abs k A t IA It => simp [IA, It] 
-  | tri k A l r IA Il Ir => simp [IA, Il, Ir]
-  | cases k K d l r IK Id Il Ir => simp [IK, Id, Il, Ir]
-}
+  (σ ρ: RawWk) -> (u.wk ρ).wk σ = u.wk (σ.comp ρ) 
+  := by induction u <;> simp [*]
 
 @[simp] def Untyped.wk (u: Untyped m) (ρ: Wk n m): Untyped n :=
   Untyped.mk (u.val.wk ρ.val) (RawUntyped.wk_bounds ρ.p u.p)
