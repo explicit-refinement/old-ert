@@ -52,43 +52,24 @@ def RawWk.to_subst_liftn: {n: Nat} -> {σ: RawWk} ->
       rw [I]
 }
 
-theorem RawSubst.liftn_lift_commute {σ: RawSubst}: 
-  σ.lift.liftn n = (σ.liftn n).lift := by {
-  induction n with
-  | zero => rfl
-  | succ n I => simp [I] 
-}
+theorem RawSubst.liftn_lift_commute {σ: RawSubst}
+  : σ.lift.liftn n = (σ.liftn n).lift 
+  := by induction n <;> simp [*]
 
-theorem RawSubst.liftn_commute {σ: RawSubst}: 
-  (σ.liftn m).liftn n = (σ.liftn n).liftn m  := by {
-  induction n with
-  | zero => rfl
-  | succ n I =>
-    simp only [liftn, RawSubst.liftn_lift_commute, I]
-}
+theorem RawSubst.liftn_commute {σ: RawSubst}
+  : (σ.liftn m).liftn n = (σ.liftn n).liftn m  
+  := by induction n <;> simp [liftn, RawSubst.liftn_lift_commute, *]
 
 theorem RawSubst.lift_liftn_merge {n: Nat} {σ: RawSubst}:
   (σ.liftn n).lift = σ.liftn (n + 1) := rfl
 
-theorem RawSubst.liftn_merge_outer: (m n: Nat) -> {σ: RawSubst} ->
-  (σ.liftn m).liftn n = σ.liftn (n + m) := by {
-  intro m;
-  induction m with
-  | zero => intros n σ; rfl
-  | succ m I =>
-    simp only [liftn, <-liftn_lift_commute]
-    intros n σ;
-    rw [I]
-    rfl
-}
+theorem RawSubst.liftn_merge_outer (m: Nat)
+  : (n: Nat) -> {σ: RawSubst} -> (σ.liftn m).liftn n = σ.liftn (n + m) 
+  := by induction m <;> simp [liftn, <-liftn_lift_commute, *]
 
-theorem RawSubst.liftn_merge: (m n: Nat) -> {σ: RawSubst} ->
-  (σ.liftn m).liftn n  = σ.liftn (m + n) := by {
-    simp only [liftn_merge_outer]
-    intros m n σ;
-    rw [Nat.add_comm]
-}
-
+theorem RawSubst.liftn_merge
+  : (m n: Nat) -> {σ: RawSubst} -> (σ.liftn m).liftn n  = σ.liftn (m + n) 
+  := by intros; simp [liftn_merge_outer, Nat.add_comm]
 
 theorem RawSubst.liftn_base_nil: (base: Nat) -> (σ: RawSubst) -> 
   (v: Nat) -> v < base ->
