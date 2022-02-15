@@ -195,34 +195,28 @@ theorem RawUntyped.liftn_wk {u: RawUntyped}: {σ: RawSubst} -> (n: Nat) ->
     | bin k l r Il Ir =>
       intros σ n
       simp only [wknth, wk, subst]
-      simp only [wknth] at Il
-      simp only [wknth] at Ir
+      simp only [wknth] at *
       rw [Il, Ir]
     | abs k A t IA It => 
       intros σ n
       simp only [wknth, wk, subst]
-      simp only [wknth] at IA
-      simp only [wknth] at It
-      rw [IA]
-      rw [RawWk.lift_wknth_merge]
-      rw [RawSubst.lift_liftn_merge]
-      rw [RawSubst.lift_liftn_merge]
-      rw [It]
+      simp only [wknth] at *
+      rw [
+        IA, 
+        RawWk.lift_wknth_merge, 
+        RawSubst.lift_liftn_merge, 
+        RawSubst.lift_liftn_merge,
+        It]
       exact 0 -- TODO: why?
     | tri k A l r IA Il Ir =>
       intros σ n
       simp only [wknth, wk, subst]
-      simp only [wknth] at IA
-      simp only [wknth] at Il
-      simp only [wknth] at Ir
+      simp only [wknth] at *
       rw [IA, Il, Ir]
     | cases k K d l r IK Id Il Ir =>
       intros σ n
       simp only [wknth, wk, subst]
-      simp only [wknth] at IK
-      simp only [wknth] at Id
-      simp only [wknth] at Il
-      simp only [wknth] at Ir
+      simp only [wknth] at *
       rw [Id, Il, Ir]
       rw [RawWk.lift_wknth_merge]
       rw [RawSubst.lift_liftn_merge]
