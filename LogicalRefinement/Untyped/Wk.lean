@@ -12,11 +12,14 @@ import LogicalRefinement.Untyped.Basic
   | tri k A l r, ρ => tri k (A.wk ρ) (l.wk ρ) (r.wk ρ)
   | cases k K d l r, ρ => cases k (K.wk ρ.lift) (d.wk ρ) (l.wk ρ) (r.wk ρ)
 
-@[simp] def RawUntyped.wk1 (u: RawUntyped) := u.wk RawWk.wk1
+@[simp] def RawUntyped.wk1 (u: RawUntyped) 
+  := u.wk RawWk.wk1
 
-@[simp] def RawUntyped.wkn (u: RawUntyped) (n: Nat) := u.wk (RawWk.wkn n)
+@[simp] def RawUntyped.wkn (u: RawUntyped) (n: Nat) 
+  := u.wk (RawWk.wkn n)
 
-@[simp] def RawUntyped.wknth (u: RawUntyped) (n: Nat) := u.wk (RawWk.wknth n)
+@[simp] def RawUntyped.wknth (u: RawUntyped) (n: Nat) 
+  := u.wk (RawWk.wknth n)
 
 @[simp] def RawUntyped.wk_coherent: {u: RawUntyped} -> {ρ σ: RawWk} ->
   RawWk.equiv ρ σ -> u.wk ρ = u.wk σ := by {
