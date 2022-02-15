@@ -362,7 +362,8 @@ structure Subst (n m: Nat) := (val: RawSubst) (p: subst_maps n m val)
 def Wk.to_subst {n m: Nat} (ρ: Wk n m): Subst n m :=
   Subst.mk (RawWk.to_subst ρ.val) (RawSubst.wk_bounds ρ.p)
 
-theorem RawUntyped.subst_bounds: {u: RawUntyped} -> {σ: RawSubst} -> {n m: Nat} ->
+theorem RawUntyped.subst_bounds: 
+  {u: RawUntyped} -> {σ: RawSubst} -> {n m: Nat} -> 
   fv u ≤ m -> subst_maps n m σ -> fv (u.subst σ) ≤ n := by {
   intro u;
   induction u with
@@ -377,16 +378,11 @@ theorem RawUntyped.subst_bounds: {u: RawUntyped} -> {σ: RawSubst} -> {n m: Nat}
   | unary k t I =>
     intros σ n m Hv Hσ;
     simp only [fv, subst];
-    apply I Hv Hσ
+    exact I Hv Hσ
   | let_bin k e I =>
+    simp only [fv, subst, Nat.le_sub_is_le_add]
     intros σ n m Hv Hσ;
-    simp only [fv, subst]
-    rw [Nat.le_sub_is_le_add]
-    simp at Hv
-    rw [Nat.le_sub_is_le_add] at Hv
-    apply @I _ (n + 2) (m + 2) Hv
-    apply RawSubst.liftn_subst
-    apply Hσ
+    exact I Hv (RawSubst.liftn_subst Hσ)
   | bin k l r Il Ir =>
     intros σ n m;
     simp only [RawUntyped.fv, Nat.max_r_le_split]
@@ -398,13 +394,8 @@ theorem RawUntyped.subst_bounds: {u: RawUntyped} -> {σ: RawSubst} -> {n m: Nat}
     simp only [RawUntyped.fv, Nat.max_r_le_split, Nat.le_sub_is_le_add]
     intro ⟨HA, Hs⟩
     intro Hσ
-    apply And.intro
-    case abs.left => exact IA HA Hσ
-    case abs.right =>
-      apply @Is _ (n + 1) (m + 1)
-      apply Hs
-      apply RawSubst.lift_subst
-      apply Hσ
+    --TODO: move lift_subst to subst_maps?
+    exact ⟨IA HA Hσ, Is Hs (RawSubst.lift_subst Hσ)⟩
   | tri k A l r IA Il Ir =>
     intros σ n m;
     simp only [RawUntyped.fv, Nat.max_r_le_split]
@@ -416,13 +407,7 @@ theorem RawUntyped.subst_bounds: {u: RawUntyped} -> {σ: RawSubst} -> {n m: Nat}
     simp only [RawUntyped.fv, Nat.max_r_le_split, Nat.le_sub_is_le_add]
     intro ⟨HK, Hd, Hl, Hr⟩
     intro Hσ
-    apply And.intro
-    case left =>
-      apply @IK _ (n + 1) (m + 1)
-      apply HK
-      apply RawSubst.lift_subst
-      apply Hσ
-    case right => exact ⟨Id Hd Hσ, Il Hl Hσ, Ir Hr Hσ⟩
+    exact ⟨IK HK (RawSubst.lift_subst Hσ), Id Hd Hσ, Il Hl Hσ, Ir Hr Hσ⟩
 }
 
 def Untyped.subst (σ: Subst n m) (u: Untyped m): Untyped n :=
