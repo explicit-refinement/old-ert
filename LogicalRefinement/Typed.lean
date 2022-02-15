@@ -282,6 +282,9 @@ def WkCtx.to_wk: WkCtx Γ Δ -> Wk Γ.length Δ.length
   | step ρ _ => Wk.step (to_wk ρ)
   | lift ρ => Wk.lift (to_wk ρ)
 
+theorem HasType.var_wk (ρ: WkCtx Γ Δ) (D: Γ ⊢ RawUntyped.var v: A):
+  (Γ ⊢ var (ρ.to_wk.val.var v): A) := sorry
+
 -- TODO: swap RawUntyped.wk
 theorem HasType.wk (ρ: WkCtx Γ Δ) (D: Γ ⊢ a: A): 
   Δ ⊢ (a.wk ρ.to_wk.val): (A.wk ρ.to_wk.val) := by {
@@ -293,10 +296,7 @@ theorem HasType.wk (ρ: WkCtx Γ Δ) (D: Γ ⊢ a: A):
       rw [H']
       rw [RawUntyped.wk_id, Annot.wk_id]
       exact D
-    | @step Γ Δ H ρ HH Iρ =>
-      simp only [WkCtx.to_wk, Wk.step]
-      induction a with
-      | _ => sorry
+    | step => sorry
     | lift => sorry
   }
 

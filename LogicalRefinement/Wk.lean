@@ -169,6 +169,8 @@ def RawWk.liftn_id_equiv: {n: Nat} -> equiv (id.liftn n) id := by {
 
 @[simp] def RawWk.wk1_var: var wk1 n = n + 1 := rfl  
 
+@[simp] def RawWk.wk1_step: step ρ = wk1.comp ρ := rfl
+
 @[simp] def RawWk.wkn_succ_0_var: var (wknth (Nat.succ n)) 0 = 0 := rfl
 
 @[simp] def RawWk.wkn_succ_succ_var: 
