@@ -424,9 +424,7 @@ def Untyped.to_subst (u: Untyped n): Subst n (n + 1) :=
     intros v Hv;
     cases v with
     | zero => exact u.p
-    | succ v => 
-      simp only [RawUntyped.to_subst, RawUntyped.fv]
-      exact Nat.lt_of_succ_lt_succ Hv
+    | succ v => exact Nat.lt_of_succ_lt_succ Hv
   })
 
 def RawUntyped.subst0: RawUntyped -> RawUntyped -> RawUntyped
