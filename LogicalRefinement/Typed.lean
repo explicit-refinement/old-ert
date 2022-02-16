@@ -321,7 +321,25 @@ theorem HasVar.wk:
       intros n A s HΔ;
       simp only [WkCtx.to_wk, Wk.step, RawUntyped.step_wk1]
       exact var_succ (I HΔ)
-    | lift => sorry
+    | lift =>
+      intros n A s HΔ;
+      cases HΔ with
+      | var0 =>
+        simp only [
+          WkCtx.to_wk, Wk.lift,
+          RawUntyped.wk_composes, RawUntyped.wk1,
+          RawWk.var
+        ]
+        --TODO: lift wk1 is wk1 wk1
+        sorry
+      | var_succ =>
+        simp only [
+          WkCtx.to_wk, Wk.lift,
+          RawUntyped.wk_composes, RawUntyped.wk1,
+          RawWk.var, Nat.add
+        ]
+        --TODO: lift wk1 is wk1 wk1
+        sorry
   } 
 
 theorem HasType.wk: 
