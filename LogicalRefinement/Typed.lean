@@ -349,10 +349,15 @@ theorem HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
   {ρ: RawWk} -> {Γ: Context} -> WkCtx ρ Γ Δ ->
   (Γ ⊢ (a.wk ρ): (A.wk ρ)) := by {
     induction HΔ;
-    case var =>
-      sorry
+    case var I =>
+      intros
+      apply var
+      apply I
+      assumption
+      apply HasVar.wk
+      repeat assumption
 
-    -- TODO: automate this stuff...
+    -- TODO: automate this stuff for other cases...
     case pi IA Is =>
       intros;
       let n := 0;
