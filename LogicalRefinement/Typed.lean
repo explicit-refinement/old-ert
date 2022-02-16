@@ -30,6 +30,16 @@ def Annot.wk: Annot -> RawWk -> Annot
   | expr s A, ρ => expr s (A.wk ρ)
 
 @[simp]
+def Annot.wk_composes: {A: Annot} -> (A.wk ρ).wk σ = A.wk (σ.comp ρ)
+  | sort _ => rfl
+  | expr _ _ => by simp
+
+@[simp]
+def Annot.wk_wk1: {A: Annot} -> (A.wk RawWk.wk1) = A.wk1
+  | sort _ => rfl
+  | expr _ _ => rfl
+
+@[simp]
 def Annot.wk_id {A: Annot}: A.wk RawWk.id = A := by {
   cases A; repeat simp
 }
@@ -210,7 +220,7 @@ inductive HasType: RawContext -> RawUntyped -> Annot -> Prop
   -- Basic proofs
   --TODO: this
 
-def HasType.wk1 
+def HasType.wk1_inner
   (Ha: HasType Γ a A) (HB: HasType Γ B (sort s)) (Hr: h.regular s):
   HasType ((Hyp.mk B h)::Γ) a.wk1 A.wk1 := by { 
     induction Hr <;>
@@ -221,11 +231,11 @@ def HasType.wk1
 
 def HasType.wk_val (Ha: HasType Γ a A) (HB: HasType Γ B (sort s))
   : HasType ((Hyp.val B s)::Γ) a.wk1 A.wk1
-  := wk1 Ha HB HypKind.regular.val
+  := wk1_inner Ha HB HypKind.regular.val
 
 def HasType.wk_gst (Ha: HasType Γ a A) (HB: HasType Γ B type)
   : HasType ((Hyp.gst B)::Γ) a.wk1 A.wk1
-  := wk1 Ha HB HypKind.regular.gst
+  := wk1_inner Ha HB HypKind.regular.gst
 
 notation Γ "⊢" a ":" A => HasType Γ a A
 notation Γ "⊢" a "∈" A => HasType Γ a (term A)
@@ -270,8 +280,17 @@ theorem HasType.ctx_regular (p: Γ ⊢ a: A): IsCtx Γ := by {
 }
 
 inductive IsHyp: RawContext -> Hyp -> Prop
-  | hyp_val {Γ A s}: (Γ ⊢ A: type) -> IsHyp Γ (Hyp.val A s)
-  | hyp_gst {Γ A}: (Γ ⊢ A: type) -> IsHyp Γ (Hyp.gst A)
+  | hyp_val {Γ A s}: (Γ ⊢ A: sort s) -> IsHyp Γ (Hyp.mk A (HypKind.val s))
+  | hyp_gst {Γ A}: (Γ ⊢ A: type) -> IsHyp Γ (Hyp.mk A HypKind.gst)
+
+
+def HasType.wk1
+  (Ha: HasType Γ a A) (H: Hyp) (HH: IsHyp Γ H):
+  HasType (H::Γ) a.wk1 A.wk1 := by { 
+    cases HH <;>
+    apply wk1_inner <;>
+    first | assumption | constructor
+  }
 
 inductive WkCtx: RawContext -> RawContext -> Type
   | id: WkCtx [] []
@@ -288,18 +307,41 @@ theorem HasType.var_wk (ρ: WkCtx Γ Δ) (D: Γ ⊢ RawUntyped.var v: A):
   (Γ ⊢ var (ρ.to_wk.val.var v): A) := sorry
 
 -- TODO: swap RawUntyped.wk
-theorem HasType.wk {Γ Δ: RawContext} (ρ: WkCtx Γ Δ):
+theorem HasType.wk: 
+  {Γ Δ: RawContext} -> (ρ: WkCtx Γ Δ) ->
   {a: RawUntyped} ->
   {A: Annot} ->
-  HasType Γ a A ->
-  (Δ ⊢ (a.wk ρ.to_wk.val): (A.wk ρ.to_wk.val)) := by {
-    induction ρ with
-    | id =>
-      intros
-      simp only [WkCtx.to_wk, Wk.id, RawUntyped.wk_id, Annot.wk_id]
+  (Δ ⊢ a: A) ->
+  (Γ ⊢ (a.wk ρ.to_wk.val): (A.wk ρ.to_wk.val)) := by {
+    intro Γ;
+    induction Γ with
+    | nil =>
+      intros Δ ρ;
+      cases ρ;
+      intros;
+      simp only [
+        Annot.wk_id, RawUntyped.wk_id, 
+        WkCtx.to_wk, Wk.val, Wk.id]
       assumption
-    | step => sorry
-    | lift => sorry
+    | cons H Γ I =>
+      intros Δ ρ;
+      cases ρ with
+      | step ρ HΓ => 
+        intros a A HΔ;
+        --TODO: make this one lemma...
+        simp only [
+          WkCtx.to_wk, Wk.step,
+          <-RawWk.step_is_comp_wk1,
+          <-RawUntyped.wk_composes,
+          <-Annot.wk_composes,
+          RawUntyped.wk_wk1,
+          Annot.wk_wk1
+        ]
+        apply wk1
+        apply I
+        exact HΔ
+        exact HΓ
+      | lift => sorry
   }
 
 inductive Annot.regular: Annot -> RawContext -> Prop

@@ -115,6 +115,9 @@ def RawUntyped.fv_wk1: fv (wk1 u) ≤ fv u + 1
   (σ ρ: RawWk) -> (u.wk ρ).wk σ = u.wk (σ.comp ρ) 
   := by induction u <;> simp [*]
 
+@[simp] theorem RawUntyped.wk_wk1 {u: RawUntyped}: u.wk RawWk.wk1 = u.wk1 
+  := rfl 
+
 @[simp] def Untyped.wk (u: Untyped m) (ρ: Wk n m): Untyped n :=
   Untyped.mk (u.val.wk ρ.val) (RawUntyped.wk_bounds ρ.p u.p)
 

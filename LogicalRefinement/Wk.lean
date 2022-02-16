@@ -288,8 +288,14 @@ structure Wk (m n: Nat) := (val: RawWk) (p: wk_maps m n val)
 @[simp] def Wk.step {m n: Nat} (ρ: Wk m n): Wk (m + 1) n := 
   Wk.mk (RawWk.step ρ.val) (wk_maps_step ρ.p)
 
+@[simp] theorem Wk.step_val {m n: Nat} (ρ: Wk m n):
+  (Wk.step ρ).val = RawWk.step (ρ.val) := rfl
+
 @[simp] def Wk.lift {m n: Nat} (ρ: Wk m n): Wk (m + 1) (n + 1) := 
   Wk.mk (RawWk.lift ρ.val) (wk_maps_lift ρ.p)
+
+@[simp] theorem Wk.lift_val {m n: Nat} (ρ: Wk m n):
+  (Wk.lift ρ).val = RawWk.lift (ρ.val) := rfl
   
 @[simp] def Wk.liftn: (l: Nat) -> Wk m n -> Wk (m + l) (n + l)
   | 0, ρ => ρ
