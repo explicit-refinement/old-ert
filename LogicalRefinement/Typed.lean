@@ -112,7 +112,7 @@ inductive HasType: RawContext -> RawUntyped -> Annot -> Prop
   -- Variables
   | var0 {Γ: RawContext} {A: RawUntyped} {s: AnnotSort}:
     HasType Γ A (sort s) ->
-    HasType ((Hyp.val A s)::Γ) (var 0) (expr s (wk1 A))
+    HasType ((Hyp.mk A (HypKind.val s))::Γ) (var 0) (expr s (wk1 A))
 
   -- Constants
   | nats: HasType [] nats type
@@ -341,7 +341,15 @@ theorem HasType.wk:
         apply I
         exact HΔ
         exact HΓ
-      | lift => sorry
+      | lift ρ =>
+        intro a;
+        induction a;
+        case var v =>
+          intros A HΔ;
+          cases v with
+          | zero => sorry
+          | succ => sorry
+        repeat sorry
   }
 
 inductive Annot.regular: Annot -> RawContext -> Prop
