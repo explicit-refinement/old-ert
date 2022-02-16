@@ -215,9 +215,7 @@ def HasType.wk1
   HasType ((Hyp.mk B h)::Γ) a.wk1 A.wk1 := by { 
     induction Hr <;>
     cases h <;>
-    first
-    | contradiction
-    | cases A <;>
+    cases A <;>
       constructor <;>
       assumption
   }
