@@ -214,10 +214,9 @@ def HasType.wk1
   (Ha: HasType Γ a A) (HB: HasType Γ B (sort s)) (Hr: h.regular s):
   HasType ((Hyp.mk B h)::Γ) a.wk1 A.wk1 := by { 
     induction Hr <;>
-    cases h <;>
     cases A <;>
-      constructor <;>
-      assumption
+    constructor <;>
+    assumption
   }
 
 def HasType.wk_val (Ha: HasType Γ a A) (HB: HasType Γ B (sort s))
