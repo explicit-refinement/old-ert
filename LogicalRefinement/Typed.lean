@@ -259,12 +259,9 @@ inductive IsCtx: RawContext -> Prop
     IsCtx ((Hyp.mk A HypKind.gst)::Γ)
 
 theorem HasType.ctx_regular (p: Γ ⊢ a: A): IsCtx Γ := by {
-  induction p;
-
-  -- Handle constants
-  all_goals try exact IsCtx.nil
-
-  repeat sorry
+  induction p <;> first
+  | assumption
+  | constructor <;> assumption
 }
 
 inductive IsHyp: RawContext -> Hyp -> Prop
