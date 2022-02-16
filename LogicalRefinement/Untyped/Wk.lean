@@ -15,6 +15,8 @@ import LogicalRefinement.Untyped.Basic
 @[simp] def RawUntyped.wk1 (u: RawUntyped) 
   := u.wk RawWk.wk1
 
+@[simp] def RawUntyped.lift1 (u: RawUntyped) := u.wk (RawWk.lift RawWk.id)
+
 @[simp] def RawUntyped.wkn (u: RawUntyped) (n: Nat) 
   := u.wk (RawWk.wkn n)
 
