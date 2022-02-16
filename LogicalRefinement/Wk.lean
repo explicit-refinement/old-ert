@@ -124,6 +124,12 @@ def RawWk.equiv_trans {ρ σ τ: RawWk}:
     rw [Hστ]
   }
 
+def RawWk.wk1_lift_eqiv {ρ: RawWk}:
+  equiv (RawWk.comp (lift ρ) wk1) (RawWk.comp wk1 ρ)  := by {
+    simp
+    apply equiv_refl
+  }
+
 def RawWk.lift_equiv {ρ σ: RawWk}:
   equiv ρ σ -> equiv (lift ρ) (lift σ) := by {
     intros H v;

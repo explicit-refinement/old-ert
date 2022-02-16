@@ -128,3 +128,6 @@ theorem RawUntyped.wk_wk1 {u: RawUntyped}: u.wk RawWk.wk1 = u.wk1
   
 theorem RawUntyped.step_wk1 {u: RawUntyped}: u.wk ρ.step = (u.wk ρ).wk1 
   := by simp [<-RawWk.step_is_comp_wk1]
+
+theorem RawUntyped.lift_wk1 {u: RawUntyped}: u.wk1.wk ρ.lift = (u.wk ρ).wk1 
+  := by simp

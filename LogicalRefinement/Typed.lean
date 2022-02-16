@@ -75,6 +75,9 @@ theorem HypKind.upgrade_regular {s} {h: HypKind} (p: h.regular s):
 structure Hyp := (ty: RawUntyped) (kind: HypKind)
 
 @[simp]
+def Hyp.wk (H: Hyp) (ρ: RawWk) := Hyp.mk (H.ty.wk ρ) H.kind
+
+@[simp]
 def Hyp.upgrade (H: Hyp) := Hyp.mk H.ty H.kind.upgrade
 
 @[simp]
@@ -298,71 +301,53 @@ inductive IsHyp: Context -> Hyp -> Prop
 --     first | assumption | constructor
 --   }
 
-inductive WkCtx: Context -> Context -> Type
-  | id: WkCtx [] []
+inductive WkCtx: RawWk -> Context -> Context -> Type
+  | id: WkCtx RawWk.id [] []
   --TODO: make H explicit?
-  | step {Γ Δ H}: WkCtx Γ Δ -> IsHyp Γ H -> WkCtx (H::Γ) Δ 
-  | lift {Γ Δ H}: WkCtx Γ Δ -> IsHyp Δ H -> WkCtx (H::Γ) (H::Δ)
+  | step {ρ Γ Δ H}: WkCtx ρ Γ Δ -> IsHyp Γ H -> WkCtx ρ.step (H::Γ) Δ 
+  | lift {ρ Γ Δ H}: WkCtx ρ Γ Δ -> IsHyp Δ H -> WkCtx ρ.lift ((H.wk ρ)::Γ) (H::Δ)
 
-def WkCtx.to_wk: WkCtx Γ Δ -> Wk Γ.length Δ.length
-  | id => Wk.id
-  | step ρ _ => Wk.step (to_wk ρ)
-  | lift ρ _ => Wk.lift (to_wk ρ)
 
 theorem HasVar.wk:
-  {Γ Δ: Context} -> (ρ: WkCtx Γ Δ) ->
+  (ρ: RawWk) -> {Γ Δ: Context} -> (Hs: WkCtx ρ Γ Δ) ->
   {n: Nat} -> {A: RawUntyped} -> {s: AnnotSort} ->
-  HasVar Δ A s n -> HasVar Γ (A.wk ρ.to_wk.val) s (ρ.to_wk.val.var n) 
+  HasVar Δ A s n -> HasVar Γ (A.wk ρ) s (ρ.var n) 
   := by {
-    intros Γ Δ ρ;
-    induction ρ with
-    | id => intros n A s H; cases H
-    | step ρ H I =>
+    intros ρ;
+    induction ρ <;> intro Γ Δ R <;> cases R;
+    case id => intros n A s H; cases H
+    case step ρ I Γ H HH R =>
       intros n A s HΔ;
-      simp only [WkCtx.to_wk, Wk.step, RawUntyped.step_wk1]
-      exact var_succ (I HΔ)
-    | lift =>
+      simp only [RawUntyped.step_wk1]
+      exact var_succ (I R HΔ)
+    case lift ρ I Γ Δ H HH R =>
       intros n A s HΔ;
       cases HΔ with
       | var0 =>
         simp only [
-          WkCtx.to_wk, Wk.lift,
-          RawUntyped.wk_composes, RawUntyped.wk1,
-          RawWk.var
+          Wk.lift,
+          RawUntyped.wk_composes,
+          RawWk.var, RawUntyped.lift_wk1
         ]
-        --TODO: lift wk1 is wk1 wk1
-        sorry
+        exact var0
       | var_succ =>
         simp only [
-          WkCtx.to_wk, Wk.lift,
-          RawUntyped.wk_composes, RawUntyped.wk1,
-          RawWk.var, Nat.add
+          Wk.lift,
+          RawUntyped.wk_composes,
+          RawWk.var, Nat.add, RawUntyped.lift_wk1
         ]
-        --TODO: lift wk1 is wk1 wk1
-        sorry
+        apply var_succ
+        apply I
+        apply R
+        assumption
   } 
 
 theorem HasType.wk: 
-  {Γ Δ: Context} -> (ρ: WkCtx Γ Δ) ->
+  (ρ: RawWk) -> {Γ Δ: Context} -> WkCtx ρ Γ Δ ->
   {a: RawUntyped} ->
   {A: Annot} ->
-  (Δ ⊢ a: A) ->
-  (Γ ⊢ (a.wk ρ.to_wk.val): (A.wk ρ.to_wk.val)) := by {
-    intro Γ;
-    induction Γ with
-    | nil =>
-      intros Δ ρ;
-      cases ρ;
-      intros;
-      simp only [
-        Annot.wk_id, RawUntyped.wk_id, 
-        WkCtx.to_wk, Wk.val, Wk.id]
-      assumption
-    | cons H Γ I =>
-      intros Δ ρ;
-      cases ρ with
-      | step ρ HΓ => sorry
-      | lift ρ HΔ => sorry
+  (Δ ⊢ a: A) -> (Γ ⊢ (a.wk ρ): (A.wk ρ)) := by {
+    sorry
   }
 
 inductive Annot.regular: Annot -> Context -> Prop
