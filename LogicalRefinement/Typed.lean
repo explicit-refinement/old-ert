@@ -116,8 +116,8 @@ def constAnnot: UntypedKind [] -> Annot
 inductive HasVar: Context -> RawUntyped -> AnnotSort -> Nat -> Prop
   | var0 {Γ: Context} {A: RawUntyped} {s: AnnotSort}:
     HasVar ((Hyp.mk A (HypKind.val s))::Γ) A.wk1 s 0
-  | var_succ {Γ: Context} {A: RawUntyped} {s: AnnotSort} {n: Nat}:
-    HasVar Γ A s n -> HasVar Γ A.wk1 s (n + 1)
+  | var_succ {Γ: Context} {A: RawUntyped} {s: AnnotSort} {H: Hyp} {n: Nat}:
+    HasVar Γ A s n -> HasVar (H::Γ) A.wk1 s (n + 1)
 
 inductive HasType: Context -> RawUntyped -> Annot -> Prop
   -- Variables
@@ -312,8 +312,17 @@ def WkCtx.to_wk: WkCtx Γ Δ -> Wk Γ.length Δ.length
 theorem HasVar.wk:
   {Γ Δ: Context} -> (ρ: WkCtx Γ Δ) ->
   {n: Nat} -> {A: RawUntyped} -> {s: AnnotSort} ->
-  HasVar Δ A S n -> HasVar Γ (A.wk ρ.to_wk.val) S (ρ.to_wk.val.var n) 
-  := sorry 
+  HasVar Δ A s n -> HasVar Γ (A.wk ρ.to_wk.val) s (ρ.to_wk.val.var n) 
+  := by {
+    intros Γ Δ ρ;
+    induction ρ with
+    | id => intros n A s H; cases H
+    | step ρ H I =>
+      intros n A s HΔ;
+      simp only [WkCtx.to_wk, Wk.step, RawUntyped.step_wk1]
+      exact var_succ (I HΔ)
+    | lift => sorry
+  } 
 
 theorem HasType.wk: 
   {Γ Δ: Context} -> (ρ: WkCtx Γ Δ) ->

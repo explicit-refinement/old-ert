@@ -117,7 +117,7 @@ def RawUntyped.fv_wk1: fv (wk1 u) ≤ fv u + 1
   (σ ρ: RawWk) -> (u.wk ρ).wk σ = u.wk (σ.comp ρ) 
   := by induction u <;> simp [*]
 
-@[simp] theorem RawUntyped.wk_wk1 {u: RawUntyped}: u.wk RawWk.wk1 = u.wk1 
+theorem RawUntyped.wk_wk1 {u: RawUntyped}: u.wk RawWk.wk1 = u.wk1 
   := rfl 
 
 @[simp] def Untyped.wk (u: Untyped m) (ρ: Wk n m): Untyped n :=
@@ -126,3 +126,5 @@ def RawUntyped.fv_wk1: fv (wk1 u) ≤ fv u + 1
 @[simp] def Untyped.wk_composes {u: Untyped l} {σ: Wk n m} {ρ: Wk m l}:
   (u.wk ρ).wk σ = u.wk (σ.comp ρ) := by simp
   
+theorem RawUntyped.step_wk1 {u: RawUntyped}: u.wk ρ.step = (u.wk ρ).wk1 
+  := by simp [<-RawWk.step_is_comp_wk1]
