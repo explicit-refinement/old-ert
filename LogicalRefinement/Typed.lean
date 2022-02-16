@@ -77,6 +77,9 @@ structure Hyp := (ty: RawUntyped) (kind: HypKind)
 @[simp]
 def Hyp.wk (H: Hyp) (ρ: RawWk) := Hyp.mk (H.ty.wk ρ) H.kind
 
+theorem Hyp.wk_components:
+  Hyp.wk (Hyp.mk A h) ρ = Hyp.mk (A.wk ρ) h := rfl
+
 @[simp]
 def Hyp.upgrade (H: Hyp) := Hyp.mk H.ty H.kind.upgrade
 
@@ -127,7 +130,7 @@ inductive HasType: Context -> RawUntyped -> Annot -> Prop
   | var {Γ: Context} {A: RawUntyped} {s: AnnotSort} {n: Nat}:
     HasType Γ A (sort s) ->
     HasVar Γ A s n ->
-    HasType ((Hyp.mk A (HypKind.val s))::Γ) (var n) (expr s A)
+    HasType Γ (var n) (expr s A)
 
   -- Constants
   | nats: HasType [] nats type
@@ -304,8 +307,8 @@ inductive IsHyp: Context -> Hyp -> Prop
 inductive WkCtx: RawWk -> Context -> Context -> Type
   | id: WkCtx RawWk.id [] []
   --TODO: make H explicit?
-  | step {ρ Γ Δ H}: WkCtx ρ Γ Δ -> IsHyp Γ H -> WkCtx ρ.step (H::Γ) Δ 
-  | lift {ρ Γ Δ H}: WkCtx ρ Γ Δ -> IsHyp Δ H -> WkCtx ρ.lift ((H.wk ρ)::Γ) (H::Δ)
+  | step {ρ Γ Δ H}: WkCtx ρ Γ Δ -> WkCtx ρ.step (H::Γ) Δ 
+  | lift {ρ Γ Δ H}: WkCtx ρ Γ Δ -> WkCtx ρ.lift ((H.wk ρ)::Γ) (H::Δ)
 
 
 theorem HasVar.wk:
@@ -316,11 +319,11 @@ theorem HasVar.wk:
     intros ρ;
     induction ρ <;> intro Γ Δ R <;> cases R;
     case id => intros n A s H; cases H
-    case step ρ I Γ H HH R =>
+    case step ρ I Γ H R =>
       intros n A s HΔ;
       simp only [RawUntyped.step_wk1]
       exact var_succ (I R HΔ)
-    case lift ρ I Γ Δ H HH R =>
+    case lift ρ I Γ Δ H R =>
       intros n A s HΔ;
       cases HΔ with
       | var0 =>
@@ -342,12 +345,26 @@ theorem HasVar.wk:
         assumption
   } 
 
-theorem HasType.wk: 
-  (ρ: RawWk) -> {Γ Δ: Context} -> WkCtx ρ Γ Δ ->
-  {a: RawUntyped} ->
-  {A: Annot} ->
-  (Δ ⊢ a: A) -> (Γ ⊢ (a.wk ρ): (A.wk ρ)) := by {
-    sorry
+theorem HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
+  {ρ: RawWk} -> {Γ: Context} -> WkCtx ρ Γ Δ ->
+  (Γ ⊢ (a.wk ρ): (A.wk ρ)) := by {
+    induction HΔ;
+    case var =>
+      sorry
+
+    -- TODO: automate this stuff...
+    case pi IA Is =>
+      intros;
+      let n := 0;
+      constructor;
+      apply IA
+      assumption
+      apply Is
+      simp [<-Hyp.wk_components]
+      apply WkCtx.lift
+      assumption
+
+    repeat sorry
   }
 
 inductive Annot.regular: Annot -> Context -> Prop
