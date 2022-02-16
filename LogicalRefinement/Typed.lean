@@ -288,16 +288,16 @@ theorem HasType.var_wk (ρ: WkCtx Γ Δ) (D: Γ ⊢ RawUntyped.var v: A):
   (Γ ⊢ var (ρ.to_wk.val.var v): A) := sorry
 
 -- TODO: swap RawUntyped.wk
-theorem HasType.wk (ρ: WkCtx Γ Δ) (D: Γ ⊢ a: A): 
-  Δ ⊢ (a.wk ρ.to_wk.val): (A.wk ρ.to_wk.val) := by {
+theorem HasType.wk {Γ Δ: RawContext} (ρ: WkCtx Γ Δ):
+  {a: RawUntyped} ->
+  {A: Annot} ->
+  HasType Γ a A ->
+  (Δ ⊢ (a.wk ρ.to_wk.val): (A.wk ρ.to_wk.val)) := by {
     induction ρ with
     | id =>
-      simp only [WkCtx.to_wk]
-      --TODO: this should be a simp lemma...
-      let H': ∀ n, (@Wk.id n).val = RawWk.id := λn => rfl;
-      rw [H']
-      rw [RawUntyped.wk_id, Annot.wk_id]
-      exact D
+      intros
+      simp only [WkCtx.to_wk, Wk.id, RawUntyped.wk_id, Annot.wk_id]
+      assumption
     | step => sorry
     | lift => sorry
   }
