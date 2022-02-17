@@ -371,14 +371,12 @@ theorem HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
       apply HasVar.wk
       repeat assumption
 
-    -- One last apology...
-    case pair => sorry
-
     any_goals (
       intros ρ Γ R
       simp only [RawUntyped.wk, Annot.wk, term, RawUntyped.subst0_wk]
       constructor <;> (
         try rename_i I0 I1 I2
+        simp only [Annot.wk, term, RawUntyped.subst0_wk] at *
         repeat ((first | apply I0 | apply I1 | apply I2) <;> 
           simp only [<-Hyp.wk_components] <;> 
           first 
