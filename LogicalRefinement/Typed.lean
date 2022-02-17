@@ -393,15 +393,22 @@ theorem HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
         first | (constructor; assumption) | assumption)
 
     case app =>
-      try rename_i I0
-      try rename_i I1
-      try rename_i I2
-      intros ρ Γ R
-      simp only [RawUntyped.wk, Annot.wk, term, RawUntyped.subst0_wk]
-      constructor
-      repeat ((first | apply I0 | apply I1 | apply I2) <;> 
-        simp only [<-Hyp.wk_components] <;> 
-        first | (constructor; assumption) | assumption)
+      first
+      | fail_if_success skip
+      | (
+        try rename_i I0
+        try rename_i I1
+        try rename_i I2
+        intros ρ Γ R
+        simp only [RawUntyped.wk, Annot.wk, term, RawUntyped.subst0_wk]
+        constructor
+        repeat ((first | apply I0 | apply I1 | apply I2) <;> 
+          simp only [<-Hyp.wk_components] <;> 
+          first 
+          | (constructor; assumption) 
+          | assumption 
+          | (apply WkCtx.upgrade; assumption))
+      )
 
     case eq =>
       try rename_i I0
@@ -409,9 +416,13 @@ theorem HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
       try rename_i I2
       intros ρ Γ R
       simp only [RawUntyped.wk, Annot.wk, term, RawUntyped.subst0_wk]
-      constructor
-      --TODO: upgrading
-      repeat sorry
+      constructor      
+      repeat ((first | apply I0 | apply I1 | apply I2) <;> 
+        simp only [<-Hyp.wk_components] <;> 
+        first 
+        | (constructor; assumption) 
+        | assumption 
+        | (apply WkCtx.upgrade; assumption))
 
     all_goals sorry
   }
