@@ -349,7 +349,7 @@ theorem RawUntyped.subst_bounds:
 def Untyped.subst (σ: Subst n m) (u: Untyped m): Untyped n :=
   Untyped.mk (u.val.subst σ.val) (RawUntyped.subst_bounds u.p σ.p)
 
---@[simp]
+@[simp]
 def RawUntyped.to_subst (u: RawUntyped): RawSubst
   | 0 => u
   | Nat.succ n => RawUntyped.var n
@@ -365,3 +365,23 @@ def Untyped.to_subst (u: Untyped n): Subst n (n + 1) :=
 
 def RawUntyped.subst0: RawUntyped -> RawUntyped -> RawUntyped
   | u, v => u.subst v.to_subst
+
+@[simp]
+def RawUntyped.subst0_def {u v: RawUntyped}: 
+  u.subst0 v = u.subst v.to_subst := rfl
+
+theorem RawSubst.subst0_wk_composes {ρ: RawWk} {u: RawUntyped}:
+  RawSubst.comp ρ.to_subst u.to_subst = 
+  RawSubst.comp (u.wk ρ).to_subst ρ.lift.to_subst := by {
+  sorry
+}
+
+theorem RawUntyped.subst0_wk {u v: RawUntyped}:
+  {ρ: RawWk} ->
+  (u.subst0 v).wk ρ = (u.wk ρ.lift).subst0 (v.wk ρ) := by {
+    intros ρ;
+    simp only [<-RawSubst.subst_wk_compat, subst0]
+    simp only [subst_composes]
+    rw [RawSubst.subst0_wk_composes]
+    simp only [RawSubst.subst_wk_compat]
+  }

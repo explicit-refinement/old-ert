@@ -357,6 +357,15 @@ theorem HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
       apply HasVar.wk
       repeat assumption
 
+    case app Il Ir =>
+      intros
+      simp only [RawUntyped.wk, Annot.wk, term, RawUntyped.subst0_wk]
+      apply app
+      apply Il
+      assumption
+      apply Ir
+      assumption
+
     all_goals sorry
   }
 
