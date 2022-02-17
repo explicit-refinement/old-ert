@@ -373,7 +373,24 @@ def RawUntyped.subst0_def {u v: RawUntyped}:
 theorem RawSubst.subst0_wk_composes {ρ: RawWk} {u: RawUntyped}:
   RawSubst.comp ρ.to_subst u.to_subst = 
   RawSubst.comp (u.wk ρ).to_subst ρ.lift.to_subst := by {
-  sorry
+  funext v;
+  cases v with
+  | zero => 
+    simp only [
+      comp, 
+      RawUntyped.to_subst, 
+      RawWk.to_subst, 
+      RawWk.var, 
+      RawUntyped.subst]
+    apply RawSubst.subst_wk_compat
+  | succ v =>
+    simp only [
+      comp,
+      RawUntyped.to_subst,
+      RawWk.to_subst,
+      RawWk.var,
+      RawUntyped.subst]
+    rfl
 }
 
 theorem RawUntyped.subst0_wk {u v: RawUntyped}:
