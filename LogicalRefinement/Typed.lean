@@ -371,13 +371,14 @@ theorem HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
       apply HasVar.wk
       repeat assumption
 
+    -- One last apology...
+    case pair => sorry
+
     any_goals (
       intros ρ Γ R
       simp only [RawUntyped.wk, Annot.wk, term, RawUntyped.subst0_wk]
       constructor <;> (
-        try rename_i I0
-        try rename_i I1
-        try rename_i I2
+        try rename_i I0 I1 I2
         repeat ((first | apply I0 | apply I1 | apply I2) <;> 
           simp only [<-Hyp.wk_components] <;> 
           first 
@@ -386,9 +387,6 @@ theorem HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
           | (apply WkCtx.upgrade; assumption))
           )
       )
-
-      -- One last apology...
-      case pair => sorry
   }
 
 inductive Annot.regular: Annot -> Context -> Prop
