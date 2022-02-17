@@ -88,6 +88,10 @@ theorem Hyp.upgrade_idem: upgrade (upgrade h) = upgrade h := by {
   simp only [upgrade, HypKind.upgrade_idem]
 }
 
+@[simp]
+theorem Hyp.upgrade_wk_commute {h: Hyp}: 
+  upgrade (h.wk ρ) = h.upgrade.wk ρ := by simp
+
 def Hyp.val (A: RawUntyped) (s: AnnotSort) := Hyp.mk A (HypKind.val s)
 def Hyp.gst (A: RawUntyped) := Hyp.mk A HypKind.gst
 
@@ -310,6 +314,16 @@ inductive WkCtx: RawWk -> Context -> Context -> Type
   | step {ρ Γ Δ H}: WkCtx ρ Γ Δ -> WkCtx ρ.step (H::Γ) Δ 
   | lift {ρ Γ Δ H}: WkCtx ρ Γ Δ -> WkCtx ρ.lift ((H.wk ρ)::Γ) (H::Δ)
 
+theorem WkCtx.upgrade: WkCtx ρ Γ Δ 
+  -> WkCtx ρ Γ.upgrade Δ.upgrade := by {
+  intro R;
+  induction R with
+  | id => exact id
+  | step R => apply step; assumption
+  | lift R =>
+    simp only [Context.upgrade, Hyp.upgrade_wk_commute]
+    apply lift <;> assumption
+}
 
 theorem HasVar.wk:
   (ρ: RawWk) -> {Γ Δ: Context} -> (Hs: WkCtx ρ Γ Δ) ->
