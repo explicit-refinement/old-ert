@@ -133,12 +133,12 @@ inductive HasType: Context -> RawUntyped -> Annot -> Prop
     HasType Γ (var n) (expr s A)
 
   -- Constants
-  | nats: HasType [] nats type
-  | top: HasType [] top prop
-  | bot: HasType [] bot prop
-  | zero: HasType [] zero (term nats)
-  | succ: HasType [] succ (term (arrow nats nats))
-  | nil: HasType [] nil (proof top)
+  | nats {Γ}: HasType Γ nats type
+  | top {Γ}: HasType Γ top prop
+  | bot {Γ}: HasType Γ bot prop
+  | zero {Γ}: HasType Γ zero (term nats)
+  | succ {Γ}: HasType Γ succ (term (arrow nats nats))
+  | nil {Γ}: HasType Γ nil (proof top)
 
   -- Basic types
   | pi {Γ: Context} {A B: RawUntyped}:
@@ -286,11 +286,11 @@ inductive IsCtx: Context -> Prop
     IsCtx Γ -> (Γ ⊢ A: type) -> 
     IsCtx ((Hyp.mk A HypKind.gst)::Γ)
 
-theorem HasType.ctx_regular (p: Γ ⊢ a: A): IsCtx Γ := by {
-  induction p <;> first
-  | assumption
-  | constructor <;> assumption
-}
+-- theorem HasType.ctx_regular (p: Γ ⊢ a: A): IsCtx Γ := by {
+--   induction p <;> first
+--   | assumption
+--   | constructor <;> assumption
+-- }
 
 inductive IsHyp: Context -> Hyp -> Prop
   | hyp_val {Γ A s}: (Γ ⊢ A: sort s) -> IsHyp Γ (Hyp.mk A (HypKind.val s))
@@ -357,19 +357,7 @@ theorem HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
       apply HasVar.wk
       repeat assumption
 
-    -- TODO: automate this stuff for other cases...
-    case pi IA Is =>
-      intros;
-      let n := 0;
-      constructor;
-      apply IA
-      assumption
-      apply Is
-      simp [<-Hyp.wk_components]
-      apply WkCtx.lift
-      assumption
-
-    repeat sorry
+    all_goals sorry
   }
 
 inductive Annot.regular: Annot -> Context -> Prop
