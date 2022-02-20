@@ -36,6 +36,11 @@ def Annot.wk: Annot -> RawWk -> Annot
   | expr s A, ρ => expr s (A.wk ρ)
 
 @[simp]
+def Annot.subst: Annot -> RawSubst -> Annot
+  | sort s, _ => sort s
+  | expr s A, σ => expr s (A.subst σ)
+
+@[simp]
 def Annot.wk_composes: {A: Annot} -> (A.wk ρ).wk σ = A.wk (σ.comp ρ)
   | sort _ => rfl
   | expr _ _ => by simp
@@ -441,7 +446,40 @@ theorem HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
 --TODO: substitution lemma
 
 def SubstCtx (σ: RawSubst) (Γ Δ: Context): Prop :=
-  ∀{n}, (p: n < Δ.length) -> (Γ ⊢ σ n: (Δ.get ⟨n, p⟩).annot)
+  ∀{n A}, (Δ ⊢ var n: A) -> (Γ ⊢ σ n: A.subst σ)
+
+theorem SubstCtx.upgrade_l: SubstCtx ρ Γ Δ -> SubstCtx ρ Γ.upgrade Δ 
+:= sorry
+
+theorem SubstCtx.upgrade_r: SubstCtx ρ Γ Δ.upgrade -> SubstCtx ρ Γ Δ 
+:= sorry
+
+theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
+  {σ: RawSubst} -> {Γ: Context} -> SubstCtx σ Γ Δ ->
+  (Γ ⊢ (a.subst σ): (A.subst σ)) := by {
+    induction HΔ;
+    case var I =>
+      intros σ Γ S
+      apply S
+      apply var <;> assumption
+
+    -- any_goals (
+    --   intros σ Γ S
+    --   simp only [RawUntyped.subst, Annot.subst, term, RawUntyped.subst0_wk]
+    --   constructor <;> (
+    --     try rename_i I0 I1 I2
+    --     simp only [Annot.wk, term, RawUntyped.subst0_wk] at *
+    --     repeat ((first | apply I0 | apply I1 | apply I2) <;> 
+    --       simp only [<-Hyp.wk_components] <;> 
+    --       first 
+    --       | (constructor; assumption) 
+    --       | assumption 
+    --       | (apply WkCtx.upgrade; assumption))
+    --       )
+    --   )
+
+    repeat sorry
+  }
 
 --TODO: basic substitution helpers, in particular for subst0. See HasType.regular
 
