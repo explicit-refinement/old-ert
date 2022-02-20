@@ -268,41 +268,6 @@ theorem HasType.fv {Γ a A} (P: Γ ⊢ a: A): a.fv ≤ Γ.length := by {
   )
 } 
 
--- def HasType.wk1_inner
---   (Ha: Γ ⊢ a: A) (HB: Γ ⊢ B: (sort s)) (Hr: h.regular s):
---   ((Hyp.mk B h)::Γ) ⊢ a.wk1: A.wk1 := by { 
---     induction Hr <;>
---     cases A <;>
---     constructor <;>
---     assumption
---   }
-
--- def HasType.wk_val (Ha: HasType Γ a A) (HB: HasType Γ B (sort s))
---   : HasType ((Hyp.val B s)::Γ) a.wk1 A.wk1
---   := wk1_inner Ha HB HypKind.regular.val
-
--- def HasType.wk_gst (Ha: HasType Γ a A) (HB: HasType Γ B type)
---   : HasType ((Hyp.gst B)::Γ) a.wk1 A.wk1
---   := wk1_inner Ha HB HypKind.regular.gst
-
--- structure Typed {Γ: Context} {A: Annot} :=
---   (val: RawUntyped) (p: Γ ⊢ val: A)
-
--- -- Simple examples
-
--- def HasType.arrow (HA: Γ ⊢ A: type) (HB: Γ ⊢ B: type)
---   : Γ ⊢ (arrow A B): type 
---   := pi HA (wk_sort HB HA)
-
--- def HasType.lam_id (HA: Γ ⊢ A: type)
---   : Γ ⊢ (RawUntyped.lam A (var 0)) ∈ RawUntyped.arrow A A
---   := lam HA (var0 HA)
-
--- def HasType.const_lam 
---   (HA: Γ ⊢ A: type) (HB: Γ ⊢ B: type) (Hb: Γ ⊢ b ∈ B)
---   : HasType Γ (RawUntyped.lam A b.wk1) (term (RawUntyped.arrow A B))
---   := lam HA (wk_expr Hb HA)
-
 theorem HasVar.upgrade (p: HasVar Γ A s n): HasVar Γ.upgrade A s n := by {
   induction p with
   | var0 => 
@@ -320,6 +285,8 @@ theorem HasType.upgrade (p: Γ ⊢ a: A): Γ.upgrade ⊢ a: A := by {
     assumption
   all_goals { constructor; repeat assumption; }
 }
+
+--TODO: define context type, coercion to raw context?
 
 inductive IsCtx: Context -> Prop
   | nil: IsCtx []
@@ -427,6 +394,46 @@ theorem HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
       )
   }
 
+--TODO: basic weakening helpers
+
+-- def HasType.wk1_inner
+--   (Ha: Γ ⊢ a: A) (HB: Γ ⊢ B: (sort s)) (Hr: h.regular s):
+--   ((Hyp.mk B h)::Γ) ⊢ a.wk1: A.wk1 := by { 
+--     induction Hr <;>
+--     cases A <;>
+--     constructor <;>
+--     assumption
+--   }
+
+-- def HasType.wk_val (Ha: HasType Γ a A) (HB: HasType Γ B (sort s))
+--   : HasType ((Hyp.val B s)::Γ) a.wk1 A.wk1
+--   := wk1_inner Ha HB HypKind.regular.val
+
+-- def HasType.wk_gst (Ha: HasType Γ a A) (HB: HasType Γ B type)
+--   : HasType ((Hyp.gst B)::Γ) a.wk1 A.wk1
+--   := wk1_inner Ha HB HypKind.regular.gst
+
+--TODO: basic examples
+
+-- -- Simple examples
+
+-- def HasType.arrow (HA: Γ ⊢ A: type) (HB: Γ ⊢ B: type)
+--   : Γ ⊢ (arrow A B): type 
+--   := pi HA (wk_sort HB HA)
+
+-- def HasType.lam_id (HA: Γ ⊢ A: type)
+--   : Γ ⊢ (RawUntyped.lam A (var 0)) ∈ RawUntyped.arrow A A
+--   := lam HA (var0 HA)
+
+-- def HasType.const_lam 
+--   (HA: Γ ⊢ A: type) (HB: Γ ⊢ B: type) (Hb: Γ ⊢ b ∈ B)
+--   : HasType Γ (RawUntyped.lam A b.wk1) (term (RawUntyped.arrow A B))
+--   := lam HA (wk_expr Hb HA)
+
+--TODO: substitution lemma
+
+--TODO: basic substitution helpers, in particular for subst0. See HasType.regular
+
 inductive Annot.regular: Annot -> Context -> Prop
   | sort {Γ s}: regular (sort s) Γ
   | expr {Γ s A}: (Γ ⊢ A: sort s) -> regular (expr s A) Γ
@@ -442,6 +449,8 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
   case lam =>
     constructor; constructor <;>
     first | assumption | { apply Annot.regular_expr; assumption }
+
+  --TODO: general tactic for app requires substitution lemma for subst0
 
   repeat sorry
 }
