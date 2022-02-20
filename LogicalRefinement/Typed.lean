@@ -463,6 +463,12 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
       apply S
       apply var <;> assumption
 
+    --TODO: subst subst0 lemma
+    case app =>
+      intros σ Γ S
+      simp only [RawUntyped.subst, Annot.subst, term]
+      sorry
+
     -- any_goals (
     --   intros σ Γ S
     --   simp only [RawUntyped.subst, Annot.subst, term, RawUntyped.subst0_wk]
