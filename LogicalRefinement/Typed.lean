@@ -78,6 +78,14 @@ structure Hyp := (ty: RawUntyped) (kind: HypKind)
 @[simp]
 def Hyp.wk (H: Hyp) (ρ: RawWk) := Hyp.mk (H.ty.wk ρ) H.kind
 
+@[simp]
+def Hyp.subst (H: Hyp) (σ: RawSubst) := Hyp.mk (H.ty.subst σ) H.kind
+
+@[simp]
+def Hyp.annot: Hyp -> Annot
+  | Hyp.mk ty (HypKind.val s) => Annot.expr s ty
+  | Hyp.mk ty (HypKind.gst) => Annot.expr type ty
+
 theorem Hyp.wk_components:
   Hyp.wk (Hyp.mk A h) ρ = Hyp.mk (A.wk ρ) h := rfl
 
@@ -431,6 +439,9 @@ theorem HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
 --   := lam HA (wk_expr Hb HA)
 
 --TODO: substitution lemma
+
+def SubstCtx (σ: RawSubst) (Γ Δ: Context): Prop :=
+  ∀{n}, (p: n < Δ.length) -> (Γ ⊢ σ n: (Δ.get ⟨n, p⟩).annot)
 
 --TODO: basic substitution helpers, in particular for subst0. See HasType.regular
 
