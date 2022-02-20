@@ -363,24 +363,47 @@ def Untyped.to_subst (u: Untyped n): Subst n (n + 1) :=
     | succ v => exact Nat.lt_of_succ_lt_succ Hv
   })
 
+@[simp]
+def RawUntyped.to_subst_succ {u: RawUntyped}: u.to_subst (n + 1) = var n := rfl
+
 def RawUntyped.subst0: RawUntyped -> RawUntyped -> RawUntyped
   | u, v => u.subst v.to_subst
-
-def RawUntyped.subst0_wk1 {u: RawUntyped}: {v: RawUntyped} ->
-  u.wk1.subst0 v = u := by {
-    induction u <;> intro v;
-    case var n =>
-      simp [subst0]
-      --TODO: this is a really strange hack... think about it...
-      apply Nat.succ_match_simp
-      apply v
-
-    repeat sorry
-  }
 
 @[simp]
 def RawUntyped.subst0_def {u v: RawUntyped}: 
   u.subst0 v = u.subst v.to_subst := rfl
+
+def RawUntyped.substnth: RawUntyped -> Nat -> RawUntyped -> RawUntyped
+  | u, n, v => u.subst (v.to_subst.liftn n)
+
+@[simp]
+def RawUntyped.substnth_def {u v: RawUntyped} {l}:
+  u.substnth l v = u.subst (v.to_subst.liftn l) := rfl
+
+def RawUntyped.substnth_wknth {u: RawUntyped}: {v: RawUntyped} -> {l: Nat} ->
+  (u.wknth l).substnth l v = u := by {
+  induction u <;> intros v l;
+  case var n =>
+    simp only [substnth, wknth, wk, subst]
+    sorry
+
+  all_goals (
+    simp only [substnth, subst]
+    repeat first 
+    | rw [RawWk.lift_wknth_merge] 
+    | rw [RawWk.liftn_wknth_merge] 
+    | rw [RawSubst.lift_liftn_merge]
+    | rw [RawSubst.liftn_merge]
+    try simp only [<-substnth_def, <-wknth_def]
+    try simp only [*]
+    repeat exact 0
+  )
+}
+
+def RawUntyped.subst0_wk1 {u: RawUntyped}: {v: RawUntyped} ->
+  u.wk1.subst0 v = u := by {
+    sorry
+}
 
 theorem RawSubst.subst0_subst_composes {σ: RawSubst} {u: RawUntyped}:
   RawSubst.comp σ u.to_subst = 

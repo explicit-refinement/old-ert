@@ -15,6 +15,8 @@ import LogicalRefinement.Untyped.Basic
 @[simp] def RawUntyped.wk1 (u: RawUntyped) 
   := u.wk RawWk.wk1
 
+def RawUntyped.wk1_def {u: RawUntyped}: u.wk1 = u.wk RawWk.wk1 := rfl
+
 @[simp] def RawUntyped.lift1 (u: RawUntyped) := u.wk (RawWk.lift RawWk.id)
 
 @[simp] def RawUntyped.wkn (u: RawUntyped) (n: Nat) 
@@ -22,6 +24,8 @@ import LogicalRefinement.Untyped.Basic
 
 @[simp] def RawUntyped.wknth (u: RawUntyped) (n: Nat) 
   := u.wk (RawWk.wknth n)
+
+def RawUntyped.wknth_def {u: RawUntyped} {n}: u.wknth n = u.wk (RawWk.wknth n) := rfl
 
 @[simp] def RawUntyped.wk_coherent: {u: RawUntyped} -> {ρ σ: RawWk} ->
   RawWk.equiv ρ σ -> u.wk ρ = u.wk σ := by {
