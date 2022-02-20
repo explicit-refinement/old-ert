@@ -366,10 +366,35 @@ def Untyped.to_subst (u: Untyped n): Subst n (n + 1) :=
 def RawUntyped.subst0: RawUntyped -> RawUntyped -> RawUntyped
   | u, v => u.subst v.to_subst
 
+def RawUntyped.subst0_wk1 {u: RawUntyped}: {v: RawUntyped} ->
+  u.wk1.subst0 v = u := sorry
+
 @[simp]
 def RawUntyped.subst0_def {u v: RawUntyped}: 
   u.subst0 v = u.subst v.to_subst := rfl
 
+theorem RawSubst.subst0_subst_composes {σ: RawSubst} {u: RawUntyped}:
+  RawSubst.comp σ u.to_subst = 
+  RawSubst.comp (u.subst σ).to_subst σ.lift := by {
+  funext v;
+  cases v with
+  | zero => 
+    simp only [
+      comp, 
+      RawUntyped.to_subst, 
+      RawUntyped.subst]
+  | succ v =>
+    simp only [
+      comp,
+      RawUntyped.subst,
+      RawSubst.lift,
+      RawSubst.wk1
+      ];
+    rw [<-RawUntyped.subst0_def]
+    rw [RawUntyped.subst0_wk1]
+}
+
+--TODO: rewrite as application of subst0_subst_composes with appropriate lemmas
 theorem RawSubst.subst0_wk_composes {ρ: RawWk} {u: RawUntyped}:
   RawSubst.comp ρ.to_subst u.to_subst = 
   RawSubst.comp (u.wk ρ).to_subst ρ.lift.to_subst := by {
@@ -401,4 +426,11 @@ theorem RawUntyped.subst0_wk {u v: RawUntyped}:
     simp only [subst_composes]
     rw [RawSubst.subst0_wk_composes]
     simp only [RawSubst.subst_wk_compat]
+  }
+
+theorem RawUntyped.subst0_subst {u v: RawUntyped} {σ: RawSubst}:
+  (u.subst0 v).subst σ = (u.subst σ.lift).subst0 (v.subst σ) := by {
+    simp only [subst0]
+    simp only [subst_composes]
+    rw [RawSubst.subst0_subst_composes]
   }
