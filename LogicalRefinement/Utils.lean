@@ -263,3 +263,9 @@ theorem function_splitting {f g: A -> B}: f = g /\ x = y -> f x = g y := by {
   rw [Hf]
   rw [Hxy]
 }
+
+def Nat.succ_match_simp {F: Nat -> A}: (v: Nat) -> (
+  match v + 1 with
+  | 0 => e
+  | Nat.succ n => F n 
+) = F v := λv => rfl

@@ -369,9 +369,11 @@ def RawUntyped.subst0: RawUntyped -> RawUntyped -> RawUntyped
 def RawUntyped.subst0_wk1 {u: RawUntyped}: {v: RawUntyped} ->
   u.wk1.subst0 v = u := by {
     induction u <;> intro v;
-    case var =>
+    case var n =>
       simp [subst0]
-      sorry
+      --TODO: this is a really strange hack... think about it...
+      apply Nat.succ_match_simp
+      apply v
 
     repeat sorry
   }
