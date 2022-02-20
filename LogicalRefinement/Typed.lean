@@ -448,11 +448,11 @@ theorem HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
 def SubstCtx (σ: RawSubst) (Γ Δ: Context): Prop :=
   ∀{n A}, (Δ ⊢ var n: A) -> (Γ ⊢ σ n: A.subst σ)
 
-theorem SubstCtx.upgrade_l: SubstCtx ρ Γ Δ -> SubstCtx ρ Γ.upgrade Δ 
-:= sorry
+theorem SubstCtx.upgrade_l (H: SubstCtx σ Γ Δ): SubstCtx σ Γ.upgrade Δ 
+:= λHΔ => HasType.upgrade (H HΔ)
 
-theorem SubstCtx.upgrade_r: SubstCtx ρ Γ Δ.upgrade -> SubstCtx ρ Γ Δ 
-:= sorry
+theorem SubstCtx.upgrade_r (H: SubstCtx ρ Γ Δ.upgrade): SubstCtx ρ Γ Δ 
+:= λHΔ => H (HasType.upgrade HΔ)
 
 theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
   {σ: RawSubst} -> {Γ: Context} -> SubstCtx σ Γ Δ ->
