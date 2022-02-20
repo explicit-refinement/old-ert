@@ -137,6 +137,16 @@ inductive HasVar: Context -> RawUntyped -> AnnotSort -> Nat -> Prop
   | var_succ {Γ: Context} {A: RawUntyped} {s: AnnotSort} {H: Hyp} {n: Nat}:
     HasVar Γ A s n -> HasVar (H::Γ) A.wk1 s (n + 1)
 
+theorem HasVar.fv: HasVar Γ A s n -> n ≤ Γ.length := by {
+  intros H;
+  induction H with
+  | var0 => apply Nat.zero_le
+  | var_succ =>
+    simp only [List.length]
+    apply Nat.succ_le_succ
+    assumption
+}
+
 inductive HasType: Context -> RawUntyped -> Annot -> Prop
   -- Variables
   | var {Γ: Context} {A: RawUntyped} {s: AnnotSort} {n: Nat}:
