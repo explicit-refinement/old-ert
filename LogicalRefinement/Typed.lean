@@ -1,5 +1,6 @@
 import LogicalRefinement.Untyped
 import LogicalRefinement.Untyped.Subst
+import LogicalRefinement.Utils
 open RawUntyped
 
 inductive AnnotSort
@@ -103,6 +104,13 @@ def Context.upgrade: Context -> Context
   | h::hs => (h.upgrade)::(upgrade hs)
 
 @[simp]
+def Context.upgrade_length_is_length {Γ: Context}: Γ.upgrade.length = Γ.length := by {
+  induction Γ with
+  | nil => rfl
+  | cons H Γ I => simp [I] 
+}
+
+@[simp]
 theorem Context.upgrade_idem: upgrade (upgrade Γ) = upgrade Γ := by {
   induction Γ with
   | nil => rfl
@@ -161,7 +169,7 @@ inductive HasType: Context -> RawUntyped -> Annot -> Prop
     HasType ((Hyp.mk A (HypKind.val type))::Γ) B prop ->
     HasType Γ (set A B) type
   | assume {Γ: Context} {φ A: RawUntyped}:
-    HasType Γ φ type  -> HasType Γ B type ->
+    HasType Γ φ type  -> HasType Γ A type ->
     HasType Γ (assume φ A) type
   | intersect {Γ: Context} {A B: RawUntyped}:
     HasType Γ A type -> 
@@ -227,6 +235,25 @@ inductive HasType: Context -> RawUntyped -> Annot -> Prop
 notation Γ "⊢" a ":" A => HasType Γ a A
 notation Γ "⊢" a "∈" A => HasType Γ a (term A)
 notation Γ "⊢" a "∴" A => HasType Γ a (prop A)
+
+theorem HasType.fv {Γ a A} (P: Γ ⊢ a: A): a.fv ≤ Γ.length := by {
+  induction P 
+  <;> intros 
+  <;> try apply Nat.zero_le -- constants, e.g. nats, nil, zero
+  case var => sorry
+
+  all_goals (
+    simp only [
+      RawUntyped.fv, 
+      Nat.max_r_le_split, 
+      Nat.le_sub_is_le_add
+    ];
+    simp only [
+      Context.upgrade_length_is_length
+    ] at *
+    repeat first | apply And.intro | assumption
+  )
+} 
 
 -- def HasType.wk1_inner
 --   (Ha: Γ ⊢ a: A) (HB: Γ ⊢ B: (sort s)) (Hr: h.regular s):
