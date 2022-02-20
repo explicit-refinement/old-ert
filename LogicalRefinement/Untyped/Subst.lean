@@ -367,7 +367,14 @@ def RawUntyped.subst0: RawUntyped -> RawUntyped -> RawUntyped
   | u, v => u.subst v.to_subst
 
 def RawUntyped.subst0_wk1 {u: RawUntyped}: {v: RawUntyped} ->
-  u.wk1.subst0 v = u := sorry
+  u.wk1.subst0 v = u := by {
+    induction u <;> intro v;
+    case var =>
+      simp [subst0]
+      sorry
+
+    repeat sorry
+  }
 
 @[simp]
 def RawUntyped.subst0_def {u v: RawUntyped}: 
