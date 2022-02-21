@@ -78,6 +78,35 @@ def HypKind.upgrade: HypKind -> HypKind
   | val s => val s
   | gst => val type
 
+@[simp]
+def HypKind.downgrade: HypKind -> HypKind
+  | val prop => val prop
+  | val type => gst
+  | gst => gst
+
+@[simp]
+def HypKind.downgrade_wk {k k': HypKind}:
+  k.is_wk k'.upgrade -> k.downgrade.is_wk k' := by {
+    cases k with
+    | val s =>
+      cases k' with
+      | val s' =>
+        intro H;
+        cases H;
+        cases s <;> constructor
+      | gst =>
+        intro H;
+        cases H;
+        constructor
+    | gst =>
+      cases k' with
+      | val s' =>
+        intro H;
+        cases H;
+        constructor
+      | gst => intro H; constructor
+  }
+
 def HypKind.upgrade_is_wk: {k: HypKind} -> k.is_wk k.upgrade
   | val type => is_wk.refl
   | val prop => is_wk.refl
@@ -87,6 +116,13 @@ def HypKind.upgrade_is_wk: {k: HypKind} -> k.is_wk k.upgrade
 def HypKind.annot: HypKind -> AnnotSort
   | val s => s
   | gst => type
+
+
+@[simp]
+def HypKind.annot_downgrade: {k: HypKind} -> k.downgrade.annot = k.annot
+  | val type => rfl
+  | val prop => rfl
+  | gst => rfl
 
 @[simp]
 def HypKind.val_annot: (val s).annot = s := rfl
@@ -341,6 +377,47 @@ theorem HasVar.upgrade (p: HasVar Γ A k n):
   | var_succ => apply var_succ; assumption
 }
 
+theorem HasVar.wk_sort {k k'} (Hk: k.is_wk k') (p: HasVar Γ A k' n): 
+  HasVar Γ A k n := by {
+  induction p with
+  | var0 H => 
+    rename_i k k';
+    simp only [Context.upgrade, Hyp.upgrade]
+    apply var0
+    cases H;
+    apply Hk
+    cases Hk
+    constructor
+  | var_succ H I => 
+    apply var_succ
+    apply I
+    apply Hk
+}
+
+theorem HasVar.downgrade_helper: {Γ Γ': Context} -> Γ' = Γ.upgrade -> 
+  ∀ {n A k}, HasVar Γ' A k n -> HasVar Γ A k.downgrade n := by {
+  intro Γ;
+  induction Γ with
+  | nil => 
+    intro Γ' HΓ';
+    rw [HΓ']
+    intro n a K H;
+    cases H
+  | cons H Γ I =>
+    intro Γ' HΓ';
+    simp only [Context.upgrade, HΓ']
+    intro n a K H;
+    cases H with
+    | var0 =>
+      apply var0
+      apply HypKind.downgrade_wk
+      assumption
+    | var_succ => 
+      apply var_succ
+      apply I rfl
+      assumption
+  }
+
 theorem HasVar.upgrade_val (p: HasVar Γ A (HypKind.val s) n): 
   HasVar Γ.upgrade A (HypKind.val s) n := HasVar.upgrade p
 
@@ -547,8 +624,14 @@ theorem SubstCtx.lift_primitive
       exact HasType.wk1 (S H)
   }
 
-theorem SubstCtx.upgrade (H: SubstCtx ρ Γ Δ): SubstCtx ρ Γ.upgrade Δ.upgrade 
-:= sorry
+theorem SubstCtx.upgrade (S: SubstCtx ρ Γ Δ): SubstCtx ρ Γ.upgrade Δ.upgrade 
+:= by {
+  intro n A k H;
+  apply HasType.upgrade;
+  rw [<-HypKind.annot_downgrade]
+  apply S;
+  sorry
+}
 
 theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
   {σ: RawSubst} -> {Γ: Context} -> SubstCtx σ Γ Δ ->
