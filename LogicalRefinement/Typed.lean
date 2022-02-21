@@ -334,7 +334,12 @@ inductive HasType: Context -> RawUntyped -> Annot -> Prop
   | inj_r {Γ: Context} {A B e: RawUntyped}:
     HasType Γ e (term B) -> HasType Γ A type ->
     HasType Γ (inj true e) (term (coprod A B))
-  --TODO: case
+  | case {Γ: Context} {A B C e l r: RawUntyped}:
+    HasType ((Hyp.mk (or A B) (HypKind.val type))::Γ) C type ->
+    HasType Γ e (term (or A B)) ->
+    HasType Γ l (term (pi A (C.subst0 (inj false (var 0))))) ->
+    HasType Γ r (term (pi B (C.subst0 (inj true (var 0))))) ->
+    HasType Γ (case C e l r) (term (C.subst0 e))
   --TODO: natrec
   | elem {Γ: Context} {A φ l r: RawUntyped}:
     HasType Γ l (term A) -> HasType Γ r (proof (φ.subst0 l)) ->
@@ -579,6 +584,8 @@ theorem HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
       apply HasVar.wk
       repeat assumption
 
+    case case => sorry
+
     any_goals (
       intros ρ Γ R
       simp only [
@@ -699,6 +706,8 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
       intros σ Γ S
       apply S.var
       apply var <;> assumption
+
+    case case => sorry
 
     all_goals (
       intros σ Γ S
