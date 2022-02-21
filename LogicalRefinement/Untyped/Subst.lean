@@ -324,27 +324,23 @@ theorem Untyped.subst_bounds:
   | bin k l r Il Ir =>
     intros σ n m;
     simp only [Untyped.fv, Nat.max_r_le_split]
-    intro ⟨Hl, Hr⟩
-    intro Hσ
+    intro ⟨Hl, Hr⟩ Hσ
     exact ⟨Il Hl Hσ, Ir Hr Hσ⟩
   | abs k A s IA Is =>
     intros σ n m;
     simp only [Untyped.fv, Nat.max_r_le_split, Nat.le_sub_is_le_add]
-    intro ⟨HA, Hs⟩
-    intro Hσ
+    intro ⟨HA, Hs⟩ Hσ
     --TODO: move lift_subst to subst_maps?
     exact ⟨IA HA Hσ, Is Hs (Subst.lift_subst Hσ)⟩
   | tri k A l r IA Il Ir =>
     intros σ n m;
     simp only [Untyped.fv, Nat.max_r_le_split]
-    intro ⟨HA, Hl, Hr⟩
-    intro Hσ
+    intro ⟨HA, Hl, Hr⟩ Hσ
     exact ⟨IA HA Hσ, Il Hl Hσ, Ir Hr Hσ⟩
   | cases k K d l r IK Id Il Ir =>
     intros σ n m;
     simp only [Untyped.fv, Nat.max_r_le_split, Nat.le_sub_is_le_add]
-    intro ⟨HK, Hd, Hl, Hr⟩
-    intro Hσ
+    intro ⟨HK, Hd, Hl, Hr⟩ Hσ
     exact ⟨
       IK HK (Subst.lift_subst Hσ), 
       Id Hd Hσ, Il Hl (Subst.lift_subst Hσ), 
@@ -360,7 +356,7 @@ theorem Untyped.liftn_base {σ: Subst} {base: Nat} {u: Untyped}:
     intros
     apply Subst.liftn_base_nil
     assumption
-    
+
   all_goals (
     simp only [
       fv, Nat.max_r_le_split, subst, Subst.lift_liftn_merge,  Subst.liftn_merge,
