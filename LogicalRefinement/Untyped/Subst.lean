@@ -500,6 +500,10 @@ def Untyped.to_alpha_wk1 {u: Untyped}:
       simp [Subst.comp, Nat.add_succ]
   }
 
+
+def Untyped.to_alpha_0 {u: Untyped}: u.to_alpha 0 = u := rfl
+def Untyped.to_alpha_succ {u: Untyped}: u.to_alpha (Nat.succ n) = var (Nat.succ n) := rfl
+
 def Untyped.alphanth_wknth {u v: Untyped} {l: Nat}:
   (u.wknth l).alphanth l v = u.wknth l := by {
     simp only [wknth, Wk.wknth, alphanth]
@@ -582,26 +586,46 @@ theorem Untyped.alphann_comm {u v: Untyped} {σ: Subst} {n: Nat}:
     induction u;
     case var m =>
       intro v σ n
-      revert v σ
-      induction n with
-      | zero => 
-        intro v σ H
-        simp only [alphanth, Subst.liftn]
-        cases m with
-        | zero => simp [lift_base H]
-        | succ m => 
-          simp only [subst, Subst.lift, <-alpha0_def]
-          exact alpha0_wk1
-      | succ n I =>
-        intros v σ H
-        simp only [alphanth, Subst.liftn]
-        cases m with
-        | zero => simp
-        | succ m => 
-          simp only [subst, Subst.lift_succ, Subst.wk1]
-          simp only [Subst.lift_wk]
-          simp only [<-alphanth_def, Subst.lift_liftn_merge, subst]
-          sorry
+      cases (Nat.le_or_lt m n) with
+      | inl H =>
+        intro;
+        simp only [alphanth, subst]
+        repeat first | rw [Subst.liftn_base_nil] | simp only [subst]
+        repeat first | exact H | exact (Nat.le_succ_of_le H)
+      | inr H =>
+        intro H';
+        simp only [alphanth, subst]
+        rw [Subst.liftn_above_wk H]
+        cases H with
+        | refl =>
+          simp only [Nat.sub_self, to_alpha_0]
+          rw [Subst.liftn_base_nil (Nat.le_refl _)]
+          simp only [subst]
+          rw [Subst.liftn_above_wk (Nat.le_refl _)]
+          simp only [Nat.sub_self, to_alpha_0]
+          rw [liftn_base]
+          induction m with
+          | zero => simp [H']
+          | succ m I =>
+            simp only [wkn, Wk.wkn]
+            simp only [<-Wk.step_is_comp_wk1]
+            simp only [<-wk_composes]
+            simp only [<-wk1_def]
+            apply Nat.le_trans fv_wk1
+            apply Nat.succ_le_succ
+            exact I
+        | step H =>
+          rw [Subst.liftn_above_wk (Nat.succ_le_succ H)]
+          cases n with
+          | zero => sorry
+          | succ n => sorry
+
+
+    case cases IK Id Il Ir =>
+      intro v σ n H;
+      simp only [alphanth, subst, Subst.lift_liftn_merge]
+      simp only [<-alphanth_def]
+      rw [IK H, Id H, Il H, Ir H]
 
     repeat sorry
   }
