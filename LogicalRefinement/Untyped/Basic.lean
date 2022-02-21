@@ -145,49 +145,40 @@ def Untyped.refl := unary UntypedKind.refl
 
 theorem Untyped.has_dep_implies_fv (u: Untyped): {i: Nat} ->
   has_dep u i -> i < fv u := by {
-    induction u with
-    | var v =>
+    induction u <;> 
+    simp only [has_dep, fv, Nat.max_l_lt_split];
+    case var v =>
       simp
       intro i H
       apply Nat.le_lt_succ
       apply Nat.le_of_eq
       rw [H]
-    | const c => simp
-    | unary _ t I => simp; apply I
-    | let_bin _ e I =>
-      intro i
-      simp only [has_dep, fv]
-      intro H
+    case const c => simp
+    case unary _ t I => simp; apply I
+    case let_bin _ e I =>
+      intro i H
       let H' := I H
       exact Nat.lt_sub_lt_add H'
-    | bin _ l r Il Ir =>
-      intro i
-      simp only [has_dep, fv, Nat.max_l_lt_split]
-      intro H
+    case bin _ l r Il Ir =>
+      intro i H
       cases H with
       | inl H => exact Or.inl (Il H)
       | inr H => exact Or.inr (Ir H)
-    | abs _ A t IA It => 
-      intro i
-      simp only [has_dep, fv, Nat.max_l_lt_split]
-      intro H
+    case abs _ A t IA It => 
+      intro i H
       cases H with
       | inl H => exact Or.inl (IA H)
       | inr H => exact Or.inr (Nat.lt_sub_lt_add (It H))
-    | tri _ A l r IA Il Ir =>
-      intro i
-      simp only [has_dep, fv, Nat.max_l_lt_split]
-      intro H
+    case tri _ A l r IA Il Ir =>
+      intro i H
       exact (
         match H with
         | Or.inl H => Or.inl (IA H)
         | Or.inr (Or.inl H) => Or.inr (Or.inl (Il H))
         | Or.inr (Or.inr H) => Or.inr (Or.inr (Ir H))
       )
-    | cases _ K d l r IK Id Il Ir =>
-      intro i
-      simp only [has_dep, fv, Nat.max_l_lt_split]
-      intro H
+    case cases _ K d l r IK Id Il Ir =>
+      intro i H
       cases H with
       | inl H => exact Or.inl (Nat.lt_sub_lt_add (IK H))
       | inr H => apply Or.inr; exact (
