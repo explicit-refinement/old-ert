@@ -223,6 +223,10 @@ def Subst.comp (σ ρ: Subst): Subst
     | succ v => simp only [lift_succ, comp, wk1, lift_wk]
   }
 
+@[simp] theorem Subst.liftn_comp {ρ σ: Subst} {l: Nat}: 
+  comp (liftn ρ l) (liftn σ l) = liftn (comp ρ σ) l 
+  := by induction l <;> simp [*]
+
 @[simp] theorem Untyped.subst_composes (u: Untyped):
   (σ ρ: Subst) -> (u.subst ρ).subst σ = u.subst (σ.comp ρ)
   := by {
@@ -374,7 +378,6 @@ def Untyped.subst0: Untyped -> Untyped -> Untyped
 def Untyped.alpha0: Untyped -> Untyped -> Untyped
   | u, v => u.subst v.to_alpha
 
-
 def Untyped.alpha0_lift_comp {u v: Untyped}: 
   u.alpha0 v = u.subst (v.to_subst.comp (Wk.wknth 1).to_subst) := by {
     simp only [alpha0]
@@ -455,6 +458,25 @@ def Untyped.alpha0_wk1 {u: Untyped} {v: Untyped}:
     rw [<-wk_composes]
     rw [<-wk1_def]
     rw [subst0_wk1]
+  }
+
+def Untyped.to_alpha_wk1 {u: Untyped}:
+  u.to_alpha.comp Wk.wk1.to_subst = Wk.wk1.to_subst := by {
+    funext v;
+    cases v with
+    | zero => rfl
+    | succ v =>
+      simp [Subst.comp, Nat.add_succ]
+  }
+
+def Untyped.alphanth_wknth {u v: Untyped} {l: Nat}:
+  (u.wknth l).alphanth l v = u.wknth l := by {
+    simp only [wknth, Wk.wknth, alphanth]
+    rw [<-Subst.subst_wk_compat]
+    rw [subst_composes]
+    rw [<-Wk.to_subst_liftn]
+    rw [Subst.liftn_comp]
+    rw [to_alpha_wk1]
   }
 
 theorem Subst.subst0_subst_composes {σ: Subst} {u: Untyped}:
