@@ -124,7 +124,7 @@ def Untyped.subst: Untyped -> Subst -> Untyped
   | abs k A t, σ => abs k (A.subst σ) (t.subst σ.lift)
   | tri k A l r, σ => tri k (A.subst σ) (l.subst σ) (r.subst σ)
   | cases k K d l r, σ => 
-    cases k (K.subst σ.lift) (d.subst σ) (l.subst σ) (r.subst σ)
+    cases k (K.subst σ.lift) (d.subst σ) (l.subst σ.lift) (r.subst σ.lift)
 
 theorem Subst.lift_var: {n v: Nat} -> {σ: Subst} -> 
   (σ.liftn (n + 1)) (Wk.var (Wk.wknth n) v) 
@@ -198,11 +198,11 @@ theorem Untyped.liftn_wk {u: Untyped}: {σ: Subst} -> (n: Nat) ->
       intros σ n
       simp only [wknth, wk, subst]
       simp only [wknth] at *
-      rw [Id, Il, Ir]
+      rw [Id]
       rw [Wk.lift_wknth_merge]
       rw [Subst.lift_liftn_merge]
       rw [Subst.lift_liftn_merge]
-      rw [IK]
+      rw [IK, Il, Ir]
       exact 0 -- TODO: why?
   }
 
@@ -338,7 +338,11 @@ theorem Untyped.subst_bounds:
     simp only [Untyped.fv, Nat.max_r_le_split, Nat.le_sub_is_le_add]
     intro ⟨HK, Hd, Hl, Hr⟩
     intro Hσ
-    exact ⟨IK HK (Subst.lift_subst Hσ), Id Hd Hσ, Il Hl Hσ, Ir Hr Hσ⟩
+    exact ⟨
+      IK HK (Subst.lift_subst Hσ), 
+      Id Hd Hσ, Il Hl (Subst.lift_subst Hσ), 
+      Ir Hr (Subst.lift_subst Hσ)
+      ⟩
 }
 
 @[simp]

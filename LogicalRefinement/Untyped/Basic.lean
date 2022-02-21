@@ -30,7 +30,7 @@ inductive UntypedKind: List Nat -> Type
   | pair: UntypedKind [0, 0]
   | proj (b: Bool): UntypedKind [0]
   | inj (b: Bool): UntypedKind [0]
-  | case: UntypedKind [1, 0, 0, 0]
+  | case: UntypedKind [1, 0, 1, 1]
   | elem: UntypedKind [0, 0]
   | let_set: UntypedKind [2]
   | lam_pr: UntypedKind [0, 1]
@@ -46,7 +46,7 @@ inductive UntypedKind: List Nat -> Type
   | conj: UntypedKind [0, 0]
   | comp (b: Bool): UntypedKind [0]
   | disj (b: Bool): UntypedKind [0]
-  | case_pr: UntypedKind [1, 0, 0, 0]
+  | case_pr: UntypedKind [1, 0, 1, 1]
   | imp: UntypedKind [0, 0]
   | mp: UntypedKind [0, 0]
   | general: UntypedKind [0, 1]
@@ -68,7 +68,7 @@ inductive Untyped: Type
   | abs (k: UntypedKind [0, 1]) (A: Untyped) (t: Untyped)
   | tri (k: UntypedKind [0, 0, 0]) (A: Untyped) (l: Untyped) (r: Untyped)
   -- TODO: no cases?
-  | cases (k: UntypedKind [1, 0, 0, 0]) (K: Untyped) (d: Untyped) (l: Untyped) (r: Untyped)
+  | cases (k: UntypedKind [1, 0, 1, 1]) (K: Untyped) (d: Untyped) (l: Untyped) (r: Untyped)
 
 -- Types
 def Untyped.nats := const UntypedKind.nats
@@ -131,7 +131,7 @@ def Untyped.refl := unary UntypedKind.refl
   | bin _ l r => Nat.max (fv l) (fv r)
   | abs _ A t => Nat.max (fv A) (fv t - 1)
   | tri _ A l r => Nat.max (fv A) (Nat.max (fv l) (fv r))
-  | cases _ K d l r => Nat.max (fv K - 1) (Nat.max (fv d) (Nat.max (fv l) (fv r)))
+  | cases _ K d l r => Nat.max (fv K - 1) (Nat.max (fv d) (Nat.max (fv l - 1) (fv r - 1)))
 
 @[simp] def Untyped.has_dep: Untyped -> Nat -> Prop
   | var v, i => v = i
@@ -141,7 +141,8 @@ def Untyped.refl := unary UntypedKind.refl
   | bin _ l r, i => has_dep l i ∨ has_dep r i
   | abs _ A t, i => has_dep A i ∨ has_dep t (i + 1)
   | tri _ A l r, i => has_dep A i ∨ has_dep l i ∨ has_dep r i
-  | cases _ K d l r, i => has_dep K (i + 1) ∨ has_dep d i ∨ has_dep l i ∨ has_dep r i
+  | cases _ K d l r, i => 
+    has_dep K (i + 1) ∨ has_dep d i ∨ has_dep l (i + 1) ∨ has_dep r (i + 1)
 
 theorem Untyped.has_dep_implies_fv (u: Untyped): {i: Nat} ->
   has_dep u i -> i < fv u := by {

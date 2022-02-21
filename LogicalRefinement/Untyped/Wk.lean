@@ -10,7 +10,8 @@ import LogicalRefinement.Untyped.Basic
   | bin k l r, ρ => bin k (l.wk ρ) (r.wk ρ)
   | abs k A t, ρ => abs k (A.wk ρ) (t.wk ρ.lift)
   | tri k A l r, ρ => tri k (A.wk ρ) (l.wk ρ) (r.wk ρ)
-  | cases k K d l r, ρ => cases k (K.wk ρ.lift) (d.wk ρ) (l.wk ρ) (r.wk ρ)
+  | cases k K d l r, ρ => 
+    cases k (K.wk ρ.lift) (d.wk ρ) (l.wk ρ.lift) (r.wk ρ.lift)
 
 @[simp] def Untyped.wk1 (u: Untyped) 
   := u.wk Wk.wk1
@@ -47,7 +48,9 @@ def Untyped.wknth_def {u: Untyped} {n}: u.wknth n = u.wk (Wk.wknth n) := rfl
   | cases k K d l r IK Id Il Ir => 
     intros ρ σ H; 
     simp only [wk];
-    simp [IK (Wk.lift_equiv H), Id H, Il H, Ir H]
+    simp [
+      IK (Wk.lift_equiv H), Id H, Il (Wk.lift_equiv H), Ir (Wk.lift_equiv H)
+    ]
 }
 
 @[simp] def Untyped.wk_id {u: Untyped}: u.wk (Wk.id) = u := by {
@@ -110,8 +113,8 @@ def Untyped.wk_bounds {u: Untyped}: {n m: Nat} -> {ρ: Wk} ->
         case left => apply IHd Hm Hd
         case right =>
           apply And.intro;
-          case left => apply IHl Hm Hl
-          case right => apply IHr Hm Hr
+          case left => apply IHl (@wk_maps_liftn 1 n m ρ Hm) Hl
+          case right => apply IHr (@wk_maps_liftn 1 n m ρ Hm) Hr
   }
 
 def Untyped.fv_wk1: fv (wk1 u) ≤ fv u + 1 

@@ -337,9 +337,11 @@ inductive HasType: Context -> Untyped -> Annot -> Prop
   | case {Γ: Context} {A B C e l r: Untyped}:
     HasType ((Hyp.mk (or A B) (HypKind.val type))::Γ) C type ->
     HasType Γ e (term (or A B)) ->
-    HasType Γ l (term (pi A (C.subst0 (inj false (var 0))))) ->
-    HasType Γ r (term (pi B (C.subst0 (inj true (var 0))))) ->
+    --TODO: subst subst0 for swap0
+    HasType ((Hyp.mk A (HypKind.val type))::Γ) l (term (C.subst0 (inj false (var 0)))) ->
+    HasType ((Hyp.mk B (HypKind.val type))::Γ) r (term (C.subst0 (inj true (var 0)))) ->
     HasType Γ (case C e l r) (term (C.subst0 e))
+  
   --TODO: natrec
   | elem {Γ: Context} {A φ l r: Untyped}:
     HasType Γ l (term A) -> HasType Γ r (proof (φ.subst0 l)) ->
@@ -405,6 +407,9 @@ theorem HasType.fv {Γ a A} (P: Γ ⊢ a: A): a.fv ≤ Γ.length := by {
   case var =>
     apply HasVar.fv
     assumption
+
+  case case => sorry
+
   all_goals (
     simp only [
       Untyped.fv, 
@@ -585,24 +590,24 @@ theorem HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
       repeat assumption
 
     case case I0 I1 I2 I3 =>
-      -- intros ρ Γ R
-      -- simp only [
-      --   Untyped.wk, Annot.wk, 
-      --   term, proof, 
-      --   Untyped.subst0_wk
-      -- ]
-      -- simp only [
-      --   Annot.wk, term, proof, Untyped.subst0_wk, Untyped.wk,
-      --   Wk.var
-      -- ] at *
-      -- constructor <;> simp only [term, proof]
-      -- apply I0
-      -- apply @WkCtx.lift _ _ _ (Hyp.mk (Untyped.or _ _) _)
-      -- assumption
-      -- apply I1
-      -- assumption
-      -- simp only [Untyped.pi, Untyped.inj]
-      -- apply I2 
+      intros ρ Γ R
+      simp only [
+        Untyped.wk, Annot.wk, 
+        term, proof, 
+        Untyped.subst0_wk
+      ]
+      simp only [
+        Annot.wk, term, proof, Untyped.subst0_wk, Untyped.wk,
+        Wk.var
+      ] at *
+      constructor <;> simp only [term, proof]
+      apply I0
+      apply @WkCtx.lift _ _ _ (Hyp.mk (Untyped.or _ _) _)
+      assumption
+      apply I1
+      assumption
+      simp only [Untyped.pi, Untyped.inj]
+      apply I2 
       sorry
 
 
