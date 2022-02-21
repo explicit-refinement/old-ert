@@ -66,12 +66,12 @@ theorem Subst.liftn_commute {σ: Subst}
 theorem Subst.lift_liftn_merge {n: Nat} {σ: Subst}:
   (σ.liftn n).lift = σ.liftn (n + 1) := rfl
 
-theorem Subst.liftn_merge_outer (m: Nat)
-  : (n: Nat) -> {σ: Subst} -> (σ.liftn m).liftn n = σ.liftn (n + m) 
+theorem Subst.liftn_merge_outer {m: Nat}
+  : {n: Nat} -> {σ: Subst} -> (σ.liftn m).liftn n = σ.liftn (n + m) 
   := by induction m <;> simp [liftn, <-liftn_lift_commute, *]
 
 theorem Subst.liftn_merge
-  : (m n: Nat) -> {σ: Subst} -> (σ.liftn m).liftn n  = σ.liftn (m + n) 
+  : {m n: Nat} -> {σ: Subst} -> (σ.liftn m).liftn n  = σ.liftn (m + n) 
   := by intros; simp [liftn_merge_outer, Nat.add_comm]
 
 theorem Subst.liftn_base_nil {σ: Subst}: {base v: Nat} -> 

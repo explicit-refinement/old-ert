@@ -16,7 +16,7 @@ inductive Wk: Type 0 where
 @[simp] def Wk.wknth (n: Nat): Wk := wk1.liftn n
 
 @[simp]
-theorem Wk.lift_liftn_merge {ρ: Wk} {m n: Nat}: 
+theorem Wk.lift_liftn_merge {ρ: Wk} {n: Nat}: 
   (ρ.liftn n).lift = ρ.liftn (n + 1) := rfl
 
 @[simp]
@@ -35,11 +35,7 @@ theorem Wk.liftn_merge {ρ: Wk}: {n m: Nat} ->
 
 @[simp]
 theorem Wk.lift_wknth_merge {m n: Nat}: lift (wknth n) = wknth (n + 1) 
-  := by {
-  unfold wknth;
-  apply lift_liftn_merge;
-  exact 0
-}
+  := lift_liftn_merge
 
 @[simp]
 theorem Wk.liftn_wknth_merge {m n: Nat}: (wknth n).liftn m = wknth (n + m) 
