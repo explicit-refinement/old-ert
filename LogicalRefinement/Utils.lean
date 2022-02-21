@@ -269,3 +269,21 @@ def Nat.succ_match_simp {F: Nat -> A}: (v: Nat) -> (
   | 0 => e
   | Nat.succ n => F n 
 ) = F v := λv => rfl
+
+theorem Nat.succ_sub_gt: {n m: Nat} -> m ≤ n -> n + 1 - m = (n - m) + 1 := by {
+  intro n;
+  induction n with
+  | zero =>
+    intro m
+    rw [Nat.eq_zero_is_le_zero]
+    intro H
+    rw [H]
+  | succ n I =>
+    intro m H
+    rw [Nat.add_succ, Nat.add_zero]
+    cases m with
+    | zero => simp
+    | succ m =>
+      repeat rw [Nat.succ_sub_succ_eq_sub]
+      exact I (Nat.le_of_succ_le_succ H)
+}

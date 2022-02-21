@@ -393,12 +393,7 @@ def RawUntyped.substnth_wknth {u: RawUntyped}: {v: RawUntyped} -> {l: Nat} ->
     | inr H =>
       rw [RawSubst.liftn_above_wk]
       rw [RawWk.wknth_big H]
-      cases l with
-      | zero => simp
-      | succ l =>
-        rw [Nat.add_succ, Nat.add_zero]
-        simp only [Nat.succ_sub_succ_eq_sub]
-        sorry
+      sorry
       rw [RawWk.wknth_big H]
       exact Nat.le_succ_of_le H
 
