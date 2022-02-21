@@ -412,10 +412,8 @@ def RawUntyped.substnth_wknth {u: RawUntyped}: {v: RawUntyped} -> {l: Nat} ->
   )
 }
 
-def RawUntyped.subst0_wk1 {u: RawUntyped}: {v: RawUntyped} ->
-  u.wk1.subst0 v = u := by {
-    sorry
-}
+def RawUntyped.subst0_wk1 {u: RawUntyped} {v: RawUntyped}:
+  u.wk1.subst0 v = u := @RawUntyped.substnth_wknth u v 0
 
 theorem RawSubst.subst0_subst_composes {σ: RawSubst} {u: RawUntyped}:
   RawSubst.comp σ u.to_subst = 
