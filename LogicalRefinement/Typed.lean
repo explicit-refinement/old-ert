@@ -410,9 +410,6 @@ theorem HasType.fv {Γ a A} (P: Γ ⊢ a: A): a.fv ≤ Γ.length := by {
   case var =>
     apply HasVar.fv
     assumption
-
-  case case => sorry
-
   all_goals (
     simp only [
       Untyped.fv, 
