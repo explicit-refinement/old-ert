@@ -65,6 +65,10 @@ inductive HypKind
   | val (s: AnnotSort) -- Computational/Logical
   | gst -- Refinement
 
+inductive HypKind.is_wk: HypKind -> HypKind -> Prop
+  | refl {k}: is_wk k k
+  | gst: is_wk gst (val type)
+
 inductive HypKind.regular: HypKind -> AnnotSort -> Prop
   | val {s}: regular (val s) s
   | gst: regular gst type
@@ -74,10 +78,17 @@ def HypKind.upgrade: HypKind -> HypKind
   | val s => val s
   | gst => val type
 
+def HypKind.upgrade_is_wk: {k: HypKind} -> k.is_wk k.upgrade
+  | val type => is_wk.refl
+  | val prop => is_wk.refl
+  | gst => is_wk.gst
+
 @[simp]
 def HypKind.annot: HypKind -> AnnotSort
   | val s => s
   | gst => type
+
+def HypKind.val_annot: (val s).annot = s := rfl
 
 @[simp]
 theorem HypKind.upgrade_idem: upgrade (upgrade h) = upgrade h := by {
@@ -160,8 +171,8 @@ def constAnnot: UntypedKind [] -> Annot
   | UntypedKind.nil => proof top
 
 inductive HasVar: Context -> RawUntyped -> HypKind -> Nat -> Prop
-  | var0 {Γ: Context} {A: RawUntyped} {k: HypKind}:
-    HasVar ((Hyp.mk A k)::Γ) A.wk1 s 0
+  | var0 {Γ: Context} {A: RawUntyped} {k k': HypKind}:
+    k'.is_wk k -> HasVar ((Hyp.mk A k)::Γ) A.wk1 k' 0
   | var_succ {Γ: Context} {A: RawUntyped} {k: HypKind} {H: Hyp} {n: Nat}:
     HasVar Γ A k n -> HasVar (H::Γ) A.wk1 k (n + 1)
 
@@ -295,20 +306,28 @@ theorem HasType.fv {Γ a A} (P: Γ ⊢ a: A): a.fv ≤ Γ.length := by {
   )
 } 
 
-theorem HasVar.upgrade (p: HasVar Γ A s n): HasVar Γ.upgrade A s n := by {
+theorem HasVar.upgrade (p: HasVar Γ A k n): 
+  HasVar Γ.upgrade A (HypKind.val k.annot) n := by {
   induction p with
-  | var0 => 
-    simp only [Context.upgrade, Hyp.upgrade, HypKind.upgrade]
-    exact var0
+  | var0 H => 
+    rename_i k k';
+    simp only [Context.upgrade, Hyp.upgrade]
+    apply var0
+    cases H;
+    cases k <;> constructor
+    constructor
   | var_succ => apply var_succ; assumption
 }
+
+theorem HasVar.upgrade_val (p: HasVar Γ A (HypKind.val s) n): 
+  HasVar Γ.upgrade A (HypKind.val s) n := HasVar.upgrade p
 
 theorem HasType.upgrade (p: Γ ⊢ a: A): Γ.upgrade ⊢ a: A := by {
   induction p;
   case var => 
     apply var
     assumption
-    apply HasVar.upgrade
+    apply HasVar.upgrade_val
     assumption
   all_goals { constructor; repeat assumption; }
 }
@@ -382,7 +401,8 @@ theorem HasVar.wk:
           RawUntyped.wk_composes,
           RawWk.var, RawUntyped.lift_wk1
         ]
-        exact var0
+        apply var0
+        assumption
       | var_succ =>
         simp only [
           Wk.lift,
@@ -467,33 +487,32 @@ theorem SubstCtx.var {σ: RawSubst} {Γ Δ: Context} (S: SubstCtx σ Γ Δ):
   λHΔ => match HΔ with
          | HasType.var _ H => S H
 
--- theorem SubstCtx.lift {σ: RawSubst} {Γ Δ: Context} {H: Hyp}:
---   SubstCtx σ Γ Δ ->
---   IsHyp Δ H ->
---   SubstCtx σ.lift ((H.subst σ)::Γ) (H::Δ) := by {
---     intro S HH n A k HΔ;
---     cases n with
---     | zero =>
---       simp only [Annot.subst, Hyp.annot]
---       apply HasType.var
---       cases HΔ;
---       rename_i A k
---       simp only [RawSubst.lift_wk]
---       simp only [RawSubst.lift]
---       apply HasType.wk1_sort
---       rw [<-@Annot.subst_sort_const _ σ]
---       --Oh no, *this* is substitution
---       sorry
---       sorry
---     | succ n =>
---       simp only [Annot.subst, Hyp.annot]
---       cases HΔ;
---       rename_i A n H
---       simp only [RawSubst.lift_wk, Nat.add]
---       simp only [RawSubst.lift, RawSubst.wk1]
---       rw [<-Annot.wk1_expr_def]
---       exact HasType.wk1 (S H)
---   }
+theorem SubstCtx.lift_primitive {σ: RawSubst} {Γ Δ: Context} {H: Hyp}:
+  SubstCtx σ Γ Δ ->
+  IsHyp Γ (H.subst σ) ->
+  SubstCtx σ.lift ((H.subst σ)::Γ) (H::Δ) := by {
+    intro S HH n A k HΔ;
+    cases n with
+    | zero =>
+      simp only [Annot.subst, Hyp.annot]
+      apply HasType.var
+      cases HΔ;
+      rename_i A
+      simp only [RawSubst.lift_wk]
+      simp only [RawSubst.lift]
+      apply HasType.wk1_sort
+      rw [<-@Annot.subst_sort_const _ σ]
+      sorry
+      sorry
+    | succ n =>
+      simp only [Annot.subst, Hyp.annot]
+      cases HΔ;
+      rename_i A n H
+      simp only [RawSubst.lift_wk, Nat.add]
+      simp only [RawSubst.lift, RawSubst.wk1]
+      rw [<-Annot.wk1_expr_def]
+      exact HasType.wk1 (S H)
+  }
 
 theorem SubstCtx.upgrade (H: SubstCtx ρ Γ Δ): SubstCtx ρ Γ.upgrade Δ.upgrade 
 := sorry
@@ -518,19 +537,12 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
         repeat ((first | apply I0 | apply I1 | apply I2) <;> 
           simp only [<-Hyp.subst_components, <-Hyp.wk_components] <;> 
           first 
-          | (
-            --TODO: actual lifting case
-            apply SubstCtx.lift
-            assumption
-            constructor
-            assumption  
-          ) 
           | assumption
           | apply SubstCtx.upgrade; assumption
           )
       )
 
-    case eq =>
+    case app =>
       intros σ Γ S
       simp only [
         RawUntyped.subst, Annot.subst, term, RawUntyped.subst0_subst
@@ -541,13 +553,6 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
         repeat ((first | apply I0 | apply I1 | apply I2) <;> 
           simp only [<-Hyp.subst_components, <-Hyp.wk_components] <;> 
           first 
-          | (
-            --TODO: actual lifting case
-            apply SubstCtx.lift
-            assumption
-            constructor
-            assumption  
-          ) 
           | assumption
           | apply SubstCtx.upgrade; assumption
           )
