@@ -395,7 +395,7 @@ def RawUntyped.substnth_wknth {u: RawUntyped}: {v: RawUntyped} -> {l: Nat} ->
       rw [RawWk.wknth_big H]
       rw [Nat.succ_sub_gt H]
       rw [to_subst_succ]
-      sorry
+      simp [Nat.add_sub_self_gt H]
       rw [RawWk.wknth_big H]
       exact Nat.le_succ_of_le H
 
