@@ -84,6 +84,9 @@ structure Hyp := (ty: RawUntyped) (kind: HypKind)
 def Hyp.wk (H: Hyp) (ρ: RawWk) := Hyp.mk (H.ty.wk ρ) H.kind
 
 @[simp]
+def Hyp.wkn (H: Hyp) (n: Nat) := Hyp.mk (H.ty.wkn n) H.kind
+
+@[simp]
 def Hyp.subst (H: Hyp) (σ: RawSubst) := Hyp.mk (H.ty.subst σ) H.kind
 
 @[simp]
@@ -147,14 +150,13 @@ def constAnnot: UntypedKind [] -> Annot
   | UntypedKind.succ => term (arrow nats nats)
   | UntypedKind.nil => proof top
 
-inductive HasVar: Context -> RawUntyped -> AnnotSort -> Nat -> Prop
-  | var0 {Γ: Context} {A: RawUntyped} {s: AnnotSort}:
-    HasVar ((Hyp.mk A (HypKind.val s))::Γ) A.wk1 s 0
-  | var_succ {Γ: Context} {A: RawUntyped} {s: AnnotSort} {H: Hyp} {n: Nat}:
-    HasVar Γ A s n -> HasVar (H::Γ) A.wk1 s (n + 1)
+inductive HasVar: Context -> RawUntyped -> HypKind -> Nat -> Prop
+  | var0 {Γ: Context} {A: RawUntyped} {k: HypKind}:
+    HasVar ((Hyp.mk A k)::Γ) A.wk1 s 0
+  | var_succ {Γ: Context} {A: RawUntyped} {k: HypKind} {H: Hyp} {n: Nat}:
+    HasVar Γ A k n -> HasVar (H::Γ) A.wk1 k (n + 1)
 
-theorem HasVar.fv: HasVar Γ A s n -> n < Γ.length := by {
-  intros H;
+theorem HasVar.fv (H: HasVar Γ A s n): n < Γ.length := by {
   induction H with
   | var0 =>
     apply Nat.succ_le_succ
@@ -169,7 +171,7 @@ inductive HasType: Context -> RawUntyped -> Annot -> Prop
   -- Variables
   | var {Γ: Context} {A: RawUntyped} {s: AnnotSort} {n: Nat}:
     HasType Γ A (sort s) ->
-    HasVar Γ A s n ->
+    HasVar Γ A (HypKind.val s) n ->
     HasType Γ (var n) (expr s A)
 
   -- Constants
@@ -350,7 +352,7 @@ theorem WkCtx.upgrade: WkCtx ρ Γ Δ
 
 theorem HasVar.wk:
   (ρ: RawWk) -> {Γ Δ: Context} -> (Hs: WkCtx ρ Γ Δ) ->
-  {n: Nat} -> {A: RawUntyped} -> {s: AnnotSort} ->
+  {n: Nat} -> {A: RawUntyped} -> {s: HypKind} ->
   HasVar Δ A s n -> HasVar Γ (A.wk ρ) s (ρ.var n) 
   := by {
     intros ρ;
@@ -449,10 +451,13 @@ theorem HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
 --TODO: substitution lemma
 
 --TODO: fill in with proper definition
-def SubstCtx (σ: RawSubst) (Γ Δ: Context): Prop := sorry
+def SubstCtx (σ: RawSubst) (Γ Δ: Context): Prop :=  
+  ∀{n A k}, HasVar Δ A k n -> Γ ⊢ σ n: (Hyp.mk A k).annot.subst σ 
 
 theorem SubstCtx.var {σ: RawSubst} {Γ Δ: Context} (S: SubstCtx σ Γ Δ):
-  ∀{n A}, (Δ ⊢ var n: A) -> (Γ ⊢ σ n: A.subst σ) := sorry
+  ∀{n A}, (Δ ⊢ var n: A) -> (Γ ⊢ σ n: A.subst σ) :=
+  λHΔ => match HΔ with
+         | HasType.var _ H => S H
 
 theorem SubstCtx.lift {σ: RawSubst} {Γ Δ: Context} {H: Hyp}:
   SubstCtx σ Γ Δ ->
