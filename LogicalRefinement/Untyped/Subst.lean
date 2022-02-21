@@ -74,10 +74,10 @@ theorem Subst.liftn_merge
   : (m n: Nat) -> {σ: Subst} -> (σ.liftn m).liftn n  = σ.liftn (m + n) 
   := by intros; simp [liftn_merge_outer, Nat.add_comm]
 
-theorem Subst.liftn_base_nil: (base: Nat) -> (σ: Subst) -> 
-  (v: Nat) -> v < base ->
-  σ.liftn base v = Untyped.var v := by {
+theorem Subst.liftn_base_nil {σ: Subst}: {base v: Nat} -> 
+  v < base -> σ.liftn base v = Untyped.var v := by {
   intros base;
+  revert σ;
   induction base with
   | zero =>
     intros σ v H;
@@ -95,10 +95,10 @@ theorem Subst.liftn_base_nil: (base: Nat) -> (σ: Subst) ->
       apply H
 }
 
-theorem Subst.liftn_above_wk: (base: Nat) -> (σ: Subst) -> 
-  (v: Nat) -> base ≤ v ->
-  σ.liftn base v = (σ (v - base)).wkn base := by {
+theorem Subst.liftn_above_wk {σ: Subst}: {base v: Nat} -> 
+  base ≤ v -> σ.liftn base v = (σ (v - base)).wkn base := by {
     intros base;
+    revert σ;
     induction base with
     | zero => simp
     | succ base I =>
@@ -136,13 +136,13 @@ theorem Subst.lift_var: {n v: Nat} -> {σ: Subst} ->
     intros n v σ;
     cases Nat.le_or_lt v n with
     | inl Hnv =>
-      rw [liftn_base_nil _ _ _ Hnv]
+      rw [liftn_base_nil Hnv]
       rw [liftn_base_nil]
       simp only [Untyped.wknth, Untyped.wk]
       rw [Wk.wknth_small Hnv]
       exact Nat.le_step Hnv
     | inr Hnv =>
-      rw [liftn_above_wk _ _ _ Hnv]
+      rw [liftn_above_wk Hnv]
       rw [liftn_above_wk]
       simp only [
         Untyped.wknth, Untyped.wk, Untyped.wkn, Wk.wkn, Nat.add]
@@ -352,6 +352,25 @@ theorem Untyped.subst_bounds:
       ⟩
 }
 
+theorem Untyped.liftn_base {σ: Subst} {base: Nat} {u: Untyped}: 
+  u.fv ≤ base -> u.subst (σ.liftn base) = u := by {
+  revert σ base;
+  induction u;
+  case var =>
+    intros
+    apply Subst.liftn_base_nil
+    assumption
+    
+  all_goals (
+    simp only [
+      fv, Nat.max_r_le_split, subst, Subst.lift_liftn_merge,  Subst.liftn_merge,
+      Nat.le_sub_is_le_add, and_imp_decompose
+      ]
+    intros
+    simp only [*]
+  )
+}
+
 @[simp]
 def Untyped.to_subst (u: Untyped): Subst
   | 0 => u
@@ -381,15 +400,15 @@ def Untyped.subst0: Untyped -> Untyped -> Untyped
 def Untyped.alpha0: Untyped -> Untyped -> Untyped
   | u, v => u.subst v.to_alpha
 
-def Untyped.alpha0_lift_comp {u v: Untyped}: 
+def Untyped.alpha0_wknth_comp {u v: Untyped}: 
   u.alpha0 v = u.subst (v.to_subst.comp (Wk.wknth 1).to_subst) := by {
     simp only [alpha0]
     rw [to_alpha_lift]
   }
 
-def Untyped.alpha0_lift {u v: Untyped}:
+def Untyped.alpha0_wknth {u v: Untyped}:
   u.alpha0 v = (u.wknth 1).subst0 v := by {
-    rw [Untyped.alpha0_lift_comp]
+    rw [Untyped.alpha0_wknth_comp]
     simp only [subst0]
     rw [<-Untyped.subst_composes]
     rw [Subst.subst_wk_compat]
@@ -455,7 +474,7 @@ def Untyped.subst0_wk1 {u: Untyped} {v: Untyped}:
 
 def Untyped.alpha0_wk1 {u: Untyped} {v: Untyped}:
   u.wk1.alpha0 v = u.wk1 := by {
-    rw [Untyped.alpha0_lift]
+    rw [Untyped.alpha0_wknth]
     simp only [wknth, wk1, Wk.wknth, Wk.liftn, Wk.wk1, Wk.comp, wk_composes]
     rw [<-Wk.step_is_comp_wk1]
     rw [<-wk_composes]

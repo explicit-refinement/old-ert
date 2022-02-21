@@ -311,3 +311,6 @@ theorem or_imp_decompose {A B C D: Prop}:
     | inl H => exact Or.inl (F H)
     | inr H => exact Or.inr (G H)
   }
+
+theorem and_imp_decompose {A B C: Prop}: (A ∧ B -> C) = (A -> B -> C) 
+  := propext (Iff.intro (λF a b => F ⟨a, b⟩) (λF ⟨a, b⟩ => F a b))
