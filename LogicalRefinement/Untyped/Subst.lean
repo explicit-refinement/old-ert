@@ -39,9 +39,12 @@ def Subst.lift_zero (σ: Subst):
   σ.lift 0 = Untyped.var 0 := rfl
 
 @[simp]
-def Subst.liftn: (σ: Subst) -> (l: Nat) -> Subst
-  | σ, 0 => σ
-  | σ, Nat.succ l => (σ.liftn l).lift
+def Subst.liftn (σ: Subst): Nat -> Subst
+  | 0 => σ
+  | Nat.succ l => (σ.liftn l).lift
+
+@[simp]
+def Subst.liftn_succ {σ: Subst} {l}: σ.liftn (Nat.succ l) = (σ.liftn l).lift := rfl
 
 def Wk.to_subst_liftn: {n: Nat} -> {σ: Wk} ->
   (to_subst σ).liftn n = to_subst (σ.liftn n) := by {
@@ -649,11 +652,15 @@ theorem Untyped.alphann_comm {u v: Untyped} {σ: Subst} {n: Nat}:
             simp only [Wk.comp_id_right_id, Subst.wk1, wk1]
           | succ m I =>
             intro n Hn
-            let R: ∀a b, Nat.succ a + b = Nat.succ (a + b) := by {
+            have R: ∀a b, Nat.succ a + b = Nat.succ (a + b) := by {
               simp [Nat.add_comm, Nat.add_succ]
             };
             rw [R]
-            sorry
+            rw [Nat.sub_add_cancel Hn]
+            simp only [Subst.liftn_succ, Subst.lift_succ, Subst.wk1]
+            rw [Subst.liftn_above_wk Hn]
+            simp only [wkn, wk1, wk_composes, Wk.step_is_comp_wk1]
+            rfl
 
 
 
