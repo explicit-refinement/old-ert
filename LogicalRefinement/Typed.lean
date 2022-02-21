@@ -448,21 +448,17 @@ theorem HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
 
 --TODO: substitution lemma
 
-def SubstCtx (σ: RawSubst) (Γ Δ: Context): Prop :=
-  ∀{n A}, (Δ ⊢ var n: A) -> (Γ ⊢ σ n: A.subst σ)
+--TODO: fill in with proper definition
+def SubstCtx (σ: RawSubst) (Γ Δ: Context): Prop := sorry
+
+theorem SubstCtx.var {σ: RawSubst} {Γ Δ: Context} (S: SubstCtx σ Γ Δ):
+  ∀{n A}, (Δ ⊢ var n: A) -> (Γ ⊢ σ n: A.subst σ) := sorry
 
 theorem SubstCtx.lift {σ: RawSubst} {Γ Δ: Context} {H: Hyp}:
   SubstCtx σ Γ Δ ->
   IsHyp Δ H ->
   SubstCtx σ.lift ((H.subst σ)::Γ) (H::Δ) := sorry
 
-theorem SubstCtx.upgrade_l (H: SubstCtx σ Γ Δ): SubstCtx σ Γ.upgrade Δ 
-:= λHΔ => HasType.upgrade (H HΔ)
-
-theorem SubstCtx.upgrade_r (H: SubstCtx ρ Γ Δ.upgrade): SubstCtx ρ Γ Δ 
-:= λHΔ => H (HasType.upgrade HΔ)
-
---TODO: this is inconsistent, but we'll get to that...
 theorem SubstCtx.upgrade (H: SubstCtx ρ Γ Δ): SubstCtx ρ Γ.upgrade Δ.upgrade 
 := sorry
 
@@ -472,7 +468,7 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
     induction HΔ;
     case var I =>
       intros σ Γ S
-      apply S
+      apply S.var
       apply var <;> assumption
 
     case pi =>
