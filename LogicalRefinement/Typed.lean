@@ -585,13 +585,24 @@ theorem HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
       repeat assumption
 
     case case I0 I1 I2 I3 =>
-      intros ρ Γ R
-      simp only [
-        RawUntyped.wk, Annot.wk, 
-        term, proof, 
-        RawUntyped.subst0_wk
-      ]
-      simp only [Annot.wk, term, proof, RawUntyped.subst0_wk] at *
+      -- intros ρ Γ R
+      -- simp only [
+      --   RawUntyped.wk, Annot.wk, 
+      --   term, proof, 
+      --   RawUntyped.subst0_wk
+      -- ]
+      -- simp only [
+      --   Annot.wk, term, proof, RawUntyped.subst0_wk, RawUntyped.wk,
+      --   RawWk.var
+      -- ] at *
+      -- constructor <;> simp only [term, proof]
+      -- apply I0
+      -- apply @WkCtx.lift _ _ _ (Hyp.mk (RawUntyped.or _ _) _)
+      -- assumption
+      -- apply I1
+      -- assumption
+      -- simp only [RawUntyped.pi, RawUntyped.inj]
+      -- apply I2 
       sorry
 
 
