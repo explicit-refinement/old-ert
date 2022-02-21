@@ -218,7 +218,7 @@ theorem Subst.lift_wk {u: Untyped}: {σ: Subst} ->
     apply Untyped.liftn_wk 0
 }
 
-theorem Subst.lift_wkn {u: Untyped} {σ: Subst} {n: Nat}:
+theorem Subst.liftn_wkn {u: Untyped} {σ: Subst} {n: Nat}:
   (u.wkn n).subst (σ.liftn n) = (u.subst σ).wkn n := by {
     revert u σ;
     induction n with
