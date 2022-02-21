@@ -515,6 +515,21 @@ def Untyped.alphanth_wknth {u v: Untyped} {l: Nat}:
     rw [to_alpha_wk1]
   }
 
+def Untyped.alphanth_wkn {l: Nat}: {u v: Untyped} ->
+  (u.wkn (l + 1)).alphanth l v = u.wkn (l + 1) := by {
+    induction l with
+    | zero =>
+      intros
+      simp only [
+        wkn, Wk.wkn, <-Wk.step_is_comp_wk1, Wk.comp_id_right_id, <-wk1_def, alphanth, Subst.liftn,
+        <-alpha0_def, alpha0_wk1
+      ]
+    | succ l I =>
+      intros
+      simp only [alphanth, Subst.liftn]
+      sorry
+  }
+
 theorem Subst.subst0_subst_composes {σ: Subst} {u: Untyped}:
   Subst.comp σ u.to_subst = 
   Subst.comp (u.subst σ).to_subst σ.lift := by {
