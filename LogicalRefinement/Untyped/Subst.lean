@@ -3,77 +3,77 @@ import LogicalRefinement.Wk
 import LogicalRefinement.Untyped.Basic
 import LogicalRefinement.Untyped.Wk
 
-def RawSubst := Nat -> RawUntyped
+def Subst := Nat -> Untyped
 
 @[simp]
-def RawSubst.id: RawSubst := RawUntyped.var
+def Subst.id: Subst := Untyped.var
 
-def RawSubst.wk1 (σ: RawSubst): RawSubst :=
-  λv => RawUntyped.wk1 (σ v)
+def Subst.wk1 (σ: Subst): Subst :=
+  λv => Untyped.wk1 (σ v)
 
 @[simp]
-def RawWk.to_subst (σ: RawWk): RawSubst
-  | v => RawUntyped.var (σ.var v)
+def Wk.to_subst (σ: Wk): Subst
+  | v => Untyped.var (σ.var v)
 
-def RawSubst.lift (σ: RawSubst): RawSubst
-  | 0 => RawUntyped.var 0
+def Subst.lift (σ: Subst): Subst
+  | 0 => Untyped.var 0
   | Nat.succ n => wk1 σ n
 
-def RawWk.to_subst_lift {σ: RawWk}: 
+def Wk.to_subst_lift {σ: Wk}: 
   (to_subst σ).lift = to_subst σ.lift := by {
   funext v;
   cases v with
-  | zero => simp [RawSubst.lift]
-  | succ n => simp [RawSubst.lift, RawSubst.wk1]
+  | zero => simp [Subst.lift]
+  | succ n => simp [Subst.lift, Subst.wk1]
 }
 
 @[simp]
-def RawSubst.lift_succ (σ: RawSubst):
+def Subst.lift_succ (σ: Subst):
   σ.lift (Nat.succ n) = wk1 σ n := rfl
 
 @[simp]
-def RawSubst.lift_zero (σ: RawSubst):
-  σ.lift 0 = RawUntyped.var 0 := rfl
+def Subst.lift_zero (σ: Subst):
+  σ.lift 0 = Untyped.var 0 := rfl
 
 @[simp]
-def RawSubst.liftn: (σ: RawSubst) -> (l: Nat) -> RawSubst
+def Subst.liftn: (σ: Subst) -> (l: Nat) -> Subst
   | σ, 0 => σ
   | σ, Nat.succ l => (σ.liftn l).lift
 
-def RawWk.to_subst_liftn: {n: Nat} -> {σ: RawWk} ->
+def Wk.to_subst_liftn: {n: Nat} -> {σ: Wk} ->
   (to_subst σ).liftn n = to_subst (σ.liftn n) := by {
     intro n;
     induction n with
     | zero => simp
     | succ n I =>
       intros σ
-      simp only [liftn, RawSubst.liftn]
+      simp only [liftn, Subst.liftn]
       rw [<-to_subst_lift]
       rw [I]
 }
 
-theorem RawSubst.liftn_lift_commute {σ: RawSubst}
+theorem Subst.liftn_lift_commute {σ: Subst}
   : σ.lift.liftn n = (σ.liftn n).lift 
   := by induction n <;> simp [*]
 
-theorem RawSubst.liftn_commute {σ: RawSubst}
+theorem Subst.liftn_commute {σ: Subst}
   : (σ.liftn m).liftn n = (σ.liftn n).liftn m  
-  := by induction n <;> simp [liftn, RawSubst.liftn_lift_commute, *]
+  := by induction n <;> simp [liftn, Subst.liftn_lift_commute, *]
 
-theorem RawSubst.lift_liftn_merge {n: Nat} {σ: RawSubst}:
+theorem Subst.lift_liftn_merge {n: Nat} {σ: Subst}:
   (σ.liftn n).lift = σ.liftn (n + 1) := rfl
 
-theorem RawSubst.liftn_merge_outer (m: Nat)
-  : (n: Nat) -> {σ: RawSubst} -> (σ.liftn m).liftn n = σ.liftn (n + m) 
+theorem Subst.liftn_merge_outer (m: Nat)
+  : (n: Nat) -> {σ: Subst} -> (σ.liftn m).liftn n = σ.liftn (n + m) 
   := by induction m <;> simp [liftn, <-liftn_lift_commute, *]
 
-theorem RawSubst.liftn_merge
-  : (m n: Nat) -> {σ: RawSubst} -> (σ.liftn m).liftn n  = σ.liftn (m + n) 
+theorem Subst.liftn_merge
+  : (m n: Nat) -> {σ: Subst} -> (σ.liftn m).liftn n  = σ.liftn (m + n) 
   := by intros; simp [liftn_merge_outer, Nat.add_comm]
 
-theorem RawSubst.liftn_base_nil: (base: Nat) -> (σ: RawSubst) -> 
+theorem Subst.liftn_base_nil: (base: Nat) -> (σ: Subst) -> 
   (v: Nat) -> v < base ->
-  σ.liftn base v = RawUntyped.var v := by {
+  σ.liftn base v = Untyped.var v := by {
   intros base;
   induction base with
   | zero =>
@@ -92,7 +92,7 @@ theorem RawSubst.liftn_base_nil: (base: Nat) -> (σ: RawSubst) ->
       apply H
 }
 
-theorem RawSubst.liftn_above_wk: (base: Nat) -> (σ: RawSubst) -> 
+theorem Subst.liftn_above_wk: (base: Nat) -> (σ: Subst) -> 
   (v: Nat) -> base ≤ v ->
   σ.liftn base v = (σ (v - base)).wkn base := by {
     intros base;
@@ -100,14 +100,14 @@ theorem RawSubst.liftn_above_wk: (base: Nat) -> (σ: RawSubst) ->
     | zero => simp
     | succ base I =>
       intros σ v H;
-      simp only [liftn, RawUntyped.wkn, RawWk.wkn]
+      simp only [liftn, Untyped.wkn, Wk.wkn]
       cases v with
       | zero => cases H
       | succ v => 
-        simp only [lift, wk1, RawUntyped.wk1]
+        simp only [lift, wk1, Untyped.wk1]
         rw [Nat.succ_sub_succ_eq_sub]
-        rw [<-RawWk.step_is_comp_wk1]
-        rw [<-RawUntyped.wk_composes]
+        rw [<-Wk.step_is_comp_wk1]
+        rw [<-Untyped.wk_composes]
         rw [I]
         rfl
         apply Nat.le_of_succ_le_succ
@@ -115,7 +115,7 @@ theorem RawSubst.liftn_above_wk: (base: Nat) -> (σ: RawSubst) ->
 }
 
 @[simp]
-def RawUntyped.subst: RawUntyped -> RawSubst -> RawUntyped
+def Untyped.subst: Untyped -> Subst -> Untyped
   | var v, σ => σ v
   | const c, σ => const c
   | unary k t, σ => unary k (t.subst σ)
@@ -126,8 +126,8 @@ def RawUntyped.subst: RawUntyped -> RawSubst -> RawUntyped
   | cases k K d l r, σ => 
     cases k (K.subst σ.lift) (d.subst σ) (l.subst σ) (r.subst σ)
 
-theorem RawSubst.lift_var: {n v: Nat} -> {σ: RawSubst} -> 
-  (σ.liftn (n + 1)) (RawWk.var (RawWk.wknth n) v) 
+theorem Subst.lift_var: {n v: Nat} -> {σ: Subst} -> 
+  (σ.liftn (n + 1)) (Wk.var (Wk.wknth n) v) 
   = (σ.liftn n v).wknth n
   := by {
     intros n v σ;
@@ -135,32 +135,32 @@ theorem RawSubst.lift_var: {n v: Nat} -> {σ: RawSubst} ->
     | inl Hnv =>
       rw [liftn_base_nil _ _ _ Hnv]
       rw [liftn_base_nil]
-      simp only [RawUntyped.wknth, RawUntyped.wk]
-      rw [RawWk.wknth_small Hnv]
+      simp only [Untyped.wknth, Untyped.wk]
+      rw [Wk.wknth_small Hnv]
       exact Nat.le_step Hnv
     | inr Hnv =>
       rw [liftn_above_wk _ _ _ Hnv]
       rw [liftn_above_wk]
       simp only [
-        RawUntyped.wknth, RawUntyped.wk, RawUntyped.wkn, RawWk.wkn, Nat.add]
-      rw [RawWk.wknth_big Hnv]
+        Untyped.wknth, Untyped.wk, Untyped.wkn, Wk.wkn, Nat.add]
+      rw [Wk.wknth_big Hnv]
       rw [Nat.succ_sub_succ_eq_sub]
-      rw [RawUntyped.wk_composes]
-      rw [RawUntyped.wk_coherent RawWk.wknth_wkn_equiv]
+      rw [Untyped.wk_composes]
+      rw [Untyped.wk_coherent Wk.wknth_wkn_equiv]
       rfl
-      rw [RawWk.wknth_big Hnv]
+      rw [Wk.wknth_big Hnv]
       exact Nat.succ_le_succ Hnv
   }
 
-theorem RawUntyped.liftn_wk {u: RawUntyped}: {σ: RawSubst} -> (n: Nat) ->
+theorem Untyped.liftn_wk {u: Untyped}: {σ: Subst} -> (n: Nat) ->
   (u.wknth n).subst (σ.liftn (n + 1))  =
   (u.subst (σ.liftn n)).wknth n
   := by {
-    unfold RawWk.wk1
+    unfold Wk.wk1
     induction u with
     | var v =>
       intros σ n;
-      simp only [subst, RawSubst.lift_var]
+      simp only [subst, Subst.lift_var]
     | const c => simp
     | unary k t I => 
       intros σ n
@@ -168,8 +168,8 @@ theorem RawUntyped.liftn_wk {u: RawUntyped}: {σ: RawSubst} -> (n: Nat) ->
       simp only [wknth, wk, subst, I]
     | let_bin k e I =>
       intros σ n
-      simp only [wknth, wk, subst, RawWk.liftn_wknth_merge]
-      rw [RawSubst.liftn_merge]
+      simp only [wknth, wk, subst, Wk.liftn_wknth_merge]
+      rw [Subst.liftn_merge]
       simp only [wknth] at I
       rw [I]
       simp
@@ -184,9 +184,9 @@ theorem RawUntyped.liftn_wk {u: RawUntyped}: {σ: RawSubst} -> (n: Nat) ->
       simp only [wknth] at *
       rw [
         IA, 
-        RawWk.lift_wknth_merge, 
-        RawSubst.lift_liftn_merge, 
-        RawSubst.lift_liftn_merge,
+        Wk.lift_wknth_merge, 
+        Subst.lift_liftn_merge, 
+        Subst.lift_liftn_merge,
         It]
       exact 0 -- TODO: why?
     | tri k A l r IA Il Ir =>
@@ -199,23 +199,23 @@ theorem RawUntyped.liftn_wk {u: RawUntyped}: {σ: RawSubst} -> (n: Nat) ->
       simp only [wknth, wk, subst]
       simp only [wknth] at *
       rw [Id, Il, Ir]
-      rw [RawWk.lift_wknth_merge]
-      rw [RawSubst.lift_liftn_merge]
-      rw [RawSubst.lift_liftn_merge]
+      rw [Wk.lift_wknth_merge]
+      rw [Subst.lift_liftn_merge]
+      rw [Subst.lift_liftn_merge]
       rw [IK]
       exact 0 -- TODO: why?
   }
 
-theorem RawSubst.lift_wk {u: RawUntyped}: {σ: RawSubst} ->
+theorem Subst.lift_wk {u: Untyped}: {σ: Subst} ->
   u.wk1.subst (σ.lift) = (u.subst σ).wk1 := by {
     intros σ;
-    apply RawUntyped.liftn_wk 0
+    apply Untyped.liftn_wk 0
 }
 
-def RawSubst.comp (σ ρ: RawSubst): RawSubst
+def Subst.comp (σ ρ: Subst): Subst
   | v => (ρ v).subst σ
 
-@[simp] theorem RawSubst.lift_comp {ρ σ: RawSubst}: 
+@[simp] theorem Subst.lift_comp {ρ σ: Subst}: 
   comp (lift ρ) (lift σ) = lift (comp ρ σ) := by {
     funext v;
     cases v with
@@ -223,65 +223,65 @@ def RawSubst.comp (σ ρ: RawSubst): RawSubst
     | succ v => simp only [lift_succ, comp, wk1, lift_wk]
   }
 
-@[simp] theorem RawUntyped.subst_composes (u: RawUntyped):
-  (σ ρ: RawSubst) -> (u.subst ρ).subst σ = u.subst (σ.comp ρ)
+@[simp] theorem Untyped.subst_composes (u: Untyped):
+  (σ ρ: Subst) -> (u.subst ρ).subst σ = u.subst (σ.comp ρ)
   := by {
   induction u;
-  case var => simp [RawSubst.comp]
+  case var => simp [Subst.comp]
   all_goals simp [*]
 }
 
-@[simp] theorem RawSubst.comp_assoc {ρ σ τ: RawSubst}:
+@[simp] theorem Subst.comp_assoc {ρ σ τ: Subst}:
   comp ρ (comp σ τ) = comp (comp ρ σ) τ := by {
     funext v;
     simp [comp]
   }
 
-@[simp] theorem RawSubst.subst_wk_compat: {u: RawUntyped} -> {ρ: RawWk} ->
+@[simp] theorem Subst.subst_wk_compat: {u: Untyped} -> {ρ: Wk} ->
   u.subst ρ.to_subst = u.wk ρ := by {
   intro u;
   induction u <;> {
     simp only [
-      RawUntyped.subst, 
-      RawWk.to_subst_lift, RawWk.to_subst_liftn, 
+      Untyped.subst, 
+      Wk.to_subst_lift, Wk.to_subst_liftn, 
       *]
     rfl
   }
 }
 
-def subst_maps (n m: Nat) (σ: RawSubst) := ∀v, v < m -> RawUntyped.fv (σ v) ≤ n
+def subst_maps (n m: Nat) (σ: Subst) := ∀v, v < m -> Untyped.fv (σ v) ≤ n
 
-def RawSubst.wk_bounds {n m: Nat}: 
-  wk_maps n m ρ -> subst_maps n m (RawWk.to_subst ρ) := by {
+def Subst.wk_bounds {n m: Nat}: 
+  wk_maps n m ρ -> subst_maps n m (Wk.to_subst ρ) := by {
   intros Hρ v Hv;
-  simp only [RawWk.to_subst, RawUntyped.fv]
+  simp only [Wk.to_subst, Untyped.fv]
   exact Hρ _ Hv
 }
 
-def RawSubst.wk1_subst: {σ: RawSubst} -> {n m: Nat} ->
+def Subst.wk1_subst: {σ: Subst} -> {n m: Nat} ->
   subst_maps n m σ -> subst_maps (n + 1) m (wk1 σ) := by {
     intros σ n m Hσ v Hv;
-    simp only [RawUntyped.fv, wk1]
-    apply Nat.le_trans RawUntyped.fv_wk1;
+    simp only [Untyped.fv, wk1]
+    apply Nat.le_trans Untyped.fv_wk1;
     apply Nat.succ_le_succ;
     exact Hσ _ Hv
   }
 
-def RawSubst.lift_subst: {σ: RawSubst} -> {n m: Nat} -> 
+def Subst.lift_subst: {σ: Subst} -> {n m: Nat} -> 
   subst_maps n m σ -> subst_maps (n + 1) (m + 1) (lift σ) := by {
     intros σ n m Hσ v Hv;
     cases v with
     | zero =>
-      simp only [RawUntyped.fv]
+      simp only [Untyped.fv]
       exact Nat.succ_le_succ (Nat.zero_le _)
     | succ v =>
-      simp only [RawUntyped.fv, lift]
+      simp only [Untyped.fv, lift]
       apply wk1_subst Hσ
       apply Nat.le_of_succ_le_succ
       exact Hv
   }
 
-def RawSubst.liftn_subst:  {l n m: Nat} -> {σ: RawSubst} ->
+def Subst.liftn_subst:  {l n m: Nat} -> {σ: Subst} ->
   subst_maps n m σ -> subst_maps (n + l) (m + l) (σ.liftn l) := by {
     intro l;
     induction l with
@@ -289,17 +289,12 @@ def RawSubst.liftn_subst:  {l n m: Nat} -> {σ: RawSubst} ->
     | succ l I =>
       intros n m σ Hσ;
       simp only [liftn]
-      exact RawSubst.lift_subst (I Hσ)
+      exact Subst.lift_subst (I Hσ)
   }
 
-structure Subst (n m: Nat) := (val: RawSubst) (p: subst_maps n m val)
-
-def Wk.to_subst {n m: Nat} (ρ: Wk n m): Subst n m :=
-  Subst.mk (RawWk.to_subst ρ.val) (RawSubst.wk_bounds ρ.p)
-
 --TODO: simplify
-theorem RawUntyped.subst_bounds: 
-  {u: RawUntyped} -> {σ: RawSubst} -> {n m: Nat} -> 
+theorem Untyped.subst_bounds: 
+  {u: Untyped} -> {σ: Subst} -> {n m: Nat} -> 
   fv u ≤ m -> subst_maps n m σ -> fv (u.subst σ) ≤ n := by {
   intro u;
   induction u with
@@ -318,161 +313,149 @@ theorem RawUntyped.subst_bounds:
   | let_bin k e I =>
     simp only [fv, subst, Nat.le_sub_is_le_add]
     intros σ n m Hv Hσ;
-    exact I Hv (RawSubst.liftn_subst Hσ)
+    exact I Hv (Subst.liftn_subst Hσ)
   | bin k l r Il Ir =>
     intros σ n m;
-    simp only [RawUntyped.fv, Nat.max_r_le_split]
+    simp only [Untyped.fv, Nat.max_r_le_split]
     intro ⟨Hl, Hr⟩
     intro Hσ
     exact ⟨Il Hl Hσ, Ir Hr Hσ⟩
   | abs k A s IA Is =>
     intros σ n m;
-    simp only [RawUntyped.fv, Nat.max_r_le_split, Nat.le_sub_is_le_add]
+    simp only [Untyped.fv, Nat.max_r_le_split, Nat.le_sub_is_le_add]
     intro ⟨HA, Hs⟩
     intro Hσ
     --TODO: move lift_subst to subst_maps?
-    exact ⟨IA HA Hσ, Is Hs (RawSubst.lift_subst Hσ)⟩
+    exact ⟨IA HA Hσ, Is Hs (Subst.lift_subst Hσ)⟩
   | tri k A l r IA Il Ir =>
     intros σ n m;
-    simp only [RawUntyped.fv, Nat.max_r_le_split]
+    simp only [Untyped.fv, Nat.max_r_le_split]
     intro ⟨HA, Hl, Hr⟩
     intro Hσ
     exact ⟨IA HA Hσ, Il Hl Hσ, Ir Hr Hσ⟩
   | cases k K d l r IK Id Il Ir =>
     intros σ n m;
-    simp only [RawUntyped.fv, Nat.max_r_le_split, Nat.le_sub_is_le_add]
+    simp only [Untyped.fv, Nat.max_r_le_split, Nat.le_sub_is_le_add]
     intro ⟨HK, Hd, Hl, Hr⟩
     intro Hσ
-    exact ⟨IK HK (RawSubst.lift_subst Hσ), Id Hd Hσ, Il Hl Hσ, Ir Hr Hσ⟩
+    exact ⟨IK HK (Subst.lift_subst Hσ), Id Hd Hσ, Il Hl Hσ, Ir Hr Hσ⟩
 }
 
-def Untyped.subst (σ: Subst n m) (u: Untyped m): Untyped n :=
-  Untyped.mk (u.val.subst σ.val) (RawUntyped.subst_bounds u.p σ.p)
-
 @[simp]
-def RawUntyped.to_subst (u: RawUntyped): RawSubst
+def Untyped.to_subst (u: Untyped): Subst
   | 0 => u
-  | Nat.succ n => RawUntyped.var n
-
---@[simp]
-def Untyped.to_subst (u: Untyped n): Subst n (n + 1) :=
-  Subst.mk (u.val.to_subst) (by {
-    intros v Hv;
-    cases v with
-    | zero => exact u.p
-    | succ v => exact Nat.lt_of_succ_lt_succ Hv
-  })
+  | Nat.succ n => Untyped.var n
 
 @[simp]
-def RawUntyped.to_subst_succ {u: RawUntyped}: u.to_subst (n + 1) = var n := rfl
+def Untyped.to_subst_succ {u: Untyped}: u.to_subst (n + 1) = var n := rfl
 
-def RawUntyped.subst0: RawUntyped -> RawUntyped -> RawUntyped
+def Untyped.subst0: Untyped -> Untyped -> Untyped
   | u, v => u.subst v.to_subst
 
 @[simp]
-def RawUntyped.subst0_def {u v: RawUntyped}: 
+def Untyped.subst0_def {u v: Untyped}: 
   u.subst0 v = u.subst v.to_subst := rfl
 
-def RawUntyped.substnth: RawUntyped -> Nat -> RawUntyped -> RawUntyped
+def Untyped.substnth: Untyped -> Nat -> Untyped -> Untyped
   | u, n, v => u.subst (v.to_subst.liftn n)
 
 @[simp]
-def RawUntyped.substnth_def {u v: RawUntyped} {l}:
+def Untyped.substnth_def {u v: Untyped} {l}:
   u.substnth l v = u.subst (v.to_subst.liftn l) := rfl
 
-def RawUntyped.substnth_wknth {u: RawUntyped}: {v: RawUntyped} -> {l: Nat} ->
+def Untyped.substnth_wknth {u: Untyped}: {v: Untyped} -> {l: Nat} ->
   (u.wknth l).substnth l v = u := by {
   induction u <;> intros v l;
   case var n =>
     simp only [substnth, wknth, wk, subst]
     cases (Nat.le_or_lt n l) with
     | inl H =>
-      rw [RawSubst.liftn_base_nil] <;>
-      rw [RawWk.wknth_small H] <;>
+      rw [Subst.liftn_base_nil] <;>
+      rw [Wk.wknth_small H] <;>
       exact H
     | inr H =>
-      rw [RawSubst.liftn_above_wk]
-      rw [RawWk.wknth_big H]
+      rw [Subst.liftn_above_wk]
+      rw [Wk.wknth_big H]
       rw [Nat.succ_sub_gt H]
       rw [to_subst_succ]
       simp [Nat.add_sub_self_gt H]
-      rw [RawWk.wknth_big H]
+      rw [Wk.wknth_big H]
       exact Nat.le_succ_of_le H
 
   all_goals (
     simp only [substnth, subst]
     repeat first 
-    | rw [RawWk.lift_wknth_merge] 
-    | rw [RawWk.liftn_wknth_merge] 
-    | rw [RawSubst.lift_liftn_merge]
-    | rw [RawSubst.liftn_merge]
+    | rw [Wk.lift_wknth_merge] 
+    | rw [Wk.liftn_wknth_merge] 
+    | rw [Subst.lift_liftn_merge]
+    | rw [Subst.liftn_merge]
     try simp only [<-substnth_def, <-wknth_def]
     try simp only [*]
     repeat exact 0
   )
 }
 
-def RawUntyped.subst0_wk1 {u: RawUntyped} {v: RawUntyped}:
-  u.wk1.subst0 v = u := @RawUntyped.substnth_wknth u v 0
+def Untyped.subst0_wk1 {u: Untyped} {v: Untyped}:
+  u.wk1.subst0 v = u := @Untyped.substnth_wknth u v 0
 
-theorem RawSubst.subst0_subst_composes {σ: RawSubst} {u: RawUntyped}:
-  RawSubst.comp σ u.to_subst = 
-  RawSubst.comp (u.subst σ).to_subst σ.lift := by {
+theorem Subst.subst0_subst_composes {σ: Subst} {u: Untyped}:
+  Subst.comp σ u.to_subst = 
+  Subst.comp (u.subst σ).to_subst σ.lift := by {
   funext v;
   cases v with
   | zero => 
     simp only [
       comp, 
-      RawUntyped.to_subst, 
-      RawUntyped.subst]
+      Untyped.to_subst, 
+      Untyped.subst]
   | succ v =>
     simp only [
       comp,
-      RawUntyped.subst,
-      RawSubst.lift,
-      RawSubst.wk1
+      Untyped.subst,
+      Subst.lift,
+      Subst.wk1
       ];
-    rw [<-RawUntyped.subst0_def]
-    rw [RawUntyped.subst0_wk1]
+    rw [<-Untyped.subst0_def]
+    rw [Untyped.subst0_wk1]
 }
 
 --TODO: rewrite as application of subst0_subst_composes with appropriate lemmas
-theorem RawSubst.subst0_wk_composes {ρ: RawWk} {u: RawUntyped}:
-  RawSubst.comp ρ.to_subst u.to_subst = 
-  RawSubst.comp (u.wk ρ).to_subst ρ.lift.to_subst := by {
+theorem Subst.subst0_wk_composes {ρ: Wk} {u: Untyped}:
+  Subst.comp ρ.to_subst u.to_subst = 
+  Subst.comp (u.wk ρ).to_subst ρ.lift.to_subst := by {
   funext v;
   cases v with
   | zero => 
     simp only [
       comp, 
-      RawUntyped.to_subst, 
-      RawWk.to_subst, 
-      RawWk.var, 
-      RawUntyped.subst]
-    apply RawSubst.subst_wk_compat
+      Untyped.to_subst, 
+      Wk.to_subst, 
+      Wk.var, 
+      Untyped.subst]
+    apply Subst.subst_wk_compat
   | succ v =>
     simp only [
       comp,
-      RawUntyped.to_subst,
-      RawWk.to_subst,
-      RawWk.var,
-      RawUntyped.subst]
+      Untyped.to_subst,
+      Wk.to_subst,
+      Wk.var,
+      Untyped.subst]
     rfl
 }
 
-theorem RawUntyped.subst0_wk {u v: RawUntyped}:
-  {ρ: RawWk} ->
+theorem Untyped.subst0_wk {u v: Untyped}:
+  {ρ: Wk} ->
   (u.subst0 v).wk ρ = (u.wk ρ.lift).subst0 (v.wk ρ) := by {
     intros ρ;
-    simp only [<-RawSubst.subst_wk_compat, subst0]
+    simp only [<-Subst.subst_wk_compat, subst0]
     simp only [subst_composes]
-    rw [RawSubst.subst0_wk_composes]
-    simp only [RawSubst.subst_wk_compat]
+    rw [Subst.subst0_wk_composes]
+    simp only [Subst.subst_wk_compat]
   }
 
-theorem RawUntyped.subst0_subst {u v: RawUntyped} {σ: RawSubst}:
+theorem Untyped.subst0_subst {u v: Untyped} {σ: Subst}:
   (u.subst0 v).subst σ = (u.subst σ.lift).subst0 (v.subst σ) := by {
     simp only [subst0]
     simp only [subst_composes]
-    rw [RawSubst.subst0_subst_composes]
+    rw [Subst.subst0_subst_composes]
   }

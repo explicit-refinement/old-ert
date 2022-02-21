@@ -1,26 +1,26 @@
-inductive RawWk: Type 0 where
-  | id: RawWk
-  | step: RawWk -> RawWk
-  | lift: RawWk -> RawWk
+inductive Wk: Type 0 where
+  | id: Wk
+  | step: Wk -> Wk
+  | lift: Wk -> Wk
 
-@[simp] def RawWk.wk1: RawWk := step id
+@[simp] def Wk.wk1: Wk := step id
 
-@[simp] def RawWk.liftn: RawWk -> Nat -> RawWk
+@[simp] def Wk.liftn: Wk -> Nat -> Wk
   | ρ, 0 => ρ
-  | ρ, Nat.succ n => RawWk.lift (ρ.liftn n)
+  | ρ, Nat.succ n => Wk.lift (ρ.liftn n)
 
-@[simp] def RawWk.wkn: Nat -> RawWk
+@[simp] def Wk.wkn: Nat -> Wk
   | 0 => id
   | Nat.succ n => step (wkn n)
 
-@[simp] def RawWk.wknth (n: Nat): RawWk := wk1.liftn n
+@[simp] def Wk.wknth (n: Nat): Wk := wk1.liftn n
 
 @[simp]
-theorem RawWk.lift_liftn_merge {ρ: RawWk} {m n: Nat}: 
+theorem Wk.lift_liftn_merge {ρ: Wk} {m n: Nat}: 
   (ρ.liftn n).lift = ρ.liftn (n + 1) := rfl
 
 @[simp]
-theorem RawWk.liftn_merge {ρ: RawWk}: {n m: Nat} -> 
+theorem Wk.liftn_merge {ρ: Wk}: {n m: Nat} -> 
   (ρ.liftn m).liftn n = ρ.liftn (n + m) := by {
     intro n;
     induction n with
@@ -34,7 +34,7 @@ theorem RawWk.liftn_merge {ρ: RawWk}: {n m: Nat} ->
   }
 
 @[simp]
-theorem RawWk.lift_wknth_merge {m n: Nat}: lift (wknth n) = wknth (n + 1) 
+theorem Wk.lift_wknth_merge {m n: Nat}: lift (wknth n) = wknth (n + 1) 
   := by {
   unfold wknth;
   apply lift_liftn_merge;
@@ -42,70 +42,70 @@ theorem RawWk.lift_wknth_merge {m n: Nat}: lift (wknth n) = wknth (n + 1)
 }
 
 @[simp]
-theorem RawWk.liftn_wknth_merge {m n: Nat}: (wknth n).liftn m = wknth (n + m) 
+theorem Wk.liftn_wknth_merge {m n: Nat}: (wknth n).liftn m = wknth (n + m) 
   := by {
   unfold wknth;
   rw [liftn_merge]
   rw [Nat.add_comm]
 }
 
-@[simp] def RawWk.comp: RawWk -> RawWk -> RawWk
-    | RawWk.id, σ => σ
-    | RawWk.step ρ, σ => RawWk.step (comp ρ σ)
-    | RawWk.lift ρ, RawWk.id => RawWk.lift ρ
-    | RawWk.lift ρ, RawWk.step σ => RawWk.step (comp ρ σ)
-    | RawWk.lift ρ, RawWk.lift σ => RawWk.lift (comp ρ σ)
+@[simp] def Wk.comp: Wk -> Wk -> Wk
+    | Wk.id, σ => σ
+    | Wk.step ρ, σ => Wk.step (comp ρ σ)
+    | Wk.lift ρ, Wk.id => Wk.lift ρ
+    | Wk.lift ρ, Wk.step σ => Wk.step (comp ρ σ)
+    | Wk.lift ρ, Wk.lift σ => Wk.lift (comp ρ σ)
 
-theorem raw_wk_comp_id_left_id {ρ: RawWk}: RawWk.comp RawWk.id ρ = ρ := rfl
+theorem raw_wk_comp_id_left_id {ρ: Wk}: Wk.comp Wk.id ρ = ρ := rfl
 
-def RawWk.step_is_comp_wk1: comp wk1 ρ = step ρ := rfl
+def Wk.step_is_comp_wk1: comp wk1 ρ = step ρ := rfl
 
-@[simp] theorem raw_wk_comp_id_right_id: {ρ: RawWk} -> RawWk.comp ρ RawWk.id = ρ
-  | RawWk.id => rfl
-  | RawWk.lift ρ => rfl
-  | RawWk.step ρ => by {
+@[simp] theorem raw_wk_comp_id_right_id: {ρ: Wk} -> Wk.comp ρ Wk.id = ρ
+  | Wk.id => rfl
+  | Wk.lift ρ => rfl
+  | Wk.step ρ => by {
     simp
     apply raw_wk_comp_id_right_id
   }
 
-@[simp] theorem raw_wk_comp_assoc: {ρ σ τ: RawWk} -> 
-  RawWk.comp (RawWk.comp ρ σ) τ = RawWk.comp ρ (RawWk.comp σ τ)
-  | RawWk.id, _, _ => rfl
-  | _, RawWk.id, _ => by {
+@[simp] theorem raw_wk_comp_assoc: {ρ σ τ: Wk} -> 
+  Wk.comp (Wk.comp ρ σ) τ = Wk.comp ρ (Wk.comp σ τ)
+  | Wk.id, _, _ => rfl
+  | _, Wk.id, _ => by {
     simp
   }
-  | _, _, RawWk.id => by simp
-  | RawWk.step ρ, _, _ => by {
-    simp
-    apply raw_wk_comp_assoc
-  }
-  | RawWk.lift ρ, RawWk.step σ, _ => by {
+  | _, _, Wk.id => by simp
+  | Wk.step ρ, _, _ => by {
     simp
     apply raw_wk_comp_assoc
   }
-  | RawWk.lift ρ, RawWk.lift σ, RawWk.step τ => by {
+  | Wk.lift ρ, Wk.step σ, _ => by {
     simp
     apply raw_wk_comp_assoc
   }
-  | RawWk.lift ρ, RawWk.lift σ, RawWk.lift τ => by {
+  | Wk.lift ρ, Wk.lift σ, Wk.step τ => by {
+    simp
+    apply raw_wk_comp_assoc
+  }
+  | Wk.lift ρ, Wk.lift σ, Wk.lift τ => by {
     simp
     apply raw_wk_comp_assoc
   }
 
-@[simp] theorem raw_wk_lift_comp {ρ σ: RawWk}: 
-  RawWk.comp (RawWk.lift ρ) (RawWk.lift σ) = RawWk.lift (RawWk.comp ρ σ) := rfl
+@[simp] theorem raw_wk_lift_comp {ρ σ: Wk}: 
+  Wk.comp (Wk.lift ρ) (Wk.lift σ) = Wk.lift (Wk.comp ρ σ) := rfl
 
-@[simp] def RawWk.var: RawWk -> Nat -> Nat
-  | RawWk.id, n => n
-  | RawWk.step ρ, n => (var ρ n) + 1
-  | RawWk.lift ρ, 0 => 0
-  | RawWk.lift ρ, (n + 1) => (var ρ n) + 1
+@[simp] def Wk.var: Wk -> Nat -> Nat
+  | Wk.id, n => n
+  | Wk.step ρ, n => (var ρ n) + 1
+  | Wk.lift ρ, 0 => 0
+  | Wk.lift ρ, (n + 1) => (var ρ n) + 1
 
-def RawWk.equiv (ρ σ: RawWk) := ∀v: Nat, var ρ v = var σ v
+def Wk.equiv (ρ σ: Wk) := ∀v: Nat, var ρ v = var σ v
 
-def RawWk.equiv_refl {ρ: RawWk}: equiv ρ ρ := λ_ => rfl
+def Wk.equiv_refl {ρ: Wk}: equiv ρ ρ := λ_ => rfl
 
-def RawWk.equiv_sym {ρ σ: RawWk}: equiv ρ σ = equiv σ ρ := by {
+def Wk.equiv_sym {ρ σ: Wk}: equiv ρ σ = equiv σ ρ := by {
   simp only [equiv];
   apply propext;
   apply Iff.intro;
@@ -117,20 +117,20 @@ def RawWk.equiv_sym {ρ σ: RawWk}: equiv ρ σ = equiv σ ρ := by {
     simp [H]
 }
 
-def RawWk.equiv_trans {ρ σ τ: RawWk}: 
+def Wk.equiv_trans {ρ σ τ: Wk}: 
   equiv ρ σ -> equiv σ τ -> equiv ρ τ := by {
     intros Hρσ Hστ v;
     rw [Hρσ]
     rw [Hστ]
   }
 
-def RawWk.wk1_lift_eqiv {ρ: RawWk}:
-  equiv (RawWk.comp (lift ρ) wk1) (RawWk.comp wk1 ρ)  := by {
+def Wk.wk1_lift_eqiv {ρ: Wk}:
+  equiv (Wk.comp (lift ρ) wk1) (Wk.comp wk1 ρ)  := by {
     simp
     apply equiv_refl
   }
 
-def RawWk.lift_equiv {ρ σ: RawWk}:
+def Wk.lift_equiv {ρ σ: Wk}:
   equiv ρ σ -> equiv (lift ρ) (lift σ) := by {
     intros H v;
     cases v with
@@ -138,7 +138,7 @@ def RawWk.lift_equiv {ρ σ: RawWk}:
     | succ v => simp only [var]; rw [H]
   }
 
-def RawWk.liftn_equiv: {n: Nat} -> {ρ σ: RawWk} ->
+def Wk.liftn_equiv: {n: Nat} -> {ρ σ: Wk} ->
   equiv ρ σ -> equiv (ρ.liftn n) (σ.liftn n) := by {
     intro n;
     induction n with
@@ -146,19 +146,19 @@ def RawWk.liftn_equiv: {n: Nat} -> {ρ σ: RawWk} ->
     | succ n I => 
       intros ρ σ H;
       simp only [liftn]
-      apply RawWk.lift_equiv
+      apply Wk.lift_equiv
       apply I
       exact H
   }
 
-def RawWk.lift_id_equiv: equiv (lift id) id := by {
+def Wk.lift_id_equiv: equiv (lift id) id := by {
     intros v;
     cases v with
     | zero => rfl
     | succ v => rfl
   }
 
-def RawWk.liftn_id_equiv: {n: Nat} -> equiv (id.liftn n) id := by {
+def Wk.liftn_id_equiv: {n: Nat} -> equiv (id.liftn n) id := by {
     intro n;
     induction n with
     | zero => exact equiv_refl
@@ -173,20 +173,20 @@ def RawWk.liftn_id_equiv: {n: Nat} -> equiv (id.liftn n) id := by {
         rfl
   }
 
-@[simp] def RawWk.wk1_var: var wk1 n = n + 1 := rfl  
+@[simp] def Wk.wk1_var: var wk1 n = n + 1 := rfl  
 
-@[simp] def RawWk.wk1_step: step ρ = wk1.comp ρ := rfl
+@[simp] def Wk.wk1_step: step ρ = wk1.comp ρ := rfl
 
-@[simp] def RawWk.wkn_succ_0_var: var (wknth (Nat.succ n)) 0 = 0 := rfl
+@[simp] def Wk.wkn_succ_0_var: var (wknth (Nat.succ n)) 0 = 0 := rfl
 
-@[simp] def RawWk.wkn_succ_succ_var: 
+@[simp] def Wk.wkn_succ_succ_var: 
   var (wknth (Nat.succ n)) (Nat.succ m) = Nat.succ (var (wknth n) m) := by {
     rw[<-lift_wknth_merge]
     simp only [var]
     exact 0
 }
 
-@[simp] def RawWk.wkn_var:
+@[simp] def Wk.wkn_var:
   var (wkn n) v = v + n := by {
   induction n with
   | zero => rfl
@@ -196,7 +196,7 @@ def RawWk.liftn_id_equiv: {n: Nat} -> equiv (id.liftn n) id := by {
     rfl
 }
 
-def RawWk.wknth_small: {n v: Nat} -> v < n -> var (wknth n) v = v := by {
+def Wk.wknth_small: {n v: Nat} -> v < n -> var (wknth n) v = v := by {
   intros n;
   induction n with
   | zero => intro v H; cases H
@@ -212,7 +212,7 @@ def RawWk.wknth_small: {n v: Nat} -> v < n -> var (wknth n) v = v := by {
       exact Nat.le_of_succ_le_succ H
 }
 
-def RawWk.wknth_big: {n v: Nat} -> n ≤ v -> var (wknth n) v = v + 1 := by {
+def Wk.wknth_big: {n v: Nat} -> n ≤ v -> var (wknth n) v = v + 1 := by {
   intros n;
   induction n with
   | zero => simp
@@ -228,7 +228,7 @@ def RawWk.wknth_big: {n v: Nat} -> n ≤ v -> var (wknth n) v = v + 1 := by {
       exact Nat.le_of_succ_le_succ H
 }
 
-def RawWk.wknth_wkn_equiv: equiv (comp (wknth n) (wkn n)) (wkn (n + 1)) := by {
+def Wk.wknth_wkn_equiv: equiv (comp (wknth n) (wkn n)) (wkn (n + 1)) := by {
   induction n with
   | zero =>
     exact equiv_refl
@@ -240,20 +240,20 @@ def RawWk.wknth_wkn_equiv: equiv (comp (wknth n) (wkn n)) (wkn (n + 1)) := by {
     simp
 }
 
-@[simp] theorem raw_wk_var_comp: (ρ σ: RawWk) -> (n: Nat) ->
-  RawWk.var ρ (RawWk.var σ n) = RawWk.var (RawWk.comp ρ σ) n
-  | RawWk.id, _, _ => rfl
-  | _, RawWk.id, _ => by { simp }
-  | RawWk.step ρ, _, _ => by { simp; apply raw_wk_var_comp }
-  | RawWk.lift ρ, RawWk.step σ, _ => by { simp; apply raw_wk_var_comp }
-  | RawWk.lift ρ, RawWk.lift σ, 0 => by { simp } 
-  | RawWk.lift ρ, RawWk.lift σ, (n + 1) => by { simp; apply raw_wk_var_comp }  
+@[simp] theorem raw_wk_var_comp: (ρ σ: Wk) -> (n: Nat) ->
+  Wk.var ρ (Wk.var σ n) = Wk.var (Wk.comp ρ σ) n
+  | Wk.id, _, _ => rfl
+  | _, Wk.id, _ => by { simp }
+  | Wk.step ρ, _, _ => by { simp; apply raw_wk_var_comp }
+  | Wk.lift ρ, Wk.step σ, _ => by { simp; apply raw_wk_var_comp }
+  | Wk.lift ρ, Wk.lift σ, 0 => by { simp } 
+  | Wk.lift ρ, Wk.lift σ, (n + 1) => by { simp; apply raw_wk_var_comp }  
 
-@[simp] def wk_maps (m n: Nat) (ρ: RawWk): Prop := (l: Nat) -> l < n -> RawWk.var ρ l < m
+@[simp] def wk_maps (m n: Nat) (ρ: Wk): Prop := (l: Nat) -> l < n -> Wk.var ρ l < m
 
-theorem wk_maps_id {n: Nat}: wk_maps n n RawWk.id := λ_ => λH => H
+theorem wk_maps_id {n: Nat}: wk_maps n n Wk.id := λ_ => λH => H
 
-theorem wk_maps_step {m n: Nat} {ρ: RawWk}: wk_maps m n ρ -> wk_maps (m + 1) n (RawWk.step ρ) := by {
+theorem wk_maps_step {m n: Nat} {ρ: Wk}: wk_maps m n ρ -> wk_maps (m + 1) n (Wk.step ρ) := by {
   intros Hρ l Hl;
   simp;
   apply Nat.succ_lt_succ;
@@ -261,8 +261,8 @@ theorem wk_maps_step {m n: Nat} {ρ: RawWk}: wk_maps m n ρ -> wk_maps (m + 1) n
   apply Hl
 }
 
-theorem wk_maps_lift {m n: Nat} {ρ: RawWk}: 
-  wk_maps m n ρ -> wk_maps (m + 1) (n + 1) (RawWk.lift ρ) := by {
+theorem wk_maps_lift {m n: Nat} {ρ: Wk}: 
+  wk_maps m n ρ -> wk_maps (m + 1) (n + 1) (Wk.lift ρ) := by {
   intros Hρ l Hl;
   cases l with
   | zero => simp; apply Nat.zero_lt_succ
@@ -274,10 +274,10 @@ theorem wk_maps_lift {m n: Nat} {ρ: RawWk}:
     apply Hl
 }
 
-theorem wk_maps_wk1 {n: Nat}: wk_maps (n + 1) n RawWk.wk1 
+theorem wk_maps_wk1 {n: Nat}: wk_maps (n + 1) n Wk.wk1 
   := λ v Hv => Nat.succ_le_succ Hv
 
-theorem wk_maps_liftn {l m n: Nat} {ρ: RawWk}: 
+theorem wk_maps_liftn {l m n: Nat} {ρ: Wk}: 
   wk_maps m n ρ -> wk_maps (m + l) (n + l) (ρ.liftn l) := by {
   induction l with
   | zero => intros Hρ. apply Hρ
@@ -288,54 +288,11 @@ theorem wk_maps_liftn {l m n: Nat} {ρ: RawWk}:
     apply Hρ
 }
 
-theorem wk_maps_comp {m n l: Nat} {ρ σ: RawWk}:
-  wk_maps m n ρ -> wk_maps n l σ -> wk_maps m l (RawWk.comp ρ σ) := by {
+theorem wk_maps_comp {m n l: Nat} {ρ σ: Wk}:
+  wk_maps m n ρ -> wk_maps n l σ -> wk_maps m l (Wk.comp ρ σ) := by {
   intros Hρ Hσ l Hl;
   rw[←raw_wk_var_comp];
   apply Hρ;
   apply Hσ;
   apply Hl
 }
-
-structure Wk (m n: Nat) := (val: RawWk) (p: wk_maps m n val)
-
-@[simp] def Wk.id {n: Nat}: Wk n n := Wk.mk RawWk.id (@wk_maps_id n)
-
-@[simp] def Wk.step {m n: Nat} (ρ: Wk m n): Wk (m + 1) n := 
-  Wk.mk (RawWk.step ρ.val) (wk_maps_step ρ.p)
-
-@[simp] theorem Wk.step_val {m n: Nat} (ρ: Wk m n):
-  (Wk.step ρ).val = RawWk.step (ρ.val) := rfl
-
-@[simp] def Wk.lift {m n: Nat} (ρ: Wk m n): Wk (m + 1) (n + 1) := 
-  Wk.mk (RawWk.lift ρ.val) (wk_maps_lift ρ.p)
-
-@[simp] theorem Wk.lift_val {m n: Nat} (ρ: Wk m n):
-  (Wk.lift ρ).val = RawWk.lift (ρ.val) := rfl
-  
-@[simp] def Wk.liftn: (l: Nat) -> Wk m n -> Wk (m + l) (n + l)
-  | 0, ρ => ρ
-  | Nat.succ n, ρ => Wk.lift (liftn n ρ)
-
-@[simp] def Wk.comp (ρ: Wk m n) (σ: Wk n l): Wk m l :=
-  Wk.mk (RawWk.comp ρ.val σ.val) (wk_maps_comp ρ.p σ.p)
-
-@[simp] theorem wk_comp_assoc (ρ: Wk m n) (σ: Wk n l) (τ: Wk l p):
-  Wk.comp ρ (Wk.comp σ τ) = Wk.comp (Wk.comp ρ σ) τ := by {
-  simp
-}
-
-@[simp] def Wk.raw_var (ρ: Wk m n): Nat -> Nat := RawWk.var ρ.val
-
-@[simp] def Wk.var (ρ: Wk m n): Fin n -> Fin m
-  | Fin.mk v p => Fin.mk (Wk.raw_var ρ v) (ρ.p v p)
-
-@[simp] theorem wk_var_comp (ρ: Wk m n) (σ: Wk n l) (v: Fin l):
-  Wk.var ρ (Wk.var σ v) = Wk.var (Wk.comp ρ σ) v := by {
-  simp
-}
-
-@[simp] theorem wk_lift_comp {ρ: Wk m n} {σ: Wk n l}: 
-  Wk.comp (Wk.lift ρ) (Wk.lift σ) = Wk.lift (Wk.comp ρ σ) := rfl
-
-def Wk.wk1: Wk (n + 1) n := Wk.step Wk.id
