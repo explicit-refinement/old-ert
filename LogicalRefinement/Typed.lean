@@ -69,6 +69,11 @@ def HypKind.upgrade: HypKind -> HypKind
   | gst => val type
 
 @[simp]
+def HypKind.annot: HypKind -> AnnotSort
+  | val s => s
+  | gst => type
+
+@[simp]
 theorem HypKind.upgrade_idem: upgrade (upgrade h) = upgrade h := by {
   cases h; repeat rfl
 }
@@ -90,9 +95,7 @@ def Hyp.wkn (H: Hyp) (n: Nat) := Hyp.mk (H.ty.wkn n) H.kind
 def Hyp.subst (H: Hyp) (σ: RawSubst) := Hyp.mk (H.ty.subst σ) H.kind
 
 @[simp]
-def Hyp.annot: Hyp -> Annot
-  | Hyp.mk ty (HypKind.val s) => Annot.expr s ty
-  | Hyp.mk ty (HypKind.gst) => Annot.expr type ty
+def Hyp.annot (H: Hyp): Annot := Annot.expr H.kind.annot H.ty
 
 theorem Hyp.wk_components:
   Hyp.wk (Hyp.mk A h) ρ = Hyp.mk (A.wk ρ) h := rfl
@@ -462,7 +465,17 @@ theorem SubstCtx.var {σ: RawSubst} {Γ Δ: Context} (S: SubstCtx σ Γ Δ):
 theorem SubstCtx.lift {σ: RawSubst} {Γ Δ: Context} {H: Hyp}:
   SubstCtx σ Γ Δ ->
   IsHyp Δ H ->
-  SubstCtx σ.lift ((H.subst σ)::Γ) (H::Δ) := sorry
+  SubstCtx σ.lift ((H.subst σ)::Γ) (H::Δ) := by {
+    intro S HH n A k HΔ;
+    cases n with
+    | zero => sorry
+    | succ n =>
+      simp only [Annot.subst, Hyp.annot]
+      cases HΔ;
+      rename_i A n H
+      --TODO: subst wk1 lift is just wk1
+      sorry
+  }
 
 theorem SubstCtx.upgrade (H: SubstCtx ρ Γ Δ): SubstCtx ρ Γ.upgrade Δ.upgrade 
 := sorry
