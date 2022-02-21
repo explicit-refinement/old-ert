@@ -634,7 +634,7 @@ theorem SubstCtx.upgrade (S: SubstCtx ρ Γ Δ): SubstCtx ρ Γ.upgrade Δ.upgra
   apply HasType.upgrade;
   rw [<-HypKind.annot_downgrade]
   apply S;
-  sorry
+  exact HasVar.downgrade H
 }
 
 theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
