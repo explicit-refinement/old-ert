@@ -63,7 +63,7 @@ def Untyped.wknth_def {u: Untyped} {n}: u.wknth n = u.wk (Wk.wknth n) := rfl
 }
 
 def Untyped.wk_bounds {u: Untyped}: {n m: Nat} -> {ρ: Wk} ->
-  wk_maps n m ρ -> fv u ≤ m -> fv (u.wk ρ) ≤ n := by {
+  ρ.maps n m -> fv u ≤ m -> fv (u.wk ρ) ≤ n := by {
     induction u with
     | var v => intros _ _ ρ Hm. apply Hm
     | const => intros. apply Nat.zero_le
@@ -74,7 +74,7 @@ def Untyped.wk_bounds {u: Untyped}: {n m: Nat} -> {ρ: Wk} ->
       simp only [fv, Nat.le_sub_is_le_add]
       intros n m ρ Hm
       apply IHe
-      apply wk_maps_liftn
+      apply Wk.liftn_maps
       apply Hm
     | bin k l r IHl IHr =>
       simp only [fv, Nat.max_r_le_split]
@@ -90,7 +90,7 @@ def Untyped.wk_bounds {u: Untyped}: {n m: Nat} -> {ρ: Wk} ->
       apply And.intro;
       case abs.left => apply IHA Hm HA
       case abs.right => 
-        let Hm' := @wk_maps_liftn 1 n m ρ Hm
+        let Hm' := @Wk.liftn_maps ρ 1 n m Hm
         apply IHs Hm' Hs
     | tri k A l r IHA IHl IHr =>
       simp only [fv, Nat.max_r_le_split]
@@ -107,18 +107,18 @@ def Untyped.wk_bounds {u: Untyped}: {n m: Nat} -> {ρ: Wk} ->
       intros n m ρ Hm
       intro ⟨HK, Hd, Hl, Hr⟩
       apply And.intro;
-      case cases.left => apply IK (@wk_maps_liftn 1 n m ρ Hm) HK
+      case cases.left => apply IK (@Wk.liftn_maps ρ 1 n m Hm) HK
       case cases.right => 
         apply And.intro;
         case left => apply IHd Hm Hd
         case right =>
           apply And.intro;
-          case left => apply IHl (@wk_maps_liftn 1 n m ρ Hm) Hl
-          case right => apply IHr (@wk_maps_liftn 1 n m ρ Hm) Hr
+          case left => apply IHl (@Wk.liftn_maps ρ 1 n m Hm) Hl
+          case right => apply IHr (@Wk.liftn_maps ρ 1 n m Hm) Hr
   }
 
 def Untyped.fv_wk1: fv (wk1 u) ≤ fv u + 1 
-  := by apply wk_bounds wk_maps_wk1; exact Nat.le_refl _
+  := by apply wk_bounds Wk.wk1_maps; exact Nat.le_refl _
 
 @[simp] def Untyped.wk_composes {u: Untyped}: 
   (σ ρ: Wk) -> (u.wk ρ).wk σ = u.wk (σ.comp ρ) 

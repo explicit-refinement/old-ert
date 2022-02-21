@@ -49,53 +49,46 @@ theorem Wk.liftn_wknth_merge {m n: Nat}: (wknth n).liftn m = wknth (n + m)
   rw [Nat.add_comm]
 }
 
-@[simp] def Wk.comp: Wk -> Wk -> Wk
+@[simp] 
+def Wk.comp: Wk -> Wk -> Wk
     | Wk.id, σ => σ
     | Wk.step ρ, σ => Wk.step (comp ρ σ)
     | Wk.lift ρ, Wk.id => Wk.lift ρ
     | Wk.lift ρ, Wk.step σ => Wk.step (comp ρ σ)
     | Wk.lift ρ, Wk.lift σ => Wk.lift (comp ρ σ)
 
-theorem raw_wk_comp_id_left_id {ρ: Wk}: Wk.comp Wk.id ρ = ρ := rfl
+@[simp] 
+theorem Wk.comp_id_left_id {ρ: Wk}: Wk.comp Wk.id ρ = ρ := rfl
 
-def Wk.step_is_comp_wk1: comp wk1 ρ = step ρ := rfl
-
-@[simp] theorem raw_wk_comp_id_right_id: {ρ: Wk} -> Wk.comp ρ Wk.id = ρ
+@[simp] 
+theorem Wk.comp_id_right_id: {ρ: Wk} -> Wk.comp ρ Wk.id = ρ
   | Wk.id => rfl
   | Wk.lift ρ => rfl
   | Wk.step ρ => by {
     simp
-    apply raw_wk_comp_id_right_id
+    exact comp_id_right_id
   }
 
-@[simp] theorem raw_wk_comp_assoc: {ρ σ τ: Wk} -> 
-  Wk.comp (Wk.comp ρ σ) τ = Wk.comp ρ (Wk.comp σ τ)
-  | Wk.id, _, _ => rfl
-  | _, Wk.id, _ => by {
-    simp
-  }
-  | _, _, Wk.id => by simp
-  | Wk.step ρ, _, _ => by {
-    simp
-    apply raw_wk_comp_assoc
-  }
-  | Wk.lift ρ, Wk.step σ, _ => by {
-    simp
-    apply raw_wk_comp_assoc
-  }
-  | Wk.lift ρ, Wk.lift σ, Wk.step τ => by {
-    simp
-    apply raw_wk_comp_assoc
-  }
-  | Wk.lift ρ, Wk.lift σ, Wk.lift τ => by {
-    simp
-    apply raw_wk_comp_assoc
+def Wk.step_is_comp_wk1: comp wk1 ρ = step ρ := rfl
+
+@[simp] 
+theorem Wk.comp_assoc: {ρ σ τ: Wk} -> 
+  Wk.comp (Wk.comp ρ σ) τ = Wk.comp ρ (Wk.comp σ τ) := by {
+    intro ρ;
+    induction ρ <;> 
+    intro σ <;> 
+    induction σ <;>
+    intro τ <;>
+    induction τ <;>
+    simp [*]
   }
 
-@[simp] theorem raw_wk_lift_comp {ρ σ: Wk}: 
+@[simp] 
+theorem Wk.lift_comp {ρ σ: Wk}: 
   Wk.comp (Wk.lift ρ) (Wk.lift σ) = Wk.lift (Wk.comp ρ σ) := rfl
 
-@[simp] def Wk.var: Wk -> Nat -> Nat
+@[simp] 
+def Wk.var: Wk -> Nat -> Nat
   | Wk.id, n => n
   | Wk.step ρ, n => (var ρ n) + 1
   | Wk.lift ρ, 0 => 0
@@ -240,20 +233,21 @@ def Wk.wknth_wkn_equiv: equiv (comp (wknth n) (wkn n)) (wkn (n + 1)) := by {
     simp
 }
 
-@[simp] theorem raw_wk_var_comp: (ρ σ: Wk) -> (n: Nat) ->
+@[simp] 
+theorem Wk.var_comp: (ρ σ: Wk) -> (n: Nat) ->
   Wk.var ρ (Wk.var σ n) = Wk.var (Wk.comp ρ σ) n
   | Wk.id, _, _ => rfl
   | _, Wk.id, _ => by { simp }
-  | Wk.step ρ, _, _ => by { simp; apply raw_wk_var_comp }
-  | Wk.lift ρ, Wk.step σ, _ => by { simp; apply raw_wk_var_comp }
+  | Wk.step ρ, _, _ => by { simp; apply var_comp }
+  | Wk.lift ρ, Wk.step σ, _ => by { simp; apply var_comp }
   | Wk.lift ρ, Wk.lift σ, 0 => by { simp } 
-  | Wk.lift ρ, Wk.lift σ, (n + 1) => by { simp; apply raw_wk_var_comp }  
+  | Wk.lift ρ, Wk.lift σ, (n + 1) => by { simp; apply var_comp }  
+ 
+def Wk.maps (ρ: Wk) (m n: Nat): Prop := (l: Nat) -> l < n -> Wk.var ρ l < m
 
-@[simp] def wk_maps (m n: Nat) (ρ: Wk): Prop := (l: Nat) -> l < n -> Wk.var ρ l < m
+theorem Wk.id_maps {n: Nat}: Wk.id.maps n n  := λ_ => λH => H
 
-theorem wk_maps_id {n: Nat}: wk_maps n n Wk.id := λ_ => λH => H
-
-theorem wk_maps_step {m n: Nat} {ρ: Wk}: wk_maps m n ρ -> wk_maps (m + 1) n (Wk.step ρ) := by {
+theorem Wk.step_maps {ρ: Wk} {m n: Nat} : ρ.maps m n -> ρ.step.maps (m + 1) n := by {
   intros Hρ l Hl;
   simp;
   apply Nat.succ_lt_succ;
@@ -261,37 +255,37 @@ theorem wk_maps_step {m n: Nat} {ρ: Wk}: wk_maps m n ρ -> wk_maps (m + 1) n (W
   apply Hl
 }
 
-theorem wk_maps_lift {m n: Nat} {ρ: Wk}: 
-  wk_maps m n ρ -> wk_maps (m + 1) (n + 1) (Wk.lift ρ) := by {
+theorem Wk.lift_maps {ρ: Wk} {m n: Nat}: 
+  ρ.maps m n -> ρ.lift.maps (m + 1) (n + 1) := by {
   intros Hρ l Hl;
   cases l with
   | zero => simp; apply Nat.zero_lt_succ
   | succ => 
-    simp; 
-    apply Nat.succ_lt_succ; 
-    apply Hρ; 
-    apply Nat.lt_of_succ_lt_succ; 
+    simp
+    apply Nat.succ_lt_succ
+    apply Hρ
+    apply Nat.lt_of_succ_lt_succ
     apply Hl
 }
 
-theorem wk_maps_wk1 {n: Nat}: wk_maps (n + 1) n Wk.wk1 
+theorem Wk.wk1_maps {n: Nat}: wk1.maps (n + 1) n
   := λ v Hv => Nat.succ_le_succ Hv
 
-theorem wk_maps_liftn {l m n: Nat} {ρ: Wk}: 
-  wk_maps m n ρ -> wk_maps (m + l) (n + l) (ρ.liftn l) := by {
+theorem Wk.liftn_maps {ρ: Wk} {l m n: Nat}: 
+  ρ.maps m n -> (ρ.liftn l).maps (m + l) (n + l) := by {
   induction l with
   | zero => intros Hρ. apply Hρ
   | succ l I => 
-    intros Hρ.
-    (apply wk_maps_lift).
-    (apply I).
+    intros Hρ;
+    apply lift_maps
+    apply I
     apply Hρ
 }
 
-theorem wk_maps_comp {m n l: Nat} {ρ σ: Wk}:
-  wk_maps m n ρ -> wk_maps n l σ -> wk_maps m l (Wk.comp ρ σ) := by {
+theorem Wk.comp_maps {ρ σ: Wk} {m n l: Nat}:
+  ρ.maps m n -> σ.maps n l -> (ρ.comp σ).maps m l := by {
   intros Hρ Hσ l Hl;
-  rw[←raw_wk_var_comp];
+  rw[←var_comp];
   apply Hρ;
   apply Hσ;
   apply Hl
