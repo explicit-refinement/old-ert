@@ -367,6 +367,19 @@ theorem Untyped.liftn_base {σ: Subst} {base: Nat} {u: Untyped}:
   )
 }
 
+theorem Untyped.liftn_wk_base {ρ: Wk} {base: Nat} {u: Untyped}: 
+  u.fv ≤ base -> u.wk (ρ.liftn base) = u := by {
+    rw [<-Subst.subst_wk_compat]
+    rw [<-Wk.to_subst_liftn]
+    exact liftn_base
+}
+
+theorem Untyped.lift_base {σ: Subst} {u: Untyped}: 
+  u.fv ≤ 1 -> u.subst (σ.lift) = u := liftn_base
+
+theorem Untyped.lift_wk_base {ρ: Wk} {u: Untyped}: 
+  u.fv ≤ 1 -> u.wk (ρ.lift) = u := liftn_wk_base
+
 @[simp]
 def Untyped.to_subst (u: Untyped): Subst
   | 0 => u
