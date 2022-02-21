@@ -635,12 +635,19 @@ theorem Untyped.alphann_comm {u v: Untyped} {σ: Subst} {n: Nat}:
           simp only [Nat.succ_sub_succ_eq_sub]
           simp only [Nat.succ_sub_gt H]
           simp only [to_alpha_succ]
+          rw [<-alphanth_def]
+          rw [alphanth_wkn]
           simp only [wkn, wk, Wk.wkn_var]
           simp only [subst]
-          rw [<-alphanth_def]
-          rw [Subst.liftn_above_wk]
-          sorry
-          sorry
+          revert n;
+          rename_i m;
+          induction m with
+          | zero =>
+            intro n Hn
+            cases Hn
+            simp --TODO: nonterminal simp
+            simp only [Wk.comp_id_right_id, Subst.wk1, wk1]
+          | succ m => sorry
 
 
     all_goals (
