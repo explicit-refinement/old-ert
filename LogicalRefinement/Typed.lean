@@ -88,7 +88,29 @@ def HypKind.annot: HypKind -> AnnotSort
   | val s => s
   | gst => type
 
+@[simp]
 def HypKind.val_annot: (val s).annot = s := rfl
+
+def HypKind.annot_wk_eq {k k': HypKind}: k.is_wk k' -> k.annot = k'.annot
+  := by {
+    intro H;
+    cases H <;> rfl
+  }
+
+
+def HypKind.annot_is_wk {k: HypKind}: k.is_wk (val k.annot)
+  := by {
+    cases k <;> simp <;> constructor
+  }
+
+def HypKind.annot_other_is_wk {k k': HypKind}: 
+  k.is_wk k' -> k'.is_wk (val k.annot)
+  := by {
+    intro H;
+    cases H with
+    | refl => exact annot_is_wk
+    | gst => exact is_wk.refl
+  }
 
 @[simp]
 theorem HypKind.upgrade_idem: upgrade (upgrade h) = upgrade h := by {
@@ -480,30 +502,36 @@ def HasType.wk1_sort {H} (Ha: Γ ⊢ a: sort s): (H::Γ) ⊢ a.wk1: sort s
 
 --TODO: fill in with proper definition
 def SubstCtx (σ: RawSubst) (Γ Δ: Context): Prop :=  
-  ∀{n A k}, HasVar Δ A k n -> Γ ⊢ σ n: (Hyp.mk A k).annot.subst σ 
+  ∀{n A k}, HasVar Δ A k n -> Γ ⊢ σ n: expr k.annot (A.subst σ)
 
 theorem SubstCtx.var {σ: RawSubst} {Γ Δ: Context} (S: SubstCtx σ Γ Δ):
   ∀{n A}, (Δ ⊢ var n: A) -> (Γ ⊢ σ n: A.subst σ) :=
   λHΔ => match HΔ with
          | HasType.var _ H => S H
 
-theorem SubstCtx.lift_primitive {σ: RawSubst} {Γ Δ: Context} {H: Hyp}:
+theorem SubstCtx.lift_primitive 
+  {σ: RawSubst} {Γ Δ: Context} {A: RawUntyped} {k: HypKind}:
   SubstCtx σ Γ Δ ->
-  IsHyp Γ (H.subst σ) ->
-  SubstCtx σ.lift ((H.subst σ)::Γ) (H::Δ) := by {
+  IsHyp Γ (Hyp.mk (A.subst σ) k) ->
+  SubstCtx σ.lift ((Hyp.mk (A.subst σ) k)::Γ) ((Hyp.mk A k)::Δ) := by {
     intro S HH n A k HΔ;
     cases n with
     | zero =>
-      simp only [Annot.subst, Hyp.annot]
-      apply HasType.var
-      cases HΔ;
-      rename_i A
-      simp only [RawSubst.lift_wk]
-      simp only [RawSubst.lift]
-      apply HasType.wk1_sort
-      rw [<-@Annot.subst_sort_const _ σ]
-      sorry
-      sorry
+      simp only [Annot.subst]
+      cases HΔ with
+      | var0 Hkk' =>
+        rename_i k'
+        simp only [RawSubst.lift_wk]
+        simp only [RawSubst.lift]
+        apply HasType.var
+        case a =>
+          apply HasType.wk1_sort
+          rw [HypKind.annot_wk_eq Hkk']
+          apply HH
+        case a =>
+          apply HasVar.var0
+          sorry
+
     | succ n =>
       simp only [Annot.subst, Hyp.annot]
       cases HΔ;
