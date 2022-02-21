@@ -35,10 +35,16 @@ def Annot.wk1 (A: Annot): Annot := A.wk RawWk.wk1
 
 def Annot.wk1_expr_def {A}: (expr s A).wk1 = (expr s A.wk1) := rfl
 
+def Annot.wk1_sort_const {s}:
+    (sort s).wk1 = sort s := rfl
+
 @[simp]
 def Annot.subst: Annot -> RawSubst -> Annot
   | sort s, _ => sort s
   | expr s A, σ => expr s (A.subst σ)
+
+def Annot.subst_sort_const {s σ}:
+    (sort s).subst σ = sort s := rfl
 
 @[simp]
 def Annot.wk_composes: {A: Annot} -> (A.wk ρ).wk σ = A.wk (σ.comp ρ)
@@ -324,9 +330,7 @@ inductive IsCtx: Context -> Prop
 --   | constructor <;> assumption
 -- }
 
-inductive IsHyp: Context -> Hyp -> Prop
-  | hyp_val {Γ A s}: (Γ ⊢ A: sort s) -> IsHyp Γ (Hyp.mk A (HypKind.val s))
-  | hyp_gst {Γ A}: (Γ ⊢ A: type) -> IsHyp Γ (Hyp.mk A HypKind.gst)
+def IsHyp (Γ: Context) (H: Hyp): Prop := Γ ⊢ H.ty: sort H.kind.annot
 
 -- def HasType.wk1
 --   (Ha: HasType Γ a A) (H: Hyp) (HH: IsHyp Γ H):
@@ -424,6 +428,9 @@ theorem HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
 def HasType.wk1 {H} (Ha: Γ ⊢ a: A): (H::Γ) ⊢ a.wk1: A.wk1 
 := wk Ha WkCtx.wk1
 
+def HasType.wk1_sort {H} (Ha: Γ ⊢ a: sort s): (H::Γ) ⊢ a.wk1: sort s 
+:= wk Ha WkCtx.wk1
+
 -- def HasType.wk_val (Ha: HasType Γ a A) (HB: HasType Γ B (sort s))
 --   : HasType ((Hyp.val B s)::Γ) a.wk1 A.wk1
 --   := wk1_inner Ha HB HypKind.regular.val
@@ -466,7 +473,18 @@ theorem SubstCtx.lift {σ: RawSubst} {Γ Δ: Context} {H: Hyp}:
   SubstCtx σ.lift ((H.subst σ)::Γ) (H::Δ) := by {
     intro S HH n A k HΔ;
     cases n with
-    | zero => sorry
+    | zero =>
+      simp only [Annot.subst, Hyp.annot]
+      apply HasType.var
+      cases HΔ;
+      rename_i A k
+      simp only [RawSubst.lift_wk]
+      simp only [RawSubst.lift]
+      apply HasType.wk1_sort
+      rw [<-@Annot.subst_sort_const _ σ]
+      --Oh no, *this* is substitution
+      sorry
+      sorry
     | succ n =>
       simp only [Annot.subst, Hyp.annot]
       cases HΔ;
