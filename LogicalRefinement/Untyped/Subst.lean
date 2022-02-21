@@ -15,6 +15,9 @@ def Subst.wk1 (σ: Subst): Subst :=
 def Wk.to_subst (σ: Wk): Subst
   | v => Untyped.var (σ.var v)
 
+instance Wk.wkSubstCoe: Coe Wk Subst where
+  coe := Wk.to_subst
+
 def Subst.lift (σ: Subst): Subst
   | 0 => Untyped.var 0
   | Nat.succ n => wk1 σ n
@@ -242,7 +245,7 @@ def Subst.comp (σ ρ: Subst): Subst
   }
 
 @[simp] theorem Subst.subst_wk_compat: {u: Untyped} -> {ρ: Wk} ->
-  u.subst ρ.to_subst = u.wk ρ := by {
+  u.subst ρ = u.wk ρ := by {
   intro u;
   induction u <;> {
     simp only [
@@ -256,7 +259,7 @@ def Subst.comp (σ ρ: Subst): Subst
 def subst_maps (n m: Nat) (σ: Subst) := ∀v, v < m -> Untyped.fv (σ v) ≤ n
 
 def Subst.wk_bounds {ρ: Wk} {n m: Nat}: 
-  ρ.maps n m -> subst_maps n m ρ.to_subst := by {
+  ρ.maps n m -> subst_maps n m ρ := by {
   intros Hρ v Hv;
   simp only [Wk.to_subst, Untyped.fv]
   exact Hρ _ Hv
@@ -359,7 +362,7 @@ def Untyped.to_alpha (u: Untyped): Subst
   | 0 => u
   | Nat.succ n => Untyped.var (Nat.succ n)
 
-def Untyped.to_alpha_lift {u: Untyped}: u.to_alpha = u.to_subst.comp (Wk.wknth 1).to_subst 
+def Untyped.to_alpha_lift {u: Untyped}: u.to_alpha = u.to_subst.comp (Wk.wknth 1)
   := by {
     funext v;
     cases v with
@@ -502,8 +505,8 @@ theorem Subst.subst0_subst_composes {σ: Subst} {u: Untyped}:
 
 --TODO: rewrite as application of subst0_subst_composes with appropriate lemmas
 theorem Subst.subst0_wk_composes {ρ: Wk} {u: Untyped}:
-  Subst.comp ρ.to_subst u.to_subst = 
-  Subst.comp (u.wk ρ).to_subst ρ.lift.to_subst := by {
+  Subst.comp ρ u.to_subst = 
+  Subst.comp (u.wk ρ).to_subst ρ.lift := by {
   funext v;
   cases v with
   | zero => 
