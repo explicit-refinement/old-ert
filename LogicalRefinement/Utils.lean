@@ -287,3 +287,25 @@ theorem Nat.succ_sub_gt: {n m: Nat} -> m ≤ n -> n + 1 - m = (n - m) + 1 := by 
       repeat rw [Nat.succ_sub_succ_eq_sub]
       exact I (Nat.le_of_succ_le_succ H)
 }
+
+theorem Nat.add_sub_self_gt: {n m: Nat} -> m ≤ n -> n - m + m = n := by {
+  intro n m;
+  induction m with
+  | zero => intros; rfl
+  | succ m I =>
+    intro H
+    cases n with
+    | zero => cases H
+    | succ n =>
+      rw [Nat.succ_le_succ_is_le] at H
+      rw [succ_sub_succ_eq_sub]
+      rw [add_succ]
+      let R: succ (n - m + m) = n - m + 1 + m := by {
+        rw [Nat.add_assoc]
+        rw [@Nat.add_comm 1 m]
+        rfl
+      }
+      rw [R]
+      rw [<-Nat.succ_sub_gt H]
+      exact I (Nat.le_succ_of_le H)
+}

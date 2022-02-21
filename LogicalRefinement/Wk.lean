@@ -186,6 +186,16 @@ def RawWk.liftn_id_equiv: {n: Nat} -> equiv (id.liftn n) id := by {
     exact 0
 }
 
+@[simp] def RawWk.wkn_var:
+  var (wkn n) v = v + n := by {
+  induction n with
+  | zero => rfl
+  | succ n I =>
+    simp only [wkn, var]
+    rw [I]
+    rfl
+}
+
 def RawWk.wknth_small: {n v: Nat} -> v < n -> var (wknth n) v = v := by {
   intros n;
   induction n with
