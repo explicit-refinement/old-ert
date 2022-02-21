@@ -19,12 +19,7 @@ open AnnotSort
 
 instance annotSortCoe: Coe AnnotSort Annot where
   coe := sort
-
-@[simp]
-def Annot.wk1: Annot -> Annot
-  | sort s => sort s
-  | expr s A => expr s (RawUntyped.wk1 A)
-
+  
 @[simp]
 def Annot.lift1: Annot -> Annot
   | sort s => sort s
@@ -34,6 +29,9 @@ def Annot.lift1: Annot -> Annot
 def Annot.wk: Annot -> RawWk -> Annot
   | sort s, _ => sort s
   | expr s A, ρ => expr s (A.wk ρ)
+
+@[simp]
+def Annot.wk1 (A: Annot): Annot := A.wk RawWk.wk1
 
 @[simp]
 def Annot.subst: Annot -> RawSubst -> Annot
@@ -337,10 +335,12 @@ inductive IsHyp: Context -> Hyp -> Prop
 --   }
 
 inductive WkCtx: RawWk -> Context -> Context -> Type
-  | id: WkCtx RawWk.id [] []
+  | id: WkCtx RawWk.id Γ Γ
   --TODO: make H explicit?
   | step {ρ Γ Δ H}: WkCtx ρ Γ Δ -> WkCtx ρ.step (H::Γ) Δ 
   | lift {ρ Γ Δ H}: WkCtx ρ Γ Δ -> WkCtx ρ.lift ((H.wk ρ)::Γ) (H::Δ)
+
+def WkCtx.wk1 {Γ H}: WkCtx RawWk.wk1 (H::Γ) Γ := WkCtx.step WkCtx.id
 
 theorem WkCtx.upgrade: WkCtx ρ Γ Δ 
   -> WkCtx ρ Γ.upgrade Δ.upgrade := by {
@@ -360,7 +360,9 @@ theorem HasVar.wk:
   := by {
     intros ρ;
     induction ρ <;> intro Γ Δ R <;> cases R;
-    case id => intros n A s H; cases H
+    case id => 
+      intros n A s H;
+      simp [H] 
     case step ρ I Γ H R =>
       intros n A s HΔ;
       simp only [RawUntyped.step_wk1]
@@ -417,14 +419,8 @@ theorem HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
 
 --TODO: basic weakening helpers
 
--- def HasType.wk1_inner
---   (Ha: Γ ⊢ a: A) (HB: Γ ⊢ B: (sort s)) (Hr: h.regular s):
---   ((Hyp.mk B h)::Γ) ⊢ a.wk1: A.wk1 := by { 
---     induction Hr <;>
---     cases A <;>
---     constructor <;>
---     assumption
---   }
+def HasType.wk1 {H} (Ha: Γ ⊢ a: A): (H::Γ) ⊢ a.wk1: A.wk1 
+:= wk Ha WkCtx.wk1
 
 -- def HasType.wk_val (Ha: HasType Γ a A) (HB: HasType Γ B (sort s))
 --   : HasType ((Hyp.val B s)::Γ) a.wk1 A.wk1
@@ -473,6 +469,8 @@ theorem SubstCtx.lift {σ: RawSubst} {Γ Δ: Context} {H: Hyp}:
       simp only [Annot.subst, Hyp.annot]
       cases HΔ;
       rename_i A n H
+      simp only [RawSubst.lift_wk, Nat.add]
+      simp only [RawSubst.lift]
       --TODO: subst wk1 lift is just wk1
       sorry
   }
