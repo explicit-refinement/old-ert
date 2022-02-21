@@ -337,7 +337,21 @@ inductive HasType: Context -> RawUntyped -> Annot -> Prop
   | elem {Γ: Context} {A φ l r: RawUntyped}:
     HasType Γ l (term A) -> HasType Γ r (proof (φ.subst0 l)) ->
     HasType Γ (elem l r) (term (set A φ))
-  
+  --TODO: let_set
+  --TODO: lam_pr
+  --TODO: app_pr
+  | lam_irrel {Γ: Context} {A s B: RawUntyped}:
+    HasType Γ A type ->
+    HasType ((Hyp.mk A (HypKind.val type))::Γ) s (term B) ->
+    HasType Γ (lam_irrel A s) (term (forall_ A B))
+  | app_irrel {Γ: Context} {A B l r: RawUntyped}:
+    HasType Γ l (term (forall_ A B)) -> HasType Γ.upgrade r (term A) ->
+    HasType Γ (app_irrel l r) (term (B.subst0 l))
+  | repr {Γ: Context} {A φ l r: RawUntyped}:
+    HasType Γ l (term A) -> HasType Γ r (term (φ.subst0 l)) ->
+    HasType Γ (repr l r) (term (exists_ A φ))
+  --TODO: let_repr
+
     --TODO: rest
 
   -- Basic proofs
