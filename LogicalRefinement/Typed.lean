@@ -607,7 +607,7 @@ theorem HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
       apply I1
       assumption
       simp only [Untyped.pi, Untyped.inj]
-      apply I2 
+      sorry
       sorry
 
 
