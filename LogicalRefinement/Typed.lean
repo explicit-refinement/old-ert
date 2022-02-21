@@ -510,11 +510,12 @@ theorem SubstCtx.var {σ: RawSubst} {Γ Δ: Context} (S: SubstCtx σ Γ Δ):
          | HasType.var _ H => S H
 
 theorem SubstCtx.lift_primitive 
-  {σ: RawSubst} {Γ Δ: Context} {A: RawUntyped} {k: HypKind}:
+  {σ: RawSubst} {Γ Δ: Context} {A: RawUntyped} {k: HypKind} {s: AnnotSort}:
   SubstCtx σ Γ Δ ->
-  IsHyp Γ (Hyp.mk (A.subst σ) k) ->
-  SubstCtx σ.lift ((Hyp.mk (A.subst σ) k)::Γ) ((Hyp.mk A k)::Δ) := by {
-    intro S HH n A k HΔ;
+  k.is_wk (HypKind.val s) ->
+  IsHyp Γ (Hyp.mk (A.subst σ) (HypKind.val s)) ->
+  SubstCtx σ.lift ((Hyp.mk (A.subst σ) (HypKind.val s))::Γ) ((Hyp.mk A k)::Δ) := by {
+    intro S Hk HH n A k HΔ;
     cases n with
     | zero =>
       simp only [Annot.subst]
@@ -527,10 +528,14 @@ theorem SubstCtx.lift_primitive
         case a =>
           apply HasType.wk1_sort
           rw [HypKind.annot_wk_eq Hkk']
+          rw [HypKind.annot_wk_eq Hk]
           apply HH
         case a =>
           apply HasVar.var0
-          sorry
+          cases Hk <;> 
+          cases Hkk' <;>
+          (try cases s) <;> 
+          exact HypKind.is_wk.refl
 
     | succ n =>
       simp only [Annot.subst, Hyp.annot]
@@ -549,7 +554,7 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
   {σ: RawSubst} -> {Γ: Context} -> SubstCtx σ Γ Δ ->
   (Γ ⊢ (a.subst σ): (A.subst σ)) := by {
     induction HΔ;
-    
+
     case var I =>
       intros σ Γ S
       apply S.var
@@ -570,8 +575,10 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
           | (
             apply SubstCtx.lift_primitive;
             assumption
+            constructor
             simp only [HypKind, Hyp.subst]
           )
+          --TODO: liftn...
           | apply SubstCtx.upgrade; assumption
           )
       )
