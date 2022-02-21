@@ -385,7 +385,22 @@ def RawUntyped.substnth_wknth {u: RawUntyped}: {v: RawUntyped} -> {l: Nat} ->
   induction u <;> intros v l;
   case var n =>
     simp only [substnth, wknth, wk, subst]
-    sorry
+    cases (Nat.le_or_lt n l) with
+    | inl H =>
+      rw [RawSubst.liftn_base_nil] <;>
+      rw [RawWk.wknth_small H] <;>
+      exact H
+    | inr H =>
+      rw [RawSubst.liftn_above_wk]
+      rw [RawWk.wknth_big H]
+      cases l with
+      | zero => simp
+      | succ l =>
+        rw [Nat.add_succ, Nat.add_zero]
+        simp only [Nat.succ_sub_succ_eq_sub]
+        sorry
+      rw [RawWk.wknth_big H]
+      exact Nat.le_succ_of_le H
 
   all_goals (
     simp only [substnth, subst]
