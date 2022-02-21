@@ -314,3 +314,17 @@ theorem or_imp_decompose {A B C D: Prop}:
 
 theorem and_imp_decompose {A B C: Prop}: (A ∧ B -> C) = (A -> B -> C) 
   := propext (Iff.intro (λF a b => F ⟨a, b⟩) (λF ⟨a, b⟩ => F a b))
+
+theorem Nat.gt_sub_succ: n ≤ m -> (Nat.succ m) - n = Nat.succ (m - n) := by {
+  revert n;
+  induction m with
+  | zero => intro n H; cases H; rfl
+  | succ m I =>
+    intro n;
+    cases n with
+    | zero => intro; simp
+    | succ n =>
+      intro H
+      simp only [Nat.succ_sub_succ_eq_sub]
+      exact I (Nat.le_of_succ_le_succ H)
+}

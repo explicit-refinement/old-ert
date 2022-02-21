@@ -502,6 +502,7 @@ def Untyped.to_alpha_wk1 {u: Untyped}:
 
 
 def Untyped.to_alpha_0 {u: Untyped}: u.to_alpha 0 = u := rfl
+
 def Untyped.to_alpha_succ {u: Untyped}: u.to_alpha (Nat.succ n) = var (Nat.succ n) := rfl
 
 def Untyped.alphanth_wknth {u v: Untyped} {l: Nat}:
@@ -616,9 +617,16 @@ theorem Untyped.alphann_comm {u v: Untyped} {σ: Subst} {n: Nat}:
             exact I
         | step H =>
           rw [Subst.liftn_above_wk (Nat.succ_le_succ H)]
-          cases n with
-          | zero => sorry
-          | succ n => sorry
+          simp only [Nat.succ_sub_succ_eq_sub]
+          simp only [Nat.succ_sub_gt H]
+          simp only [to_alpha_succ]
+          simp only [wkn, wk, Wk.wkn_var]
+          simp only [subst]
+          rw [<-alphanth_def]
+          rw [Subst.liftn_above_wk]
+          sorry
+          sorry
+
 
     all_goals (
       intro v σ n H;
