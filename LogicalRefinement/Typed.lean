@@ -467,33 +467,33 @@ theorem SubstCtx.var {σ: RawSubst} {Γ Δ: Context} (S: SubstCtx σ Γ Δ):
   λHΔ => match HΔ with
          | HasType.var _ H => S H
 
-theorem SubstCtx.lift {σ: RawSubst} {Γ Δ: Context} {H: Hyp}:
-  SubstCtx σ Γ Δ ->
-  IsHyp Δ H ->
-  SubstCtx σ.lift ((H.subst σ)::Γ) (H::Δ) := by {
-    intro S HH n A k HΔ;
-    cases n with
-    | zero =>
-      simp only [Annot.subst, Hyp.annot]
-      apply HasType.var
-      cases HΔ;
-      rename_i A k
-      simp only [RawSubst.lift_wk]
-      simp only [RawSubst.lift]
-      apply HasType.wk1_sort
-      rw [<-@Annot.subst_sort_const _ σ]
-      --Oh no, *this* is substitution
-      sorry
-      sorry
-    | succ n =>
-      simp only [Annot.subst, Hyp.annot]
-      cases HΔ;
-      rename_i A n H
-      simp only [RawSubst.lift_wk, Nat.add]
-      simp only [RawSubst.lift, RawSubst.wk1]
-      rw [<-Annot.wk1_expr_def]
-      exact HasType.wk1 (S H)
-  }
+-- theorem SubstCtx.lift {σ: RawSubst} {Γ Δ: Context} {H: Hyp}:
+--   SubstCtx σ Γ Δ ->
+--   IsHyp Δ H ->
+--   SubstCtx σ.lift ((H.subst σ)::Γ) (H::Δ) := by {
+--     intro S HH n A k HΔ;
+--     cases n with
+--     | zero =>
+--       simp only [Annot.subst, Hyp.annot]
+--       apply HasType.var
+--       cases HΔ;
+--       rename_i A k
+--       simp only [RawSubst.lift_wk]
+--       simp only [RawSubst.lift]
+--       apply HasType.wk1_sort
+--       rw [<-@Annot.subst_sort_const _ σ]
+--       --Oh no, *this* is substitution
+--       sorry
+--       sorry
+--     | succ n =>
+--       simp only [Annot.subst, Hyp.annot]
+--       cases HΔ;
+--       rename_i A n H
+--       simp only [RawSubst.lift_wk, Nat.add]
+--       simp only [RawSubst.lift, RawSubst.wk1]
+--       rw [<-Annot.wk1_expr_def]
+--       exact HasType.wk1 (S H)
+--   }
 
 theorem SubstCtx.upgrade (H: SubstCtx ρ Γ Δ): SubstCtx ρ Γ.upgrade Δ.upgrade 
 := sorry
@@ -507,27 +507,6 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
       apply S.var
       apply var <;> assumption
 
-    case pi =>
-      intros σ Γ S
-      simp only [
-        RawUntyped.subst, Annot.subst, term, RawUntyped.subst0_subst
-      ]  
-      constructor <;> (
-        try rename_i I0 I1 I2
-        simp only [Annot.wk, term, RawUntyped.subst0_subst] at *
-        repeat ((first | apply I0 | apply I1 | apply I2) <;> 
-          simp only [<-Hyp.subst_components, <-Hyp.wk_components] <;> 
-          first 
-          | (
-            apply SubstCtx.lift
-            assumption
-            constructor
-            assumption  
-          ) 
-          | assumption
-          )
-      )
-
     case lam =>
       intros σ Γ S
       simp only [
@@ -540,32 +519,17 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
           simp only [<-Hyp.subst_components, <-Hyp.wk_components] <;> 
           first 
           | (
+            --TODO: actual lifting case
             apply SubstCtx.lift
             assumption
             constructor
             assumption  
           ) 
           | assumption
+          | apply SubstCtx.upgrade; assumption
           )
       )
 
-    case app =>
-      intros σ Γ S
-      simp only [
-        RawUntyped.subst, Annot.subst, term, RawUntyped.subst0_subst
-      ]  
-      constructor <;> (
-        try rename_i I0 I1 I2
-        simp only [Annot.wk, term, RawUntyped.subst0_subst] at *
-        repeat ((first | apply I0 | apply I1 | apply I2) <;> 
-          simp only [<-Hyp.subst_components, <-Hyp.wk_components] <;> 
-          first 
-          | (constructor <;> assumption) 
-          | assumption
-          )
-      )
-
-    
     case eq =>
       intros σ Γ S
       simp only [
@@ -578,6 +542,7 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
           simp only [<-Hyp.subst_components, <-Hyp.wk_components] <;> 
           first 
           | (
+            --TODO: actual lifting case
             apply SubstCtx.lift
             assumption
             constructor
