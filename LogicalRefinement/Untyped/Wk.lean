@@ -132,3 +132,7 @@ theorem Untyped.step_wk1 {u: Untyped}: u.wk ρ.step = (u.wk ρ).wk1
 
 theorem Untyped.lift_wk1 {u: Untyped}: u.wk1.wk ρ.lift = (u.wk ρ).wk1 
   := by simp
+
+theorem Untyped.wkn_wk1 {u: Untyped}: u.wkn (Nat.succ n) = (u.wkn n).wk1 := by {
+  simp only [wkn, wk1, wk_composes, Wk.wkn, Wk.step_is_comp_wk1]
+}

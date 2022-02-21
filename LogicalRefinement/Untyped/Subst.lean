@@ -218,6 +218,18 @@ theorem Subst.lift_wk {u: Untyped}: {σ: Subst} ->
     apply Untyped.liftn_wk 0
 }
 
+theorem Subst.lift_wkn {u: Untyped} {σ: Subst} {n: Nat}:
+  (u.wkn n).subst (σ.liftn n) = (u.subst σ).wkn n := by {
+    revert u σ;
+    induction n with
+    | zero => intros; simp
+    | succ n I =>
+      intros u σ;
+      simp only [Untyped.wkn_wk1, liftn_succ]
+      rw [lift_wk]
+      rw [I]
+}
+
 def Subst.comp (σ ρ: Subst): Subst
   | v => (ρ v).subst σ
 
@@ -603,6 +615,8 @@ theorem Untyped.alphann_comm {u v: Untyped} {σ: Subst} {n: Nat}:
     intro H;
     revert n σ v;
     induction u;
+
+    --TODO: clean... a lot...
     case var m =>
       intro v σ n
       cases (Nat.le_or_lt m n) with
@@ -661,7 +675,6 @@ theorem Untyped.alphann_comm {u v: Untyped} {σ: Subst} {n: Nat}:
             rw [Subst.liftn_above_wk Hn]
             simp only [wkn, wk1, wk_composes, Wk.step_is_comp_wk1]
             rfl
-
 
 
     all_goals (
