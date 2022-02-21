@@ -338,8 +338,8 @@ inductive HasType: Context -> Untyped -> Annot -> Prop
     HasType ((Hyp.mk (or A B) (HypKind.val type))::Γ) C type ->
     HasType Γ e (term (or A B)) ->
     --TODO: subst subst0 for swap0
-    HasType ((Hyp.mk A (HypKind.val type))::Γ) l (term (C.subst0 (inj false (var 0)))) ->
-    HasType ((Hyp.mk B (HypKind.val type))::Γ) r (term (C.subst0 (inj true (var 0)))) ->
+    HasType ((Hyp.mk A (HypKind.val type))::Γ) l (term (C.alpha0 (inj false (var 0)))) ->
+    HasType ((Hyp.mk B (HypKind.val type))::Γ) r (term (C.alpha0 (inj true (var 0)))) ->
     HasType Γ (case C e l r) (term (C.subst0 e))
   
   --TODO: natrec

@@ -351,21 +351,40 @@ def Untyped.to_subst (u: Untyped): Subst
   | Nat.succ n => Untyped.var n
 
 @[simp]
+def Untyped.to_alpha (u: Untyped): Subst
+  | 0 => u
+  | Nat.succ n => Untyped.var (Nat.succ n)
+
+@[simp]
 def Untyped.to_subst_succ {u: Untyped}: u.to_subst (n + 1) = var n := rfl
 
 def Untyped.subst0: Untyped -> Untyped -> Untyped
   | u, v => u.subst v.to_subst
 
+def Untyped.alpha0: Untyped -> Untyped -> Untyped
+  | u, v => u.subst v.to_alpha
+
 @[simp]
 def Untyped.subst0_def {u v: Untyped}: 
   u.subst0 v = u.subst v.to_subst := rfl
 
+@[simp]
+def Untyped.alpha0_def {u v: Untyped}: 
+  u.alpha0 v = u.subst v.to_alpha := rfl
+
 def Untyped.substnth: Untyped -> Nat -> Untyped -> Untyped
   | u, n, v => u.subst (v.to_subst.liftn n)
+
+def Untyped.alphanth: Untyped -> Nat -> Untyped -> Untyped
+  | u, n, v => u.subst (v.to_alpha.liftn n)
 
 @[simp]
 def Untyped.substnth_def {u v: Untyped} {l}:
   u.substnth l v = u.subst (v.to_subst.liftn l) := rfl
+
+@[simp]
+def Untyped.alphanth_def {u v: Untyped} {l}:
+  u.alphanth l v = u.subst (v.to_alpha.liftn l) := rfl
 
 def Untyped.substnth_wknth {u: Untyped}: {v: Untyped} -> {l: Nat} ->
   (u.wknth l).substnth l v = u := by {

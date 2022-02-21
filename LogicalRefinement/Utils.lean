@@ -177,14 +177,6 @@ def Nat.succ_le_succ_is_le: (succ n ≤ succ m) = (n ≤ m) :=
 def Nat.succ_lt_succ_is_lt: (succ n < succ m) = (n < m) :=
   propext (Iff.intro Nat.le_of_succ_le_succ Nat.succ_le_succ)
 
-def Nat.zero_sub: {n: Nat} -> 0 - n = 0
-  | 0 => rfl
-  | Nat.succ n => by {
-    rw [Nat.sub_succ].
-    rw [zero_sub].
-    rfl
-  }
-
 def Nat.zero_le_true: (0 ≤ n) = True :=
   propext (Iff.intro (λ _ => True.intro) (λ _ => Nat.zero_le _))
 
