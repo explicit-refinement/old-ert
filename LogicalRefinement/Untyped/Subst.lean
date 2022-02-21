@@ -647,7 +647,14 @@ theorem Untyped.alphann_comm {u v: Untyped} {σ: Subst} {n: Nat}:
             cases Hn
             simp --TODO: nonterminal simp
             simp only [Wk.comp_id_right_id, Subst.wk1, wk1]
-          | succ m => sorry
+          | succ m I =>
+            intro n Hn
+            let R: ∀a b, Nat.succ a + b = Nat.succ (a + b) := by {
+              simp [Nat.add_comm, Nat.add_succ]
+            };
+            rw [R]
+            sorry
+
 
 
     all_goals (
