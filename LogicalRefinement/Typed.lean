@@ -418,6 +418,10 @@ theorem HasVar.downgrade_helper: {Γ Γ': Context} -> Γ' = Γ.upgrade ->
       assumption
   }
 
+theorem HasVar.downgrade {Γ n A k}: 
+  HasVar Γ.upgrade A k n -> HasVar Γ A k.downgrade n :=
+  downgrade_helper rfl
+
 theorem HasVar.upgrade_val (p: HasVar Γ A (HypKind.val s) n): 
   HasVar Γ.upgrade A (HypKind.val s) n := HasVar.upgrade p
 
