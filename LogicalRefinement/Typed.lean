@@ -343,13 +343,13 @@ inductive HasType: Context -> RawUntyped -> Annot -> Prop
   | lam_irrel {Γ: Context} {A s B: RawUntyped}:
     HasType Γ A type ->
     HasType ((Hyp.mk A (HypKind.val type))::Γ) s (term B) ->
-    HasType Γ (lam_irrel A s) (term (forall_ A B))
+    HasType Γ (lam_irrel A s) (term (intersect A B))
   | app_irrel {Γ: Context} {A B l r: RawUntyped}:
-    HasType Γ l (term (forall_ A B)) -> HasType Γ.upgrade r (term A) ->
+    HasType Γ l (term (intersect A B)) -> HasType Γ.upgrade r (term A) ->
     HasType Γ (app_irrel l r) (term (B.subst0 l))
-  | repr {Γ: Context} {A φ l r: RawUntyped}:
-    HasType Γ l (term A) -> HasType Γ r (term (φ.subst0 l)) ->
-    HasType Γ (repr l r) (term (exists_ A φ))
+  | repr {Γ: Context} {A B l r: RawUntyped}:
+    HasType Γ l (term A) -> HasType Γ r (term (B.subst0 l)) ->
+    HasType Γ (repr l r) (term (union A B))
   --TODO: let_repr
 
     --TODO: rest
