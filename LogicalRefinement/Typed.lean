@@ -260,7 +260,7 @@ inductive HasType: Context -> RawUntyped -> Annot -> Prop
   | succ {Γ}: HasType Γ succ (term (arrow nats nats))
   | nil {Γ}: HasType Γ nil (proof top)
 
-  -- Basic types
+  -- Types
   | pi {Γ: Context} {A B: RawUntyped}:
     HasType Γ A type -> 
     HasType ((Hyp.mk A (HypKind.val type))::Γ) B type ->
@@ -288,7 +288,7 @@ inductive HasType: Context -> RawUntyped -> Annot -> Prop
     HasType ((Hyp.mk A (HypKind.val type))::Γ) B prop ->
     HasType Γ (union A B) type
   
-  -- Basic propositions
+  -- Propositions
   | and {Γ: Context} {φ ψ: RawUntyped}:
     HasType Γ φ prop -> HasType Γ ψ prop ->
     HasType Γ (and φ ψ) prop
@@ -311,7 +311,7 @@ inductive HasType: Context -> RawUntyped -> Annot -> Prop
     HasType Γ.upgrade l (term A) -> HasType Γ.upgrade r (term A) ->
     HasType Γ (eq A l r) prop
 
-  -- Basic terms
+  -- Terms
   | lam {Γ: Context} {A s B: RawUntyped}:
     HasType Γ A type ->
     HasType ((Hyp.mk A (HypKind.val type))::Γ) s (term B) ->
@@ -334,6 +334,8 @@ inductive HasType: Context -> RawUntyped -> Annot -> Prop
   | inj_r {Γ: Context} {A B e: RawUntyped}:
     HasType Γ e (term B) -> HasType Γ A type ->
     HasType Γ (inj true e) (term (coprod A B))
+  --TODO: case
+  --TODO: natrec
   | elem {Γ: Context} {A φ l r: RawUntyped}:
     HasType Γ l (term A) -> HasType Γ r (proof (φ.subst0 l)) ->
     HasType Γ (elem l r) (term (set A φ))
@@ -352,10 +354,40 @@ inductive HasType: Context -> RawUntyped -> Annot -> Prop
     HasType Γ (repr l r) (term (union A B))
   --TODO: let_repr
 
-    --TODO: rest
-
-  -- Basic proofs
-  --TODO: this
+  -- Proofs
+  | conj {Γ: Context} {A B l r: RawUntyped}:
+    HasType Γ l (proof A) -> HasType Γ r (proof B) ->
+    HasType Γ (conj l r) (proof (and A B))
+  | comp_l {Γ: Context} {A B e: RawUntyped}:
+    HasType Γ e (proof (and A B)) ->
+    HasType Γ (comp false e) (proof A)
+  | comp_r {Γ: Context} {A B e: RawUntyped}:
+    HasType Γ e (proof (and A B)) ->
+    HasType Γ (comp true e) (proof B)
+  | disj_l {Γ: Context} {A B e: RawUntyped}:
+    HasType Γ e (proof A) ->
+    HasType Γ B prop ->
+    HasType Γ (disj false e) (proof (or A B))
+  | disj_r {Γ: Context} {A B e: RawUntyped}:
+    HasType Γ e (proof B) ->
+    HasType Γ A prop ->
+    HasType Γ (disj true e) (proof (or A B))
+  --TODO: case_pr
+  --TODO: imp
+  --TODO: mp
+  | general {Γ: Context} {A s φ: RawUntyped}:
+    HasType Γ A type ->
+    HasType ((Hyp.mk A (HypKind.val type))::Γ) s (proof φ) ->
+    HasType Γ (lam_irrel A s) (proof (forall_ A φ))
+  | inst {Γ: Context} {A φ l r: RawUntyped}:
+    HasType Γ l (proof (forall_ A φ)) -> HasType Γ.upgrade r (term A) ->
+    HasType Γ (app_irrel l r) (proof (φ.subst0 l))
+  | witness {Γ: Context} {A φ l r: RawUntyped}:
+    HasType Γ l (term A) -> HasType Γ.upgrade r (proof (φ.subst0 l)) ->
+    HasType Γ (repr l r) (proof (exists_ A φ))
+  --TODO: let_wit
+  | refl {Γ: Context} {A a: RawUntyped}:
+    HasType Γ a (term A) -> HasType Γ (refl a) (proof (eq A a a))
 
 notation Γ "⊢" a ":" A => HasType Γ a A
 notation Γ "⊢" a "∈" A => HasType Γ a (term A)
