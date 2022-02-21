@@ -94,6 +94,9 @@ def Hyp.annot: Hyp -> Annot
 theorem Hyp.wk_components:
   Hyp.wk (Hyp.mk A h) ρ = Hyp.mk (A.wk ρ) h := rfl
 
+theorem Hyp.subst_components:
+  Hyp.subst (Hyp.mk A h) σ = Hyp.mk (A.subst σ) h := rfl
+
 @[simp]
 def Hyp.upgrade (H: Hyp) := Hyp.mk H.ty H.kind.upgrade
 
@@ -448,11 +451,20 @@ theorem HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
 def SubstCtx (σ: RawSubst) (Γ Δ: Context): Prop :=
   ∀{n A}, (Δ ⊢ var n: A) -> (Γ ⊢ σ n: A.subst σ)
 
+theorem SubstCtx.lift {σ: RawSubst} {Γ Δ: Context} {H: Hyp}:
+  SubstCtx σ Γ Δ ->
+  IsHyp Δ H ->
+  SubstCtx σ.lift ((H.subst σ)::Γ) (H::Δ) := sorry
+
 theorem SubstCtx.upgrade_l (H: SubstCtx σ Γ Δ): SubstCtx σ Γ.upgrade Δ 
 := λHΔ => HasType.upgrade (H HΔ)
 
 theorem SubstCtx.upgrade_r (H: SubstCtx ρ Γ Δ.upgrade): SubstCtx ρ Γ Δ 
 := λHΔ => H (HasType.upgrade HΔ)
+
+--TODO: this is inconsistent, but we'll get to that...
+theorem SubstCtx.upgrade (H: SubstCtx ρ Γ Δ): SubstCtx ρ Γ.upgrade Δ.upgrade 
+:= sorry
 
 theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
   {σ: RawSubst} -> {Γ: Context} -> SubstCtx σ Γ Δ ->
@@ -463,11 +475,88 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
       apply S
       apply var <;> assumption
 
-    --TODO: subst subst0 lemma
+    case pi =>
+      intros σ Γ S
+      simp only [
+        RawUntyped.subst, Annot.subst, term, RawUntyped.subst0_subst
+      ]  
+      constructor <;> (
+        try rename_i I0 I1 I2
+        simp only [Annot.wk, term, RawUntyped.subst0_subst] at *
+        repeat ((first | apply I0 | apply I1 | apply I2) <;> 
+          simp only [<-Hyp.subst_components, <-Hyp.wk_components] <;> 
+          first 
+          | (
+            apply SubstCtx.lift
+            assumption
+            constructor
+            assumption  
+          ) 
+          | assumption
+          )
+      )
+
+    case lam =>
+      intros σ Γ S
+      simp only [
+        RawUntyped.subst, Annot.subst, term, RawUntyped.subst0_subst
+      ]  
+      constructor <;> (
+        try rename_i I0 I1 I2
+        simp only [Annot.wk, term, RawUntyped.subst0_subst] at *
+        repeat ((first | apply I0 | apply I1 | apply I2) <;> 
+          simp only [<-Hyp.subst_components, <-Hyp.wk_components] <;> 
+          first 
+          | (
+            apply SubstCtx.lift
+            assumption
+            constructor
+            assumption  
+          ) 
+          | assumption
+          )
+      )
+
     case app =>
       intros σ Γ S
-      simp only [RawUntyped.subst, Annot.subst, term]
-      sorry
+      simp only [
+        RawUntyped.subst, Annot.subst, term, RawUntyped.subst0_subst
+      ]  
+      constructor <;> (
+        try rename_i I0 I1 I2
+        simp only [Annot.wk, term, RawUntyped.subst0_subst] at *
+        repeat ((first | apply I0 | apply I1 | apply I2) <;> 
+          simp only [<-Hyp.subst_components, <-Hyp.wk_components] <;> 
+          first 
+          | (constructor <;> assumption) 
+          | assumption
+          )
+      )
+
+    
+    case eq =>
+      intros σ Γ S
+      simp only [
+        RawUntyped.subst, Annot.subst, term, RawUntyped.subst0_subst
+      ]  
+      constructor <;> (
+        try rename_i I0 I1 I2
+        simp only [Annot.wk, term, RawUntyped.subst0_subst] at *
+        repeat ((first | apply I0 | apply I1 | apply I2) <;> 
+          simp only [<-Hyp.subst_components, <-Hyp.wk_components] <;> 
+          first 
+          | (
+            apply SubstCtx.lift
+            assumption
+            constructor
+            assumption  
+          ) 
+          | assumption
+          | apply SubstCtx.upgrade; assumption
+          )
+      )
+
+      --TODO: fix pair...
 
     -- any_goals (
     --   intros σ Γ S
