@@ -620,14 +620,15 @@ theorem Untyped.alphann_comm {u v: Untyped} {σ: Subst} {n: Nat}:
           | zero => sorry
           | succ n => sorry
 
-
-    case cases IK Id Il Ir =>
+    all_goals (
       intro v σ n H;
-      simp only [alphanth, subst, Subst.lift_liftn_merge]
-      simp only [<-alphanth_def]
-      rw [IK H, Id H, Il H, Ir H]
-
-    repeat sorry
+      simp only [alphanth, subst, Subst.lift_liftn_merge, Subst.liftn_merge]
+      try simp only [<-alphanth_def]
+      try (rename_i I0; rw [I0 H])
+      try (rename_i I1; rw [I1 H])
+      try (rename_i I2; rw [I2 H])
+      try (rename_i I3; rw [I3 H])
+    )
   }
 
 
