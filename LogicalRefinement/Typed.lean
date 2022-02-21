@@ -584,7 +584,16 @@ theorem HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
       apply HasVar.wk
       repeat assumption
 
-    case case => sorry
+    case case I0 I1 I2 I3 =>
+      intros ρ Γ R
+      simp only [
+        RawUntyped.wk, Annot.wk, 
+        term, proof, 
+        RawUntyped.subst0_wk
+      ]
+      simp only [Annot.wk, term, proof, RawUntyped.subst0_wk] at *
+      sorry
+
 
     any_goals (
       intros ρ Γ R
@@ -593,9 +602,9 @@ theorem HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
         term, proof, 
         RawUntyped.subst0_wk
       ]
+      simp only [Annot.wk, term, proof, RawUntyped.subst0_wk] at *
       constructor <;> (
         try rename_i I0 I1 I2
-        simp only [Annot.wk, term, proof, RawUntyped.subst0_wk] at *
         repeat ((first | apply I0 | apply I1 | apply I2) <;> 
           simp only [<-Hyp.wk_components] <;> 
           first 
@@ -714,11 +723,11 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
       simp only [
         RawUntyped.subst, Annot.subst, term, proof, RawUntyped.subst0_subst
       ]  
+      simp only [
+        Annot.wk, Annot.subst, term, proof, RawUntyped.subst0_subst
+      ] at *
       constructor <;> (
         try rename_i I0 I1 I2
-        simp only [
-          Annot.wk, Annot.subst, term, proof, RawUntyped.subst0_subst
-          ] at *
         repeat ((first | apply I0 | apply I1 | apply I2) <;> 
           simp only [<-Hyp.subst_components, <-Hyp.wk_components] <;> 
           first 
