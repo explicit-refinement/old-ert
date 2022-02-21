@@ -541,8 +541,11 @@ def Untyped.alphanth_wkn {l: Nat}: {u v: Untyped} ->
       ]
     | succ l I =>
       intros
-      simp only [alphanth, Subst.liftn]
-      sorry
+      simp only [alphanth, Subst.liftn, wkn_wk1]
+      rw [Subst.lift_wk]
+      rw [<-wkn_wk1]
+      rw [<-alphanth_def]
+      rw [I]
   }
 
 theorem Subst.subst0_subst_composes {σ: Subst} {u: Untyped}:
