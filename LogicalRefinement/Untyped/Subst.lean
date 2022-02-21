@@ -707,3 +707,20 @@ theorem Untyped.alpha00_wk_comm {u v: Untyped} {ρ: Wk}:
     simp only [<-Subst.subst_wk_compat, <-Wk.to_subst_lift];
     exact alpha00_comm H
   }
+
+theorem Untyped.alpha0_fv {u v: Untyped}: (u.alpha0 v).fv ≤ Nat.max u.fv v.fv := by {
+  revert v;
+  induction u;
+  case var m =>
+    intro v;
+    cases m with
+    | zero => exact Nat.max_le_r
+    | succ m => exact Nat.max_le_l
+
+  case cases =>
+    intro v;
+    --TODO: alphanth!
+    sorry
+
+  repeat sorry
+}
