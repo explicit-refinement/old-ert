@@ -571,3 +571,54 @@ theorem Untyped.subst0_subst {u v: Untyped} {σ: Subst}:
     simp only [subst_composes]
     rw [Subst.subst0_subst_composes]
   }
+
+theorem Untyped.alphann_comm {u v: Untyped} {σ: Subst} {n: Nat}:
+  v.fv ≤ 1 -> 
+  (u.subst (σ.liftn (n + 1))).alphanth n v 
+  = (u.alphanth n v).subst (σ.liftn (n + 1)) 
+  := by {
+    intro H;
+    revert n σ v;
+    induction u;
+    case var m =>
+      intro v σ n
+      revert v σ
+      induction n with
+      | zero => 
+        intro v σ H
+        simp only [alphanth, Subst.liftn]
+        cases m with
+        | zero => simp [lift_base H]
+        | succ m => 
+          simp only [subst, Subst.lift, <-alpha0_def]
+          exact alpha0_wk1
+      | succ n I =>
+        intros v σ H
+        simp only [alphanth, Subst.liftn]
+        cases m with
+        | zero => simp
+        | succ m => 
+          simp only [subst, Subst.lift_succ, Subst.wk1]
+          simp only [Subst.lift_wk]
+          simp only [<-alphanth_def, Subst.lift_liftn_merge, subst]
+          sorry
+
+    repeat sorry
+  }
+
+
+theorem Untyped.alpha00_comm {u v: Untyped} {σ: Subst}:
+  v.fv ≤ 1 -> 
+  (u.subst σ.lift).alpha0 v 
+  = (u.alpha0 v).subst σ.lift
+  := @alphann_comm u v σ 0
+
+theorem Untyped.alpha00_wk_comm {u v: Untyped} {ρ: Wk}:
+  v.fv ≤ 1 -> 
+  (u.wk ρ.lift).alpha0 v 
+  = (u.alpha0 v).wk ρ.lift
+  := by {
+    intro H;
+    simp only [<-Subst.subst_wk_compat, <-Wk.to_subst_lift];
+    exact alpha00_comm H
+  }

@@ -164,6 +164,9 @@ structure Hyp := (ty: Untyped) (kind: HypKind)
 def Hyp.wk (H: Hyp) (ρ: Wk) := Hyp.mk (H.ty.wk ρ) H.kind
 
 @[simp]
+def Hyp.wk_def {A k ρ}: (Hyp.mk A k).wk ρ = Hyp.mk (A.wk ρ) k := rfl
+
+@[simp]
 def Hyp.wkn (H: Hyp) (n: Nat) := Hyp.mk (H.ty.wkn n) H.kind
 
 @[simp]
@@ -606,10 +609,18 @@ theorem HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
       assumption
       apply I1
       assumption
+      rw [Untyped.alpha00_wk_comm (by simp)]
       simp only [Untyped.pi, Untyped.inj]
-      sorry
-      sorry
-
+      apply I2
+      rw [<-Hyp.wk_def]
+      constructor
+      assumption
+      rw [Untyped.alpha00_wk_comm (by simp)]
+      simp only [Untyped.pi, Untyped.inj]
+      apply I3
+      rw [<-Hyp.wk_def]
+      constructor
+      assumption
 
     any_goals (
       intros ρ Γ R
