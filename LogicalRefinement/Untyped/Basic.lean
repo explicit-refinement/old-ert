@@ -153,38 +153,24 @@ theorem Untyped.has_dep_implies_fv (u: Untyped): {i: Nat} ->
       apply Nat.le_lt_succ
       apply Nat.le_of_eq
       rw [H]
-    case const c => simp
-    case unary _ t I => simp; apply I
-    case let_bin _ e I =>
-      intro i H
-      let H' := I H
-      exact Nat.lt_sub_lt_add H'
-    case bin _ l r Il Ir =>
-      intro i H
-      cases H with
-      | inl H => exact Or.inl (Il H)
-      | inr H => exact Or.inr (Ir H)
-    case abs _ A t IA It => 
-      intro i H
-      cases H with
-      | inl H => exact Or.inl (IA H)
-      | inr H => exact Or.inr (Nat.lt_sub_lt_add (It H))
-    case tri _ A l r IA Il Ir =>
-      intro i H
-      exact (
-        match H with
-        | Or.inl H => Or.inl (IA H)
-        | Or.inr (Or.inl H) => Or.inr (Or.inl (Il H))
-        | Or.inr (Or.inr H) => Or.inr (Or.inr (Ir H))
+
+    all_goals (
+      intro i;
+      repeat any_goals (apply or_imp_decompose; apply And.intro);
+      all_goals (
+        intro H
+        try apply Nat.lt_sub_lt_add
+        revert H
       )
-    case cases _ K d l r IK Id Il Ir =>
-      intro i H
-      cases H with
-      | inl H => exact Or.inl (Nat.lt_sub_lt_add (IK H))
-      | inr H => apply Or.inr; exact (
-        match H with
-        | Or.inl H => Or.inl (Id H)
-        | Or.inr (Or.inl H) => Or.inr (Or.inl (Il H))
-        | Or.inr (Or.inr H) => Or.inr (Or.inr (Ir H))
-      )
+      try any_goals simp
+    )
+    --TODO: why can't the same name be reused
+    any_goals rename_i I0
+    any_goals apply I0
+    any_goals rename_i I1
+    any_goals apply I1
+    any_goals rename_i I2
+    any_goals apply I2
+    any_goals rename_i I3
+    any_goals apply I3
   }

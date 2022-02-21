@@ -309,3 +309,13 @@ theorem Nat.add_sub_self_gt: {n m: Nat} -> m ≤ n -> n - m + m = n := by {
       rw [<-Nat.succ_sub_gt H]
       exact I (Nat.le_succ_of_le H)
 }
+
+theorem or_imp_decompose {A B C D: Prop}: 
+  (A -> C) ∧ (B -> D) -> A ∨ B -> C ∨ D 
+  := by {
+    intro ⟨F, G⟩;
+    intro H;
+    cases H with
+    | inl H => exact Or.inl (F H)
+    | inr H => exact Or.inr (G H)
+  }
