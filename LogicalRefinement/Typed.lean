@@ -334,6 +334,9 @@ inductive HasType: Context -> RawUntyped -> Annot -> Prop
   | inj_r {Γ: Context} {A B e: RawUntyped}:
     HasType Γ e (term B) -> HasType Γ A type ->
     HasType Γ (inj true e) (term (coprod A B))
+  | elem {Γ: Context} {A φ l r: RawUntyped}:
+    HasType Γ l (term A) -> HasType Γ r (proof (φ.subst0 l)) ->
+    HasType Γ (elem l r) (term (set A φ))
   
     --TODO: rest
 
@@ -532,10 +535,14 @@ theorem HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
 
     any_goals (
       intros ρ Γ R
-      simp only [RawUntyped.wk, Annot.wk, term, RawUntyped.subst0_wk]
+      simp only [
+        RawUntyped.wk, Annot.wk, 
+        term, proof, 
+        RawUntyped.subst0_wk
+      ]
       constructor <;> (
         try rename_i I0 I1 I2
-        simp only [Annot.wk, term, RawUntyped.subst0_wk] at *
+        simp only [Annot.wk, term, proof, RawUntyped.subst0_wk] at *
         repeat ((first | apply I0 | apply I1 | apply I2) <;> 
           simp only [<-Hyp.wk_components] <;> 
           first 
@@ -650,11 +657,13 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
     all_goals (
       intros σ Γ S
       simp only [
-        RawUntyped.subst, Annot.subst, term, RawUntyped.subst0_subst
+        RawUntyped.subst, Annot.subst, term, proof, RawUntyped.subst0_subst
       ]  
       constructor <;> (
         try rename_i I0 I1 I2
-        simp only [Annot.wk, Annot.subst, term, RawUntyped.subst0_subst] at *
+        simp only [
+          Annot.wk, Annot.subst, term, proof, RawUntyped.subst0_subst
+          ] at *
         repeat ((first | apply I0 | apply I1 | apply I2) <;> 
           simp only [<-Hyp.subst_components, <-Hyp.wk_components] <;> 
           first 
