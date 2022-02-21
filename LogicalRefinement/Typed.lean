@@ -549,61 +549,33 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
   {σ: RawSubst} -> {Γ: Context} -> SubstCtx σ Γ Δ ->
   (Γ ⊢ (a.subst σ): (A.subst σ)) := by {
     induction HΔ;
+    
     case var I =>
       intros σ Γ S
       apply S.var
       apply var <;> assumption
 
-    case lam =>
+    all_goals (
       intros σ Γ S
       simp only [
         RawUntyped.subst, Annot.subst, term, RawUntyped.subst0_subst
       ]  
       constructor <;> (
         try rename_i I0 I1 I2
-        simp only [Annot.wk, term, RawUntyped.subst0_subst] at *
+        simp only [Annot.wk, Annot.subst, term, RawUntyped.subst0_subst] at *
         repeat ((first | apply I0 | apply I1 | apply I2) <;> 
           simp only [<-Hyp.subst_components, <-Hyp.wk_components] <;> 
           first 
           | assumption
+          | (
+            apply SubstCtx.lift_primitive;
+            assumption
+            simp only [HypKind, Hyp.subst]
+          )
           | apply SubstCtx.upgrade; assumption
           )
       )
-
-    case app =>
-      intros σ Γ S
-      simp only [
-        RawUntyped.subst, Annot.subst, term, RawUntyped.subst0_subst
-      ]  
-      constructor <;> (
-        try rename_i I0 I1 I2
-        simp only [Annot.wk, term, RawUntyped.subst0_subst] at *
-        repeat ((first | apply I0 | apply I1 | apply I2) <;> 
-          simp only [<-Hyp.subst_components, <-Hyp.wk_components] <;> 
-          first 
-          | assumption
-          | apply SubstCtx.upgrade; assumption
-          )
-      )
-
-      --TODO: fix pair...
-
-    -- any_goals (
-    --   intros σ Γ S
-    --   simp only [RawUntyped.subst, Annot.subst, term, RawUntyped.subst0_wk]
-    --   constructor <;> (
-    --     try rename_i I0 I1 I2
-    --     simp only [Annot.wk, term, RawUntyped.subst0_wk] at *
-    --     repeat ((first | apply I0 | apply I1 | apply I2) <;> 
-    --       simp only [<-Hyp.wk_components] <;> 
-    --       first 
-    --       | (constructor; assumption) 
-    --       | assumption 
-    --       | (apply WkCtx.upgrade; assumption))
-    --       )
-    --   )
-
-    repeat sorry
+    )
   }
 
 --TODO: basic substitution helpers, in particular for subst0. See HasType.regular
