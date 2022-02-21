@@ -33,6 +33,8 @@ def Annot.wk: Annot -> RawWk -> Annot
 @[simp]
 def Annot.wk1 (A: Annot): Annot := A.wk RawWk.wk1
 
+def Annot.wk1_expr_def {A}: (expr s A).wk1 = (expr s A.wk1) := rfl
+
 @[simp]
 def Annot.subst: Annot -> RawSubst -> Annot
   | sort s, _ => sort s
@@ -470,9 +472,9 @@ theorem SubstCtx.lift {σ: RawSubst} {Γ Δ: Context} {H: Hyp}:
       cases HΔ;
       rename_i A n H
       simp only [RawSubst.lift_wk, Nat.add]
-      simp only [RawSubst.lift]
-      --TODO: subst wk1 lift is just wk1
-      sorry
+      simp only [RawSubst.lift, RawSubst.wk1]
+      rw [<-Annot.wk1_expr_def]
+      exact HasType.wk1 (S H)
   }
 
 theorem SubstCtx.upgrade (H: SubstCtx ρ Γ Δ): SubstCtx ρ Γ.upgrade Δ.upgrade 
