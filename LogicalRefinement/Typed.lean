@@ -523,9 +523,16 @@ def IsHyp (Γ: Context) (H: Hyp): Prop := Γ ⊢ H.ty: sort H.kind.annot
 
 inductive WkCtx: Wk -> Context -> Context -> Type
   | id: WkCtx Wk.id Γ Γ
-  --TODO: make H explicit?
   | step {ρ Γ Δ H}: WkCtx ρ Γ Δ -> WkCtx ρ.step (H::Γ) Δ 
-  | lift {ρ Γ Δ H}: WkCtx ρ Γ Δ -> WkCtx ρ.lift ((H.wk ρ)::Γ) (H::Δ)
+  | lift {ρ Γ Δ k} {A: Untyped}: WkCtx ρ Γ Δ 
+    -> WkCtx ρ.lift ((Hyp.mk (A.wk ρ) k)::Γ) ((Hyp.mk A k)::Δ)
+
+def WkCtx.lift_loose: 
+  A' = A.wk ρ -> WkCtx ρ Γ Δ -> WkCtx ρ.lift ((Hyp.mk A' k)::Γ) ((Hyp.mk A k)::Δ) := by {
+    intro H R;
+    rw [H];
+    exact WkCtx.lift R
+  }
 
 def WkCtx.wk1 {Γ H}: WkCtx Wk.wk1 (H::Γ) Γ := WkCtx.step WkCtx.id
 
@@ -554,7 +561,7 @@ theorem HasVar.wk:
       intros n A s HΔ;
       simp only [Untyped.step_wk1]
       exact var_succ (I R HΔ)
-    case lift ρ I Γ Δ H R =>
+    case lift ρ I Γ Δ k A R =>
       intros n A s HΔ;
       cases HΔ with
       | var0 =>
@@ -589,36 +596,6 @@ theorem HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
       apply HasVar.wk
       repeat assumption
 
-    case case I0 I1 I2 I3 =>
-      intros ρ Γ R
-      simp only [
-        Untyped.wk, Annot.wk, 
-        term, proof, 
-        Untyped.subst0_wk
-      ]
-      simp only [
-        Annot.wk, term, proof, Untyped.subst0_wk, Untyped.wk,
-        Wk.var
-      ] at *
-      constructor <;> simp only [term, proof]
-      apply I0
-      apply @WkCtx.lift _ _ _ (Hyp.mk (Untyped.or _ _) _)
-      assumption
-      apply I1
-      assumption
-      rw [Untyped.alpha00_wk_comm (by simp)]
-      simp only [Untyped.pi, Untyped.inj]
-      apply I2
-      rw [<-Hyp.wk_def]
-      constructor
-      assumption
-      rw [Untyped.alpha00_wk_comm (by simp)]
-      simp only [Untyped.pi, Untyped.inj]
-      apply I3
-      rw [<-Hyp.wk_def]
-      constructor
-      assumption
-
     any_goals (
       intros ρ Γ R
       simp only [
@@ -628,15 +605,17 @@ theorem HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
       ]
       simp only [Annot.wk, term, proof, Untyped.subst0_wk] at *
       constructor <;> (
-        try rename_i I0 I1 I2
-        repeat ((first | apply I0 | apply I1 | apply I2) <;> 
+        try rename_i I0 I1 I2 I3
+        try rw [Untyped.alpha00_wk_comm (by simp)]
+        repeat ((first | apply I0 | apply I1 | apply I2 | apply I3) <;> 
           simp only [<-Hyp.wk_components] <;> 
+          (try assumption) <;>
           first 
-          | (constructor; assumption) 
-          | assumption 
-          | (apply WkCtx.upgrade; assumption))
-          )
+          | (apply WkCtx.lift_loose; rfl; assumption) 
+          | (apply WkCtx.upgrade; assumption)
+        )
       )
+    )
   }
 
 --TODO: basic weakening helpers
