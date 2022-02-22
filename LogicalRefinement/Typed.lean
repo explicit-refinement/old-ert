@@ -596,7 +596,7 @@ theorem HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
       apply HasVar.wk
       repeat assumption
 
-    any_goals (
+    all_goals (
       intros ρ Γ R
       simp only [
         Untyped.wk, Annot.wk, 
