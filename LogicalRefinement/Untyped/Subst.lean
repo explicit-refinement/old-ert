@@ -125,6 +125,7 @@ def Untyped.subst: Untyped -> Subst -> Untyped
   | var v, σ => σ v
   | const c, σ => const c
   | unary k t, σ => unary k (t.subst σ)
+  | elim k M, σ => elim k (M.subst σ.lift)
   | let_bin k e e', σ => let_bin k (e.subst σ) (e'.subst (σ.liftn 2))
   | bin k l r, σ => bin k (l.subst σ) (r.subst σ)
   | abs k A t, σ => abs k (A.subst σ) (t.subst σ.lift)
@@ -172,6 +173,15 @@ theorem Untyped.liftn_wk {u: Untyped}: {σ: Subst} -> (n: Nat) ->
       intros σ n
       simp only [wknth] at I
       simp only [wknth, wk, subst, I]
+    | elim k M I =>
+      intros σ n
+      simp only [wknth, wk, subst]
+      simp only [wknth] at *
+      rw [
+        Wk.lift_wknth_merge, 
+        Subst.lift_liftn_merge, 
+        Subst.lift_liftn_merge,
+        I]
     | let_bin k e e' I I' =>
       intros σ n
       simp only [wknth, wk, subst, Wk.liftn_wknth_merge]
@@ -194,7 +204,6 @@ theorem Untyped.liftn_wk {u: Untyped}: {σ: Subst} -> (n: Nat) ->
         Subst.lift_liftn_merge, 
         Subst.lift_liftn_merge,
         It]
-      exact 0 -- TODO: why?
     | tri k A l r IA Il Ir =>
       intros σ n
       simp only [wknth, wk, subst]
@@ -209,7 +218,6 @@ theorem Untyped.liftn_wk {u: Untyped}: {σ: Subst} -> (n: Nat) ->
       rw [Subst.lift_liftn_merge]
       rw [Subst.lift_liftn_merge]
       rw [IK, Il, Ir]
-      exact 0 -- TODO: why?
   }
 
 theorem Subst.lift_wk {u: Untyped}: {σ: Subst} ->
@@ -332,6 +340,12 @@ theorem Untyped.subst_bounds:
     intros σ n m Hv Hσ;
     simp only [fv, subst];
     exact I Hv Hσ
+  | elim k M I =>
+    intros σ n m;
+    simp only [Untyped.fv, Nat.max_r_le_split, Nat.le_sub_is_le_add]
+    intro HM Hσ
+    --TODO: move lift_subst to subst_maps?
+    exact I HM (Subst.lift_subst Hσ)
   | let_bin k e e' I I' =>
     simp only [fv, subst, Nat.max_r_le_split, Nat.le_sub_is_le_add]
     intro σ n m ⟨He, He'⟩ Hσ;
@@ -491,7 +505,6 @@ def Untyped.substnth_wknth {u: Untyped}: {v: Untyped} -> {l: Nat} ->
     | rw [Subst.liftn_merge]
     try simp only [<-substnth_def, <-wknth_def]
     try simp only [*]
-    repeat exact 0
   )
 }
 

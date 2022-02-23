@@ -31,6 +31,7 @@ inductive UntypedKind: List Nat -> Type
   | let_pair: UntypedKind [0, 2]
   | inj (b: Bool): UntypedKind [0]
   | case: UntypedKind [1, 0, 1, 1]
+  | cases: UntypedKind [1]
   | elem: UntypedKind [0, 0]
   | let_set: UntypedKind [0, 2]
   | lam_pr: UntypedKind [0, 1]
@@ -60,6 +61,7 @@ inductive Untyped: Type
 
   | const (c: UntypedKind [])
   | unary (k: UntypedKind [0]) (t: Untyped)
+  | elim (k: UntypedKind [1]) (M: Untyped)
   -- TODO: let n?
   | let_bin (k: UntypedKind [0, 2]) (e: Untyped) (e': Untyped)
   -- TODO: bin n? Can't, due to, of course, lack of nested inductive types...
@@ -127,6 +129,7 @@ def Untyped.refl := unary UntypedKind.refl
   | var v => Nat.succ v
   | const c => 0
   | unary _ t => fv t
+  | elim _ M => fv M - 1
   | let_bin _ e e' => Nat.max (fv e) ((fv e') - 2)
   | bin _ l r => Nat.max (fv l) (fv r)
   | abs _ A t => Nat.max (fv A) (fv t - 1)
@@ -137,6 +140,7 @@ def Untyped.refl := unary UntypedKind.refl
   | var v, i => v = i
   | const c, _ => False
   | unary _ t, i => has_dep t i
+  | elim _ M, i => has_dep M (i + 1)
   | let_bin _ e e', i => has_dep e i ∨ has_dep e' (i + 2)
   | bin _ l r, i => has_dep l i ∨ has_dep r i
   | abs _ A t, i => has_dep A i ∨ has_dep t (i + 1)

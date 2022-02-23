@@ -34,7 +34,7 @@ theorem Wk.liftn_merge {ρ: Wk}: {n m: Nat} ->
   }
 
 @[simp]
-theorem Wk.lift_wknth_merge {m n: Nat}: lift (wknth n) = wknth (n + 1) 
+theorem Wk.lift_wknth_merge {n: Nat}: lift (wknth n) = wknth (n + 1) 
   := lift_liftn_merge
 
 @[simp]
@@ -172,7 +172,6 @@ def Wk.liftn_id_equiv: {n: Nat} -> equiv (id.liftn n) id := by {
   var (wknth (Nat.succ n)) (Nat.succ m) = Nat.succ (var (wknth n) m) := by {
     rw[<-lift_wknth_merge]
     simp only [var]
-    exact 0
 }
 
 @[simp] def Wk.wkn_var:
