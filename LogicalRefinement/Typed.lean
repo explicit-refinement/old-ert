@@ -698,14 +698,15 @@ theorem SubstCtx.lift_primitive
   }
 
 theorem SubstCtx.lift_loose
-  {σ: Subst} {Γ Δ: Context} {A A': Untyped} {k: HypKind} {s: AnnotSort}:
+  {σ σ': Subst} {Γ Δ: Context} {A A': Untyped} {k: HypKind} {s: AnnotSort}:
+  σ' = σ.lift ->
   A' = A.subst σ ->
   SubstCtx σ Γ Δ ->
   k.is_wk (HypKind.val s) ->
   IsHyp Γ (Hyp.mk A' (HypKind.val s)) ->
-  SubstCtx σ.lift ((Hyp.mk A' (HypKind.val s))::Γ) ((Hyp.mk A k)::Δ) := by {
-    intro H;
-    rw [H];
+  SubstCtx σ' ((Hyp.mk A' (HypKind.val s))::Γ) ((Hyp.mk A k)::Δ) := by {
+    intro Hσ HA;
+    rw [Hσ, HA];
     apply lift_primitive
   }
 
@@ -737,18 +738,21 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
       ] at *
       constructor <;> (
         rename_i' I5 I4 I3 I2 I1 I0;
+        try rw [Untyped.alpha00_comm (by simp)]
         repeat ((first | apply I0 | apply I1 | apply I2 | apply I3 | apply I4 | apply I5) <;> 
           simp only [<-Hyp.subst_components] <;> 
-          first 
-          | assumption
+          (try assumption) <;>
+          first
+          | apply SubstCtx.upgrade; assumption
+          --TODO: liftn...
           | (
-            apply SubstCtx.lift_primitive;
+            apply SubstCtx.lift_loose;
+            rfl
+            rfl
             assumption
             constructor
             simp only [HypKind, Hyp.subst]
           )
-          --TODO: liftn...
-          | apply SubstCtx.upgrade; assumption
           )
       )
     )
