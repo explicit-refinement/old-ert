@@ -317,8 +317,8 @@ inductive HasType: Context -> Untyped -> Annot -> Prop
 
   -- Terms
   | lam {Γ: Context} {A s B: Untyped}:
-    HasType Γ A type ->
     HasType ((Hyp.mk A (HypKind.val type))::Γ) s (term B) ->
+    HasType Γ A type ->
     HasType Γ (lam A s) (term (pi A B))
   | app {Γ: Context} {A B l r: Untyped}:
     HasType Γ l (term (pi A B)) -> HasType Γ r (term A) ->
@@ -339,12 +339,13 @@ inductive HasType: Context -> Untyped -> Annot -> Prop
     HasType Γ e (term B) -> HasType Γ A type ->
     HasType Γ (inj true e) (term (coprod A B))
   | case {Γ: Context} {A B C e l r: Untyped}:
-    HasType Γ (or A B) type ->
-    HasType ((Hyp.mk (or A B) (HypKind.val type))::Γ) C type ->
-    HasType Γ e (term (or A B)) ->
+    HasType ((Hyp.mk (coprod A B) (HypKind.val type))::Γ) C type ->
+    HasType Γ e (term (coprod A B)) ->
     --TODO: subst subst0 for swap0
     HasType ((Hyp.mk A (HypKind.val type))::Γ) l (term (C.alpha0 (inj false (var 0)))) ->
     HasType ((Hyp.mk B (HypKind.val type))::Γ) r (term (C.alpha0 (inj true (var 0)))) ->
+    HasType Γ A type ->
+    HasType Γ B type ->
     HasType Γ (case C e l r) (term (C.subst0 e))
   
   --TODO: natrec
@@ -601,17 +602,15 @@ theorem HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
     all_goals (
       intros ρ Γ R
       simp only [Untyped.wk, Annot.wk, term, proof, Untyped.subst0_wk] at *
-      constructor <;> (
-        rename_i' I5 I4 I3 I2 I1 I0;
-        try rw [Untyped.alpha00_wk_comm (by simp)]
-        repeat ((first | apply I0 | apply I1 | apply I2 | apply I3 | apply I4 | apply I5) <;> 
-          simp only [<-Hyp.wk_components] <;> 
-          (try assumption) <;>
-          first 
-          | (apply WkCtx.upgrade; assumption)
-          | (apply WkCtx.lift_loose; rfl; rfl; assumption)
-        )
-      )
+      constructor <;> 
+      rename_i' I5 I4 I3 I2 I1 I0 <;> 
+      (try rw [Untyped.alpha00_wk_comm (by simp)]) <;>
+      (first | apply I0 | apply I1 | apply I2 | apply I3 | apply I4 | apply I5) <;> 
+      simp only [<-Hyp.wk_components] <;> 
+      first 
+      | exact R
+      | (exact WkCtx.upgrade R)
+      | (apply WkCtx.lift_loose; rfl; rfl; exact R)
     )
   }
 
@@ -729,32 +728,38 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
       apply S.var
       apply var <;> assumption
 
-    case case => sorry
+    -- case case => sorry
 
     all_goals (
       intros σ Γ S
       simp only [
         Untyped.subst, Annot.subst, term, proof, Untyped.subst0_subst
       ] at *
-      constructor <;> (
-        rename_i' I5 I4 I3 I2 I1 I0;
-        try rw [Untyped.alpha00_comm (by simp)]
-        repeat ((first | apply I0 | apply I1 | apply I2 | apply I3 | apply I4 | apply I5) <;> 
-          simp only [<-Hyp.subst_components] <;> 
-          (try assumption) <;>
-          first
-          | apply SubstCtx.upgrade; assumption
-          --TODO: liftn...
-          | (
-            apply SubstCtx.lift_loose;
-            rfl
-            rfl
-            assumption
-            constructor
-            simp only [HypKind, Hyp.subst]
+      constructor <;>
+      rename_i' I5 I4 I3 I2 I1 I0 <;> (
+      (
+        (try rw [Untyped.alpha00_comm (by simp)])
+        first | apply I0 | apply I1 | apply I2 | apply I3 | apply I4 | apply I5 
+        try simp only [<-Hyp.subst_components]
+        try exact S
+        try exact SubstCtx.upgrade S
+        first
+        | 
+          (
+            apply SubstCtx.lift_primitive S (by constructor <;> simp only [HypKind, Hyp.subst])
+            simp only [IsHyp]
+            try first | apply I0 | apply I1 | apply I2 | apply I3 | apply I4 | apply I5
+            try exact S
+            try simp only [Untyped.subst, Untyped.or, IsHyp]
+            try constructor
+            try first | apply I0 | apply I1 | apply I2 | apply I3 | apply I4 | apply I5
+            try exact S
+            try first | apply I0 | apply I1 | apply I2 | apply I3 | apply I4 | apply I5
+            try exact S
           )
-          )
+        | try constructor
       )
+    )
     )
   }
 
