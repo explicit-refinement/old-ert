@@ -362,7 +362,9 @@ inductive HasType: Context -> Untyped -> Annot -> Prop
   --TODO: let_repr
 
   -- Proofs
-  --TODO: absurd
+  | abort {Γ: Context} {A: Annot} {p: Untyped}:
+    HasType Γ p (proof bot) ->
+    HasType Γ (abort p) A
   | conj {Γ: Context} {A B l r: Untyped}:
     HasType Γ l (proof A) -> HasType Γ r (proof B) ->
     HasType Γ (conj l r) (proof (and A B))
