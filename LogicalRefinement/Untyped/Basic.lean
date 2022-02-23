@@ -28,17 +28,17 @@ inductive UntypedKind: List Nat -> Type
   | lam: UntypedKind [0, 1]
   | app: UntypedKind [0, 0]
   | pair: UntypedKind [0, 0]
-  | let_pair: UntypedKind [2]
+  | let_pair: UntypedKind [0, 2]
   | inj (b: Bool): UntypedKind [0]
   | case: UntypedKind [1, 0, 1, 1]
   | elem: UntypedKind [0, 0]
-  | let_set: UntypedKind [2]
+  | let_set: UntypedKind [0, 2]
   | lam_pr: UntypedKind [0, 1]
   | app_pr: UntypedKind [0, 0]
   | lam_irrel: UntypedKind [0, 1]
   | app_irrel: UntypedKind [0, 0]
   | repr: UntypedKind [0, 0]
-  | let_repr: UntypedKind [2]
+  | let_repr: UntypedKind [0, 2]
 
   -- Proofs
   | nil: UntypedKind []
@@ -52,7 +52,7 @@ inductive UntypedKind: List Nat -> Type
   | general: UntypedKind [0, 1]
   | inst: UntypedKind [0, 0]
   | witness: UntypedKind [0, 0]
-  | let_wit: UntypedKind [2]
+  | let_wit: UntypedKind [0, 2]
   | refl: UntypedKind [0]
 
 inductive Untyped: Type
@@ -61,7 +61,7 @@ inductive Untyped: Type
   | const (c: UntypedKind [])
   | unary (k: UntypedKind [0]) (t: Untyped)
   -- TODO: let n?
-  | let_bin (k: UntypedKind [2]) (e: Untyped)
+  | let_bin (k: UntypedKind [0, 2]) (e: Untyped) (e': Untyped)
   -- TODO: bin n? Can't, due to, of course, lack of nested inductive types...
   | bin (k: UntypedKind [0, 0]) (l: Untyped) (r: Untyped)
   -- TODO: abs n?
@@ -127,7 +127,7 @@ def Untyped.refl := unary UntypedKind.refl
   | var v => Nat.succ v
   | const c => 0
   | unary _ t => fv t
-  | let_bin _ e => (fv e) - 2
+  | let_bin _ e e' => Nat.max (fv e) ((fv e') - 2)
   | bin _ l r => Nat.max (fv l) (fv r)
   | abs _ A t => Nat.max (fv A) (fv t - 1)
   | tri _ A l r => Nat.max (fv A) (Nat.max (fv l) (fv r))
@@ -137,7 +137,7 @@ def Untyped.refl := unary UntypedKind.refl
   | var v, i => v = i
   | const c, _ => False
   | unary _ t, i => has_dep t i
-  | let_bin _ e, i => has_dep e (i + 2)
+  | let_bin _ e e', i => has_dep e i ∨ has_dep e' (i + 2)
   | bin _ l r, i => has_dep l i ∨ has_dep r i
   | abs _ A t, i => has_dep A i ∨ has_dep t (i + 1)
   | tri _ A l r, i => has_dep A i ∨ has_dep l i ∨ has_dep r i

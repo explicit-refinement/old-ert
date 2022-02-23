@@ -125,7 +125,7 @@ def Untyped.subst: Untyped -> Subst -> Untyped
   | var v, σ => σ v
   | const c, σ => const c
   | unary k t, σ => unary k (t.subst σ)
-  | let_bin k t, σ => let_bin k (t.subst (σ.liftn 2))
+  | let_bin k e e', σ => let_bin k (e.subst σ) (e'.subst (σ.liftn 2))
   | bin k l r, σ => bin k (l.subst σ) (r.subst σ)
   | abs k A t, σ => abs k (A.subst σ) (t.subst σ.lift)
   | tri k A l r, σ => tri k (A.subst σ) (l.subst σ) (r.subst σ)
@@ -172,12 +172,12 @@ theorem Untyped.liftn_wk {u: Untyped}: {σ: Subst} -> (n: Nat) ->
       intros σ n
       simp only [wknth] at I
       simp only [wknth, wk, subst, I]
-    | let_bin k e I =>
+    | let_bin k e e' I I' =>
       intros σ n
       simp only [wknth, wk, subst, Wk.liftn_wknth_merge]
       rw [Subst.liftn_merge]
-      simp only [wknth] at I
-      rw [I]
+      simp only [wknth] at *
+      rw [I, I']
       simp
     | bin k l r Il Ir =>
       intros σ n
@@ -332,10 +332,12 @@ theorem Untyped.subst_bounds:
     intros σ n m Hv Hσ;
     simp only [fv, subst];
     exact I Hv Hσ
-  | let_bin k e I =>
-    simp only [fv, subst, Nat.le_sub_is_le_add]
-    intros σ n m Hv Hσ;
-    exact I Hv (Subst.liftn_subst Hσ)
+  | let_bin k e e' I I' =>
+    simp only [fv, subst, Nat.max_r_le_split, Nat.le_sub_is_le_add]
+    intro σ n m ⟨He, He'⟩ Hσ;
+    apply And.intro
+    exact I He Hσ
+    exact I' He' (Subst.liftn_subst Hσ)
   | bin k l r Il Ir =>
     intros σ n m;
     simp only [Untyped.fv, Nat.max_r_le_split]

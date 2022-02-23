@@ -6,7 +6,7 @@ import LogicalRefinement.Untyped.Basic
   | var v, ρ => var (Wk.var ρ v)
   | const c, ρ => const c
   | unary k t, ρ => unary k (t.wk ρ)
-  | let_bin k e, ρ => let_bin k (e.wk (ρ.liftn 2))
+  | let_bin k e e', ρ => let_bin k (e.wk ρ) (e'.wk (ρ.liftn 2))
   | bin k l r, ρ => bin k (l.wk ρ) (r.wk ρ)
   | abs k A t, ρ => abs k (A.wk ρ) (t.wk ρ.lift)
   | tri k A l r, ρ => tri k (A.wk ρ) (l.wk ρ) (r.wk ρ)
@@ -35,10 +35,10 @@ def Untyped.wknth_def {u: Untyped} {n}: u.wknth n = u.wk (Wk.wknth n) := rfl
   | var v => intros ρ σ H; simp only [wk]; rw [H]
   | const c => simp
   | unary k t I => intros ρ σ H; simp [I H]
-  | let_bin k e I => 
+  | let_bin k e e' I I' => 
     intros ρ σ H;
     simp only [wk];
-    simp only [I (@Wk.liftn_equiv 2 _ _ H)]
+    simp only [I H, I' (Wk.liftn_equiv H)]
   | bin k l r Il Ir => intros ρ σ H; simp [Il H, Ir H]
   | abs k A s IHA IHs =>
     intros ρ σ H;
@@ -70,12 +70,16 @@ def Untyped.wk_bounds {u: Untyped}: {n m: Nat} -> {ρ: Wk} ->
     | unary k t IHt => 
       intros _ _ ρ Hm
       apply IHt Hm
-    | let_bin k e IHe =>
-      simp only [fv, Nat.le_sub_is_le_add]
+    | let_bin k e e' IHe IHe' =>
+      simp only [fv, Nat.max_r_le_split, Nat.le_sub_is_le_add]
       intros n m ρ Hm
-      apply IHe
+      intro ⟨He, He'⟩
+      apply And.intro
+      apply IHe Hm He
+      apply IHe'
       apply Wk.liftn_maps
       apply Hm
+      apply He'
     | bin k l r IHl IHr =>
       simp only [fv, Nat.max_r_le_split]
       intros n m ρ Hm
