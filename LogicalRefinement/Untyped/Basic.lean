@@ -28,7 +28,7 @@ inductive UntypedKind: List Nat -> Type
   | lam: UntypedKind [0, 1]
   | app: UntypedKind [0, 0]
   | pair: UntypedKind [0, 0]
-  | proj (b: Bool): UntypedKind [0]
+  | let_pair: UntypedKind [2]
   | inj (b: Bool): UntypedKind [0]
   | case: UntypedKind [1, 0, 1, 1]
   | elem: UntypedKind [0, 0]
@@ -96,7 +96,7 @@ def Untyped.succ := const UntypedKind.succ
 def Untyped.lam := abs UntypedKind.lam
 def Untyped.app := bin UntypedKind.app
 def Untyped.pair := bin UntypedKind.pair
-def Untyped.proj := λb => unary (UntypedKind.proj b)
+def Untyped.let_pair := let_bin UntypedKind.let_pair
 def Untyped.inj := λb => unary (UntypedKind.inj b)
 def Untyped.case := cases UntypedKind.case
 def Untyped.elem := bin UntypedKind.elem
