@@ -341,7 +341,6 @@ inductive HasType: Context -> Untyped -> Annot -> Prop
   | case {Γ: Context} {A B C e l r: Untyped}:
     HasType ((Hyp.mk (coprod A B) (HypKind.val type))::Γ) C type ->
     HasType Γ e (term (coprod A B)) ->
-    --TODO: subst subst0 for swap0
     HasType ((Hyp.mk A (HypKind.val type))::Γ) l (term (C.alpha0 (inj false (var 0)))) ->
     HasType ((Hyp.mk B (HypKind.val type))::Γ) r (term (C.alpha0 (inj true (var 0)))) ->
     HasType Γ A type ->
