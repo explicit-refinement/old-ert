@@ -1,6 +1,7 @@
 import LogicalRefinement.Untyped
 import LogicalRefinement.Untyped.Subst
 import LogicalRefinement.Utils
+import LogicalRefinement.Tactics
 open Untyped
 
 inductive AnnotSort
@@ -338,6 +339,7 @@ inductive HasType: Context -> Untyped -> Annot -> Prop
     HasType Γ e (term B) -> HasType Γ A type ->
     HasType Γ (inj true e) (term (coprod A B))
   | case {Γ: Context} {A B C e l r: Untyped}:
+    HasType Γ (or A B) type ->
     HasType ((Hyp.mk (or A B) (HypKind.val type))::Γ) C type ->
     HasType Γ e (term (or A B)) ->
     --TODO: subst subst0 for swap0
@@ -528,9 +530,9 @@ inductive WkCtx: Wk -> Context -> Context -> Type
     -> WkCtx ρ.lift ((Hyp.mk (A.wk ρ) k)::Γ) ((Hyp.mk A k)::Δ)
 
 def WkCtx.lift_loose: 
-  A' = A.wk ρ -> WkCtx ρ Γ Δ -> WkCtx ρ.lift ((Hyp.mk A' k)::Γ) ((Hyp.mk A k)::Δ) := by {
-    intro H R;
-    rw [H];
+  ρ' = ρ.lift -> A' = A.wk ρ -> WkCtx ρ Γ Δ -> WkCtx ρ' ((Hyp.mk A' k)::Γ) ((Hyp.mk A k)::Δ) := by {
+    intro Hρ HA R;
+    rw [Hρ, HA];
     exact WkCtx.lift R
   }
 
@@ -598,21 +600,16 @@ theorem HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
 
     all_goals (
       intros ρ Γ R
-      simp only [
-        Untyped.wk, Annot.wk, 
-        term, proof, 
-        Untyped.subst0_wk
-      ]
-      simp only [Annot.wk, term, proof, Untyped.subst0_wk] at *
+      simp only [Untyped.wk, Annot.wk, term, proof, Untyped.subst0_wk] at *
       constructor <;> (
-        try rename_i I0 I1 I2 I3
+        rename_i' I5 I4 I3 I2 I1 I0;
         try rw [Untyped.alpha00_wk_comm (by simp)]
-        repeat ((first | apply I0 | apply I1 | apply I2 | apply I3) <;> 
+        repeat ((first | apply I0 | apply I1 | apply I2 | apply I3 | apply I4 | apply I5) <;> 
           simp only [<-Hyp.wk_components] <;> 
           (try assumption) <;>
           first 
-          | (apply WkCtx.lift_loose; rfl; assumption) 
           | (apply WkCtx.upgrade; assumption)
+          | (apply WkCtx.lift_loose; rfl; rfl; assumption)
         )
       )
     )
@@ -700,6 +697,18 @@ theorem SubstCtx.lift_primitive
       exact HasType.wk1 (S H)
   }
 
+theorem SubstCtx.lift_loose
+  {σ: Subst} {Γ Δ: Context} {A A': Untyped} {k: HypKind} {s: AnnotSort}:
+  A' = A.subst σ ->
+  SubstCtx σ Γ Δ ->
+  k.is_wk (HypKind.val s) ->
+  IsHyp Γ (Hyp.mk A' (HypKind.val s)) ->
+  SubstCtx σ.lift ((Hyp.mk A' (HypKind.val s))::Γ) ((Hyp.mk A k)::Δ) := by {
+    intro H;
+    rw [H];
+    apply lift_primitive
+  }
+
 theorem SubstCtx.upgrade (S: SubstCtx ρ Γ Δ): SubstCtx ρ Γ.upgrade Δ.upgrade 
 := by {
   intro n A k H;
@@ -725,14 +734,11 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
       intros σ Γ S
       simp only [
         Untyped.subst, Annot.subst, term, proof, Untyped.subst0_subst
-      ]  
-      simp only [
-        Annot.wk, Annot.subst, term, proof, Untyped.subst0_subst
       ] at *
       constructor <;> (
-        try rename_i I0 I1 I2
-        repeat ((first | apply I0 | apply I1 | apply I2) <;> 
-          simp only [<-Hyp.subst_components, <-Hyp.wk_components] <;> 
+        rename_i' I5 I4 I3 I2 I1 I0;
+        repeat ((first | apply I0 | apply I1 | apply I2 | apply I3 | apply I4 | apply I5) <;> 
+          simp only [<-Hyp.subst_components] <;> 
           first 
           | assumption
           | (
