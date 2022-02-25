@@ -326,7 +326,12 @@ inductive HasType: Context -> Untyped -> Annot -> Prop
   | pair {Γ: Context} {A B l r: Untyped}:
     HasType Γ l (term A) -> HasType Γ r (term (B.subst0 l)) ->
     HasType Γ (pair l r) (term (sigma A B))
-  --TODO: let_pair
+  | proj_ix {Γ: Context} {A B e: Untyped}:
+    HasType Γ e (term (sigma A B)) ->
+    HasType Γ (proj_ix e) (term A)
+  | proj_dep {Γ: Context} {A B e: Untyped}:
+    HasType Γ e (term (sigma A B)) ->
+    HasType Γ (proj_dep e) (term (B.subst0 (proj_dep e)))
   | inj_l {Γ: Context} {A B e: Untyped}:
     HasType Γ e (term A) -> HasType Γ B type ->
     HasType Γ (inj false e) (term (coprod A B))
