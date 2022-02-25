@@ -611,7 +611,7 @@ theorem HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
         Untyped.wk1
       ] at *
       constructor <;> 
-      rename_i' I9 I8 I7 I6 I5 I4 I3 I2 I1 I0;
+      rename_i' I5 I4 I3 I2 I1 I0;
       exact I1 R
       sorry
       
