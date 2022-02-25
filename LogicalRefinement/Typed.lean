@@ -328,6 +328,12 @@ inductive HasType: Context -> Untyped -> Annot -> Prop
   | pair {Γ: Context} {A B l r: Untyped}:
     HasType Γ l (term A) -> HasType Γ r (term (B.subst0 l)) ->
     HasType Γ (pair l r) (term (sigma A B))
+  | let_pair {Γ: Context} {A B C e e': Untyped}:
+    HasType Γ e (term (sigma A B)) ->
+    HasType 
+    ((Hyp.mk B (HypKind.val type))::(Hyp.mk A (HypKind.val type))::Γ) 
+    e' (term (C.wk1.alpha0 (pair (var 1) (var 0)))) ->
+    HasType Γ (let_pair e e') (term C)
   --TODO: let_pair
   | inj_l {Γ: Context} {A B e: Untyped}:
     HasType Γ e (term A) -> HasType Γ B type ->
@@ -598,6 +604,9 @@ theorem HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
       apply HasVar.wk
       repeat assumption
 
+    case let_pair =>
+      sorry
+
     all_goals (
       intros ρ Γ R
       simp only [Untyped.wk, Annot.wk, term, proof, Untyped.subst0_wk] at *
@@ -727,7 +736,8 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
       apply S.var
       apply var <;> assumption
 
-    -- case case => sorry
+    case let_pair =>
+      sorry
 
     all_goals (
       intros σ Γ S
