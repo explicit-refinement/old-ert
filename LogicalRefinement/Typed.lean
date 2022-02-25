@@ -281,7 +281,8 @@ inductive HasType: Context -> Untyped -> Annot -> Prop
     HasType ((Hyp.mk A (HypKind.val type))::Γ) B prop ->
     HasType Γ (set A B) type
   | assume {Γ: Context} {φ A: Untyped}:
-    HasType Γ φ type  -> HasType Γ A type ->
+    HasType Γ φ prop -> 
+    HasType ((Hyp.mk φ (HypKind.val prop))::Γ) A type ->
     HasType Γ (assume φ A) type
   | intersect {Γ: Context} {A B: Untyped}:
     HasType Γ A type -> 
@@ -300,7 +301,8 @@ inductive HasType: Context -> Untyped -> Annot -> Prop
     HasType Γ φ prop -> HasType Γ ψ prop ->
     HasType Γ (or φ ψ) prop
   | implies {Γ: Context} {φ ψ: Untyped}:
-    HasType Γ φ prop -> HasType Γ ψ prop ->
+    HasType Γ φ prop -> 
+    HasType ((Hyp.mk φ (HypKind.val prop))::Γ) ψ prop ->
     HasType Γ (implies φ ψ) prop
   | forall_ {Γ: Context} {A φ: Untyped}:
     HasType Γ A type -> 
@@ -326,12 +328,7 @@ inductive HasType: Context -> Untyped -> Annot -> Prop
   | pair {Γ: Context} {A B l r: Untyped}:
     HasType Γ l (term A) -> HasType Γ r (term (B.subst0 l)) ->
     HasType Γ (pair l r) (term (sigma A B))
-  | proj_ix {Γ: Context} {A B e: Untyped}:
-    HasType Γ e (term (sigma A B)) ->
-    HasType Γ (proj_ix e) (term A)
-  | proj_dep {Γ: Context} {A B e: Untyped}:
-    HasType Γ e (term (sigma A B)) ->
-    HasType Γ (proj_dep e) (term (B.subst0 (proj_ix e)))
+  --TODO: let_pair
   | inj_l {Γ: Context} {A B e: Untyped}:
     HasType Γ e (term A) -> HasType Γ B type ->
     HasType Γ (inj false e) (term (coprod A B))
@@ -351,12 +348,7 @@ inductive HasType: Context -> Untyped -> Annot -> Prop
   | elem {Γ: Context} {A φ l r: Untyped}:
     HasType Γ l (term A) -> HasType Γ r (proof (φ.subst0 l)) ->
     HasType Γ (elem l r) (term (set A φ))
-  | elem_ix {Γ: Context} {A φ e: Untyped}:
-    HasType Γ e (term (set A φ)) ->
-    HasType Γ (elem_ix e) (term A)
-  | elem_dep {Γ: Context} {A φ e: Untyped}:
-    HasType Γ e (term (set A φ)) ->
-    HasType Γ (elem_dep e) (proof (φ.subst0 (elem_ix e)))
+  --TODO: let_set
   --TODO: lam_pr
   --TODO: app_pr
   | lam_irrel {Γ: Context} {A s B: Untyped}:

@@ -1,63 +1,80 @@
 import LogicalRefinement.Utils
 
 -- Term kinds
+--TODO: consider making higher order?
 inductive UntypedKind: List Nat -> Type
   -- Types
   | nats: UntypedKind []
-  | pi: UntypedKind [0, 1]
-  | sigma: UntypedKind [0, 1]
+  | pi: UntypedKind [0, 1] -- (pi, type, type)
+  | sigma: UntypedKind [0, 1] -- (sigma, type, type)
   | coprod: UntypedKind [0, 0]
+  --TODO: consider merging with (pi, prop, type)
+  | assume: UntypedKind [0, 1]
+  --TODO: consider merging with (sigma, prop, type)
   | set: UntypedKind [0, 1]
-  | assume: UntypedKind [0, 0]
+  --TODO: consider merging with (pi, ghost, type)
   | intersect: UntypedKind [0, 1]
+  --TODO: consider merging with (sigma, ghost, type)
   | union: UntypedKind [0, 1]
 
   -- Propositions
   | top: UntypedKind []
   | bot: UntypedKind []
-  | and: UntypedKind [0, 0]
+  --TODO: consider merging with (pi, prop, prop)
+  | implies: UntypedKind [0, 1]
+  --TODO: consider dependent and, analogous to (sigma, prop, prop)
+  | and: UntypedKind [0, 0] 
   | or: UntypedKind [0, 0]
-  | implies: UntypedKind [0, 0]
+  --TODO: consider merging with (pi, type, prop) == (pi, ghost, prop)
   | forall_: UntypedKind [0, 1]
+  --TODO: consider merging with (sigma, type, prop) == (sigma, ghost, prop)
   | exists_: UntypedKind [0, 1]
   | eq: UntypedKind [0, 0, 0]
 
   -- Terms
   | zero: UntypedKind []
   | succ: UntypedKind []
+  -- Consider merging with intro/elim for (pi, type, type)
   | lam: UntypedKind [0, 1]
   | app: UntypedKind [0, 0]
+  -- Consider merging with intro/elim for (sigma, type, type)
   | pair: UntypedKind [0, 0]
-  | proj_ix: UntypedKind [0]
-  | proj_dep: UntypedKind [0]
+  | let_pair: UntypedKind [0, 2]
   | inj (b: Bool): UntypedKind [0]
   | case: UntypedKind [1, 0, 1, 1]
   | cases: UntypedKind [1]
-  | elem: UntypedKind [0, 0]
-  | elem_ix: UntypedKind [0]
-  | elem_dep: UntypedKind [0]
+  -- Consider merging with intro/elim for (pi, type, prop)
   | lam_pr: UntypedKind [0, 1]
   | app_pr: UntypedKind [0, 0]
+  -- Consider merging with intro/elim for (sigma, type, prop)
+  | elem: UntypedKind [0, 0]
+  | let_set: UntypedKind [0, 2]
+  -- Consider merging with intro/elim for (pi, ghost, type)
   | lam_irrel: UntypedKind [0, 1]
   | app_irrel: UntypedKind [0, 0]
+  -- Consider merging with intro/elim for (sigma, ghost, type)
   | repr: UntypedKind [0, 0]
-  | repr_ix: UntypedKind [0]
-  | repr_dep: UntypedKind [0]
+  | let_repr: UntypedKind [0, 2]
 
   -- Proofs
   | nil: UntypedKind []
   | abort: UntypedKind [0]
+  -- Consider merging with intro/elim for (pi, prop, prop)
+  | imp: UntypedKind [0, 1]
+  | mp: UntypedKind [0, 0]
+  -- Note: (sigma, prop, prop) is not dependent, unlike for prop!  
   | conj: UntypedKind [0, 0]
   | comp (b: Bool): UntypedKind [0]
   | disj (b: Bool): UntypedKind [0]
   | case_pr: UntypedKind [1, 0, 1, 1]
-  | imp: UntypedKind [0, 0]
-  | mp: UntypedKind [0, 0]
+  -- Consider merging with intro/elim for 
+  -- (pi, ghost, prop) == (pi, type, prop)
   | general: UntypedKind [0, 1]
   | inst: UntypedKind [0, 0]
-  | wit: UntypedKind [0, 0]
-  | wit_ix: UntypedKind [0]
-  | wit_dep: UntypedKind [0]
+  -- Consider merging with intro/elim for 
+  -- (sigma, ghost, prop) == (sigma, type, prop)
+  | witness: UntypedKind [0, 0]
+  | let_wit: UntypedKind [0, 2]
   | refl: UntypedKind [0]
 
 inductive Untyped: Type
@@ -75,15 +92,13 @@ inductive Untyped: Type
   -- TODO: no cases?
   | cases (k: UntypedKind [1, 0, 1, 1]) (K: Untyped) (d: Untyped) (l: Untyped) (r: Untyped)
 
---TODO: automatically implement by coercion?
-
 -- Types
 def Untyped.nats := const UntypedKind.nats
 def Untyped.pi := abs UntypedKind.pi
 def Untyped.sigma := abs UntypedKind.sigma
 def Untyped.coprod := bin UntypedKind.coprod
 def Untyped.set := abs UntypedKind.set
-def Untyped.assume := bin UntypedKind.assume
+def Untyped.assume := abs UntypedKind.assume
 def Untyped.intersect := abs UntypedKind.intersect
 def Untyped.union := abs UntypedKind.union
 
@@ -92,7 +107,7 @@ def Untyped.top := const UntypedKind.top
 def Untyped.bot := const UntypedKind.bot
 def Untyped.and := bin UntypedKind.and
 def Untyped.or := bin UntypedKind.or
-def Untyped.implies := bin UntypedKind.implies
+def Untyped.implies := abs UntypedKind.implies
 def Untyped.forall_ := abs UntypedKind.forall_
 def Untyped.exists_ := abs UntypedKind.exists_
 def Untyped.eq := tri UntypedKind.eq
@@ -103,20 +118,17 @@ def Untyped.succ := const UntypedKind.succ
 def Untyped.lam := abs UntypedKind.lam
 def Untyped.app := bin UntypedKind.app
 def Untyped.pair := bin UntypedKind.pair
-def Untyped.proj_ix := unary UntypedKind.proj_ix
-def Untyped.proj_dep := unary UntypedKind.proj_dep
+def Untyped.let_pair := let_bin UntypedKind.let_pair
 def Untyped.inj := λb => unary (UntypedKind.inj b)
 def Untyped.case := cases UntypedKind.case
 def Untyped.elem := bin UntypedKind.elem
-def Untyped.elem_ix := unary UntypedKind.elem_ix
-def Untyped.elem_dep := unary UntypedKind.elem_dep
+def Untyped.let_set := let_bin UntypedKind.let_set
 def Untyped.lam_pr := abs UntypedKind.lam_pr
 def Untyped.app_pr := bin UntypedKind.app_pr
 def Untyped.lam_irrel := abs UntypedKind.lam_irrel
 def Untyped.app_irrel := bin UntypedKind.app_irrel
 def Untyped.repr := bin UntypedKind.repr
-def Untyped.repr_ix := unary UntypedKind.repr_ix
-def Untyped.repr_dep := unary UntypedKind.repr_dep
+def Untyped.let_repr := let_bin UntypedKind.let_repr
 
 -- Proofs
 def Untyped.nil := const UntypedKind.nil
@@ -125,13 +137,12 @@ def Untyped.conj := bin UntypedKind.conj
 def Untyped.comp := λb => unary (UntypedKind.comp b)
 def Untyped.disj := λb => unary (UntypedKind.disj b)
 def Untyped.case_pr := cases UntypedKind.case_pr
-def Untyped.imp := bin UntypedKind.imp
+def Untyped.imp := abs UntypedKind.imp
 def Untyped.mp := bin UntypedKind.mp
 def Untyped.general := abs UntypedKind.general
 def Untyped.inst := bin UntypedKind.inst
-def Untyped.wit := bin UntypedKind.wit
-def Untyped.wit_ix := unary UntypedKind.wit_ix
-def Untyped.wit_dep := unary UntypedKind.wit_dep
+def Untyped.witness := bin UntypedKind.witness
+def Untyped.let_wit := let_bin UntypedKind.let_wit
 def Untyped.refl := unary UntypedKind.refl
 
 @[simp] def Untyped.fv: Untyped -> Nat
