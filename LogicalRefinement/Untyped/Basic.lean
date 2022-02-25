@@ -34,13 +34,15 @@ inductive UntypedKind: List Nat -> Type
   | case: UntypedKind [1, 0, 1, 1]
   | cases: UntypedKind [1]
   | elem: UntypedKind [0, 0]
-  | let_set: UntypedKind [0, 2]
+  | elem_ix: UntypedKind [0]
+  | elem_dep: UntypedKind [0]
   | lam_pr: UntypedKind [0, 1]
   | app_pr: UntypedKind [0, 0]
   | lam_irrel: UntypedKind [0, 1]
   | app_irrel: UntypedKind [0, 0]
   | repr: UntypedKind [0, 0]
-  | let_repr: UntypedKind [0, 2]
+  | repr_ix: UntypedKind [0]
+  | repr_dep: UntypedKind [0]
 
   -- Proofs
   | nil: UntypedKind []
@@ -53,8 +55,9 @@ inductive UntypedKind: List Nat -> Type
   | mp: UntypedKind [0, 0]
   | general: UntypedKind [0, 1]
   | inst: UntypedKind [0, 0]
-  | witness: UntypedKind [0, 0]
-  | let_wit: UntypedKind [0, 2]
+  | wit: UntypedKind [0, 0]
+  | wit_ix: UntypedKind [0]
+  | wit_dep: UntypedKind [0]
   | refl: UntypedKind [0]
 
 inductive Untyped: Type
@@ -62,7 +65,6 @@ inductive Untyped: Type
 
   | const (c: UntypedKind [])
   | unary (k: UntypedKind [0]) (t: Untyped)
-  | elim (k: UntypedKind [1]) (M: Untyped)
   -- TODO: let n?
   | let_bin (k: UntypedKind [0, 2]) (e: Untyped) (e': Untyped)
   -- TODO: bin n? Can't, due to, of course, lack of nested inductive types...
@@ -72,6 +74,8 @@ inductive Untyped: Type
   | tri (k: UntypedKind [0, 0, 0]) (A: Untyped) (l: Untyped) (r: Untyped)
   -- TODO: no cases?
   | cases (k: UntypedKind [1, 0, 1, 1]) (K: Untyped) (d: Untyped) (l: Untyped) (r: Untyped)
+
+--TODO: automatically implement by coercion?
 
 -- Types
 def Untyped.nats := const UntypedKind.nats
@@ -104,13 +108,15 @@ def Untyped.proj_dep := unary UntypedKind.proj_dep
 def Untyped.inj := λb => unary (UntypedKind.inj b)
 def Untyped.case := cases UntypedKind.case
 def Untyped.elem := bin UntypedKind.elem
-def Untyped.let_set := let_bin UntypedKind.let_set
+def Untyped.elem_ix := unary UntypedKind.elem_ix
+def Untyped.elem_dep := unary UntypedKind.elem_dep
 def Untyped.lam_pr := abs UntypedKind.lam_pr
 def Untyped.app_pr := bin UntypedKind.app_pr
 def Untyped.lam_irrel := abs UntypedKind.lam_irrel
 def Untyped.app_irrel := bin UntypedKind.app_irrel
 def Untyped.repr := bin UntypedKind.repr
-def Untyped.let_repr := let_bin UntypedKind.let_repr
+def Untyped.repr_ix := unary UntypedKind.repr_ix
+def Untyped.repr_dep := unary UntypedKind.repr_dep
 
 -- Proofs
 def Untyped.nil := const UntypedKind.nil
@@ -123,15 +129,15 @@ def Untyped.imp := bin UntypedKind.imp
 def Untyped.mp := bin UntypedKind.mp
 def Untyped.general := abs UntypedKind.general
 def Untyped.inst := bin UntypedKind.inst
-def Untyped.witness := bin UntypedKind.witness
-def Untyped.let_wit := let_bin UntypedKind.let_wit
+def Untyped.wit := bin UntypedKind.wit
+def Untyped.wit_ix := unary UntypedKind.wit_ix
+def Untyped.wit_dep := unary UntypedKind.wit_dep
 def Untyped.refl := unary UntypedKind.refl
 
 @[simp] def Untyped.fv: Untyped -> Nat
   | var v => Nat.succ v
   | const c => 0
   | unary _ t => fv t
-  | elim _ M => fv M - 1
   | let_bin _ e e' => Nat.max (fv e) ((fv e') - 2)
   | bin _ l r => Nat.max (fv l) (fv r)
   | abs _ A t => Nat.max (fv A) (fv t - 1)
@@ -142,7 +148,6 @@ def Untyped.refl := unary UntypedKind.refl
   | var v, i => v = i
   | const c, _ => False
   | unary _ t, i => has_dep t i
-  | elim _ M, i => has_dep M (i + 1)
   | let_bin _ e e', i => has_dep e i ∨ has_dep e' (i + 2)
   | bin _ l r, i => has_dep l i ∨ has_dep r i
   | abs _ A t, i => has_dep A i ∨ has_dep t (i + 1)
