@@ -407,6 +407,12 @@ def Untyped.to_alpha (u: Untyped): Subst
   | 0 => u
   | Nat.succ n => Untyped.var (Nat.succ n)
 
+@[simp]
+def Untyped.to_alphanth (u: Untyped) (n: Nat): Subst :=
+  u.to_alpha.liftn n
+
+def Untyped.to_alphanth_def (u: Untyped) (n: Nat): u.to_alphanth n = u.to_alpha.liftn n := rfl
+
 def Untyped.to_alpha_lift {u: Untyped}: u.to_alpha = u.to_subst.comp (Wk.wknth 1)
   := by {
     funext v;
@@ -692,6 +698,15 @@ theorem Untyped.alphann_comm {u v: Untyped} {σ: Subst} {n: Nat}:
     )
   }
 
+
+theorem Untyped.alphann_wk_comm {u v: Untyped} {ρ: Wk} {n: Nat}:
+  v.fv ≤ 1 -> 
+  (u.wk (ρ.liftn (n + 1))).alphanth n v 
+  = (u.alphanth n v).wk (ρ.liftn (n + 1)) := by {
+    intro H;
+    simp only [<-Subst.subst_wk_compat, <-Wk.to_subst_liftn];
+    exact alphann_comm H
+  }
 
 theorem Untyped.alpha00_comm {u v: Untyped} {σ: Subst}:
   v.fv ≤ 1 -> 
