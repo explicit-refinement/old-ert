@@ -334,7 +334,7 @@ inductive HasType: Context -> Untyped -> Annot -> Prop
     HasType 
     ((Hyp.mk B (HypKind.val type))::(Hyp.mk A (HypKind.val type))::Γ) 
     e' (term ((C.wknth 1).alpha0 (pair (var 1) (var 0)))) ->
-    HasType Γ (let_pair e e') (term C)
+    HasType Γ (let_pair e e') (term (C.subst0 e))
   --TODO: let_pair
   | inj_l {Γ: Context} {A B e: Untyped}:
     HasType Γ e (term A) -> HasType Γ B type ->
@@ -612,7 +612,21 @@ theorem HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
         Untyped.wk1
       ] at *
       constructor <;> 
-      rename_i' I5 I4 I3 I2 I1 I0 <;>
+      rename_i' I5 I4 I3 I2 I1 I0;
+      (try rw [Untyped.alpha00_wk_comm (by simp)]) <;>
+      (first | apply I0 | apply I1 | apply I2 | apply I3 | apply I4 | apply I5) <;> 
+      simp only [<-Hyp.wk_components] <;> 
+      first 
+      | exact R
+      | (exact R.upgrade)
+      | (apply WkCtx.lift_loose rfl; rfl; exact R)
+      (try rw [Untyped.alpha00_wk_comm (by simp)]) <;>
+      (first | apply I0 | apply I1 | apply I2 | apply I3 | apply I4 | apply I5) <;> 
+      simp only [<-Hyp.wk_components] <;> 
+      first 
+      | exact R
+      | (exact R.upgrade)
+      | (apply WkCtx.lift_loose rfl; rfl; exact R)
       sorry
 
     all_goals (
