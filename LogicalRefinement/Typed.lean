@@ -750,7 +750,6 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
       ] at *
       constructor <;>
       rename_i' I5 I4 I3 I2 I1 I0 <;> repeat (
-      (
         try constructor
         (try rw [Untyped.alpha00_comm (by simp)])
         (try rw [Untyped.let_bin_ty_alpha])
@@ -762,7 +761,6 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
           repeat apply SubstCtx.lift_primitive S (by constructor <;> simp only [HypKind, Hyp.subst])
         )
       )
-    )
     )
   }
 
