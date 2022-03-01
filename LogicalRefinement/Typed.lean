@@ -614,7 +614,7 @@ theorem HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
       constructor <;> 
       rename_i' I5 I4 I3 I2 I1 I0 <;> 
       (try rw [Untyped.alpha00_wk_comm (by simp)]) <;>
-      (try rw [Untyped.let_bin_ty_alpha]) <;>
+      (try rw [Untyped.let_bin_ty_alpha_wk]) <;>
       (first | apply I0 | apply I1 | apply I2 | apply I3 | apply I4 | apply I5) <;> 
       simp only [<-Hyp.wk_components] <;> 
       first 
@@ -741,8 +741,7 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
       apply S.var
       apply var <;> assumption
 
-    case let_pair =>
-      sorry
+    case let_pair => sorry
 
     all_goals (
       intros σ Γ S
@@ -750,28 +749,18 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
         Untyped.subst, Annot.subst, term, proof, Untyped.subst0_subst
       ] at *
       constructor <;>
-      rename_i' I5 I4 I3 I2 I1 I0 <;> (
+      rename_i' I5 I4 I3 I2 I1 I0 <;> repeat (
       (
+        try constructor
         (try rw [Untyped.alpha00_comm (by simp)])
-        first | apply I0 | apply I1 | apply I2 | apply I3 | apply I4 | apply I5 
-        try simp only [<-Hyp.subst_components]
-        try exact S
-        try exact SubstCtx.upgrade S
+        (try rw [Untyped.let_bin_ty_alpha])
+        first | apply I0 | apply I1 | apply I2 | apply I3 | apply I4 | apply I5
         first
-        | 
-          (
-            apply SubstCtx.lift_primitive S (by constructor <;> simp only [HypKind, Hyp.subst])
-            simp only [IsHyp]
-            try first | apply I0 | apply I1 | apply I2 | apply I3 | apply I4 | apply I5
-            try exact S
-            try simp only [Untyped.subst, Untyped.or, IsHyp]
-            try constructor
-            try first | apply I0 | apply I1 | apply I2 | apply I3 | apply I4 | apply I5
-            try exact S
-            try first | apply I0 | apply I1 | apply I2 | apply I3 | apply I4 | apply I5
-            try exact S
-          )
-        | try constructor
+        | exact S
+        | exact SubstCtx.upgrade S
+        | (
+          repeat apply SubstCtx.lift_primitive S (by constructor <;> simp only [HypKind, Hyp.subst])
+        )
       )
     )
     )
