@@ -776,15 +776,15 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
       constructor <;>
       rename_i' I5 I4 I3 I2 I1 I0 <;> repeat (
         try constructor
-        try exact S
         (try rw [Untyped.alpha00_comm (by simp)])
         (try rw [Untyped.let_bin_ty_alpha])
         first | apply I0 | apply I1 | apply I2 | apply I3 | apply I4 | apply I5
         first
         | exact S
         | exact SubstCtx.upgrade S
-        | (
-          repeat apply SubstCtx.lift_primitive S (by constructor <;> simp only [HypKind, Hyp.subst])
+        | repeat any_goals (
+          apply SubstCtx.lift_primitive _ (by constructor <;> simp only [HypKind, Hyp.subst]) <;>
+          try exact S
         )
       )
     )
