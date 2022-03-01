@@ -337,7 +337,6 @@ inductive HasType: Context -> Untyped -> Annot -> Prop
     ((Hyp.mk B (HypKind.val type))::(Hyp.mk A (HypKind.val type))::Γ) 
     e' (term ((C.wknth 1).alpha0 (pair (var 1) (var 0)))) ->
     HasType Γ (let_pair e e') (term (C.subst0 e))
-  --TODO: let_pair
   | inj_l {Γ: Context} {A B e: Untyped}:
     HasType Γ e (term A) -> HasType Γ B type ->
     HasType Γ (inj false e) (term (coprod A B))
