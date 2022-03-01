@@ -766,7 +766,13 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
       apply I0
       simp only [Subst.liftn]
       apply SubstCtx.lift_primitive _ (by constructor <;> simp only [HypKind, Hyp.subst])
-      repeat sorry
+      apply I2
+      apply SubstCtx.lift_primitive _ (by constructor <;> simp only [HypKind, Hyp.subst])
+      exact I3 S
+      exact S
+      apply SubstCtx.lift_primitive _ (by constructor <;> simp only [HypKind, Hyp.subst])
+      exact I3 S
+      exact S
 
     all_goals (
       intros σ Γ S
