@@ -329,8 +329,10 @@ inductive HasType: Context -> Untyped -> Annot -> Prop
     HasType Γ l (term A) -> HasType Γ r (term (B.subst0 l)) ->
     HasType Γ (pair l r) (term (sigma A B))
   | let_pair {Γ: Context} {A B C e e': Untyped}:
-    HasType ((Hyp.mk (sigma A B) (HypKind.val type))::Γ) C type ->
     HasType Γ e (term (sigma A B)) ->
+    HasType Γ A type ->
+    HasType ((Hyp.mk A (HypKind.val type))::Γ) B type ->
+    HasType ((Hyp.mk (sigma A B) (HypKind.val type))::Γ) C type ->
     HasType 
     ((Hyp.mk B (HypKind.val type))::(Hyp.mk A (HypKind.val type))::Γ) 
     e' (term ((C.wknth 1).alpha0 (pair (var 1) (var 0)))) ->
@@ -343,12 +345,12 @@ inductive HasType: Context -> Untyped -> Annot -> Prop
     HasType Γ e (term B) -> HasType Γ A type ->
     HasType Γ (inj true e) (term (coprod A B))
   | case {Γ: Context} {A B C e l r: Untyped}:
-    HasType ((Hyp.mk (coprod A B) (HypKind.val type))::Γ) C type ->
     HasType Γ e (term (coprod A B)) ->
-    HasType ((Hyp.mk A (HypKind.val type))::Γ) l (term (C.alpha0 (inj false (var 0)))) ->
-    HasType ((Hyp.mk B (HypKind.val type))::Γ) r (term (C.alpha0 (inj true (var 0)))) ->
     HasType Γ A type ->
     HasType Γ B type ->
+    HasType ((Hyp.mk (coprod A B) (HypKind.val type))::Γ) C type ->
+    HasType ((Hyp.mk A (HypKind.val type))::Γ) l (term (C.alpha0 (inj false (var 0)))) ->
+    HasType ((Hyp.mk B (HypKind.val type))::Γ) r (term (C.alpha0 (inj true (var 0)))) ->
     HasType Γ (case C e l r) (term (C.subst0 e))
   
   --TODO: natrec
@@ -741,7 +743,13 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
       apply S.var
       apply var <;> assumption
 
-    case let_pair => sorry
+    case let_pair =>
+      intros σ Γ S
+      simp only [
+        Untyped.subst, Annot.subst, term, proof, Untyped.subst0_subst
+      ] at *
+      constructor <;>
+      rename_i' I5 I4 I3 I2 I1 I0 <;> sorry
 
     all_goals (
       intros σ Γ S
