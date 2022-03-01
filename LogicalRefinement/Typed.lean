@@ -733,6 +733,8 @@ theorem SubstCtx.upgrade (S: SubstCtx ρ Γ Δ): SubstCtx ρ Γ.upgrade Δ.upgra
   exact HasVar.downgrade H
 }
 
+theorem eta_helper {σ: Subst}: (λn => σ n) = σ := by simp
+
 theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
   {σ: Subst} -> {Γ: Context} -> SubstCtx σ Γ Δ ->
   (Γ ⊢ (a.subst σ): (A.subst σ)) := by {
@@ -750,28 +752,40 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
       ] at *
       constructor <;>
       rename_i' I5 I4 I3 I2 I1 I0;
-      exact I4 S
-      exact I3 S
+      first 
+        | apply I0 | apply I1 | apply I2 | apply I3 | apply I4 | apply I5
+        | exact I4 S
+      apply I3
+      exact S
       apply I2
       apply SubstCtx.lift_primitive S (by constructor <;> simp only [HypKind, Hyp.subst])
-      exact I3 S
+      apply I3
+      exact S
       apply I1
       apply SubstCtx.lift_primitive S (by constructor <;> simp only [HypKind, Hyp.subst])
       constructor
-      exact I3 S
+      apply I3
+      exact S
       apply I2
       apply SubstCtx.lift_primitive S (by constructor <;> simp only [HypKind, Hyp.subst])
-      exact I3 S
+      apply I3 
+      exact S
       rw [Untyped.let_bin_ty_alpha]
       apply I0
       simp only [Subst.liftn]
-      apply SubstCtx.lift_primitive _ (by constructor <;> simp only [HypKind, Hyp.subst])
+      repeat any_goals (
+          apply SubstCtx.lift_primitive _ (by constructor <;> simp only [HypKind, Hyp.subst]) <;>
+          try exact S
+      )
       apply I2
-      apply SubstCtx.lift_primitive _ (by constructor <;> simp only [HypKind, Hyp.subst])
-      exact I3 S
+      repeat any_goals (
+          apply SubstCtx.lift_primitive _ (by constructor <;> simp only [HypKind, Hyp.subst]) <;>
+          try exact S
+      )
+      try exact S
+      apply I3
       exact S
-      apply SubstCtx.lift_primitive _ (by constructor <;> simp only [HypKind, Hyp.subst])
-      exact I3 S
+      apply I3 
       exact S
 
     all_goals (
@@ -784,7 +798,9 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
         try constructor
         (try rw [Untyped.alpha00_comm (by simp)])
         (try rw [Untyped.let_bin_ty_alpha])
-        first | apply I0 | apply I1 | apply I2 | apply I3 | apply I4 | apply I5
+        first 
+        | apply I0 | apply I1 | apply I2 | apply I3 | apply I4 | apply I5
+        | exact I4 S
         first
         | exact S
         | exact SubstCtx.upgrade S
