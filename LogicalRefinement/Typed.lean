@@ -745,48 +745,48 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
       apply S.var
       apply var <;> assumption
 
-    case let_pair =>
-      intros σ Γ S
-      simp only [
-        Untyped.subst, Annot.subst, term, proof, Untyped.subst0_subst
-      ] at *
-      constructor <;>
-      rename_i' I5 I4 I3 I2 I1 I0;
-      first 
-        | apply I0 | apply I1 | apply I2 | apply I3 | apply I4 | apply I5
-        | exact I4 S
-      apply I3
-      exact S
-      apply I2
-      apply SubstCtx.lift_primitive S (by constructor <;> simp only [HypKind, Hyp.subst])
-      apply I3
-      exact S
-      apply I1
-      apply SubstCtx.lift_primitive S (by constructor <;> simp only [HypKind, Hyp.subst])
-      constructor
-      apply I3
-      exact S
-      apply I2
-      apply SubstCtx.lift_primitive S (by constructor <;> simp only [HypKind, Hyp.subst])
-      apply I3 
-      exact S
-      rw [Untyped.let_bin_ty_alpha]
-      apply I0
-      simp only [Subst.liftn]
-      repeat any_goals (
-          apply SubstCtx.lift_primitive _ (by constructor <;> simp only [HypKind, Hyp.subst]) <;>
-          try exact S
-      )
-      apply I2
-      repeat any_goals (
-          apply SubstCtx.lift_primitive _ (by constructor <;> simp only [HypKind, Hyp.subst]) <;>
-          try exact S
-      )
-      try exact S
-      apply I3
-      exact S
-      apply I3 
-      exact S
+    -- case let_pair =>
+    --   intros σ Γ S
+    --   simp only [
+    --     Untyped.subst, Annot.subst, term, proof, Untyped.subst0_subst
+    --   ] at *
+    --   constructor <;>
+    --   rename_i' I5 I4 I3 I2 I1 I0;
+    --   first 
+    --     | apply I0 | apply I1 | apply I2 | apply I3 | apply I4 | apply I5
+    --     | exact I4 S
+    --   apply I3
+    --   exact S
+    --   apply I2
+    --   apply SubstCtx.lift_primitive S (by constructor <;> simp only [HypKind, Hyp.subst])
+    --   apply I3
+    --   exact S
+    --   apply I1
+    --   apply SubstCtx.lift_primitive S (by constructor <;> simp only [HypKind, Hyp.subst])
+    --   constructor
+    --   apply I3
+    --   exact S
+    --   apply I2
+    --   apply SubstCtx.lift_primitive S (by constructor <;> simp only [HypKind, Hyp.subst])
+    --   apply I3 
+    --   exact S
+    --   rw [Untyped.let_bin_ty_alpha]
+    --   apply I0
+    --   simp only [Subst.liftn]
+    --   repeat any_goals (
+    --       apply SubstCtx.lift_primitive _ (by constructor <;> simp only [HypKind, Hyp.subst]) <;>
+    --       try exact S
+    --   )
+    --   apply I2
+    --   repeat any_goals (
+    --       apply SubstCtx.lift_primitive _ (by constructor <;> simp only [HypKind, Hyp.subst]) <;>
+    --       try exact S
+    --   )
+    --   try exact S
+    --   apply I3
+    --   exact S
+    --   apply I3 
+    --   exact S
 
     all_goals (
       intros σ Γ S
