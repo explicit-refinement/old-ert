@@ -749,7 +749,24 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
         Untyped.subst, Annot.subst, term, proof, Untyped.subst0_subst
       ] at *
       constructor <;>
-      rename_i' I5 I4 I3 I2 I1 I0 <;> sorry
+      rename_i' I5 I4 I3 I2 I1 I0;
+      exact I4 S
+      exact I3 S
+      apply I2
+      apply SubstCtx.lift_primitive S (by constructor <;> simp only [HypKind, Hyp.subst])
+      exact I3 S
+      apply I1
+      apply SubstCtx.lift_primitive S (by constructor <;> simp only [HypKind, Hyp.subst])
+      constructor
+      exact I3 S
+      apply I2
+      apply SubstCtx.lift_primitive S (by constructor <;> simp only [HypKind, Hyp.subst])
+      exact I3 S
+      rw [Untyped.let_bin_ty_alpha]
+      apply I0
+      simp only [Subst.liftn]
+      apply SubstCtx.lift_primitive _ (by constructor <;> simp only [HypKind, Hyp.subst])
+      repeat sorry
 
     all_goals (
       intros σ Γ S
@@ -759,6 +776,7 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
       constructor <;>
       rename_i' I5 I4 I3 I2 I1 I0 <;> repeat (
         try constructor
+        try exact S
         (try rw [Untyped.alpha00_comm (by simp)])
         (try rw [Untyped.let_bin_ty_alpha])
         first | apply I0 | apply I1 | apply I2 | apply I3 | apply I4 | apply I5
