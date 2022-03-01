@@ -352,11 +352,10 @@ inductive HasType: Context -> Untyped -> Annot -> Prop
     HasType ((Hyp.mk B (HypKind.val type))::Γ) r (term (C.alpha0 (inj true (var 0)))) ->
     HasType Γ (case C e l r) (term (C.subst0 e))
   
-  --TODO: natrec
+  --TODO: natrec?
   | elem {Γ: Context} {A φ l r: Untyped}:
     HasType Γ l (term A) -> HasType Γ r (proof (φ.subst0 l)) ->
     HasType Γ (elem l r) (term (set A φ))
-  --TODO: let_set
   --TODO: lam_pr
   --TODO: app_pr
   | lam_irrel {Γ: Context} {A s B: Untyped}:
