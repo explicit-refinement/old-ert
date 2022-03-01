@@ -740,3 +740,7 @@ theorem Untyped.alpha00_wk_comm {u v: Untyped} {ρ: Wk}:
 
 --   repeat sorry
 -- }
+
+theorem Untyped.let_bin_ty_alpha {C: Untyped} {ρ: Wk}:
+  ((C.wk ρ.lift).wknth 1).alpha0 (pair (var 1) (var 0)) =
+  ((C.wknth 1).alpha0 (pair (var 1) (var 0))).wk (ρ.liftn 2) := sorry

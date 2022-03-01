@@ -605,30 +605,6 @@ theorem HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
       apply HasVar.wk
       repeat assumption
 
-    case let_pair =>
-      intros ρ Γ R
-      simp only [
-        Untyped.wk, Annot.wk, term, proof, Untyped.subst0_wk,
-        Untyped.wk1
-      ] at *
-      constructor <;> 
-      rename_i' I5 I4 I3 I2 I1 I0;
-      (try rw [Untyped.alpha00_wk_comm (by simp)]) <;>
-      (first | apply I0 | apply I1 | apply I2 | apply I3 | apply I4 | apply I5) <;> 
-      simp only [<-Hyp.wk_components] <;> 
-      first 
-      | exact R
-      | (exact R.upgrade)
-      | (apply WkCtx.lift_loose rfl; rfl; exact R)
-      (try rw [Untyped.alpha00_wk_comm (by simp)]) <;>
-      (first | apply I0 | apply I1 | apply I2 | apply I3 | apply I4 | apply I5) <;> 
-      simp only [<-Hyp.wk_components] <;> 
-      first 
-      | exact R
-      | (exact R.upgrade)
-      | (apply WkCtx.lift_loose rfl; rfl; exact R)
-      sorry
-
     all_goals (
       intros ρ Γ R
       simp only [
@@ -638,12 +614,16 @@ theorem HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
       constructor <;> 
       rename_i' I5 I4 I3 I2 I1 I0 <;> 
       (try rw [Untyped.alpha00_wk_comm (by simp)]) <;>
+      (try rw [Untyped.let_bin_ty_alpha]) <;>
       (first | apply I0 | apply I1 | apply I2 | apply I3 | apply I4 | apply I5) <;> 
       simp only [<-Hyp.wk_components] <;> 
       first 
       | exact R
       | (exact R.upgrade)
-      | (apply WkCtx.lift_loose rfl; rfl; exact R)
+      | {
+        repeat (apply WkCtx.lift_loose rfl; rfl)
+        exact R
+      }
     )
   }
 
