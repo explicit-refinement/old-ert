@@ -439,7 +439,15 @@ inductive HasType: Context -> Untyped -> Annot -> Prop
   | wit {Γ: Context} {A φ l r: Untyped}:
     HasType Γ l (term A) -> HasType Γ.upgrade r (proof (φ.subst0 l)) ->
     HasType Γ (repr l r) (proof (exists_ A φ))
-  --TODO: let_wit
+  | let_wit {Γ: Context} {A φ C e e': Untyped} {k: AnnotSort}:
+    HasType Γ e (term (exists_ A φ)) ->
+    HasType Γ A type ->
+    HasType ((Hyp.mk A HypKind.gst)::Γ) B type ->
+    HasType ((Hyp.mk (exists_ A φ) (HypKind.val prop))::Γ) C k ->
+    HasType 
+    ((Hyp.mk φ (HypKind.val prop))::(Hyp.mk A HypKind.gst)::Γ) 
+    e' (term ((C.wknth 1).alpha0 (wit (var 1) (var 0)))) ->
+    HasType Γ (let_wit e e') (expr k (C.subst0 e))
   | refl {Γ: Context} {A a: Untyped}:
     HasType Γ a (term A) -> HasType Γ (refl a) (proof (eq A a a))
 
