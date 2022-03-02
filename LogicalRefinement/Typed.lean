@@ -346,14 +346,14 @@ inductive HasType: Context -> Untyped -> Annot -> Prop
   | inj_r {Γ: Context} {A B e: Untyped}:
     HasType Γ e (term B) -> HasType Γ A type ->
     HasType Γ (inj true e) (term (coprod A B))
-  | case {Γ: Context} {A B C e l r: Untyped}:
+  | case {Γ: Context} {A B C e l r: Untyped} {k: AnnotSort}:
     HasType Γ e (term (coprod A B)) ->
     HasType Γ A type ->
     HasType Γ B type ->
-    HasType ((Hyp.mk (coprod A B) (HypKind.val type))::Γ) C type ->
+    HasType ((Hyp.mk (coprod A B) (HypKind.val type))::Γ) C k ->
     HasType ((Hyp.mk A (HypKind.val type))::Γ) l (term (C.alpha0 (inj false (var 0)))) ->
     HasType ((Hyp.mk B (HypKind.val type))::Γ) r (term (C.alpha0 (inj true (var 0)))) ->
-    HasType Γ (case C e l r) (term (C.subst0 e))
+    HasType Γ (case C e l r) (expr k (C.subst0 e))
   | elem {Γ: Context} {A φ l r: Untyped}:
     HasType Γ l (term A) -> HasType Γ r (proof (φ.subst0 l)) ->
     HasType Γ (elem l r) (term (set A φ))
