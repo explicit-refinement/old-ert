@@ -320,7 +320,7 @@ inductive HasType: Context -> Untyped -> Annot -> Prop
     HasType Γ.upgrade l (term A) -> HasType Γ.upgrade r (term A) ->
     HasType Γ (eq A l r) prop
 
-  -- Terms
+  -- Basic term formers
   | lam {Γ: Context} {A s B: Untyped}:
     HasType ((Hyp.mk A (HypKind.val type))::Γ) s (term B) ->
     HasType Γ A type ->
@@ -354,8 +354,6 @@ inductive HasType: Context -> Untyped -> Annot -> Prop
     HasType ((Hyp.mk A (HypKind.val type))::Γ) l (term (C.alpha0 (inj false (var 0)))) ->
     HasType ((Hyp.mk B (HypKind.val type))::Γ) r (term (C.alpha0 (inj true (var 0)))) ->
     HasType Γ (case C e l r) (term (C.subst0 e))
-  
-  --TODO: natrec?
   | elem {Γ: Context} {A φ l r: Untyped}:
     HasType Γ l (term A) -> HasType Γ r (proof (φ.subst0 l)) ->
     HasType Γ (elem l r) (term (set A φ))
@@ -378,7 +376,7 @@ inductive HasType: Context -> Untyped -> Annot -> Prop
     HasType Γ (repr l r) (term (union A B))
   --TODO: let_repr
 
-  -- Proofs
+  -- Basic proof formers
   | abort {Γ: Context} {A: Annot} {p: Untyped}:
     HasType Γ p (proof bot) ->
     HasType Γ (abort p) A
@@ -420,6 +418,9 @@ inductive HasType: Context -> Untyped -> Annot -> Prop
   --TODO: let_wit
   | refl {Γ: Context} {A a: Untyped}:
     HasType Γ a (term A) -> HasType Γ (refl a) (proof (eq A a a))
+
+  -- Value formers
+  --TODO: natrec  
 
 notation Γ "⊢" a ":" A => HasType Γ a A
 notation Γ "⊢" a "∈" A => HasType Γ a (term A)
