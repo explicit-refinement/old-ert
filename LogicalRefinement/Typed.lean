@@ -289,11 +289,11 @@ inductive HasType: Context -> Untyped -> Annot -> Prop
     HasType Γ (assume φ A) type
   | intersect {Γ: Context} {A B: Untyped}:
     HasType Γ A type -> 
-    HasType ((Hyp.mk A (HypKind.val type))::Γ) B prop ->
+    HasType ((Hyp.mk A (HypKind.val type))::Γ) B type ->
     HasType Γ (intersect A B) type
   | union {Γ: Context} {A B: Untyped}:
     HasType Γ A type -> 
-    HasType ((Hyp.mk A (HypKind.val type))::Γ) B prop ->
+    HasType ((Hyp.mk A (HypKind.val type))::Γ) B type ->
     HasType Γ (union A B) type
   
   -- Propositions
@@ -383,15 +383,15 @@ inductive HasType: Context -> Untyped -> Annot -> Prop
   | repr {Γ: Context} {A B l r: Untyped}:
     HasType Γ l (term A) -> HasType Γ r (term (B.subst0 l)) ->
     HasType Γ (repr l r) (term (union A B))
-  -- | let_repr {Γ: Context} {A B C e e': Untyped} {k: AnnotSort}:
-  --   HasType Γ e (term (union A B)) ->
-  --   HasType Γ A type ->
-  --   HasType ((Hyp.mk A HypKind.gst)::Γ) B type ->
-  --   HasType ((Hyp.mk (union A B) (HypKind.val type))::Γ) C k ->
-  --   HasType 
-  --   ((Hyp.mk B (HypKind.val type))::(Hyp.mk A HypKind.gst)::Γ) 
-  --   e' (term ((C.wknth 1).alpha0 (repr (var 1) (var 0)))) ->
-  --   HasType Γ (let_repr e e') (expr k (C.subst0 e))
+  | let_repr {Γ: Context} {A B C e e': Untyped} {k: AnnotSort}:
+    HasType Γ e (term (union A B)) ->
+    HasType Γ A type ->
+    HasType ((Hyp.mk A HypKind.gst)::Γ) B type ->
+    HasType ((Hyp.mk (union A B) (HypKind.val type))::Γ) C k ->
+    HasType 
+    ((Hyp.mk B (HypKind.val type))::(Hyp.mk A HypKind.gst)::Γ) 
+    e' (term ((C.wknth 1).alpha0 (repr (var 1) (var 0)))) ->
+    HasType Γ (let_repr e e') (expr k (C.subst0 e))
 
   -- Basic proof formers
   | abort {Γ: Context} {A: Annot} {p: Untyped}:
@@ -712,12 +712,13 @@ theorem SubstCtx.var {σ: Subst} {Γ Δ: Context} (S: SubstCtx σ Γ Δ):
   λHΔ => match HΔ with
          | HasType.var _ H => S H
 
+--TODO: this is inconsistent, fill in with proper definition
 theorem SubstCtx.lift_primitive 
-  {σ: Subst} {Γ Δ: Context} {A: Untyped} {k: HypKind} {s: AnnotSort}:
+  {σ: Subst} {Γ Δ: Context} {A: Untyped} {k k': HypKind}:
   SubstCtx σ Γ Δ ->
-  k.is_wk (HypKind.val s) ->
-  IsHyp Γ (Hyp.mk (A.subst σ) (HypKind.val s)) ->
-  SubstCtx σ.lift ((Hyp.mk (A.subst σ) (HypKind.val s))::Γ) ((Hyp.mk A k)::Δ) := by {
+  k.is_wk k' ->
+  IsHyp Γ (Hyp.mk (A.subst σ) k') ->
+  SubstCtx σ.lift ((Hyp.mk (A.subst σ) k')::Γ) ((Hyp.mk A k)::Δ) := by {
     intro S Hk HH n A k HΔ;
     cases n with
     | zero =>
@@ -737,8 +738,11 @@ theorem SubstCtx.lift_primitive
           apply HasVar.var0
           cases Hk <;> 
           cases Hkk' <;>
-          (try cases s) <;> 
+          (try cases k) <;> 
+          try exact HypKind.is_wk.refl
+          cases k'
           exact HypKind.is_wk.refl
+          sorry
 
     | succ n =>
       simp only [Annot.subst, Hyp.annot]
@@ -784,7 +788,7 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
       apply S.var
       apply var <;> assumption
 
-    -- case let_pair =>
+    -- case let_repr =>
     --   intros σ Γ S
     --   simp only [
     --     Untyped.subst, Annot.subst, term, proof, Untyped.subst0_subst
@@ -809,7 +813,10 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
     --   apply SubstCtx.lift_primitive S (by constructor <;> simp only [HypKind, Hyp.subst])
     --   apply I3 
     --   exact S
-    --   rw [Untyped.let_bin_ty_alpha]
+    --   try rw [Untyped.let_bin_ty_alpha_pair]
+    --   try rw [Untyped.let_bin_ty_alpha_elem]
+    --   try rw [Untyped.let_bin_ty_alpha_repr]
+    --   try rw [Untyped.let_bin_ty_alpha_wit]
     --   apply I0
     --   simp only [Subst.liftn]
     --   repeat any_goals (
