@@ -448,7 +448,6 @@ inductive HasType: Context -> Untyped -> Annot -> Prop
     ((Hyp.mk φ (HypKind.val prop))::(Hyp.mk A HypKind.gst)::Γ) 
     e' (term ((C.wknth 1).alpha0 (wit (var 1) (var 0)))) ->
     HasType Γ (let_wit e e') (expr k (C.subst0 e))
-  --TODO: let_wit
   | refl {Γ: Context} {A a: Untyped}:
     HasType Γ a (term A) -> HasType Γ (refl a) (proof (eq A a a))
 
