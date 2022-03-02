@@ -112,10 +112,16 @@ def HypKind.downgrade_wk {k k': HypKind}:
       | gst => intro H; constructor
   }
 
-def HypKind.is_sub.upgrade: {k: HypKind} -> k.is_sub k.upgrade
+theorem HypKind.is_sub.upgrade: {k: HypKind} -> k.is_sub k.upgrade
   | val type => is_sub.refl
   | val prop => is_sub.refl
   | HypKind.gst => is_sub.gst
+
+theorem HypKind.is_sub.upgrade_bin {k k': HypKind}: k.is_sub k' -> k.upgrade.is_sub k'.upgrade := by {
+  intro H;
+  cases H <;>
+  constructor
+}
 
 @[simp]
 def HypKind.annot: HypKind -> AnnotSort
@@ -211,6 +217,15 @@ theorem Hyp.is_sub.upgrade {H: Hyp}: H.is_sub H.upgrade := by {
   constructor;
   cases H;
   exact HypKind.is_sub.upgrade
+}
+
+theorem Hyp.is_sub.upgrade_bin {H H': Hyp}: H.is_sub H' -> H.upgrade.is_sub H'.upgrade := by {
+  intro HH;
+  cases HH with
+  | refl_ty Hk =>
+    cases Hk with
+    | refl => constructor; apply HypKind.is_sub.upgrade_bin; constructor
+    | gst => constructor; constructor
 }
 
 def Hyp.val (A: Untyped) (s: AnnotSort) := Hyp.mk A (HypKind.val s)
