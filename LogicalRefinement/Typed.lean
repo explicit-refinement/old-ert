@@ -70,6 +70,10 @@ inductive HypKind.is_sub: HypKind -> HypKind -> Prop
   | refl {k}: is_sub k k
   | gst: is_sub gst (val type)
 
+theorem HypKind.is_sub.trans {a b c: HypKind}: a.is_sub b -> b.is_sub c -> a.is_sub c := by {
+  cases a <;> cases b <;> cases c <;> intro H1 H2 <;> cases H1 <;> cases H2 <;> constructor
+}
+
 inductive HypKind.regular: HypKind -> AnnotSort -> Prop
   | val {s}: regular (val s) s
   | gst: regular gst type
@@ -281,6 +285,18 @@ theorem HasVar.fv (H: HasVar Γ A s n): n < Γ.length := by {
     simp only [List.length]
     apply Nat.succ_le_succ
     assumption
+}
+
+theorem HasVar.sub (HΓ: HasVar Γ A s n): Γ.is_sub Δ -> HasVar Δ A s n := by {
+  induction HΓ with
+  | var0 => 
+    intro HΔ;
+    cases HΔ with
+    | @cons Γ Δ _ H HΓΔ HH => 
+      cases H;
+      cases HH;
+      exact var0 (HypKind.is_sub.trans (by assumption) (by assumption))
+  | var_succ => sorry
 }
 
 -- Notes:
