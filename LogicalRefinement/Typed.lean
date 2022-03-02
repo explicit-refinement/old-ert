@@ -310,11 +310,11 @@ inductive HasType: Context -> Untyped -> Annot -> Prop
   | forall_ {Γ: Context} {A φ: Untyped}:
     HasType Γ A type -> 
     HasType ((Hyp.mk A (HypKind.val type))::Γ) φ prop ->
-    HasType Γ (forall_ A φ) type
+    HasType Γ (forall_ A φ) prop
   | exists_ {Γ: Context} {A φ: Untyped}:
     HasType Γ A type -> 
     HasType ((Hyp.mk A (HypKind.val type))::Γ) φ prop ->
-    HasType Γ (exists_ A φ) type
+    HasType Γ (exists_ A φ) prop
   | eq {Γ: Context} {A l r: Untyped}:
     HasType Γ A type -> 
     HasType Γ.upgrade l (term A) -> HasType Γ.upgrade r (term A) ->
@@ -442,12 +442,13 @@ inductive HasType: Context -> Untyped -> Annot -> Prop
   | let_wit {Γ: Context} {A φ C e e': Untyped} {k: AnnotSort}:
     HasType Γ e (term (exists_ A φ)) ->
     HasType Γ A type ->
-    HasType ((Hyp.mk A HypKind.gst)::Γ) B type ->
+    HasType ((Hyp.mk A HypKind.gst)::Γ) φ prop ->
     HasType ((Hyp.mk (exists_ A φ) (HypKind.val prop))::Γ) C k ->
     HasType 
     ((Hyp.mk φ (HypKind.val prop))::(Hyp.mk A HypKind.gst)::Γ) 
     e' (term ((C.wknth 1).alpha0 (wit (var 1) (var 0)))) ->
     HasType Γ (let_wit e e') (expr k (C.subst0 e))
+  --TODO: let_wit
   | refl {Γ: Context} {A a: Untyped}:
     HasType Γ a (term A) -> HasType Γ (refl a) (proof (eq A a a))
 
@@ -795,52 +796,6 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
       intros σ Γ S
       apply S.var
       apply var <;> assumption
-
-    -- case let_repr =>
-    --   intros σ Γ S
-    --   simp only [
-    --     Untyped.subst, Annot.subst, term, proof, Untyped.subst0_subst
-    --   ] at *
-    --   constructor <;>
-    --   rename_i' I5 I4 I3 I2 I1 I0;
-    --   first 
-    --     | apply I0 | apply I1 | apply I2 | apply I3 | apply I4 | apply I5
-    --     | exact I4 S
-    --   apply I3
-    --   exact S
-    --   apply I2
-    --   apply SubstCtx.lift_primitive S (by constructor <;> simp only [HypKind, Hyp.subst])
-    --   apply I3
-    --   exact S
-    --   apply I1
-    --   apply SubstCtx.lift_primitive S (by constructor <;> simp only [HypKind, Hyp.subst])
-    --   constructor
-    --   apply I3
-    --   exact S
-    --   apply I2
-    --   apply SubstCtx.lift_primitive S (by constructor <;> simp only [HypKind, Hyp.subst])
-    --   apply I3 
-    --   exact S
-    --   try rw [Untyped.let_bin_ty_alpha_pair]
-    --   try rw [Untyped.let_bin_ty_alpha_elem]
-    --   try rw [Untyped.let_bin_ty_alpha_repr]
-    --   try rw [Untyped.let_bin_ty_alpha_wit]
-    --   apply I0
-    --   simp only [Subst.liftn]
-    --   repeat any_goals (
-    --       apply SubstCtx.lift_primitive _ (by constructor <;> simp only [HypKind, Hyp.subst]) <;>
-    --       try exact S
-    --   )
-    --   apply I2
-    --   repeat any_goals (
-    --       apply SubstCtx.lift_primitive _ (by constructor <;> simp only [HypKind, Hyp.subst]) <;>
-    --       try exact S
-    --   )
-    --   try exact S
-    --   apply I3
-    --   exact S
-    --   apply I3 
-    --   exact S
 
     all_goals (
       intros σ Γ S
