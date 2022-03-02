@@ -288,12 +288,12 @@ theorem HasVar.fv (H: HasVar Γ A s n): n < Γ.length := by {
 }
 
 theorem HasVar.sub (HΓ: HasVar Γ A s n): Γ.is_sub Δ -> HasVar Δ A s n := by {
-  revert Γ Δ;
+  revert Γ n s A Δ;
   intro Γ;
   induction Γ with
-  | nil => intro _ H; cases H
-  | cons H Γ IΓ =>
-    intro Δ HΓ HΔ;
+  | nil => intro Δ A s n H; cases H
+  | cons H Γ I =>
+    intro Δ A s n HΓ HΔ;
     cases HΔ with
     | @cons Γ Δ _ H HΓΔ HH =>  
       cases HH;
@@ -301,7 +301,9 @@ theorem HasVar.sub (HΓ: HasVar Γ A s n): Γ.is_sub Δ -> HasVar Δ A s n := by
       | var0 =>
         apply var0
         apply HypKind.is_sub.trans <;> assumption
-      | var_succ => sorry
+      | var_succ =>
+        apply var_succ
+        apply I <;> assumption
 }
 
 -- Notes:
