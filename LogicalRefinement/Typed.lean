@@ -810,13 +810,13 @@ def HasType.wk1_sort {H} (Ha: Γ ⊢ a: sort s): (H::Γ) ⊢ a.wk1: sort s
 --TODO: substitution lemma
 
 --TODO: fill in with proper definition
-def SubstCtx (σ: Subst) (Γ Δ: Context): Prop :=  
-  ∀{n A k}, HasVar Δ A k n -> Γ ⊢ σ n: expr k.annot (A.subst σ)
 
-theorem SubstCtx.var {σ: Subst} {Γ Δ: Context} (S: SubstCtx σ Γ Δ):
-  ∀{n A}, (Δ ⊢ var n: A) -> (Γ ⊢ σ n: A.subst σ) :=
-  λHΔ => match HΔ with
-         | HasType.var _ H => S H
+inductive SubstVar: Subst -> Context -> Nat -> Untyped -> HypKind -> Prop
+  | expr {σ Γ n A k}: (Γ ⊢ σ n: expr k.annot (A.subst σ)) -> SubstVar σ Γ n A k
+  | var {σ Γ n A k m}: σ n = var m -> HasVar Γ (A.subst σ) k m -> SubstVar σ Γ n A k
+
+def SubstCtx (σ: Subst) (Γ Δ: Context): Prop :=  
+  ∀{n A k}, HasVar Δ A k n -> SubstVar σ Γ n A k
 
 --TODO: this is inconsistent, fill in with proper definition
 theorem SubstCtx.lift_primitive 
@@ -834,21 +834,22 @@ theorem SubstCtx.lift_primitive
         rename_i k'
         simp only [Subst.lift_wk]
         simp only [Subst.lift]
-        apply HasType.var
-        case a =>
-          apply HasType.wk1_sort
-          rw [HypKind.annot_wk_eq Hkk']
-          rw [HypKind.annot_wk_eq Hk]
-          apply HH
-        case a =>
-          apply HasVar.var0
-          cases Hk <;> 
-          cases Hkk' <;>
-          (try cases k) <;> 
-          try exact HypKind.is_sub.refl
-          cases k'
-          exact HypKind.is_sub.refl
-          sorry
+        -- apply HasType.var
+        -- case a =>
+        --   apply HasType.wk1_sort
+        --   rw [HypKind.annot_wk_eq Hkk']
+        --   rw [HypKind.annot_wk_eq Hk]
+        --   apply HH
+        -- case a =>
+        --   apply HasVar.var0
+        --   cases Hk <;> 
+        --   cases Hkk' <;>
+        --   (try cases k) <;> 
+        --   try exact HypKind.is_sub.refl
+        --   cases k'
+        --   exact HypKind.is_sub.refl
+        --   sorry
+        sorry
 
     | succ n =>
       simp only [Annot.subst, Hyp.annot]
@@ -856,8 +857,9 @@ theorem SubstCtx.lift_primitive
       rename_i A n H
       simp only [Subst.lift_wk, Nat.add]
       simp only [Subst.lift, Subst.wk1]
-      rw [<-Annot.wk1_expr_def]
-      exact HasType.wk1 (S H)
+      -- rw [<-Annot.wk1_expr_def]
+      -- exact HasType.wk1 (S H)
+      sorry
   }
 
 theorem SubstCtx.lift_loose
@@ -876,10 +878,7 @@ theorem SubstCtx.lift_loose
 theorem SubstCtx.upgrade (S: SubstCtx ρ Γ Δ): SubstCtx ρ Γ.upgrade Δ.upgrade 
 := by {
   intro n A k H;
-  apply HasType.upgrade;
-  rw [<-HypKind.annot_downgrade]
-  apply S;
-  exact HasVar.downgrade H
+  sorry
 }
 
 theorem eta_helper {σ: Subst}: (λn => σ n) = σ := by simp
@@ -889,10 +888,14 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
   (Γ ⊢ (a.subst σ): (A.subst σ)) := by {
     induction HΔ;
 
-    case var I =>
-      intros σ Γ S
-      apply S.var
-      apply var <;> assumption
+    case var H I =>
+      intros σ Γ S;
+      cases S H with
+      | expr E => exact E
+      | var Hv HΓ =>
+        simp only [Untyped.subst]
+        rw [Hv]
+        exact HasType.var (I S) HΓ
 
     all_goals (
       intros σ Γ S
