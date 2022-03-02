@@ -364,7 +364,7 @@ inductive HasType: Context -> Untyped -> Annot -> Prop
     HasType ((Hyp.mk (set A φ) (HypKind.val type))::Γ) C k ->
     HasType 
     ((Hyp.mk φ (HypKind.val prop))::(Hyp.mk A (HypKind.val type))::Γ) 
-    e' (expr k ((C.wknth 1).alpha0 (pair (var 1) (var 0)))) ->
+    e' (expr k ((C.wknth 1).alpha0 (elem (var 1) (var 0)))) ->
     HasType Γ (let_set e e') (expr k (C.subst0 e))
   | lam_pr {Γ: Context} {φ s A: Untyped}:
     HasType Γ φ prop ->
