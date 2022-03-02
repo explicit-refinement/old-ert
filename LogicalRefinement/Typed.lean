@@ -383,6 +383,15 @@ inductive HasType: Context -> Untyped -> Annot -> Prop
   | repr {Γ: Context} {A B l r: Untyped}:
     HasType Γ l (term A) -> HasType Γ r (term (B.subst0 l)) ->
     HasType Γ (repr l r) (term (union A B))
+  -- | let_repr {Γ: Context} {A B C e e': Untyped} {k: AnnotSort}:
+  --   HasType Γ e (term (union A B)) ->
+  --   HasType Γ A type ->
+  --   HasType ((Hyp.mk A HypKind.gst)::Γ) B type ->
+  --   HasType ((Hyp.mk (union A B) (HypKind.val type))::Γ) C k ->
+  --   HasType 
+  --   ((Hyp.mk B (HypKind.val type))::(Hyp.mk A HypKind.gst)::Γ) 
+  --   e' (term ((C.wknth 1).alpha0 (repr (var 1) (var 0)))) ->
+  --   HasType Γ (let_repr e e') (expr k (C.subst0 e))
 
   -- Basic proof formers
   | abort {Γ: Context} {A: Annot} {p: Untyped}:
@@ -523,13 +532,13 @@ theorem HasVar.upgrade_val (p: HasVar Γ A (HypKind.val s) n):
   HasVar Γ.upgrade A (HypKind.val s) n := HasVar.upgrade p
 
 theorem HasType.upgrade (p: Γ ⊢ a: A): Γ.upgrade ⊢ a: A := by {
-  induction p;
+  induction p <;> simp only [Context.upgrade] at *;
   case var => 
     apply var
     assumption
     apply HasVar.upgrade_val
     assumption
-  all_goals { constructor; repeat assumption; }
+  all_goals (constructor <;> assumption)
 }
 
 --TODO: define context type, coercion to raw context?
