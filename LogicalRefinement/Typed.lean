@@ -66,9 +66,9 @@ inductive HypKind
   | val (s: AnnotSort) -- Computational/Logical
   | gst -- Refinement
 
-inductive HypKind.is_wk: HypKind -> HypKind -> Prop
-  | refl {k}: is_wk k k
-  | gst: is_wk gst (val type)
+inductive HypKind.is_sub: HypKind -> HypKind -> Prop
+  | refl {k}: is_sub k k
+  | gst: is_sub gst (val type)
 
 inductive HypKind.regular: HypKind -> AnnotSort -> Prop
   | val {s}: regular (val s) s
@@ -87,7 +87,7 @@ def HypKind.downgrade: HypKind -> HypKind
 
 @[simp]
 def HypKind.downgrade_wk {k k': HypKind}:
-  k.is_wk k'.upgrade -> k.downgrade.is_wk k' := by {
+  k.is_sub k'.upgrade -> k.downgrade.is_sub k' := by {
     cases k with
     | val s =>
       cases k' with
@@ -108,10 +108,10 @@ def HypKind.downgrade_wk {k k': HypKind}:
       | gst => intro H; constructor
   }
 
-def HypKind.upgrade_is_wk: {k: HypKind} -> k.is_wk k.upgrade
-  | val type => is_wk.refl
-  | val prop => is_wk.refl
-  | gst => is_wk.gst
+def HypKind.is_sub.upgrade: {k: HypKind} -> k.is_sub k.upgrade
+  | val type => is_sub.refl
+  | val prop => is_sub.refl
+  | HypKind.gst => is_sub.gst
 
 @[simp]
 def HypKind.annot: HypKind -> AnnotSort
@@ -128,25 +128,25 @@ def HypKind.annot_downgrade: {k: HypKind} -> k.downgrade.annot = k.annot
 @[simp]
 def HypKind.val_annot: (val s).annot = s := rfl
 
-def HypKind.annot_wk_eq {k k': HypKind}: k.is_wk k' -> k.annot = k'.annot
+def HypKind.annot_wk_eq {k k': HypKind}: k.is_sub k' -> k.annot = k'.annot
   := by {
     intro H;
     cases H <;> rfl
   }
 
 
-def HypKind.annot_is_wk {k: HypKind}: k.is_wk (val k.annot)
+def HypKind.annot_is_sub {k: HypKind}: k.is_sub (val k.annot)
   := by {
     cases k <;> simp <;> constructor
   }
 
-def HypKind.annot_other_is_wk {k k': HypKind}: 
-  k.is_wk k' -> k'.is_wk (val k.annot)
+def HypKind.annot_other_is_sub {k k': HypKind}: 
+  k.is_sub k' -> k'.is_sub (val k.annot)
   := by {
     intro H;
     cases H with
-    | refl => exact annot_is_wk
-    | gst => exact is_wk.refl
+    | refl => exact annot_is_sub
+    | gst => exact is_sub.refl
   }
 
 @[simp]
@@ -194,6 +194,21 @@ theorem Hyp.upgrade_idem: upgrade (upgrade h) = upgrade h := by {
 theorem Hyp.upgrade_wk_commute {h: Hyp}: 
   upgrade (h.wk ρ) = h.upgrade.wk ρ := by simp
 
+inductive Hyp.is_sub: Hyp -> Hyp -> Prop
+  | refl_ty {A k k'}: HypKind.is_sub k k' -> is_sub (Hyp.mk A k) (Hyp.mk A k') 
+
+theorem Hyp.is_sub.refl {H: Hyp}: H.is_sub H := by {
+  constructor;
+  cases H;
+  constructor
+}
+
+theorem Hyp.is_sub.upgrade {H: Hyp}: H.is_sub H.upgrade := by {
+  constructor;
+  cases H;
+  exact HypKind.is_sub.upgrade
+}
+
 def Hyp.val (A: Untyped) (s: AnnotSort) := Hyp.mk A (HypKind.val s)
 def Hyp.gst (A: Untyped) := Hyp.mk A HypKind.gst
 
@@ -220,6 +235,19 @@ theorem Context.upgrade_idem: upgrade (upgrade Γ) = upgrade Γ := by {
     simp [I]
 }
 
+inductive Context.is_sub: Context -> Context -> Prop
+  | nil: is_sub [] []
+  | cons {Γ Δ H H'}: is_sub Γ Δ -> Hyp.is_sub H H' -> is_sub (H::Γ) (H'::Δ)
+
+theorem Context.is_sub.step {Γ Δ: Context} {H: Hyp} (p: Γ.is_sub Δ): Context.is_sub (H::Γ) (H::Δ) 
+  := cons p Hyp.is_sub.refl
+
+theorem Context.is_sub.refl {Γ: Context}: Γ.is_sub Γ := by {
+  induction Γ with
+  | nil => constructor
+  | cons => exact cons (by assumption) Hyp.is_sub.refl
+}
+
 open Untyped
 
 def Untyped.arrow (A B: Untyped) := pi A (wk1 B)
@@ -234,7 +262,7 @@ def constAnnot: UntypedKind [] -> Annot
 
 inductive HasVar: Context -> Untyped -> HypKind -> Nat -> Prop
   | var0 {Γ: Context} {A: Untyped} {k k': HypKind}:
-    k'.is_wk k -> HasVar ((Hyp.mk A k)::Γ) A.wk1 k' 0
+    k'.is_sub k -> HasVar ((Hyp.mk A k)::Γ) A.wk1 k' 0
   | var_succ {Γ: Context} {A: Untyped} {k: HypKind} {H: Hyp} {n: Nat}:
     HasVar Γ A k n -> HasVar (H::Γ) A.wk1 k (n + 1)
 
@@ -491,7 +519,7 @@ theorem HasVar.upgrade (p: HasVar Γ A k n):
   | var_succ => apply var_succ; assumption
 }
 
-theorem HasVar.wk_sort {k k'} (Hk: k.is_wk k') (p: HasVar Γ A k' n): 
+theorem HasVar.wk_sort {k k'} (Hk: k.is_sub k') (p: HasVar Γ A k' n): 
   HasVar Γ A k n := by {
   induction p with
   | var0 H => 
@@ -724,7 +752,7 @@ theorem SubstCtx.var {σ: Subst} {Γ Δ: Context} (S: SubstCtx σ Γ Δ):
 theorem SubstCtx.lift_primitive 
   {σ: Subst} {Γ Δ: Context} {A: Untyped} {k k': HypKind}:
   SubstCtx σ Γ Δ ->
-  k.is_wk k' ->
+  k.is_sub k' ->
   IsHyp Γ (Hyp.mk (A.subst σ) k') ->
   SubstCtx σ.lift ((Hyp.mk (A.subst σ) k')::Γ) ((Hyp.mk A k)::Δ) := by {
     intro S Hk HH n A k HΔ;
@@ -747,9 +775,9 @@ theorem SubstCtx.lift_primitive
           cases Hk <;> 
           cases Hkk' <;>
           (try cases k) <;> 
-          try exact HypKind.is_wk.refl
+          try exact HypKind.is_sub.refl
           cases k'
-          exact HypKind.is_wk.refl
+          exact HypKind.is_sub.refl
           sorry
 
     | succ n =>
@@ -767,7 +795,7 @@ theorem SubstCtx.lift_loose
   σ' = σ.lift ->
   A' = A.subst σ ->
   SubstCtx σ Γ Δ ->
-  k.is_wk (HypKind.val s) ->
+  k.is_sub (HypKind.val s) ->
   IsHyp Γ (Hyp.mk A' (HypKind.val s)) ->
   SubstCtx σ' ((Hyp.mk A' (HypKind.val s))::Γ) ((Hyp.mk A k)::Δ) := by {
     intro Hσ HA;
