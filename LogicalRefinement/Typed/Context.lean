@@ -286,3 +286,14 @@ theorem Context.is_sub.upgrade_bin: {Γ Δ: Context} -> Γ.is_sub Δ -> Γ.upgra
     apply Hyp.is_sub.upgrade_bin
     assumption
 }
+
+--TODO: move to Untyped.Basic?
+def Untyped.arrow (A B: Untyped) := pi A (wk1 B)
+
+def constAnnot: UntypedKind [] -> Annot
+  | UntypedKind.nats => type
+  | UntypedKind.top => prop
+  | UntypedKind.bot => prop
+  | UntypedKind.zero => term nats
+  | UntypedKind.succ => term (arrow nats nats)
+  | UntypedKind.nil => proof top
