@@ -294,14 +294,14 @@ theorem HasVar.sub (HΓ: HasVar Γ A s n): Γ.is_sub Δ -> HasVar Δ A s n := by
   | nil => intro _ H; cases H
   | cons H Γ IΓ =>
     intro Δ HΓ HΔ;
-    cases HΓ with
-    | var0 =>
-      cases HΔ with
-      | @cons Γ Δ _ H HΓΔ HH =>  
-        cases HH;
+    cases HΔ with
+    | @cons Γ Δ _ H HΓΔ HH =>  
+      cases HH;
+      cases HΓ with
+      | var0 =>
         apply var0
         apply HypKind.is_sub.trans <;> assumption
-    | var_succ => sorry
+      | var_succ => sorry
 }
 
 -- Notes:
