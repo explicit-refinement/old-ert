@@ -32,8 +32,8 @@ theorem SubstCtx.lift_primitive
       cases HΔ with
       | var0 Hkk' =>
         rename_i k'
-        simp only [Subst.lift_wk]
-        simp only [Subst.lift]
+        -- simp only [Subst.lift_wk]
+        -- simp only [Subst.lift]
         -- apply HasType.var
         -- case a =>
         --   apply HasType.wk1_sort
@@ -55,11 +55,14 @@ theorem SubstCtx.lift_primitive
       simp only [Annot.subst, Hyp.annot]
       cases HΔ;
       rename_i A n H
-      simp only [Subst.lift_wk, Nat.add]
-      simp only [Subst.lift, Subst.wk1]
-      -- rw [<-Annot.wk1_expr_def]
-      -- exact HasType.wk1 (S H)
-      sorry
+      cases S H with
+      | expr S =>
+        apply SubstVar.expr
+        simp only [Subst.lift_wk, Nat.add]
+        simp only [Subst.lift, Subst.wk1]
+        rw [<-Annot.wk1_expr_def]
+        exact HasType.wk1 S
+      | var Hv HΓ => sorry
   }
 
 theorem SubstCtx.lift_loose
