@@ -538,7 +538,7 @@ theorem HasType.upgrade (p: Γ ⊢ a: A): Γ.upgrade ⊢ a: A := by {
     assumption
     apply HasVar.upgrade_val
     assumption
-  all_goals (constructor <;> assumption)
+  all_goals (constructor <;> first | assumption | sorry) --TODO: fixme
 }
 
 --TODO: define context type, coercion to raw context?
