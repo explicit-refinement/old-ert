@@ -51,7 +51,12 @@ theorem SubstCtx.lift_primitive
         simp only [Subst.lift, Subst.wk1]
         rw [<-Annot.wk1_expr_def]
         exact HasType.wk1 S
-      | var Hv HΓ => sorry
+      | var Hv HΓ =>
+        apply SubstVar.var
+        simp [Subst.wk1, Hv]
+        rfl
+        simp only [Subst.lift_wk]
+        exact HasVar.var_succ HΓ
   }
 
 theorem SubstCtx.lift_loose
