@@ -274,7 +274,17 @@ theorem Context.is_sub.upgrade {Γ: Context}: Γ.is_sub Γ.upgrade := by {
 }
 
 theorem Context.is_sub.upgrade_bin: {Γ Δ: Context} -> Γ.is_sub Δ -> Γ.upgrade.is_sub Δ.upgrade := by {
-  sorry
+  intro Γ;
+  induction Γ with
+  | nil => intro Δ H; cases H; exact nil
+  | cons H Γ I =>
+    intro Δ H;
+    cases H;
+    constructor
+    apply I
+    assumption
+    apply Hyp.is_sub.upgrade_bin
+    assumption
 }
 
 open Untyped
