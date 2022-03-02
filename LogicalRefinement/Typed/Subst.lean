@@ -32,25 +32,14 @@ theorem SubstCtx.lift_primitive
       cases HΔ with
       | var0 Hkk' =>
         rename_i k'
-        -- simp only [Subst.lift_wk]
-        -- simp only [Subst.lift]
-        -- apply HasType.var
-        -- case a =>
-        --   apply HasType.wk1_sort
-        --   rw [HypKind.annot_wk_eq Hkk']
-        --   rw [HypKind.annot_wk_eq Hk]
-        --   apply HH
-        -- case a =>
-        --   apply HasVar.var0
-        --   cases Hk <;> 
-        --   cases Hkk' <;>
-        --   (try cases k) <;> 
-        --   try exact HypKind.is_sub.refl
-        --   cases k'
-        --   exact HypKind.is_sub.refl
-        --   sorry
-        sorry
-
+        apply SubstVar.var
+        rfl
+        simp only [Subst.lift_wk]
+        simp only [Subst.lift]
+        apply HasVar.var0
+        apply HypKind.is_sub.trans
+        assumption
+        assumption
     | succ n =>
       simp only [Annot.subst, Hyp.annot]
       cases HΔ;
