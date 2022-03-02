@@ -397,7 +397,14 @@ inductive HasType: Context -> Untyped -> Annot -> Prop
     HasType Γ e (proof B) ->
     HasType Γ A prop ->
     HasType Γ (disj true e) (proof (or A B))
-  --TODO: case_pr
+  | case_pr {Γ: Context} {A B C e l r: Untyped}:
+    HasType Γ e (proof (or A B)) ->
+    HasType Γ A prop ->
+    HasType Γ B prop ->
+    HasType ((Hyp.mk (or A B) (HypKind.val prop))::Γ) C prop ->
+    HasType ((Hyp.mk A (HypKind.val prop))::Γ) l (proof (C.alpha0 (disj false (var 0)))) ->
+    HasType ((Hyp.mk B (HypKind.val prop))::Γ) r (proof (C.alpha0 (disj true (var 0)))) ->
+    HasType Γ (case_pr C e l r) (term (C.subst0 e))
   | imp {Γ: Context} {φ s ψ: Untyped}:
     HasType Γ φ prop ->
     HasType ((Hyp.mk φ (HypKind.val prop))::Γ) s (proof ψ) ->
