@@ -357,6 +357,7 @@ inductive HasType: Context -> Untyped -> Annot -> Prop
   | elem {Γ: Context} {A φ l r: Untyped}:
     HasType Γ l (term A) -> HasType Γ r (proof (φ.subst0 l)) ->
     HasType Γ (elem l r) (term (set A φ))
+  -- let_set
   | lam_pr {Γ: Context} {φ s A: Untyped}:
     HasType Γ φ prop ->
     HasType ((Hyp.mk φ (HypKind.val prop))::Γ) s (term A) ->
@@ -374,7 +375,7 @@ inductive HasType: Context -> Untyped -> Annot -> Prop
   | repr {Γ: Context} {A B l r: Untyped}:
     HasType Γ l (term A) -> HasType Γ r (term (B.subst0 l)) ->
     HasType Γ (repr l r) (term (union A B))
-  --TODO: let_repr
+  -- let_repr
 
   -- Basic proof formers
   | abort {Γ: Context} {A: Annot} {p: Untyped}:
