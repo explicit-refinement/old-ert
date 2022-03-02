@@ -357,15 +357,15 @@ inductive HasType: Context -> Untyped -> Annot -> Prop
   | elem {Γ: Context} {A φ l r: Untyped}:
     HasType Γ l (term A) -> HasType Γ r (proof (φ.subst0 l)) ->
     HasType Γ (elem l r) (term (set A φ))
-  | let_set {Γ: Context} {A φ C e e': Untyped}:
+  | let_set {Γ: Context} {A φ C e e': Untyped} {k: AnnotSort}:
     HasType Γ e (term (set A φ)) ->
     HasType Γ A type ->
     HasType ((Hyp.mk A (HypKind.val type))::Γ) φ prop ->
-    HasType ((Hyp.mk (set A φ) (HypKind.val type))::Γ) C type ->
+    HasType ((Hyp.mk (set A φ) (HypKind.val type))::Γ) C k ->
     HasType 
     ((Hyp.mk φ (HypKind.val prop))::(Hyp.mk A (HypKind.val type))::Γ) 
     e' (term ((C.wknth 1).alpha0 (pair (var 1) (var 0)))) ->
-    HasType Γ (let_set e e') (term (C.subst0 e))
+    HasType Γ (let_set e e') (expr k (C.subst0 e))
   | lam_pr {Γ: Context} {φ s A: Untyped}:
     HasType Γ φ prop ->
     HasType ((Hyp.mk φ (HypKind.val prop))::Γ) s (term A) ->
