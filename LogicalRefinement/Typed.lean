@@ -338,7 +338,7 @@ inductive HasType: Context -> Untyped -> Annot -> Prop
     HasType ((Hyp.mk (sigma A B) (HypKind.val type))::Γ) C k ->
     HasType 
     ((Hyp.mk B (HypKind.val type))::(Hyp.mk A (HypKind.val type))::Γ) 
-    e' (term ((C.wknth 1).alpha0 (pair (var 1) (var 0)))) ->
+    e' (expr k ((C.wknth 1).alpha0 (pair (var 1) (var 0)))) ->
     HasType Γ (let_pair e e') (expr k (C.subst0 e))
   | inj_l {Γ: Context} {A B e: Untyped}:
     HasType Γ e (term A) -> HasType Γ B type ->
@@ -364,7 +364,7 @@ inductive HasType: Context -> Untyped -> Annot -> Prop
     HasType ((Hyp.mk (set A φ) (HypKind.val type))::Γ) C k ->
     HasType 
     ((Hyp.mk φ (HypKind.val prop))::(Hyp.mk A (HypKind.val type))::Γ) 
-    e' (term ((C.wknth 1).alpha0 (pair (var 1) (var 0)))) ->
+    e' (expr k ((C.wknth 1).alpha0 (pair (var 1) (var 0)))) ->
     HasType Γ (let_set e e') (expr k (C.subst0 e))
   | lam_pr {Γ: Context} {φ s A: Untyped}:
     HasType Γ φ prop ->
@@ -383,7 +383,6 @@ inductive HasType: Context -> Untyped -> Annot -> Prop
   | repr {Γ: Context} {A B l r: Untyped}:
     HasType Γ l (term A) -> HasType Γ r (term (B.subst0 l)) ->
     HasType Γ (repr l r) (term (union A B))
-  -- let_repr
 
   -- Basic proof formers
   | abort {Γ: Context} {A: Annot} {p: Untyped}:
