@@ -258,6 +258,10 @@ theorem Context.is_sub.upgrade {Γ: Context}: Γ.is_sub Γ.upgrade := by {
   | cons => exact cons (by assumption) Hyp.is_sub.upgrade
 }
 
+theorem Context.is_sub.upgrade_bin: {Γ Δ: Context} -> Γ.is_sub Δ -> Γ.upgrade.is_sub Δ.upgrade := by {
+  sorry
+}
+
 open Untyped
 
 def Untyped.arrow (A B: Untyped) := pi A (wk1 B)
@@ -596,15 +600,27 @@ theorem HasVar.downgrade {Γ n A k}:
 theorem HasVar.upgrade_val (p: HasVar Γ A (HypKind.val s) n): 
   HasVar Γ.upgrade A (HypKind.val s) n := HasVar.upgrade p
 
-theorem HasType.upgrade (p: Γ ⊢ a: A): Γ.upgrade ⊢ a: A := by {
-  induction p <;> simp only [Context.upgrade] at *;
-  case var => 
+theorem HasType.sub (p: Γ ⊢ a: A): ∀{Δ}, Γ.is_sub Δ -> Δ ⊢ a: A := by {
+  induction p;
+  case var I =>
+    intro Δ HΓΔ;
     apply var
+    apply I
     assumption
-    apply HasVar.upgrade_val
-    assumption
-  all_goals (constructor <;> first | assumption | sorry) --TODO: fixme
+    apply HasVar.sub <;> assumption
+
+  all_goals (
+    rename_i' I5 I4 I3 I2 I1 I0;
+    intro Δ H;
+    constructor <;> repeat (
+      (first | apply I0 | apply I1 | apply I2 | apply I3 | apply I4 | apply I5) <;>
+      repeat first | apply Context.is_sub.upgrade_bin | assumption | constructor
+    )
+  )
 }
+
+theorem HasType.upgrade (p: Γ ⊢ a: A): Γ.upgrade ⊢ a: A 
+  := HasType.sub p Context.is_sub.upgrade
 
 --TODO: define context type, coercion to raw context?
 
