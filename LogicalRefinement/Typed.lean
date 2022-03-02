@@ -652,7 +652,10 @@ theorem HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
       constructor <;> 
       rename_i' I5 I4 I3 I2 I1 I0 <;> 
       (try rw [Untyped.alpha00_wk_comm (by simp)]) <;>
-      (try rw [Untyped.let_bin_ty_alpha_wk]) <;>
+      (try rw [Untyped.let_bin_ty_alpha_wk_pair]) <;>
+      (try rw [Untyped.let_bin_ty_alpha_wk_elem]) <;>
+      (try rw [Untyped.let_bin_ty_alpha_wk_repr]) <;>
+      (try rw [Untyped.let_bin_ty_alpha_wk_wit]) <;>
       (first | apply I0 | apply I1 | apply I2 | apply I3 | apply I4 | apply I5) <;> 
       simp only [<-Hyp.wk_components] <;> 
       first 
@@ -832,8 +835,11 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
       constructor <;>
       rename_i' I5 I4 I3 I2 I1 I0 <;> repeat (
         try constructor
-        (try rw [Untyped.alpha00_comm (by simp)])
-        (try rw [Untyped.let_bin_ty_alpha])
+        try rw [Untyped.alpha00_comm (by simp)]
+        try rw [Untyped.let_bin_ty_alpha_pair]
+        try rw [Untyped.let_bin_ty_alpha_elem]
+        try rw [Untyped.let_bin_ty_alpha_repr]
+        try rw [Untyped.let_bin_ty_alpha_wit]
         first 
         | apply I0 | apply I1 | apply I2 | apply I3 | apply I4 | apply I5
         | exact I4 S

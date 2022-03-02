@@ -73,7 +73,7 @@ inductive UntypedKind: List Nat -> Type
   | inst: UntypedKind [0, 0]
   -- Consider merging with intro/elim for 
   -- (sigma, ghost, prop) == (sigma, type, prop)
-  | witness: UntypedKind [0, 0]
+  | wit: UntypedKind [0, 0]
   | let_wit: UntypedKind [0, 2]
   | refl: UntypedKind [0]
 
@@ -141,7 +141,7 @@ def Untyped.imp := abs UntypedKind.imp
 def Untyped.mp := bin UntypedKind.mp
 def Untyped.general := abs UntypedKind.general
 def Untyped.inst := bin UntypedKind.inst
-def Untyped.witness := bin UntypedKind.witness
+def Untyped.wit := bin UntypedKind.wit
 def Untyped.let_wit := let_bin UntypedKind.let_wit
 def Untyped.refl := unary UntypedKind.refl
 

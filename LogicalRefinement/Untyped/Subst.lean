@@ -741,13 +741,45 @@ theorem Untyped.alpha00_wk_comm {u v: Untyped} {ρ: Wk}:
 --   repeat sorry
 -- }
 
-theorem Untyped.let_bin_ty_alpha {C: Untyped} {σ: Subst}:
-  ((C.subst σ.lift).wknth 1).alpha0 (pair (var 1) (var 0)) =
-  ((C.wknth 1).alpha0 (pair (var 1) (var 0))).subst (σ.liftn 2) := sorry
+theorem Untyped.let_bin_ty_alpha {C: Untyped} {σ: Subst} {k: UntypedKind [0, 0]}:
+  ((C.subst σ.lift).wknth 1).alpha0 (bin k (var 1) (var 0)) =
+  ((C.wknth 1).alpha0 (bin k (var 1) (var 0))).subst (σ.liftn 2) := sorry
 
-theorem Untyped.let_bin_ty_alpha_wk {C: Untyped} {ρ: Wk}:
-  ((C.wk ρ.lift).wknth 1).alpha0 (pair (var 1) (var 0)) =
-  ((C.wknth 1).alpha0 (pair (var 1) (var 0))).wk (ρ.liftn 2) := by {
+theorem Untyped.let_bin_ty_alpha_wk {C: Untyped} {ρ: Wk} {k: UntypedKind [0, 0]}:
+  ((C.wk ρ.lift).wknth 1).alpha0 (bin k (var 1) (var 0)) =
+  ((C.wknth 1).alpha0 (bin k (var 1) (var 0))).wk (ρ.liftn 2) := by {
     simp only [<-Subst.subst_wk_compat, <-Wk.to_subst_lift, <-Wk.to_subst_liftn]
     exact let_bin_ty_alpha
   }
+
+theorem Untyped.let_bin_ty_alpha_pair {C: Untyped} {σ: Subst}:
+  ((C.subst σ.lift).wknth 1).alpha0 (pair (var 1) (var 0)) =
+  ((C.wknth 1).alpha0 (pair (var 1) (var 0))).subst (σ.liftn 2) := let_bin_ty_alpha
+
+theorem Untyped.let_bin_ty_alpha_wk_pair {C: Untyped} {ρ: Wk}:
+  ((C.wk ρ.lift).wknth 1).alpha0 (pair (var 1) (var 0)) =
+  ((C.wknth 1).alpha0 (pair (var 1) (var 0))).wk (ρ.liftn 2) := let_bin_ty_alpha_wk
+
+theorem Untyped.let_bin_ty_alpha_elem {C: Untyped} {σ: Subst}:
+  ((C.subst σ.lift).wknth 1).alpha0 (elem (var 1) (var 0)) =
+  ((C.wknth 1).alpha0 (elem (var 1) (var 0))).subst (σ.liftn 2) := let_bin_ty_alpha
+
+theorem Untyped.let_bin_ty_alpha_wk_elem {C: Untyped} {ρ: Wk}:
+  ((C.wk ρ.lift).wknth 1).alpha0 (elem (var 1) (var 0)) =
+  ((C.wknth 1).alpha0 (elem (var 1) (var 0))).wk (ρ.liftn 2) := let_bin_ty_alpha_wk
+
+theorem Untyped.let_bin_ty_alpha_repr {C: Untyped} {σ: Subst}:
+  ((C.subst σ.lift).wknth 1).alpha0 (repr (var 1) (var 0)) =
+  ((C.wknth 1).alpha0 (repr (var 1) (var 0))).subst (σ.liftn 2) := let_bin_ty_alpha
+
+theorem Untyped.let_bin_ty_alpha_wk_repr {C: Untyped} {ρ: Wk}:
+  ((C.wk ρ.lift).wknth 1).alpha0 (repr (var 1) (var 0)) =
+  ((C.wknth 1).alpha0 (repr (var 1) (var 0))).wk (ρ.liftn 2) := let_bin_ty_alpha_wk
+
+theorem Untyped.let_bin_ty_alpha_wit {C: Untyped} {σ: Subst}:
+  ((C.subst σ.lift).wknth 1).alpha0 (wit (var 1) (var 0)) =
+  ((C.wknth 1).alpha0 (wit (var 1) (var 0))).subst (σ.liftn 2) := let_bin_ty_alpha
+
+theorem Untyped.let_bin_ty_alpha_wk_wit {C: Untyped} {ρ: Wk}:
+  ((C.wk ρ.lift).wknth 1).alpha0 (wit (var 1) (var 0)) =
+  ((C.wknth 1).alpha0 (wit (var 1) (var 0))).wk (ρ.liftn 2) := let_bin_ty_alpha_wk
