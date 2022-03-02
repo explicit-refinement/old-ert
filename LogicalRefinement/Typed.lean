@@ -244,8 +244,14 @@ theorem Context.is_sub.step {Γ Δ: Context} {H: Hyp} (p: Γ.is_sub Δ): Context
 
 theorem Context.is_sub.refl {Γ: Context}: Γ.is_sub Γ := by {
   induction Γ with
-  | nil => constructor
+  | nil => exact nil
   | cons => exact cons (by assumption) Hyp.is_sub.refl
+}
+
+theorem Context.is_sub.upgrade {Γ: Context}: Γ.is_sub Γ.upgrade := by {
+  induction Γ with
+  | nil => exact nil
+  | cons => exact cons (by assumption) Hyp.is_sub.upgrade
 }
 
 open Untyped
