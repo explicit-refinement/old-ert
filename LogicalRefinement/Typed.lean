@@ -251,6 +251,7 @@ theorem HasVar.fv (H: HasVar Γ A s n): n < Γ.length := by {
 
 -- Notes:
 -- - Automation seems to work even when target types are the same, e.g. swapping general for lam_irrel. This bodes well for the shadow-universe strategy
+--   This is before regularity, though; since having the RHS of assume be a prop doesn't seem to break things either.
 inductive HasType: Context -> Untyped -> Annot -> Prop
   -- Variables
   | var {Γ: Context} {A: Untyped} {s: AnnotSort} {n: Nat}:
@@ -399,6 +400,13 @@ inductive HasType: Context -> Untyped -> Annot -> Prop
     HasType Γ A prop ->
     HasType Γ (disj true e) (proof (or A B))
   --TODO: case_pr
+  | imp {Γ: Context} {φ s ψ: Untyped}:
+    HasType Γ φ prop ->
+    HasType ((Hyp.mk φ (HypKind.val prop))::Γ) s (proof ψ) ->
+    HasType Γ (imp φ s) (proof (implies φ ψ))
+  | mp {Γ: Context} {φ ψ l r: Untyped}:
+    HasType Γ l (term (implies φ ψ)) -> HasType Γ.upgrade r (proof φ) ->
+    HasType Γ (mp l r) (proof (ψ.subst0 l))
   | general {Γ: Context} {A s φ: Untyped}:
     HasType Γ A type ->
     HasType ((Hyp.mk A (HypKind.val type))::Γ) s (proof φ) ->
