@@ -78,7 +78,8 @@ theorem SubstCtx.upgrade (S: SubstCtx ρ Γ Δ): SubstCtx ρ Γ.upgrade Δ.upgra
   have H' := HasVar.downgrade H;
   cases S H' with
   | expr S =>
-    sorry
+    rw [HypKind.annot_downgrade] at S
+    exact SubstVar.expr (HasType.upgrade S)
   | var Hv HΓ =>
     exact SubstVar.var Hv (HasVar.upgrade_downgraded HΓ)
 }
