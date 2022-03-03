@@ -46,6 +46,22 @@ def Subst.liftn (σ: Subst): Nat -> Subst
 @[simp]
 def Subst.liftn_succ {σ: Subst} {l}: σ.liftn (Nat.succ l) = (σ.liftn l).lift := rfl
 
+def Subst.liftn_add {σ: Subst}: σ.liftn m (v + m) = (σ v).wkn m 
+:= by {
+  induction m with
+  | zero => simp
+  | succ m I =>
+    simp only [liftn]
+    rw [Nat.add_succ]
+    rw [lift_succ]
+    simp only [wk1]
+    simp only [Untyped.wkn, Wk.wkn]
+    rw [<-Wk.step_is_comp_wk1]
+    rw [<-Untyped.wk_composes]
+    rw [I]
+    rfl
+}
+
 def Wk.to_subst_liftn: {n: Nat} -> {σ: Wk} ->
   (to_subst σ).liftn n = to_subst (σ.liftn n) := by {
     intro n;
@@ -525,7 +541,17 @@ def Untyped.to_alpha_wk1 {u: Untyped}:
 
 def Untyped.to_alpha_0 {u: Untyped}: u.to_alpha 0 = u := rfl
 
+@[simp]
+def Untyped.alpha_00 {u: Untyped}: (var 0).alpha0 u = u := rfl
+
 def Untyped.to_alpha_succ {u: Untyped}: u.to_alpha (Nat.succ n) = var (Nat.succ n) := rfl
+
+@[simp]
+def Untyped.alpha_succ: (var (n + 1)).alpha0 u = var (n + 1) := rfl
+
+@[simp]
+def Untyped.subst_to_alpha_succ {u: Untyped}: 
+  (var (n + 1)).subst u.to_alpha = var (n + 1) := rfl
 
 def Untyped.alphanth_wknth {u v: Untyped} {l: Nat}:
   (u.wknth l).alphanth l v = u.wknth l := by {
@@ -740,6 +766,38 @@ theorem Untyped.alpha00_wk_comm {u v: Untyped} {ρ: Wk}:
 
 --   repeat sorry
 -- }
+
+theorem Untyped.let_bin_ty_alpha_subst {σ: Subst} {k: UntypedKind [0, 0]}:
+  (bin k (var 1) (var 0)).to_alpha.comp 
+    ((Wk.wknth 1).to_subst.comp σ.lift) =
+  (σ.liftn 2).comp 
+    ((bin k (var 1) (var 0)).to_alpha.comp (Wk.wknth 1))
+  := by {
+    funext v;
+    cases v with
+    | zero =>
+      simp [Subst.comp, Subst.wk1]
+    | succ v =>
+      simp only [Subst.comp]
+      have Hv
+        : Wk.to_subst (Wk.wknth 1) (Nat.succ v) = var (v + 1 + 1) 
+        := rfl;
+      rw [Hv]
+      rw [subst_to_alpha_succ]
+      simp only [subst, Subst.liftn_add, Subst.lift_succ, Subst.wk1]
+      rw [Subst.subst_wk_compat]
+      simp only [wk1]
+      rw [Untyped.wk_composes]
+      simp only [Wk.comp]
+      rw [<-Wk.step_is_comp_wk1]
+      rw [<-Untyped.wk_composes]
+      rw [<-Untyped.wk1_def]
+      rw [<-Untyped.alpha0_def]
+      rw [Untyped.alpha0_wk1]
+      simp only [wk1]
+      rw [Untyped.wk_composes]
+      rfl
+  }
 
 theorem Untyped.let_bin_ty_alpha {C: Untyped} {σ: Subst} {k: UntypedKind [0, 0]}:
   ((C.subst σ.lift).wknth 1).alpha0 (bin k (var 1) (var 0)) =
