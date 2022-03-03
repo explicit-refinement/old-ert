@@ -124,3 +124,7 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
       )
     )
   }
+
+theorem HasType.subst_sort {Γ Δ σ a k} 
+  (HΔ: Δ ⊢ a: sort k) (S: SubstCtx σ Γ Δ):
+  (Γ ⊢ (a.subst σ): sort k) := HΔ.subst S
