@@ -27,6 +27,10 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
     constructor; constructor <;>
     first | assumption | { apply Annot.regular_expr; assumption }
 
+  case app =>
+    constructor;
+    sorry
+
   --TODO: general tactic for app requires substitution lemma for subst0
 
   repeat sorry
