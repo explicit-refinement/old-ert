@@ -80,8 +80,7 @@ theorem SubstCtx.upgrade (S: SubstCtx ρ Γ Δ): SubstCtx ρ Γ.upgrade Δ.upgra
   | expr S =>
     sorry
   | var Hv HΓ =>
-    apply SubstVar.var Hv
-    apply HasVar.upgrade
+    exact SubstVar.var Hv (HasVar.upgrade_downgraded HΓ)
 }
 
 theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
