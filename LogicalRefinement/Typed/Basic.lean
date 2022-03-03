@@ -334,6 +334,14 @@ theorem HasVar.downgrade {Γ n A k}:
 theorem HasVar.upgrade_val (p: HasVar Γ A (HypKind.val s) n): 
   HasVar Γ.upgrade A (HypKind.val s) n := HasVar.upgrade p
 
+theorem HasVar.upgrade_upgraded:
+  k.is_sub k' -> HasVar Γ A k n -> HasVar Γ.upgrade A k' n := by {
+  intro Hk HΓ;
+  let Hv := upgrade HΓ;
+  cases k <;> cases Hk <;> try exact Hv
+  exact HasVar.wk_sort HypKind.is_sub.gst Hv
+}
+
 theorem HasType.sub (p: Γ ⊢ a: A): ∀{Δ}, Γ.is_sub Δ -> Δ ⊢ a: A := by {
   induction p;
   case var I =>

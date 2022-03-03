@@ -75,7 +75,13 @@ theorem SubstCtx.lift_loose
 theorem SubstCtx.upgrade (S: SubstCtx ρ Γ Δ): SubstCtx ρ Γ.upgrade Δ.upgrade 
 := by {
   intro n A k H;
-  sorry
+  have H' := HasVar.downgrade H;
+  cases S H' with
+  | expr S =>
+    sorry
+  | var Hv HΓ =>
+    apply SubstVar.var Hv
+    apply HasVar.upgrade
 }
 
 theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
