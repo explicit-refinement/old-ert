@@ -29,6 +29,9 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
 
   case app =>
     constructor;
+    apply subst_sort
+    sorry
+    sorry
     sorry
 
   --TODO: general tactic for app requires substitution lemma for subst0
