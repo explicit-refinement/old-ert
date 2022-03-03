@@ -801,7 +801,10 @@ theorem Untyped.let_bin_ty_alpha_subst {σ: Subst} {k: UntypedKind [0, 0]}:
 
 theorem Untyped.let_bin_ty_alpha {C: Untyped} {σ: Subst} {k: UntypedKind [0, 0]}:
   ((C.subst σ.lift).wknth 1).alpha0 (bin k (var 1) (var 0)) =
-  ((C.wknth 1).alpha0 (bin k (var 1) (var 0))).subst (σ.liftn 2) := sorry
+  ((C.wknth 1).alpha0 (bin k (var 1) (var 0))).subst (σ.liftn 2) := by {
+  simp only [alpha0, wknth, <-Subst.subst_wk_compat, subst_composes]
+  rw [let_bin_ty_alpha_subst]
+}
 
 theorem Untyped.let_bin_ty_alpha_wk {C: Untyped} {ρ: Wk} {k: UntypedKind [0, 0]}:
   ((C.wk ρ.lift).wknth 1).alpha0 (bin k (var 1) (var 0)) =
