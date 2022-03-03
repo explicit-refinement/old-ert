@@ -112,6 +112,12 @@ def HypKind.downgrade_wk {k k': HypKind}:
       | gst => intro H; constructor
   }
 
+def HypKind.downgrade_is_sub {k: HypKind}: k.downgrade.is_sub k := by {
+  cases k with
+  | val s => cases s <;> constructor
+  | gst => constructor
+}
+
 theorem HypKind.is_sub.upgrade: {k: HypKind} -> k.is_sub k.upgrade
   | val type => is_sub.refl
   | val prop => is_sub.refl

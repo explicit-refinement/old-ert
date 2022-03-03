@@ -342,6 +342,10 @@ theorem HasVar.upgrade_upgraded:
   exact HasVar.wk_sort HypKind.is_sub.gst Hv
 }
 
+theorem HasVar.upgrade_downgraded:
+  HasVar Γ A k.downgrade n -> HasVar Γ.upgrade A k n 
+  := upgrade_upgraded HypKind.downgrade_is_sub
+
 theorem HasType.sub (p: Γ ⊢ a: A): ∀{Δ}, Γ.is_sub Δ -> Δ ⊢ a: A := by {
   induction p;
   case var I =>
