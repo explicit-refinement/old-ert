@@ -26,6 +26,7 @@ def renameInaccessibles' (mvarId : MVarId) (hs : Array Syntax) : TacticM MVarId 
           if hs.isEmpty then
             break
         found := found.insert localDecl.userName
+    --TODO: set all undefined variables to nil...
     -- unless hs.isEmpty do
     --   Lean.Elab.logError m!"too many variable names provided"
     let mvarNew ← mkFreshExprMVarAt lctx mvarDecl.localInstances mvarDecl.type MetavarKind.syntheticOpaque mvarDecl.userName
