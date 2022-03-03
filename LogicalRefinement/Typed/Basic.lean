@@ -60,6 +60,7 @@ inductive HasType: Context -> Untyped -> Annot -> Prop
   | bot {Γ}: HasType Γ bot prop
   | zero {Γ}: HasType Γ zero (term nats)
   | succ {Γ}: HasType Γ succ (term (arrow nats nats))
+  -- Change nil to non-list things
   | nil {Γ}: HasType Γ nil (proof top)
 
   -- Types

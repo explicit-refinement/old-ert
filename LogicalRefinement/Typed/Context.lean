@@ -4,6 +4,8 @@ import LogicalRefinement.Utils
 import LogicalRefinement.Tactics
 open Untyped
 
+--TODO: flip sub, suffer
+
 inductive AnnotSort
   | type
   | prop
