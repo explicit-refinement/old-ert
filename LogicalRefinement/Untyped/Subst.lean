@@ -2,6 +2,7 @@ import LogicalRefinement.Utils
 import LogicalRefinement.Wk
 import LogicalRefinement.Untyped.Basic
 import LogicalRefinement.Untyped.Wk
+import LogicalRefinement.Tactics
 
 def Subst := Nat -> Untyped
 
@@ -664,6 +665,39 @@ theorem Untyped.subst0_subst {u v: Untyped} {σ: Subst}:
     rw [Subst.subst0_subst_composes]
   }
 
+theorem Untyped.liftn_below {u: Untyped}:
+  {n: Nat} -> {σ: Subst} ->
+  u.fv ≤ n -> u.subst (σ.liftn n) = u := by {
+  induction u;
+  case var =>
+    intros
+    apply Subst.liftn_base_nil
+    assumption
+
+  all_goals (
+    intros n σ H;
+    rename_i' I0 I1 I2 I3;
+    simp only [subst, Subst.lift_liftn_merge, Subst.liftn_merge]
+    try rw [I0]
+    try rw [I1]
+    try rw [I2]
+    try rw [I3]
+    all_goals (
+      simp only [fv, Nat.max_r_le_split, Nat.le_sub_is_le_add] at H
+      (try exact H) <;>
+      (have ⟨Hh, H⟩ := H) <;>
+      (try exact Hh) <;>
+      (try exact H) <;>
+      (have ⟨Hh, H⟩ := H) <;>
+      (try exact Hh) <;>
+      (try exact H) <;>
+      (have ⟨Hh, H⟩ := H) <;>
+      (try exact Hh) <;>
+      (try exact H)
+    )
+  )
+}
+
 theorem Untyped.alphann_comm {u v: Untyped} {σ: Subst} {n: Nat}:
   v.fv ≤ 1 -> 
   (u.subst (σ.liftn (n + 1))).alphanth n v 
@@ -788,37 +822,43 @@ theorem Untyped.alpha00_wk_comm {u v: Untyped} {ρ: Wk}:
 --   repeat sorry
 -- }
 
+theorem Untyped.var2_alpha_subst {σ: Subst} {u: Untyped}:
+  u.fv ≤ 2 ->
+  u.to_alpha.comp ((Wk.wknth 1).to_subst.comp σ.lift) =
+  (σ.liftn 2).comp (u.to_alpha.comp (Wk.wknth 1)) := by {
+  intro Hu;
+  funext v;
+  cases v with
+  | zero =>
+    simp only [Subst.comp, Subst.wk1, subst, Wk.var, to_alpha, liftn_below Hu]
+  | succ v =>
+    simp only [Subst.comp]
+    have Hv
+      : Wk.to_subst (Wk.wknth 1) (Nat.succ v) = var (v + 1 + 1) 
+      := rfl;
+    rw [Hv]
+    rw [subst_to_alpha_succ]
+    simp only [subst, Subst.liftn_add, Subst.lift_succ, Subst.wk1]
+    rw [Subst.subst_wk_compat]
+    simp only [wk1]
+    rw [Untyped.wk_composes]
+    simp only [Wk.comp]
+    rw [<-Wk.step_is_comp_wk1]
+    rw [<-Untyped.wk_composes]
+    rw [<-Untyped.wk1_def]
+    rw [<-Untyped.alpha0_def]
+    rw [Untyped.alpha0_wk1]
+    simp only [wk1]
+    rw [Untyped.wk_composes]
+    rfl
+}
+
 theorem Untyped.let_bin_ty_alpha_subst {σ: Subst} {k: UntypedKind [0, 0]}:
   (bin k (var 1) (var 0)).to_alpha.comp 
     ((Wk.wknth 1).to_subst.comp σ.lift) =
   (σ.liftn 2).comp 
     ((bin k (var 1) (var 0)).to_alpha.comp (Wk.wknth 1))
-  := by {
-    funext v;
-    cases v with
-    | zero =>
-      simp [Subst.comp, Subst.wk1]
-    | succ v =>
-      simp only [Subst.comp]
-      have Hv
-        : Wk.to_subst (Wk.wknth 1) (Nat.succ v) = var (v + 1 + 1) 
-        := rfl;
-      rw [Hv]
-      rw [subst_to_alpha_succ]
-      simp only [subst, Subst.liftn_add, Subst.lift_succ, Subst.wk1]
-      rw [Subst.subst_wk_compat]
-      simp only [wk1]
-      rw [Untyped.wk_composes]
-      simp only [Wk.comp]
-      rw [<-Wk.step_is_comp_wk1]
-      rw [<-Untyped.wk_composes]
-      rw [<-Untyped.wk1_def]
-      rw [<-Untyped.alpha0_def]
-      rw [Untyped.alpha0_wk1]
-      simp only [wk1]
-      rw [Untyped.wk_composes]
-      rfl
-  }
+  := var2_alpha_subst (by simp)
 
 theorem Untyped.let_bin_ty_alpha {C: Untyped} {σ: Subst} {k: UntypedKind [0, 0]}:
   ((C.subst σ.lift).wknth 1).alpha0 (bin k (var 1) (var 0)) =
