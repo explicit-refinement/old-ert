@@ -248,7 +248,13 @@ inductive HasType: Context -> Untyped -> Annot -> Prop
     HasType Γ a (term A) -> HasType Γ (refl a) (proof (eq A a a))
 
   -- Value formers
-  --TODO: natrec  
+  | natrec {Γ: Context} {C e z s: Untyped} {k: AnnotSort}:
+    HasType ((Hyp.mk nats HypKind.gst)::Γ) C k ->
+    HasType Γ e (term nats) ->
+    HasType Γ z (term (C.subst0 zero)) ->
+    HasType ((Hyp.mk C (HypKind.val k))::(Hyp.mk nats HypKind.gst)::Γ) s 
+    (term ((C.wknth 1).alpha0 (repr (var 1) (var 0)))) ->
+    HasType Γ (natrec C e z s) (expr k (C.subst0 e))
 
 notation Γ "⊢" a ":" A => HasType Γ a A
 notation Γ "⊢" a "∈" A => HasType Γ a (term A)

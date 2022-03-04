@@ -98,6 +98,14 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
         rw [Hv]
         exact HasType.var (I S) HΓ
 
+    case natrec IC Ie Iz Is => 
+      intros σ Γ S
+      simp only [
+        Untyped.subst, Annot.subst, term, proof, Untyped.subst0_subst
+      ] at *
+      sorry
+
+
     all_goals (
       intros σ Γ S
       simp only [
