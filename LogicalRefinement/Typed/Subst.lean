@@ -98,19 +98,6 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
         rw [Hv]
         exact HasType.var (I S) HΓ
 
-    case natrec IC Ie Iz Is => 
-      intros σ Γ S
-      simp only [
-        Untyped.subst, Annot.subst, term, proof, Untyped.subst0_subst
-      ] at *
-      constructor
-      apply IC
-      apply SubstCtx.lift_primitive S (by constructor <;> simp only [HypKind, Hyp.subst])
-      constructor
-      exact Ie S
-      exact Iz S
-      sorry
-
     all_goals (
       intro σ Γ S;
       rename_i' I5 I4 I3 I2 I1 I0;
@@ -125,10 +112,9 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
         try rw [Untyped.let_bin_ty_alpha_elem]
         try rw [Untyped.let_bin_ty_alpha_repr]
         try rw [Untyped.let_bin_ty_alpha_wit]
-        try rw [Untyped.var2_var1_alpha_wk]
+        try rw [Untyped.var2_var1_alpha]
         first 
         | apply I0 | apply I1 | apply I2 | apply I3 | apply I4 | apply I5
-        | exact I2 Sexact I4 S
         first
         | exact S
         | exact SubstCtx.upgrade S
@@ -138,6 +124,9 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
         )
       )
     )
+
+    --TODO: fix hax
+    repeat constructor
   }
 
 theorem HasType.subst_sort {Γ Δ σ a k} 
