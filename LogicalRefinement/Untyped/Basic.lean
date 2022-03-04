@@ -73,7 +73,14 @@ inductive UntypedKind: List Nat -> Type
   -- (sigma, ghost, prop) == (sigma, type, prop)
   | wit: UntypedKind [0, 0]
   | let_wit: UntypedKind [0, 2]
+
+  -- Theory of equality
   | refl: UntypedKind [0]
+  | sym: UntypedKind [0, 0]
+  | trans: UntypedKind [0, 0, 0]
+  | cong: UntypedKind [0, 1]
+  | beta: UntypedKind [0, 0, 0]
+  | eta: UntypedKind [0, 0]
 
   -- Natural numbers
   | zero: UntypedKind []
@@ -144,7 +151,14 @@ def Untyped.general := abs UntypedKind.general
 def Untyped.inst := bin UntypedKind.inst
 def Untyped.wit := bin UntypedKind.wit
 def Untyped.let_wit := let_bin UntypedKind.let_wit
+
+-- Theory of equality
 def Untyped.refl := unary UntypedKind.refl
+def Untyped.sym := bin UntypedKind.sym
+def Untyped.trans := tri UntypedKind.trans
+def Untyped.cong := abs UntypedKind.cong
+def Untyped.beta := tri UntypedKind.beta
+def Untyped.eta := bin UntypedKind.eta
 
 -- Natural numbers
 def Untyped.zero := const UntypedKind.zero
