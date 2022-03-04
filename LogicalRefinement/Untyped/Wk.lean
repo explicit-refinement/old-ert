@@ -12,6 +12,8 @@ import LogicalRefinement.Untyped.Basic
   | tri k A l r, ρ => tri k (A.wk ρ) (l.wk ρ) (r.wk ρ)
   | cases k K d l r, ρ => 
     cases k (K.wk ρ.lift) (d.wk ρ) (l.wk ρ.lift) (r.wk ρ.lift)
+  | natrec k K e z s, ρ =>
+    natrec k (K.wk ρ.lift) (e.wk ρ) (z.wk ρ) (s.wk (ρ.liftn 2))
 
 @[simp] def Untyped.wk1 (u: Untyped) 
   := u.wk Wk.wk1
@@ -46,10 +48,15 @@ def Untyped.wknth_def {u: Untyped} {n}: u.wknth n = u.wk (Wk.wknth n) := rfl
     simp only [IHA H, IHs (Wk.lift_equiv H)]
   | tri k A l r IA Il Ir => intros ρ σ H; simp [IA H, Il H, Ir H]
   | cases k K d l r IK Id Il Ir => 
+    intros ρ σ H;
+    simp only [
+      wk, IK (Wk.lift_equiv H), Id H, Il (Wk.lift_equiv H), Ir (Wk.lift_equiv H)
+    ]
+  | natrec k K e z s IK Ie Iz Is =>
     intros ρ σ H; 
     simp only [wk];
-    simp [
-      IK (Wk.lift_equiv H), Id H, Il (Wk.lift_equiv H), Ir (Wk.lift_equiv H)
+    simp only [
+      Is (Wk.liftn_equiv H), IK (Wk.lift_equiv H), Ie H, Iz H
     ]
 }
 
@@ -118,6 +125,19 @@ def Untyped.wk_bounds {u: Untyped}: {n m: Nat} -> {ρ: Wk} ->
           apply And.intro;
           case left => apply IHl (@Wk.liftn_maps ρ 1 n m Hm) Hl
           case right => apply IHr (@Wk.liftn_maps ρ 1 n m Hm) Hr
+    | natrec k K e z s IK Ie Iz Is =>
+      simp only [fv, Nat.max_r_le_split, Nat.le_sub_is_le_add]
+      intros n m ρ Hm
+      intro ⟨HK, He, Hz, Hs⟩
+      apply And.intro;
+      case left => apply IK (Wk.liftn_maps Hm) HK
+      case right => 
+        apply And.intro;
+        case left => apply Ie Hm He
+        case right =>
+          apply And.intro;
+          case left => apply Iz Hm Hz
+          case right => apply Is (@Wk.liftn_maps ρ 2 n m Hm) Hs
   }
 
 def Untyped.fv_wk1: fv (wk1 u) ≤ fv u + 1 

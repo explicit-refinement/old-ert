@@ -32,8 +32,6 @@ inductive UntypedKind: List Nat -> Type
   | eq: UntypedKind [0, 0, 0]
 
   -- Terms
-  | zero: UntypedKind []
-  | succ: UntypedKind []
   -- Consider merging with intro/elim for (pi, type, type)
   | lam: UntypedKind [0, 1]
   | app: UntypedKind [0, 0]
@@ -77,6 +75,11 @@ inductive UntypedKind: List Nat -> Type
   | let_wit: UntypedKind [0, 2]
   | refl: UntypedKind [0]
 
+  -- Natural numbers
+  | zero: UntypedKind []
+  | succ: UntypedKind []
+  | natrec: UntypedKind [1, 0, 0, 2]
+
 inductive Untyped: Type
   | var (v: Nat)
 
@@ -91,6 +94,7 @@ inductive Untyped: Type
   | tri (k: UntypedKind [0, 0, 0]) (A: Untyped) (l: Untyped) (r: Untyped)
   -- TODO: no cases?
   | cases (k: UntypedKind [1, 0, 1, 1]) (K: Untyped) (d: Untyped) (l: Untyped) (r: Untyped)
+  | natrec (k: UntypedKind [1, 0, 0, 2]) (K: Untyped) (e: Untyped) (z: Untyped) (s: Untyped)
 
 -- Types
 def Untyped.nats := const UntypedKind.nats
@@ -154,6 +158,7 @@ def Untyped.refl := unary UntypedKind.refl
   | abs _ A t => Nat.max (fv A) (fv t - 1)
   | tri _ A l r => Nat.max (fv A) (Nat.max (fv l) (fv r))
   | cases _ K d l r => Nat.max (fv K - 1) (Nat.max (fv d) (Nat.max (fv l - 1) (fv r - 1)))
+  | natrec _ K e z s => Nat.max (fv K - 1) (Nat.max (fv e) (Nat.max (fv z) (fv s - 2)))
 
 @[simp] def Untyped.has_dep: Untyped -> Nat -> Prop
   | var v, i => v = i
@@ -165,6 +170,8 @@ def Untyped.refl := unary UntypedKind.refl
   | tri _ A l r, i => has_dep A i ∨ has_dep l i ∨ has_dep r i
   | cases _ K d l r, i => 
     has_dep K (i + 1) ∨ has_dep d i ∨ has_dep l (i + 1) ∨ has_dep r (i + 1)
+  | natrec _ K e z s, i =>
+    has_dep K (i + 1) ∨ has_dep e i ∨ has_dep z i ∨ has_dep s (i + 2)
 
 theorem Untyped.has_dep_implies_fv (u: Untyped): {i: Nat} ->
   has_dep u i -> i < fv u := by {
