@@ -84,18 +84,19 @@ theorem HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
       repeat assumption
 
     all_goals (
-      intros ρ Γ R
+      intro ρ Γ R;
+      rename_i' I5 I4 I3 I2 I1 I0;
       simp only [
         Untyped.wk, Annot.wk, term, proof, Untyped.subst0_wk,
         Untyped.wk1
       ] at *
-      constructor <;> 
-      rename_i' I5 I4 I3 I2 I1 I0 <;> 
+      constructor <;>
       (try rw [Untyped.alpha00_wk_comm (by simp)]) <;>
       (try rw [Untyped.let_bin_ty_alpha_wk_pair]) <;>
       (try rw [Untyped.let_bin_ty_alpha_wk_elem]) <;>
       (try rw [Untyped.let_bin_ty_alpha_wk_repr]) <;>
       (try rw [Untyped.let_bin_ty_alpha_wk_wit]) <;>
+      (try rw [Untyped.var2_var1_alpha_wk]) <;>
       (first | apply I0 | apply I1 | apply I2 | apply I3 | apply I4 | apply I5) <;> 
       simp only [<-Hyp.wk_components] <;> 
       first 

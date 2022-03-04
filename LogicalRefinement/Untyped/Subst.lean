@@ -868,6 +868,13 @@ theorem Untyped.var2_var1_alpha {C: Untyped} {σ: Subst}:
   simp
 }
 
+theorem Untyped.var2_var1_alpha_wk {C: Untyped} {ρ: Wk}:
+  ((C.wk ρ.lift).wknth 1).alpha0 (var 1) =
+  ((C.wknth 1).alpha0 (var 1)).wk (ρ.liftn 2) := by {
+  simp only [<-Subst.subst_wk_compat, <-Wk.to_subst_lift, <-Wk.to_subst_liftn]
+  exact var2_var1_alpha
+}
+
 theorem Untyped.var2_const_alpha {C: Untyped} {σ: Subst} {k: UntypedKind []}:
   ((C.subst σ.lift).wknth 1).alpha0 (const k) =
   ((C.wknth 1).alpha0 (const k)).subst (σ.liftn 2) := by {

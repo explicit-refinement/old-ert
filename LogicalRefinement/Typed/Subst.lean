@@ -112,21 +112,23 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
       sorry
 
     all_goals (
-      intros σ Γ S
+      intro σ Γ S;
+      rename_i' I5 I4 I3 I2 I1 I0;
       simp only [
         Untyped.subst, Annot.subst, term, proof, Untyped.subst0_subst
       ] at *
       constructor <;>
-      rename_i' I5 I4 I3 I2 I1 I0 <;> repeat (
+      repeat (
         try constructor
         try rw [Untyped.alpha00_comm (by simp)]
         try rw [Untyped.let_bin_ty_alpha_pair]
         try rw [Untyped.let_bin_ty_alpha_elem]
         try rw [Untyped.let_bin_ty_alpha_repr]
         try rw [Untyped.let_bin_ty_alpha_wit]
+        try rw [Untyped.var2_var1_alpha_wk]
         first 
         | apply I0 | apply I1 | apply I2 | apply I3 | apply I4 | apply I5
-        | exact I4 S
+        | exact I2 Sexact I4 S
         first
         | exact S
         | exact SubstCtx.upgrade S
