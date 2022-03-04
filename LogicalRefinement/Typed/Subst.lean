@@ -103,8 +103,13 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
       simp only [
         Untyped.subst, Annot.subst, term, proof, Untyped.subst0_subst
       ] at *
+      constructor
+      apply IC
+      apply SubstCtx.lift_primitive S (by constructor <;> simp only [HypKind, Hyp.subst])
+      constructor
+      exact Ie S
+      exact Iz S
       sorry
-
 
     all_goals (
       intros σ Γ S
