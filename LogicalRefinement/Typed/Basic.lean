@@ -253,7 +253,7 @@ inductive HasType: Context -> Untyped -> Annot -> Prop
     HasType Γ e (term nats) ->
     HasType Γ z (term (C.subst0 zero)) ->
     HasType ((Hyp.mk C (HypKind.val k))::(Hyp.mk nats HypKind.gst)::Γ) s 
-    (term ((C.wknth 1).alpha0 (repr (var 1) (var 0)))) ->
+    (term ((C.wknth 1).alpha0 (var 0))) ->
     HasType Γ (natrec C e z s) (expr k (C.subst0 e))
 
 notation Γ "⊢" a ":" A => HasType Γ a A
