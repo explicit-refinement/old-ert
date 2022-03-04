@@ -860,7 +860,15 @@ theorem Untyped.let_bin_ty_alpha_subst {σ: Subst} {k: UntypedKind [0, 0]}:
     ((bin k (var 1) (var 0)).to_alpha.comp (Wk.wknth 1))
   := var2_alpha_subst (by simp)
 
-theorem Untyped.const_alpha {C: Untyped} {σ: Subst} {k: UntypedKind []}:
+theorem Untyped.var2_var1_alpha {C: Untyped} {σ: Subst}:
+  ((C.subst σ.lift).wknth 1).alpha0 (var 1) =
+  ((C.wknth 1).alpha0 (var 1)).subst (σ.liftn 2) := by {
+  simp only [alpha0, wknth, <-Subst.subst_wk_compat, subst_composes]
+  rw [var2_alpha_subst]
+  simp
+}
+
+theorem Untyped.var2_const_alpha {C: Untyped} {σ: Subst} {k: UntypedKind []}:
   ((C.subst σ.lift).wknth 1).alpha0 (const k) =
   ((C.wknth 1).alpha0 (const k)).subst (σ.liftn 2) := by {
   simp only [alpha0, wknth, <-Subst.subst_wk_compat, subst_composes]
@@ -868,9 +876,9 @@ theorem Untyped.const_alpha {C: Untyped} {σ: Subst} {k: UntypedKind []}:
   simp
 }
 
-theorem Untyped.zero_alpha {C: Untyped} {σ: Subst}:
+theorem Untyped.var2_zero_alpha {C: Untyped} {σ: Subst}:
   ((C.subst σ.lift).wknth 1).alpha0 zero =
-  ((C.wknth 1).alpha0 zero).subst (σ.liftn 2) := const_alpha
+  ((C.wknth 1).alpha0 zero).subst (σ.liftn 2) := var2_const_alpha
 
 theorem Untyped.let_bin_ty_alpha {C: Untyped} {σ: Subst} {k: UntypedKind [0, 0]}:
   ((C.subst σ.lift).wknth 1).alpha0 (bin k (var 1) (var 0)) =
