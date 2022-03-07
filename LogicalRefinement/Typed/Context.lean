@@ -315,6 +315,19 @@ def Untyped.sym_ty_tmp: Untyped :=
     )
   )
 
+def Untyped.trans_ty_tmp: Untyped :=
+  forall_ (var 0) (
+    forall_ (var 1) (
+      forall_ (var 2) (
+        implies (eq (var 3) (var 2) (var 1)) (
+          implies (eq (var 3) (var 1) (var 0)) (eq (var 3) (var 2) (var 0))
+        )
+      )
+    )
+  )
+
 def Untyped.sym_ty_tmp_fv: sym_ty_tmp.fv = 1 := rfl
+def Untyped.trans_ty_tmp_fv: trans_ty_tmp.fv = 1 := rfl
 
 def Untyped.sym_ty (A: Untyped): Untyped := sym_ty_tmp.subst0 A
+def Untyped.trans_ty (A: Untyped): Untyped := trans_ty_tmp.subst0 A
