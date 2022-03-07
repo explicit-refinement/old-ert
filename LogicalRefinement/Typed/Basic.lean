@@ -251,6 +251,9 @@ inductive HasType: Context -> Untyped -> Annot -> Prop
   | sym {Γ: Context} {A: Untyped}:
     HasType Γ A type 
     -> HasType Γ (sym A) (proof (sym_ty A))
+  | trans {Γ: Context} {A: Untyped}:
+    HasType Γ A type 
+    -> HasType Γ (trans A) (proof (trans_ty A))
 
   -- Natural numbers
   | natrec {Γ: Context} {C e z s: Untyped} {k: AnnotSort}:
