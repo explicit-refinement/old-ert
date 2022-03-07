@@ -99,10 +99,10 @@ inductive HasType: Context -> Untyped -> Annot -> Prop
   | or {Γ: Context} {φ ψ: Untyped}:
     HasType Γ φ prop -> HasType Γ ψ prop ->
     HasType Γ (or φ ψ) prop
-  | implies {Γ: Context} {φ ψ: Untyped}:
+  | dimplies {Γ: Context} {φ ψ: Untyped}:
     HasType Γ φ prop -> 
     HasType ((Hyp.mk φ (HypKind.val prop))::Γ) ψ prop ->
-    HasType Γ (implies φ ψ) prop
+    HasType Γ (dimplies φ ψ) prop
   | forall_ {Γ: Context} {A φ: Untyped}:
     HasType Γ A type -> 
     HasType ((Hyp.mk A (HypKind.val type))::Γ) φ prop ->
@@ -221,9 +221,9 @@ inductive HasType: Context -> Untyped -> Annot -> Prop
   | imp {Γ: Context} {φ s ψ: Untyped}:
     HasType Γ φ prop ->
     HasType ((Hyp.mk φ (HypKind.val prop))::Γ) s (proof ψ) ->
-    HasType Γ (imp φ s) (proof (implies φ ψ))
+    HasType Γ (imp φ s) (proof (dimplies φ ψ))
   | mp {Γ: Context} {φ ψ l r: Untyped}:
-    HasType Γ l (term (implies φ ψ)) -> HasType Γ.upgrade r (proof φ) ->
+    HasType Γ l (term (dimplies φ ψ)) -> HasType Γ.upgrade r (proof φ) ->
     HasType Γ (mp l r) (proof (ψ.subst0 l))
   | general {Γ: Context} {A s φ: Untyped}:
     HasType Γ A type ->
@@ -253,7 +253,7 @@ inductive HasType: Context -> Untyped -> Annot -> Prop
     -> HasType Γ (sym A) (term 
       (forall_ A (
         forall_ A.wk1 (
-          implies (eq A (var 1) (var 0)) (eq A (var 0) (var 1)).wk1
+          dimplies (eq A (var 1) (var 0)) (eq A (var 0) (var 1)).wk1
         )))
     )
 

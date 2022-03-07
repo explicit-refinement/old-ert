@@ -21,7 +21,7 @@ inductive UntypedKind: List Nat -> Type
   | top: UntypedKind []
   | bot: UntypedKind []
   --TODO: consider merging with (pi, prop, prop)
-  | implies: UntypedKind [0, 1]
+  | dimplies: UntypedKind [0, 1]
   --TODO: consider dependent and, analogous to (sigma, prop, prop)
   | and: UntypedKind [0, 0] 
   | or: UntypedKind [0, 0]
@@ -117,7 +117,7 @@ def Untyped.top := const UntypedKind.top
 def Untyped.bot := const UntypedKind.bot
 def Untyped.and := bin UntypedKind.and
 def Untyped.or := bin UntypedKind.or
-def Untyped.implies := abs UntypedKind.implies
+def Untyped.dimplies := abs UntypedKind.dimplies
 def Untyped.forall_ := abs UntypedKind.forall_
 def Untyped.exists_ := abs UntypedKind.exists_
 def Untyped.eq := tri UntypedKind.eq
@@ -188,7 +188,7 @@ def Untyped.succ := const UntypedKind.succ
   | natrec K e z s, i =>
     has_dep K (i + 1) ∨ has_dep e i ∨ has_dep z i ∨ has_dep s (i + 2)
 
-theorem Untyped.has_dep_implies_fv (u: Untyped): {i: Nat} ->
+theorem Untyped.has_dep_dimplies_fv (u: Untyped): {i: Nat} ->
   has_dep u i -> i < fv u := by {
     induction u <;> 
     simp only [has_dep, fv, Nat.max_l_lt_split];

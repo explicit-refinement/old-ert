@@ -298,6 +298,8 @@ theorem Context.is_sub.upgrade_bin: {Γ Δ: Context} -> Γ.is_sub Δ -> Γ.upgra
 --TODO: move to Untyped.Basic?
 def Untyped.arrow (A B: Untyped) := pi A (wk1 B)
 
+def Untyped.implies (φ ψ: Untyped) := dimplies φ ψ.wk1
+
 def constAnnot: UntypedKind [] -> Annot
   | UntypedKind.nats => type
   | UntypedKind.top => prop
@@ -305,3 +307,14 @@ def constAnnot: UntypedKind [] -> Annot
   | UntypedKind.zero => term nats
   | UntypedKind.succ => term (arrow nats nats)
   | UntypedKind.nil => proof top
+
+def Untyped.sym_ty_tmp: Untyped :=
+  forall_ (var 0) (
+    forall_ (var 1) (
+      implies (eq (var 2) (var 1) (var 0)) (eq (var 2) (var 0) (var 1))
+    )
+  )
+
+def Untyped.sym_ty_tmp_fv: sym_ty_tmp.fv = 1 := rfl
+
+def Untyped.sym_ty (A: Untyped): Untyped := sym_ty_tmp.subst0 A
