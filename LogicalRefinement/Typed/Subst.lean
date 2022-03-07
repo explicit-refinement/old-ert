@@ -97,13 +97,15 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
         simp only [Untyped.subst]
         rw [Hv]
         exact HasType.var (I S) HΓ
-
-    case sym IA =>
-      sorry
+      
 
     all_goals (
       intro σ Γ S;
       rename_i' I5 I4 I3 I2 I1 I0;
+      simp only [
+        Annot.sym_ty_subst,
+        Annot.trans_ty_subst
+      ]
       simp only [
         Untyped.subst, Annot.subst, term, proof, Untyped.subst0_subst
       ] at *

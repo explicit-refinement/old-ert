@@ -326,7 +326,6 @@ def Untyped.trans_ty_tmp: Untyped :=
     )
   )
 
-
 def Untyped.sym_ty_tmp_fv: sym_ty_tmp.fv = 1 := rfl
 def Untyped.trans_ty_tmp_fv: trans_ty_tmp.fv = 1 := rfl
 
@@ -337,3 +336,8 @@ def Untyped.sym_ty_subst {A σ}: (sym_ty A).subst σ = (sym_ty (A.subst σ)) :=
   tmp_fill (by simp)
 def Untyped.trans_ty_subst {A σ}: (trans_ty A).subst σ = (trans_ty (A.subst σ)) :=
   tmp_fill (by simp)
+
+def Annot.sym_ty_subst {A σ}: (proof (sym_ty A)).subst σ = proof (sym_ty (A.subst σ)) :=
+  by simp only [proof, Annot.subst, Untyped.sym_ty_subst]
+def Annot.trans_ty_subst {A σ}: (proof (sym_ty A)).subst σ = proof (sym_ty (A.subst σ)) :=
+  by simp only [proof, Annot.subst, Untyped.sym_ty_subst]
