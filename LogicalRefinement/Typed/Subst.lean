@@ -98,6 +98,9 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
         rw [Hv]
         exact HasType.var (I S) HΓ
 
+    case sym IA =>
+      sorry
+
     all_goals (
       intro σ Γ S;
       rename_i' I5 I4 I3 I2 I1 I0;

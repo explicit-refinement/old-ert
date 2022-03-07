@@ -248,6 +248,14 @@ inductive HasType: Context -> Untyped -> Annot -> Prop
   -- Theory of equality
   | refl {Γ: Context} {A a: Untyped}:
     HasType Γ a (term A) -> HasType Γ (refl a) (proof (eq A a a))
+  | sym {Γ: Context} {A: Untyped}:
+    HasType Γ A type 
+    -> HasType Γ (sym A) (term 
+      (forall_ A (
+        forall_ A.wk1 (
+          implies (eq A (var 1) (var 0)) (eq A (var 0) (var 1)).wk1
+        )))
+    )
 
   -- Natural numbers
   | natrec {Γ: Context} {C e z s: Untyped} {k: AnnotSort}:

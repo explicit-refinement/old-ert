@@ -83,6 +83,10 @@ theorem HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
       apply HasVar.wk
       repeat assumption
 
+    case sym IA =>
+      intro ρ Γ R;
+      sorry
+
     all_goals (
       intro ρ Γ R;
       rename_i' I5 I4 I3 I2 I1 I0;

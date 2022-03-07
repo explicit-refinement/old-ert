@@ -76,8 +76,8 @@ inductive UntypedKind: List Nat -> Type
 
   -- Theory of equality
   | refl: UntypedKind [0]
-  | sym: UntypedKind [0, 0]
-  | trans: UntypedKind [0, 0, 0]
+  | sym: UntypedKind [0]
+  | trans: UntypedKind [0]
   | cong: UntypedKind [0, 1]
   | beta: UntypedKind [0, 0, 0]
   | eta: UntypedKind [0, 0]
@@ -154,8 +154,8 @@ def Untyped.let_wit := let_bin UntypedKind.let_wit
 
 -- Theory of equality
 def Untyped.refl := unary UntypedKind.refl
-def Untyped.sym := bin UntypedKind.sym
-def Untyped.trans := tri UntypedKind.trans
+def Untyped.sym := unary UntypedKind.sym
+def Untyped.trans := unary UntypedKind.trans
 def Untyped.cong := abs UntypedKind.cong
 def Untyped.beta := tri UntypedKind.beta
 def Untyped.eta := bin UntypedKind.eta
