@@ -812,6 +812,12 @@ theorem Untyped.alpha00_wk_comm {u v: Untyped} {ρ: Wk}:
 theorem Untyped.tmp_fill {A T: Untyped} {σ: Subst} (H: T.fv ≤ 1): 
   (T.subst0 A).subst σ = T.subst0 (A.subst σ) := by rw [subst0_subst, lift_below H]
 
+theorem Untyped.tmp_fill_wk {A T: Untyped} {ρ: Wk} (H: T.fv ≤ 1):
+  (T.subst0 A).wk ρ = T.subst0 (A.wk ρ) := by {
+    simp only [<-Subst.subst_wk_compat]
+    exact tmp_fill H
+  }
+
 -- theorem Untyped.alpha0_fv {u v: Untyped}: (u.alpha0 v).fv ≤ Nat.max u.fv v.fv := by {
 --   revert v;
 --   induction u;
