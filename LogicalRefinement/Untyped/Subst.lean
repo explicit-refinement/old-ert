@@ -698,6 +698,10 @@ theorem Untyped.liftn_below {u: Untyped}:
   )
 }
 
+
+theorem Untyped.lift_below {u: Untyped} {σ: Subst} (H: u.fv ≤ 1): u.subst σ.lift = u 
+  := liftn_below H
+
 theorem Untyped.alphann_comm {u v: Untyped} {σ: Subst} {n: Nat}:
   v.fv ≤ 1 -> 
   (u.subst (σ.liftn (n + 1))).alphanth n v 
