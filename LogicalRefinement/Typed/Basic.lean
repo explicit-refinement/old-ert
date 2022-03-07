@@ -250,12 +250,7 @@ inductive HasType: Context -> Untyped -> Annot -> Prop
     HasType Γ a (term A) -> HasType Γ (refl a) (proof (eq A a a))
   | sym {Γ: Context} {A: Untyped}:
     HasType Γ A type 
-    -> HasType Γ (sym A) (term 
-      (forall_ A (
-        forall_ A.wk1 (
-          dimplies (eq A (var 1) (var 0)) (eq A (var 0) (var 1)).wk1
-        )))
-    )
+    -> HasType Γ (sym A) (proof (sym_ty A))
 
   -- Natural numbers
   | natrec {Γ: Context} {C e z s: Untyped} {k: AnnotSort}:
