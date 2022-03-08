@@ -105,6 +105,7 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
         Annot.sym_ty_subst,
         Annot.trans_ty_subst
       ]
+      simp only [Annot.subst, proof, implies_subst]
       simp only [
         Untyped.subst, Annot.subst, term, proof, Untyped.subst0_subst
       ] at *

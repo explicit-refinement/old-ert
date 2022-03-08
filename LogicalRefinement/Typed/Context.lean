@@ -298,7 +298,21 @@ theorem Context.is_sub.upgrade_bin: {Γ Δ: Context} -> Γ.is_sub Δ -> Γ.upgra
 --TODO: move to Untyped.Basic?
 def Untyped.arrow (A B: Untyped) := pi A (wk1 B)
 
+@[simp]
+def Untyped.arrow_wk: (arrow A B).wk ρ = arrow (A.wk ρ) (B.wk ρ) := by simp [arrow, pi]
+
+@[simp]
+def Untyped.arrow_subst: (arrow A B).subst σ = arrow (A.subst σ) (B.subst σ) 
+  := by simp only [arrow, pi, subst, Subst.lift_wk]
+
 def Untyped.implies (φ ψ: Untyped) := dimplies φ ψ.wk1
+
+@[simp]
+def Untyped.implies_wk: (implies φ ψ).wk ρ = implies (φ.wk ρ) (ψ.wk ρ) := by simp [implies, dimplies]
+
+@[simp]
+def Untyped.implies_subst: (implies φ ψ).subst σ = implies (φ.subst σ) (ψ.subst σ) 
+  := by simp only [implies, dimplies, subst, Subst.lift_wk]
 
 def constAnnot: UntypedKind [] -> Annot
   | UntypedKind.nats => type
