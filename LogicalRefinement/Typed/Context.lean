@@ -339,8 +339,8 @@ def Untyped.trans_ty_subst {A σ}: (trans_ty A).subst σ = (trans_ty (A.subst σ
 
 def Annot.sym_ty_subst {A σ}: (proof (sym_ty A)).subst σ = proof (sym_ty (A.subst σ)) :=
   by simp only [proof, Annot.subst, Untyped.sym_ty_subst]
-def Annot.trans_ty_subst {A σ}: (proof (sym_ty A)).subst σ = proof (sym_ty (A.subst σ)) :=
-  by simp only [proof, Annot.subst, Untyped.sym_ty_subst]
+def Annot.trans_ty_subst {A σ}: (proof (trans_ty A)).subst σ = proof (trans_ty (A.subst σ)) :=
+  by simp only [proof, Annot.subst, Untyped.trans_ty_subst]
 
 def Untyped.sym_ty_wk {A ρ}: (sym_ty A).wk ρ = (sym_ty (A.wk ρ)) :=
   tmp_fill_wk (by simp)
@@ -349,5 +349,5 @@ def Untyped.trans_ty_wk {A ρ}: (trans_ty A).wk ρ = (trans_ty (A.wk ρ)) :=
 
 def Annot.sym_ty_wk {A ρ}: (proof (sym_ty A)).wk ρ = proof (sym_ty (A.wk ρ)) :=
   by simp only [proof, Annot.wk, Untyped.sym_ty_wk]
-def Annot.trans_ty_wk {A ρ}: (proof (sym_ty A)).wk ρ = proof (sym_ty (A.wk ρ)) :=
-  by simp only [proof, Annot.wk, Untyped.sym_ty_wk]
+def Annot.trans_ty_wk {A ρ}: (proof (trans_ty A)).wk ρ = proof (trans_ty (A.wk ρ)) :=
+  by simp only [proof, Annot.wk, Untyped.trans_ty_wk]

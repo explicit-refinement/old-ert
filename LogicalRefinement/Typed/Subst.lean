@@ -97,7 +97,6 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
         simp only [Untyped.subst]
         rw [Hv]
         exact HasType.var (I S) HΓ
-      
 
     all_goals (
       intro σ Γ S;
