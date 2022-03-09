@@ -378,3 +378,16 @@ def Untyped.eta_ex_wk {A f: Untyped} {ρ}: (eta_ex A f).wk ρ = eta_ex (A.wk ρ)
   simp only [<-Subst.subst_wk_compat]
   exact eta_ex_subst
 }
+
+def Untyped.eta_ex_eq_subst {P A f r: Untyped} {σ}: 
+  (eq P (eta_ex A f) r).subst σ = eq (P.subst σ) (eta_ex (A.subst σ) (f.subst σ)) (r.subst σ)
+  := by {
+    rw [<-Untyped.eta_ex_subst]
+    rfl
+  }
+
+def Untyped.eta_ex_eq_wk {P A f r: Untyped} {ρ}:
+  (eq P (eta_ex A f) r).wk ρ = eq (P.wk ρ) (eta_ex (A.wk ρ) (f.wk ρ)) (r.wk ρ) := by {
+    rw [<-Untyped.eta_ex_wk]
+    rfl
+  }

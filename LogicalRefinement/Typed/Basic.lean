@@ -267,7 +267,7 @@ inductive HasType: Context -> Untyped -> Annot -> Prop
   | eta {Γ: Context} {A B f: Untyped}:
     HasType Γ f (term (pi A B)) ->
     HasType Γ A type ->
-    HasType Γ (eta A f) (proof (eq (pi A B) (lam A (app f.wk1 (var 0))) f))
+    HasType Γ (eta A f) (proof (eq (pi A B) (eta_ex A f) f))
 
   -- Natural numbers
   | natrec {Γ: Context} {C e z s: Untyped} {k: AnnotSort}:

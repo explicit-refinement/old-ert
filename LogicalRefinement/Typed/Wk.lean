@@ -83,10 +83,6 @@ theorem HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
       apply HasVar.wk
       repeat assumption
 
-    case eta =>
-      --TODO: rewrite subst0 var0 = self?
-      sorry
-
     all_goals (
       intro ρ Γ R;
       rename_i' I5 I4 I3 I2 I1 I0;
@@ -95,6 +91,7 @@ theorem HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
         Annot.trans_ty_wk
       ]
       simp only [Annot.wk, proof, implies_wk]
+      try rw [eta_ex_eq_wk]
       simp only [
         Untyped.wk, Annot.wk, term, proof, Untyped.subst0_wk,
         Untyped.wk1
