@@ -79,7 +79,7 @@ inductive UntypedKind: List Nat -> Type
   | sym: UntypedKind [0]
   | trans: UntypedKind [0]
   | cong: UntypedKind [0, 1]
-  | beta: UntypedKind [0, 0, 0]
+  | beta: UntypedKind [0, 1]
   | eta: UntypedKind [0, 0]
 
   -- Natural numbers
@@ -157,7 +157,7 @@ def Untyped.refl := unary UntypedKind.refl
 def Untyped.sym := unary UntypedKind.sym
 def Untyped.trans := unary UntypedKind.trans
 def Untyped.cong := abs UntypedKind.cong
-def Untyped.beta := tri UntypedKind.beta
+def Untyped.beta := abs UntypedKind.beta
 def Untyped.eta := bin UntypedKind.eta
 
 -- Natural numbers
