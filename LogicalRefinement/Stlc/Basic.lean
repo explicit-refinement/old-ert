@@ -15,8 +15,8 @@ inductive Stlc
 
 -- Products and coproducts
 | pair (l r: Stlc)
-| inl (e: Stlc)
-| inr (e: Sltc)
+| proj (f: Fin 2) (e: Stlc)
+| inj (f: Fin 2) (e: Stlc)
 | cases (d l r: Stlc)
 
 -- Erasure
