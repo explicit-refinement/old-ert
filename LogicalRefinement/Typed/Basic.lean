@@ -3,15 +3,15 @@ import LogicalRefinement.Untyped.Subst
 import LogicalRefinement.Utils
 import LogicalRefinement.Tactics
 import LogicalRefinement.Typed.Context
-open Untyped
+open Term
 open Annot
 open AnnotSort
 
 
-inductive HasVar: Context -> Untyped -> HypKind -> Nat -> Prop
-  | var0 {Γ: Context} {A: Untyped} {k k': HypKind}:
+inductive HasVar: Context -> Term -> HypKind -> Nat -> Prop
+  | var0 {Γ: Context} {A: Term} {k k': HypKind}:
     k'.is_sub k -> HasVar ((Hyp.mk A k)::Γ) A.wk1 k' 0
-  | var_succ {Γ: Context} {A: Untyped} {k: HypKind} {H: Hyp} {n: Nat}:
+  | var_succ {Γ: Context} {A: Term} {k: HypKind} {H: Hyp} {n: Nat}:
     HasVar Γ A k n -> HasVar (H::Γ) A.wk1 k (n + 1)
 
 theorem HasVar.fv (H: HasVar Γ A s n): n < Γ.length := by {
@@ -47,78 +47,78 @@ theorem HasVar.sub (HΓ: HasVar Γ A s n): Γ.is_sub Δ -> HasVar Δ A s n := by
 -- Notes:
 -- - Automation seems to work even when target types are the same, e.g. swapping general for lam_irrel. This bodes well for the shadow-universe strategy
 --   This is before regularity, though; since having the RHS of assume be a prop doesn't seem to break things either.
-inductive HasType: Context -> Untyped -> Annot -> Prop
+inductive HasType: Context -> Term -> Annot -> Prop
   -- Variables
-  | var {Γ: Context} {A: Untyped} {s: AnnotSort} {n: Nat}:
+  | var {Γ: Context} {A: Term} {s: AnnotSort} {n: Nat}:
     HasType Γ A (sort s) ->
     HasVar Γ A (HypKind.val s) n ->
     HasType Γ (var n) (expr s A)
 
   -- Types
-  | pi {Γ: Context} {A B: Untyped}:
+  | pi {Γ: Context} {A B: Term}:
     HasType Γ A type -> 
     HasType ((Hyp.mk A (HypKind.val type))::Γ) B type ->
     HasType Γ (pi A B) type
-  | sigma {Γ: Context} {A B: Untyped}:
+  | sigma {Γ: Context} {A B: Term}:
     HasType Γ A type -> 
     HasType ((Hyp.mk A (HypKind.val type))::Γ) B type ->
     HasType Γ (sigma A B) type
-  | coprod {Γ: Context} {A B: Untyped}:
+  | coprod {Γ: Context} {A B: Term}:
     HasType Γ A type -> HasType Γ B type ->
     HasType Γ (coprod A B) type
-  | set {Γ: Context} {A B: Untyped}:
+  | set {Γ: Context} {A B: Term}:
     HasType Γ A type -> 
     HasType ((Hyp.mk A (HypKind.val type))::Γ) B prop ->
     HasType Γ (set A B) type
-  | assume {Γ: Context} {φ A: Untyped}:
+  | assume {Γ: Context} {φ A: Term}:
     HasType Γ φ prop -> 
     HasType ((Hyp.mk φ (HypKind.val prop))::Γ) A type ->
     HasType Γ (assume φ A) type
-  | intersect {Γ: Context} {A B: Untyped}:
+  | intersect {Γ: Context} {A B: Term}:
     HasType Γ A type -> 
     HasType ((Hyp.mk A (HypKind.val type))::Γ) B type ->
     HasType Γ (intersect A B) type
-  | union {Γ: Context} {A B: Untyped}:
+  | union {Γ: Context} {A B: Term}:
     HasType Γ A type -> 
     HasType ((Hyp.mk A (HypKind.val type))::Γ) B type ->
     HasType Γ (union A B) type
   
   -- Propositions
-  | and {Γ: Context} {φ ψ: Untyped}:
+  | and {Γ: Context} {φ ψ: Term}:
     HasType Γ φ prop -> HasType Γ ψ prop ->
     HasType Γ (and φ ψ) prop
-  | or {Γ: Context} {φ ψ: Untyped}:
+  | or {Γ: Context} {φ ψ: Term}:
     HasType Γ φ prop -> HasType Γ ψ prop ->
     HasType Γ (or φ ψ) prop
-  | dimplies {Γ: Context} {φ ψ: Untyped}:
+  | dimplies {Γ: Context} {φ ψ: Term}:
     HasType Γ φ prop -> 
     HasType ((Hyp.mk φ (HypKind.val prop))::Γ) ψ prop ->
     HasType Γ (dimplies φ ψ) prop
-  | forall_ {Γ: Context} {A φ: Untyped}:
+  | forall_ {Γ: Context} {A φ: Term}:
     HasType Γ A type -> 
     HasType ((Hyp.mk A (HypKind.val type))::Γ) φ prop ->
     HasType Γ (forall_ A φ) prop
-  | exists_ {Γ: Context} {A φ: Untyped}:
+  | exists_ {Γ: Context} {A φ: Term}:
     HasType Γ A type -> 
     HasType ((Hyp.mk A (HypKind.val type))::Γ) φ prop ->
     HasType Γ (exists_ A φ) prop
-  | eq {Γ: Context} {A l r: Untyped}:
+  | eq {Γ: Context} {A l r: Term}:
     HasType Γ A type -> 
     HasType Γ.upgrade l (term A) -> HasType Γ.upgrade r (term A) ->
     HasType Γ (eq A l r) prop
 
   -- Basic term formers
-  | lam {Γ: Context} {A s B: Untyped}:
+  | lam {Γ: Context} {A s B: Term}:
     HasType ((Hyp.mk A (HypKind.val type))::Γ) s (term B) ->
     HasType Γ A type ->
     HasType Γ (lam A s) (term (pi A B))
-  | app {Γ: Context} {A B l r: Untyped}:
+  | app {Γ: Context} {A B l r: Term}:
     HasType Γ l (term (pi A B)) -> HasType Γ r (term A) ->
     HasType Γ (app l r) (term (B.subst0 l))
-  | pair {Γ: Context} {A B l r: Untyped}:
+  | pair {Γ: Context} {A B l r: Term}:
     HasType Γ l (term A) -> HasType Γ r (term (B.subst0 l)) ->
     HasType Γ (pair l r) (term (sigma A B))
-  | let_pair {Γ: Context} {A B C e e': Untyped} {k: AnnotSort}:
+  | let_pair {Γ: Context} {A B C e e': Term} {k: AnnotSort}:
     HasType Γ e (term (sigma A B)) ->
     HasType Γ A type ->
     HasType ((Hyp.mk A (HypKind.val type))::Γ) B type ->
@@ -127,13 +127,13 @@ inductive HasType: Context -> Untyped -> Annot -> Prop
     ((Hyp.mk B (HypKind.val type))::(Hyp.mk A (HypKind.val type))::Γ) 
     e' (expr k ((C.wknth 1).alpha0 (pair (var 1) (var 0)))) ->
     HasType Γ (let_pair e e') (expr k (C.subst0 e))
-  | inj_l {Γ: Context} {A B e: Untyped}:
+  | inj_l {Γ: Context} {A B e: Term}:
     HasType Γ e (term A) -> HasType Γ B type ->
     HasType Γ (inj false e) (term (coprod A B))
-  | inj_r {Γ: Context} {A B e: Untyped}:
+  | inj_r {Γ: Context} {A B e: Term}:
     HasType Γ e (term B) -> HasType Γ A type ->
     HasType Γ (inj true e) (term (coprod A B))
-  | case {Γ: Context} {A B C e l r: Untyped} {k: AnnotSort}:
+  | case {Γ: Context} {A B C e l r: Term} {k: AnnotSort}:
     HasType Γ e (term (coprod A B)) ->
     HasType Γ A type ->
     HasType Γ B type ->
@@ -141,10 +141,10 @@ inductive HasType: Context -> Untyped -> Annot -> Prop
     HasType ((Hyp.mk A (HypKind.val type))::Γ) l (term (C.alpha0 (inj false (var 0)))) ->
     HasType ((Hyp.mk B (HypKind.val type))::Γ) r (term (C.alpha0 (inj true (var 0)))) ->
     HasType Γ (case C e l r) (expr k (C.subst0 e))
-  | elem {Γ: Context} {A φ l r: Untyped}:
+  | elem {Γ: Context} {A φ l r: Term}:
     HasType Γ l (term A) -> HasType Γ r (proof (φ.subst0 l)) ->
     HasType Γ (elem l r) (term (set A φ))
-  | let_set {Γ: Context} {A φ C e e': Untyped} {k: AnnotSort}:
+  | let_set {Γ: Context} {A φ C e e': Term} {k: AnnotSort}:
     HasType Γ e (term (set A φ)) ->
     HasType Γ A type ->
     HasType ((Hyp.mk A (HypKind.val type))::Γ) φ prop ->
@@ -153,24 +153,24 @@ inductive HasType: Context -> Untyped -> Annot -> Prop
     ((Hyp.mk φ (HypKind.val prop))::(Hyp.mk A (HypKind.val type))::Γ) 
     e' (expr k ((C.wknth 1).alpha0 (elem (var 1) (var 0)))) ->
     HasType Γ (let_set e e') (expr k (C.subst0 e))
-  | lam_pr {Γ: Context} {φ s A: Untyped}:
+  | lam_pr {Γ: Context} {φ s A: Term}:
     HasType Γ φ prop ->
     HasType ((Hyp.mk φ (HypKind.val prop))::Γ) s (term A) ->
     HasType Γ (lam_pr φ s) (term (assume φ A))
-  | app_pr {Γ: Context} {φ A l r: Untyped}:
+  | app_pr {Γ: Context} {φ A l r: Term}:
     HasType Γ l (term (assume φ A)) -> HasType Γ.upgrade r (proof φ) ->
     HasType Γ (app_pr l r) (term (A.subst0 l))
-  | lam_irrel {Γ: Context} {A s B: Untyped}:
+  | lam_irrel {Γ: Context} {A s B: Term}:
     HasType Γ A type ->
     HasType ((Hyp.mk A (HypKind.val type))::Γ) s (term B) ->
     HasType Γ (lam_irrel A s) (term (intersect A B))
-  | app_irrel {Γ: Context} {A B l r: Untyped}:
+  | app_irrel {Γ: Context} {A B l r: Term}:
     HasType Γ l (term (intersect A B)) -> HasType Γ.upgrade r (term A) ->
     HasType Γ (app_irrel l r) (term (B.subst0 l))
-  | repr {Γ: Context} {A B l r: Untyped}:
+  | repr {Γ: Context} {A B l r: Term}:
     HasType Γ l (term A) -> HasType Γ r (term (B.subst0 l)) ->
     HasType Γ (repr l r) (term (union A B))
-  | let_repr {Γ: Context} {A B C e e': Untyped} {k: AnnotSort}:
+  | let_repr {Γ: Context} {A B C e e': Term} {k: AnnotSort}:
     HasType Γ e (term (union A B)) ->
     HasType Γ A type ->
     HasType ((Hyp.mk A HypKind.gst)::Γ) B type ->
@@ -184,27 +184,27 @@ inductive HasType: Context -> Untyped -> Annot -> Prop
   | top {Γ}: HasType Γ top prop
   | bot {Γ}: HasType Γ bot prop
   | nil {Γ}: HasType Γ triv (proof top)
-  | abort {Γ: Context} {A: Annot} {p: Untyped}:
+  | abort {Γ: Context} {A: Annot} {p: Term}:
     HasType Γ p (proof bot) ->
     HasType Γ (abort p) A
-  | conj {Γ: Context} {A B l r: Untyped}:
+  | conj {Γ: Context} {A B l r: Term}:
     HasType Γ l (proof A) -> HasType Γ r (proof B) ->
     HasType Γ (conj l r) (proof (and A B))
-  | comp_l {Γ: Context} {A B e: Untyped}:
+  | comp_l {Γ: Context} {A B e: Term}:
     HasType Γ e (proof (and A B)) ->
     HasType Γ (comp false e) (proof A)
-  | comp_r {Γ: Context} {A B e: Untyped}:
+  | comp_r {Γ: Context} {A B e: Term}:
     HasType Γ e (proof (and A B)) ->
     HasType Γ (comp true e) (proof B)
-  | disj_l {Γ: Context} {A B e: Untyped}:
+  | disj_l {Γ: Context} {A B e: Term}:
     HasType Γ e (proof A) ->
     HasType Γ B prop ->
     HasType Γ (disj false e) (proof (or A B))
-  | disj_r {Γ: Context} {A B e: Untyped}:
+  | disj_r {Γ: Context} {A B e: Term}:
     HasType Γ e (proof B) ->
     HasType Γ A prop ->
     HasType Γ (disj true e) (proof (or A B))
-  | case_pr {Γ: Context} {A B C e l r: Untyped}:
+  | case_pr {Γ: Context} {A B C e l r: Term}:
     HasType Γ e (proof (or A B)) ->
     HasType Γ A prop ->
     HasType Γ B prop ->
@@ -212,24 +212,24 @@ inductive HasType: Context -> Untyped -> Annot -> Prop
     HasType ((Hyp.mk A (HypKind.val prop))::Γ) l (proof (C.alpha0 (disj false (var 0)))) ->
     HasType ((Hyp.mk B (HypKind.val prop))::Γ) r (proof (C.alpha0 (disj true (var 0)))) ->
     HasType Γ (case_pr C e l r) (term (C.subst0 e))
-  | imp {Γ: Context} {φ s ψ: Untyped}:
+  | imp {Γ: Context} {φ s ψ: Term}:
     HasType Γ φ prop ->
     HasType ((Hyp.mk φ (HypKind.val prop))::Γ) s (proof ψ) ->
     HasType Γ (imp φ s) (proof (dimplies φ ψ))
-  | mp {Γ: Context} {φ ψ l r: Untyped}:
+  | mp {Γ: Context} {φ ψ l r: Term}:
     HasType Γ l (term (dimplies φ ψ)) -> HasType Γ.upgrade r (proof φ) ->
     HasType Γ (mp l r) (proof (ψ.subst0 l))
-  | general {Γ: Context} {A s φ: Untyped}:
+  | general {Γ: Context} {A s φ: Term}:
     HasType Γ A type ->
     HasType ((Hyp.mk A (HypKind.val type))::Γ) s (proof φ) ->
     HasType Γ (general A s) (proof (forall_ A φ))
-  | inst {Γ: Context} {A φ l r: Untyped}:
+  | inst {Γ: Context} {A φ l r: Term}:
     HasType Γ l (proof (forall_ A φ)) -> HasType Γ.upgrade r (term A) ->
     HasType Γ (inst l r) (proof (φ.subst0 l))
-  | wit {Γ: Context} {A φ l r: Untyped}:
+  | wit {Γ: Context} {A φ l r: Term}:
     HasType Γ l (term A) -> HasType Γ.upgrade r (proof (φ.subst0 l)) ->
     HasType Γ (repr l r) (proof (exists_ A φ))
-  | let_wit {Γ: Context} {A φ C e e': Untyped} {k: AnnotSort}:
+  | let_wit {Γ: Context} {A φ C e e': Term} {k: AnnotSort}:
     HasType Γ e (term (exists_ A φ)) ->
     HasType Γ A type ->
     HasType ((Hyp.mk A HypKind.gst)::Γ) φ prop ->
@@ -240,34 +240,34 @@ inductive HasType: Context -> Untyped -> Annot -> Prop
     HasType Γ (let_wit e e') (expr k (C.subst0 e))
 
   -- Theory of equality
-  | refl {Γ: Context} {A a: Untyped}:
+  | refl {Γ: Context} {A a: Term}:
     HasType Γ a (term A) -> HasType Γ (refl a) (proof (eq A a a))
-  | sym {Γ: Context} {A: Untyped}:
+  | sym {Γ: Context} {A: Term}:
     HasType Γ A type 
     -> HasType Γ (sym A) (proof (sym_ty A))
-  | trans {Γ: Context} {A: Untyped}:
+  | trans {Γ: Context} {A: Term}:
     HasType Γ A type 
     -> HasType Γ (trans A) (proof (trans_ty A))
-  | cong {Γ: Context} {A P p x y: Untyped}:
+  | cong {Γ: Context} {A P p x y: Term}:
     HasType ((Hyp.mk A (HypKind.val type))::Γ) P prop -> 
     HasType Γ A type ->
     HasType Γ p (proof (eq A x y)) ->
     HasType Γ (cong p P) (proof (implies (P.subst0 x) (P.subst0 y)))
-  | beta {Γ: Context} {A B s t: Untyped}:
+  | beta {Γ: Context} {A B s t: Term}:
     HasType ((Hyp.mk A (HypKind.val type))::Γ) s (term B) ->
     HasType Γ A type ->
     HasType Γ t (term A) ->
     HasType Γ (beta t s) (proof (eq (B.subst0 t) (app (lam A s) t) (s.subst0 t)))
-  | eta {Γ: Context} {A B f: Untyped}:
+  | eta {Γ: Context} {A B f: Term}:
     HasType Γ f (term (pi A B)) ->
     HasType Γ A type ->
     HasType Γ (eta A f) (proof (eq (pi A B) (eta_ex A f) f))
-  | irir {Γ: Context} {A B f x y: Untyped}:
+  | irir {Γ: Context} {A B f x y: Term}:
     HasType Γ f (term (const_arrow A B)) ->
     HasType Γ x (term A) ->
     HasType Γ y (term A) ->
     HasType Γ (irir f x y) (proof (eq B (app_irrel f x) (app_irrel f y)))
-  | prir {Γ: Context} {φ A f x y: Untyped}:
+  | prir {Γ: Context} {φ A f x y: Term}:
     HasType Γ f (term (assume_wf φ A)) ->
     HasType Γ x (proof φ) ->
     HasType Γ y (proof φ) ->
@@ -277,7 +277,7 @@ inductive HasType: Context -> Untyped -> Annot -> Prop
   | nats {Γ}: HasType Γ nats type
   | zero {Γ}: HasType Γ zero (term nats)
   | succ {Γ}: HasType Γ succ (term (arrow nats nats))
-  | natrec {Γ: Context} {C e z s: Untyped} {k: AnnotSort}:
+  | natrec {Γ: Context} {C e z s: Term} {k: AnnotSort}:
     HasType ((Hyp.mk nats HypKind.gst)::Γ) C k ->
     HasType Γ e (term nats) ->
     HasType Γ z (term (C.subst0 zero)) ->
@@ -299,7 +299,7 @@ theorem HasType.fv {Γ a A} (P: Γ ⊢ a: A): a.fv ≤ Γ.length := by {
     assumption
   all_goals (
     simp only [
-      Untyped.fv, 
+      Term.fv, 
       Nat.max_r_le_split, 
       Nat.le_sub_is_le_add
     ];

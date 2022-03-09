@@ -4,14 +4,14 @@ import LogicalRefinement.Utils
 import LogicalRefinement.Tactics
 import LogicalRefinement.Typed.Context
 import LogicalRefinement.Typed.Basic
-open Untyped
+open Term
 open Annot
 open AnnotSort
 
 inductive WkCtx: Wk -> Context -> Context -> Type
   | id: WkCtx Wk.id Γ Γ
   | step {ρ Γ Δ H}: WkCtx ρ Γ Δ -> WkCtx ρ.step (H::Γ) Δ 
-  | lift {ρ Γ Δ k} {A: Untyped}: WkCtx ρ Γ Δ 
+  | lift {ρ Γ Δ k} {A: Term}: WkCtx ρ Γ Δ 
     -> WkCtx ρ.lift ((Hyp.mk (A.wk ρ) k)::Γ) ((Hyp.mk A k)::Δ)
 
 def WkCtx.lift_loose: 
@@ -36,7 +36,7 @@ theorem WkCtx.upgrade: WkCtx ρ Γ Δ
 
 theorem HasVar.wk:
   (ρ: Wk) -> {Γ Δ: Context} -> (Hs: WkCtx ρ Γ Δ) ->
-  {n: Nat} -> {A: Untyped} -> {s: HypKind} ->
+  {n: Nat} -> {A: Term} -> {s: HypKind} ->
   HasVar Δ A s n -> HasVar Γ (A.wk ρ) s (ρ.var n) 
   := by {
     intros ρ;
@@ -46,7 +46,7 @@ theorem HasVar.wk:
       simp [H] 
     case step ρ I Γ H R =>
       intros n A s HΔ;
-      simp only [Untyped.step_wk1]
+      simp only [Term.step_wk1]
       exact var_succ (I R HΔ)
     case lift ρ I Γ Δ k A R =>
       intros n A s HΔ;
@@ -54,16 +54,16 @@ theorem HasVar.wk:
       | var0 =>
         simp only [
           Wk.lift,
-          Untyped.wk_composes,
-          Wk.var, Untyped.lift_wk1
+          Term.wk_composes,
+          Wk.var, Term.lift_wk1
         ]
         apply var0
         assumption
       | var_succ =>
         simp only [
           Wk.lift,
-          Untyped.wk_composes,
-          Wk.var, Nat.add, Untyped.lift_wk1
+          Term.wk_composes,
+          Wk.var, Nat.add, Term.lift_wk1
         ]
         apply var_succ
         apply I
@@ -93,14 +93,14 @@ theorem HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
       ]
       simp only [Annot.wk, term, proof, implies_wk, const_arrow_wk, assume_wf_wk] at *
       try rw [eta_ex_eq_wk]
-      simp only [Untyped.wk, Untyped.subst0_wk, Untyped.wk1] at *
+      simp only [Term.wk, Term.subst0_wk, Term.wk1] at *
       constructor <;>
-      (try rw [Untyped.alpha00_wk_comm (by simp)]) <;>
-      (try rw [Untyped.let_bin_ty_alpha_wk_pair]) <;>
-      (try rw [Untyped.let_bin_ty_alpha_wk_elem]) <;>
-      (try rw [Untyped.let_bin_ty_alpha_wk_repr]) <;>
-      (try rw [Untyped.let_bin_ty_alpha_wk_wit]) <;>
-      (try rw [Untyped.var2_var1_alpha_wk]) <;>
+      (try rw [Term.alpha00_wk_comm (by simp)]) <;>
+      (try rw [Term.let_bin_ty_alpha_wk_pair]) <;>
+      (try rw [Term.let_bin_ty_alpha_wk_elem]) <;>
+      (try rw [Term.let_bin_ty_alpha_wk_repr]) <;>
+      (try rw [Term.let_bin_ty_alpha_wk_wit]) <;>
+      (try rw [Term.var2_var1_alpha_wk]) <;>
       (first | apply I0 | apply I1 | apply I2 | apply I3 | apply I4 | apply I5) <;> 
       simp only [<-Hyp.wk_components] <;> 
       first 

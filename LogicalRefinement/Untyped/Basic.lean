@@ -2,177 +2,177 @@ import LogicalRefinement.Utils
 
 -- Term kinds
 --TODO: consider making higher order?
-inductive UntypedKind: List Nat -> Type
+inductive TermKind: List Nat -> Type
   -- Types
-  | unit: UntypedKind []
-  | nats: UntypedKind []
-  | pi: UntypedKind [0, 1] -- (pi, type, type)
-  | sigma: UntypedKind [0, 1] -- (sigma, type, type)
-  | coprod: UntypedKind [0, 0]
+  | unit: TermKind []
+  | nats: TermKind []
+  | pi: TermKind [0, 1] -- (pi, type, type)
+  | sigma: TermKind [0, 1] -- (sigma, type, type)
+  | coprod: TermKind [0, 0]
   --TODO: consider merging with (pi, prop, type)
-  | assume: UntypedKind [0, 1]
+  | assume: TermKind [0, 1]
   --TODO: consider merging with (sigma, prop, type)
-  | set: UntypedKind [0, 1]
+  | set: TermKind [0, 1]
   --TODO: consider merging with (pi, ghost, type)
-  | intersect: UntypedKind [0, 1]
+  | intersect: TermKind [0, 1]
   --TODO: consider merging with (sigma, ghost, type)
-  | union: UntypedKind [0, 1]
+  | union: TermKind [0, 1]
 
   -- Propositions
-  | top: UntypedKind []
-  | bot: UntypedKind []
+  | top: TermKind []
+  | bot: TermKind []
   --TODO: consider merging with (pi, prop, prop)
-  | dimplies: UntypedKind [0, 1]
+  | dimplies: TermKind [0, 1]
   --TODO: consider dependent and, analogous to (sigma, prop, prop)
-  | and: UntypedKind [0, 0] 
-  | or: UntypedKind [0, 0]
+  | and: TermKind [0, 0] 
+  | or: TermKind [0, 0]
   --TODO: consider merging with (pi, type, prop) == (pi, ghost, prop)
-  | forall_: UntypedKind [0, 1]
+  | forall_: TermKind [0, 1]
   --TODO: consider merging with (sigma, type, prop) == (sigma, ghost, prop)
-  | exists_: UntypedKind [0, 1]
-  | eq: UntypedKind [0, 0, 0]
+  | exists_: TermKind [0, 1]
+  | eq: TermKind [0, 0, 0]
 
   -- Terms
-  | nil: UntypedKind []
+  | nil: TermKind []
   -- Consider merging with intro/elim for (pi, type, type)
-  | lam: UntypedKind [0, 1]
-  | app: UntypedKind [0, 0]
+  | lam: TermKind [0, 1]
+  | app: TermKind [0, 0]
   -- Consider merging with intro/elim for (sigma, type, type)
-  | pair: UntypedKind [0, 0]
-  | let_pair: UntypedKind [0, 2]
-  | inj (b: Bool): UntypedKind [0]
-  | case: UntypedKind [1, 0, 1, 1]
-  | cases: UntypedKind [1]
+  | pair: TermKind [0, 0]
+  | let_pair: TermKind [0, 2]
+  | inj (b: Bool): TermKind [0]
+  | case: TermKind [1, 0, 1, 1]
+  | cases: TermKind [1]
   -- Consider merging with intro/elim for (pi, type, prop)
-  | lam_pr: UntypedKind [0, 1]
-  | app_pr: UntypedKind [0, 0]
+  | lam_pr: TermKind [0, 1]
+  | app_pr: TermKind [0, 0]
   -- Consider merging with intro/elim for (sigma, type, prop)
-  | elem: UntypedKind [0, 0]
-  | let_set: UntypedKind [0, 2]
+  | elem: TermKind [0, 0]
+  | let_set: TermKind [0, 2]
   -- Consider merging with intro/elim for (pi, ghost, type)
-  | lam_irrel: UntypedKind [0, 1]
-  | app_irrel: UntypedKind [0, 0]
+  | lam_irrel: TermKind [0, 1]
+  | app_irrel: TermKind [0, 0]
   -- Consider merging with intro/elim for (sigma, ghost, type)
-  | repr: UntypedKind [0, 0]
-  | let_repr: UntypedKind [0, 2]
+  | repr: TermKind [0, 0]
+  | let_repr: TermKind [0, 2]
 
   -- Proofs
-  | triv: UntypedKind []
-  | abort: UntypedKind [0]
+  | triv: TermKind []
+  | abort: TermKind [0]
   -- Consider merging with intro/elim for (pi, prop, prop)
-  | imp: UntypedKind [0, 1]
-  | mp: UntypedKind [0, 0]
+  | imp: TermKind [0, 1]
+  | mp: TermKind [0, 0]
   -- Note: (sigma, prop, prop) is not dependent, unlike for prop!  
-  | conj: UntypedKind [0, 0]
-  | comp (b: Bool): UntypedKind [0]
-  | disj (b: Bool): UntypedKind [0]
-  | case_pr: UntypedKind [1, 0, 1, 1]
+  | conj: TermKind [0, 0]
+  | comp (b: Bool): TermKind [0]
+  | disj (b: Bool): TermKind [0]
+  | case_pr: TermKind [1, 0, 1, 1]
   -- Consider merging with intro/elim for 
   -- (pi, ghost, prop) == (pi, type, prop)
-  | general: UntypedKind [0, 1]
-  | inst: UntypedKind [0, 0]
+  | general: TermKind [0, 1]
+  | inst: TermKind [0, 0]
   -- Consider merging with intro/elim for 
   -- (sigma, ghost, prop) == (sigma, type, prop)
-  | wit: UntypedKind [0, 0]
-  | let_wit: UntypedKind [0, 2]
+  | wit: TermKind [0, 0]
+  | let_wit: TermKind [0, 2]
 
   -- Theory of equality
-  | refl: UntypedKind [0]
-  | sym: UntypedKind [0]
-  | trans: UntypedKind [0]
-  | cong: UntypedKind [0, 1]
-  | beta: UntypedKind [0, 1]
-  | eta: UntypedKind [0, 0]
-  | irir: UntypedKind [0, 0, 0]
-  | prir: UntypedKind [0, 0, 0]
+  | refl: TermKind [0]
+  | sym: TermKind [0]
+  | trans: TermKind [0]
+  | cong: TermKind [0, 1]
+  | beta: TermKind [0, 1]
+  | eta: TermKind [0, 0]
+  | irir: TermKind [0, 0, 0]
+  | prir: TermKind [0, 0, 0]
 
   -- Natural numbers
-  | zero: UntypedKind []
-  | succ: UntypedKind []
+  | zero: TermKind []
+  | succ: TermKind []
 
-inductive Untyped: Type
+inductive Term: Type
   | var (v: Nat)
 
-  | const (c: UntypedKind [])
-  | unary (k: UntypedKind [0]) (t: Untyped)
+  | const (c: TermKind [])
+  | unary (k: TermKind [0]) (t: Term)
   -- TODO: let n?
-  | let_bin (k: UntypedKind [0, 2]) (e: Untyped) (e': Untyped)
+  | let_bin (k: TermKind [0, 2]) (e: Term) (e': Term)
   -- TODO: bin n? Can't, due to, of course, lack of nested inductive types...
-  | bin (k: UntypedKind [0, 0]) (l: Untyped) (r: Untyped)
+  | bin (k: TermKind [0, 0]) (l: Term) (r: Term)
   -- TODO: abs n?
-  | abs (k: UntypedKind [0, 1]) (A: Untyped) (t: Untyped)
-  | tri (k: UntypedKind [0, 0, 0]) (A: Untyped) (l: Untyped) (r: Untyped)
+  | abs (k: TermKind [0, 1]) (A: Term) (t: Term)
+  | tri (k: TermKind [0, 0, 0]) (A: Term) (l: Term) (r: Term)
   -- TODO: no cases?
-  | cases (k: UntypedKind [1, 0, 1, 1]) (K: Untyped) (d: Untyped) (l: Untyped) (r: Untyped)
-  | natrec (K: Untyped) (e: Untyped) (z: Untyped) (s: Untyped)
+  | cases (k: TermKind [1, 0, 1, 1]) (K: Term) (d: Term) (l: Term) (r: Term)
+  | natrec (K: Term) (e: Term) (z: Term) (s: Term)
 
 -- Types
-def Untyped.unit := const UntypedKind.unit
-def Untyped.nats := const UntypedKind.nats
-def Untyped.pi := abs UntypedKind.pi
-def Untyped.sigma := abs UntypedKind.sigma
-def Untyped.coprod := bin UntypedKind.coprod
-def Untyped.set := abs UntypedKind.set
-def Untyped.assume := abs UntypedKind.assume
-def Untyped.intersect := abs UntypedKind.intersect
-def Untyped.union := abs UntypedKind.union
+def Term.unit := const TermKind.unit
+def Term.nats := const TermKind.nats
+def Term.pi := abs TermKind.pi
+def Term.sigma := abs TermKind.sigma
+def Term.coprod := bin TermKind.coprod
+def Term.set := abs TermKind.set
+def Term.assume := abs TermKind.assume
+def Term.intersect := abs TermKind.intersect
+def Term.union := abs TermKind.union
 
 -- Propositions
-def Untyped.top := const UntypedKind.top
-def Untyped.bot := const UntypedKind.bot
-def Untyped.and := bin UntypedKind.and
-def Untyped.or := bin UntypedKind.or
-def Untyped.dimplies := abs UntypedKind.dimplies
-def Untyped.forall_ := abs UntypedKind.forall_
-def Untyped.exists_ := abs UntypedKind.exists_
-def Untyped.eq := tri UntypedKind.eq
+def Term.top := const TermKind.top
+def Term.bot := const TermKind.bot
+def Term.and := bin TermKind.and
+def Term.or := bin TermKind.or
+def Term.dimplies := abs TermKind.dimplies
+def Term.forall_ := abs TermKind.forall_
+def Term.exists_ := abs TermKind.exists_
+def Term.eq := tri TermKind.eq
 
 -- Terms
-def Untyped.nil := const UntypedKind.nil
-def Untyped.lam := abs UntypedKind.lam
-def Untyped.app := bin UntypedKind.app
-def Untyped.pair := bin UntypedKind.pair
-def Untyped.let_pair := let_bin UntypedKind.let_pair
-def Untyped.inj := λb => unary (UntypedKind.inj b)
-def Untyped.case := cases UntypedKind.case
-def Untyped.elem := bin UntypedKind.elem
-def Untyped.let_set := let_bin UntypedKind.let_set
-def Untyped.lam_pr := abs UntypedKind.lam_pr
-def Untyped.app_pr := bin UntypedKind.app_pr
-def Untyped.lam_irrel := abs UntypedKind.lam_irrel
-def Untyped.app_irrel := bin UntypedKind.app_irrel
-def Untyped.repr := bin UntypedKind.repr
-def Untyped.let_repr := let_bin UntypedKind.let_repr
+def Term.nil := const TermKind.nil
+def Term.lam := abs TermKind.lam
+def Term.app := bin TermKind.app
+def Term.pair := bin TermKind.pair
+def Term.let_pair := let_bin TermKind.let_pair
+def Term.inj := λb => unary (TermKind.inj b)
+def Term.case := cases TermKind.case
+def Term.elem := bin TermKind.elem
+def Term.let_set := let_bin TermKind.let_set
+def Term.lam_pr := abs TermKind.lam_pr
+def Term.app_pr := bin TermKind.app_pr
+def Term.lam_irrel := abs TermKind.lam_irrel
+def Term.app_irrel := bin TermKind.app_irrel
+def Term.repr := bin TermKind.repr
+def Term.let_repr := let_bin TermKind.let_repr
 
 -- Proofs
-def Untyped.triv := const UntypedKind.triv
-def Untyped.abort := unary UntypedKind.abort
-def Untyped.conj := bin UntypedKind.conj
-def Untyped.comp := λb => unary (UntypedKind.comp b)
-def Untyped.disj := λb => unary (UntypedKind.disj b)
-def Untyped.case_pr := cases UntypedKind.case_pr
-def Untyped.imp := abs UntypedKind.imp
-def Untyped.mp := bin UntypedKind.mp
-def Untyped.general := abs UntypedKind.general
-def Untyped.inst := bin UntypedKind.inst
-def Untyped.wit := bin UntypedKind.wit
-def Untyped.let_wit := let_bin UntypedKind.let_wit
+def Term.triv := const TermKind.triv
+def Term.abort := unary TermKind.abort
+def Term.conj := bin TermKind.conj
+def Term.comp := λb => unary (TermKind.comp b)
+def Term.disj := λb => unary (TermKind.disj b)
+def Term.case_pr := cases TermKind.case_pr
+def Term.imp := abs TermKind.imp
+def Term.mp := bin TermKind.mp
+def Term.general := abs TermKind.general
+def Term.inst := bin TermKind.inst
+def Term.wit := bin TermKind.wit
+def Term.let_wit := let_bin TermKind.let_wit
 
 -- Theory of equality
-def Untyped.refl := unary UntypedKind.refl
-def Untyped.sym := unary UntypedKind.sym
-def Untyped.trans := unary UntypedKind.trans
-def Untyped.cong := abs UntypedKind.cong
-def Untyped.beta := abs UntypedKind.beta
-def Untyped.eta := bin UntypedKind.eta
-def Untyped.irir := tri UntypedKind.irir
-def Untyped.prir := tri UntypedKind.prir
+def Term.refl := unary TermKind.refl
+def Term.sym := unary TermKind.sym
+def Term.trans := unary TermKind.trans
+def Term.cong := abs TermKind.cong
+def Term.beta := abs TermKind.beta
+def Term.eta := bin TermKind.eta
+def Term.irir := tri TermKind.irir
+def Term.prir := tri TermKind.prir
 
 -- Natural numbers
-def Untyped.zero := const UntypedKind.zero
-def Untyped.succ := const UntypedKind.succ
+def Term.zero := const TermKind.zero
+def Term.succ := const TermKind.succ
 
-@[simp] def Untyped.fv: Untyped -> Nat
+@[simp] def Term.fv: Term -> Nat
   | var v => Nat.succ v
   | const c => 0
   | unary _ t => fv t
@@ -183,7 +183,7 @@ def Untyped.succ := const UntypedKind.succ
   | cases _ K d l r => Nat.max (fv K - 1) (Nat.max (fv d) (Nat.max (fv l - 1) (fv r - 1)))
   | natrec K e z s => Nat.max (fv K - 1) (Nat.max (fv e) (Nat.max (fv z) (fv s - 2)))
 
-@[simp] def Untyped.has_dep: Untyped -> Nat -> Prop
+@[simp] def Term.has_dep: Term -> Nat -> Prop
   | var v, i => v = i
   | const c, _ => False
   | unary _ t, i => has_dep t i
@@ -196,7 +196,7 @@ def Untyped.succ := const UntypedKind.succ
   | natrec K e z s, i =>
     has_dep K (i + 1) ∨ has_dep e i ∨ has_dep z i ∨ has_dep s (i + 2)
 
-theorem Untyped.has_dep_dimplies_fv (u: Untyped): {i: Nat} ->
+theorem Term.has_dep_dimplies_fv (u: Term): {i: Nat} ->
   has_dep u i -> i < fv u := by {
     induction u <;> 
     simp only [has_dep, fv, Nat.max_l_lt_split];

@@ -5,13 +5,13 @@ import LogicalRefinement.Tactics
 import LogicalRefinement.Typed.Context
 import LogicalRefinement.Typed.Basic
 import LogicalRefinement.Typed.Wk
-open Untyped
+open Term
 open Annot
 open AnnotSort
 
 --TODO: fill in with proper definition
 
-inductive SubstVar: Subst -> Context -> Nat -> Untyped -> HypKind -> Prop
+inductive SubstVar: Subst -> Context -> Nat -> Term -> HypKind -> Prop
   | expr {σ Γ n A k}: (Γ ⊢ σ n: expr k.annot (A.subst σ)) -> SubstVar σ Γ n A k
   | var {σ Γ n A k m}: σ n = var m -> HasVar Γ (A.subst σ) k m -> SubstVar σ Γ n A k
 
@@ -20,7 +20,7 @@ def SubstCtx (σ: Subst) (Γ Δ: Context): Prop :=
 
 --TODO: this is inconsistent, fill in with proper definition
 theorem SubstCtx.lift_primitive 
-  {σ: Subst} {Γ Δ: Context} {A: Untyped} {k k': HypKind}:
+  {σ: Subst} {Γ Δ: Context} {A: Term} {k k': HypKind}:
   SubstCtx σ Γ Δ ->
   k.is_sub k' ->
   IsHyp Γ (Hyp.mk (A.subst σ) k') ->
@@ -60,7 +60,7 @@ theorem SubstCtx.lift_primitive
   }
 
 theorem SubstCtx.lift_loose
-  {σ σ': Subst} {Γ Δ: Context} {A A': Untyped} {k: HypKind} {s: AnnotSort}:
+  {σ σ': Subst} {Γ Δ: Context} {A A': Term} {k: HypKind} {s: AnnotSort}:
   σ' = σ.lift ->
   A' = A.subst σ ->
   SubstCtx σ Γ Δ ->
@@ -94,7 +94,7 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
       cases S H with
       | expr E => exact E
       | var Hv HΓ =>
-        simp only [Untyped.subst]
+        simp only [Term.subst]
         rw [Hv]
         exact HasType.var (I S) HΓ
 
@@ -107,16 +107,16 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
       ]
       simp only [Annot.subst, term, proof, implies_subst, const_arrow_subst, assume_wf_subst] at *
       try rw [eta_ex_eq_subst]
-      simp only [Untyped.subst, Untyped.subst0_subst] at *
+      simp only [Term.subst, Term.subst0_subst] at *
       constructor <;>
       repeat (
         try constructor
-        try rw [Untyped.alpha00_comm (by simp)]
-        try rw [Untyped.let_bin_ty_alpha_pair]
-        try rw [Untyped.let_bin_ty_alpha_elem]
-        try rw [Untyped.let_bin_ty_alpha_repr]
-        try rw [Untyped.let_bin_ty_alpha_wit]
-        try rw [Untyped.var2_var1_alpha]
+        try rw [Term.alpha00_comm (by simp)]
+        try rw [Term.let_bin_ty_alpha_pair]
+        try rw [Term.let_bin_ty_alpha_elem]
+        try rw [Term.let_bin_ty_alpha_repr]
+        try rw [Term.let_bin_ty_alpha_wit]
+        try rw [Term.var2_var1_alpha]
         first 
         | apply I0 | apply I1 | apply I2 | apply I3 | apply I4 | apply I5
         first

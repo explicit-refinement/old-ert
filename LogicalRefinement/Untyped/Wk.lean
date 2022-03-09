@@ -2,7 +2,7 @@ import LogicalRefinement.Utils
 import LogicalRefinement.Wk
 import LogicalRefinement.Untyped.Basic
 
-@[simp] def Untyped.wk: Untyped -> Wk -> Untyped
+@[simp] def Term.wk: Term -> Wk -> Term
   | var v, ρ => var (Wk.var ρ v)
   | const c, ρ => const c
   | unary k t, ρ => unary k (t.wk ρ)
@@ -15,22 +15,22 @@ import LogicalRefinement.Untyped.Basic
   | natrec K e z s, ρ =>
     natrec (K.wk ρ.lift) (e.wk ρ) (z.wk ρ) (s.wk (ρ.liftn 2))
 
-@[simp] def Untyped.wk1 (u: Untyped) 
+@[simp] def Term.wk1 (u: Term) 
   := u.wk Wk.wk1
 
-def Untyped.wk1_def {u: Untyped}: u.wk1 = u.wk Wk.wk1 := rfl
+def Term.wk1_def {u: Term}: u.wk1 = u.wk Wk.wk1 := rfl
 
-@[simp] def Untyped.lift1 (u: Untyped) := u.wk (Wk.lift Wk.id)
+@[simp] def Term.lift1 (u: Term) := u.wk (Wk.lift Wk.id)
 
-@[simp] def Untyped.wkn (u: Untyped) (n: Nat) 
+@[simp] def Term.wkn (u: Term) (n: Nat) 
   := u.wk (Wk.wkn n)
 
-@[simp] def Untyped.wknth (u: Untyped) (n: Nat) 
+@[simp] def Term.wknth (u: Term) (n: Nat) 
   := u.wk (Wk.wknth n)
 
-def Untyped.wknth_def {u: Untyped} {n}: u.wknth n = u.wk (Wk.wknth n) := rfl
+def Term.wknth_def {u: Term} {n}: u.wknth n = u.wk (Wk.wknth n) := rfl
 
-@[simp] def Untyped.wk_coherent: {u: Untyped} -> {ρ σ: Wk} ->
+@[simp] def Term.wk_coherent: {u: Term} -> {ρ σ: Wk} ->
   Wk.equiv ρ σ -> u.wk ρ = u.wk σ := by {
   intro u;
   induction u with
@@ -60,16 +60,16 @@ def Untyped.wknth_def {u: Untyped} {n}: u.wknth n = u.wk (Wk.wknth n) := rfl
     ]
 }
 
-@[simp] def Untyped.wk_id {u: Untyped}: u.wk (Wk.id) = u := by {
+@[simp] def Term.wk_id {u: Term}: u.wk (Wk.id) = u := by {
   induction u;
   case var => simp
   repeat simp only [
-    wk, Untyped.wk_coherent (Wk.liftn_id_equiv), 
-    Untyped.wk_coherent Wk.lift_id_equiv,
+    wk, Term.wk_coherent (Wk.liftn_id_equiv), 
+    Term.wk_coherent Wk.lift_id_equiv,
   *]
 }
 
-def Untyped.wk_bounds {u: Untyped}: {n m: Nat} -> {ρ: Wk} ->
+def Term.wk_bounds {u: Term}: {n m: Nat} -> {ρ: Wk} ->
   ρ.maps n m -> fv u ≤ m -> fv (u.wk ρ) ≤ n := by {
     induction u with
     | var v => intros _ _ ρ Hm. apply Hm
@@ -140,22 +140,22 @@ def Untyped.wk_bounds {u: Untyped}: {n m: Nat} -> {ρ: Wk} ->
           case right => apply Is (@Wk.liftn_maps ρ 2 n m Hm) Hs
   }
 
-def Untyped.fv_wk1: fv (wk1 u) ≤ fv u + 1 
+def Term.fv_wk1: fv (wk1 u) ≤ fv u + 1 
   := by apply wk_bounds Wk.wk1_maps; exact Nat.le_refl _
 
-@[simp] def Untyped.wk_composes {u: Untyped}: 
+@[simp] def Term.wk_composes {u: Term}: 
   (σ ρ: Wk) -> (u.wk ρ).wk σ = u.wk (σ.comp ρ) 
   := by induction u <;> simp [*]
 
-theorem Untyped.wk_wk1 {u: Untyped}: u.wk Wk.wk1 = u.wk1 
+theorem Term.wk_wk1 {u: Term}: u.wk Wk.wk1 = u.wk1 
   := rfl
   
-theorem Untyped.step_wk1 {u: Untyped}: u.wk ρ.step = (u.wk ρ).wk1 
+theorem Term.step_wk1 {u: Term}: u.wk ρ.step = (u.wk ρ).wk1 
   := by simp [<-Wk.step_is_comp_wk1]
 
-theorem Untyped.lift_wk1 {u: Untyped}: u.wk1.wk ρ.lift = (u.wk ρ).wk1 
+theorem Term.lift_wk1 {u: Term}: u.wk1.wk ρ.lift = (u.wk ρ).wk1 
   := by simp
 
-theorem Untyped.wkn_wk1 {u: Untyped}: u.wkn (Nat.succ n) = (u.wkn n).wk1 := by {
+theorem Term.wkn_wk1 {u: Term}: u.wkn (Nat.succ n) = (u.wkn n).wk1 := by {
   simp only [wkn, wk1, wk_composes, Wk.wkn, Wk.step_is_comp_wk1]
 }

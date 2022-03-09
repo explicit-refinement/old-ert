@@ -2,7 +2,7 @@ import LogicalRefinement.Untyped
 import LogicalRefinement.Untyped.Subst
 import LogicalRefinement.Utils
 import LogicalRefinement.Tactics
-open Untyped
+open Term
 
 --TODO: flip sub, suffer
 
@@ -12,7 +12,7 @@ inductive AnnotSort
 
 inductive Annot
   | sort (s: AnnotSort)
-  | expr (s: AnnotSort) (A: Untyped)
+  | expr (s: AnnotSort) (A: Term)
 
 def Annot.term := expr AnnotSort.type
 def Annot.proof := expr AnnotSort.prop
@@ -26,7 +26,7 @@ instance annotSortCoe: Coe AnnotSort Annot where
 @[simp]
 def Annot.lift1: Annot -> Annot
   | sort s => sort s
-  | expr s A => expr s (Untyped.lift1 A)
+  | expr s A => expr s (Term.lift1 A)
 
 @[simp]
 def Annot.wk: Annot -> Wk -> Annot
@@ -177,7 +177,7 @@ theorem HypKind.upgrade_regular {s} {h: HypKind} (p: h.regular s):
     cases s <;> cases h <;> cases p <;> constructor
   }
 
-structure Hyp := (ty: Untyped) (kind: HypKind)
+structure Hyp := (ty: Term) (kind: HypKind)
 
 @[simp]
 def Hyp.wk (H: Hyp) (ρ: Wk) := Hyp.mk (H.ty.wk ρ) H.kind
@@ -236,8 +236,8 @@ theorem Hyp.is_sub.upgrade_bin {H H': Hyp}: H.is_sub H' -> H.upgrade.is_sub H'.u
     | gst => constructor; constructor
 }
 
-def Hyp.val (A: Untyped) (s: AnnotSort) := Hyp.mk A (HypKind.val s)
-def Hyp.gst (A: Untyped) := Hyp.mk A HypKind.gst
+def Hyp.val (A: Term) (s: AnnotSort) := Hyp.mk A (HypKind.val s)
+def Hyp.gst (A: Term) := Hyp.mk A HypKind.gst
 
 def Context := List Hyp
 
@@ -295,64 +295,64 @@ theorem Context.is_sub.upgrade_bin: {Γ Δ: Context} -> Γ.is_sub Δ -> Γ.upgra
     assumption
 }
 
---TODO: move to Untyped.Basic?
-def Untyped.arrow (A B: Untyped) := pi A (wk1 B)
+--TODO: move to Term.Basic?
+def Term.arrow (A B: Term) := pi A (wk1 B)
 
 @[simp]
-def Untyped.arrow_wk: (arrow A B).wk ρ = arrow (A.wk ρ) (B.wk ρ) := by simp [arrow, pi]
+def Term.arrow_wk: (arrow A B).wk ρ = arrow (A.wk ρ) (B.wk ρ) := by simp [arrow, pi]
 
 @[simp]
-def Untyped.arrow_subst: (arrow A B).subst σ = arrow (A.subst σ) (B.subst σ) 
+def Term.arrow_subst: (arrow A B).subst σ = arrow (A.subst σ) (B.subst σ) 
   := by simp only [arrow, pi, subst, Subst.lift_wk]
 
-def Untyped.implies (φ ψ: Untyped) := dimplies φ ψ.wk1
+def Term.implies (φ ψ: Term) := dimplies φ ψ.wk1
 
 @[simp]
-def Untyped.implies_wk: (implies φ ψ).wk ρ = implies (φ.wk ρ) (ψ.wk ρ) := by simp [implies, dimplies]
+def Term.implies_wk: (implies φ ψ).wk ρ = implies (φ.wk ρ) (ψ.wk ρ) := by simp [implies, dimplies]
 
-def Untyped.const_arrow (A B: Untyped) := intersect A (wk1 B)
+def Term.const_arrow (A B: Term) := intersect A (wk1 B)
 
 @[simp]
-def Untyped.const_arrow_wk: (const_arrow A B).wk ρ = const_arrow (A.wk ρ) (B.wk ρ) 
+def Term.const_arrow_wk: (const_arrow A B).wk ρ = const_arrow (A.wk ρ) (B.wk ρ) 
   := by simp [const_arrow, intersect]
 
 @[simp]
-def Untyped.const_arrow_subst: (const_arrow A B).subst σ = const_arrow (A.subst σ) (B.subst σ) 
+def Term.const_arrow_subst: (const_arrow A B).subst σ = const_arrow (A.subst σ) (B.subst σ) 
   := by simp only [const_arrow, intersect, subst, Subst.lift_wk]
 
 @[simp]
-def Untyped.implies_subst: (implies φ ψ).subst σ = implies (φ.subst σ) (ψ.subst σ) 
+def Term.implies_subst: (implies φ ψ).subst σ = implies (φ.subst σ) (ψ.subst σ) 
   := by simp only [implies, dimplies, subst, Subst.lift_wk]
 
-def Untyped.assume_wf (φ A: Untyped) := assume φ (A.wk1)
+def Term.assume_wf (φ A: Term) := assume φ (A.wk1)
 
 @[simp]
-def Untyped.assume_wf_wk: (assume_wf φ A).wk ρ = assume_wf (φ.wk ρ) (A.wk ρ) 
+def Term.assume_wf_wk: (assume_wf φ A).wk ρ = assume_wf (φ.wk ρ) (A.wk ρ) 
   := by simp [assume_wf, assume]
 
 @[simp]
-def Untyped.assume_wf_subst: (assume_wf φ A).subst σ = assume_wf (φ.subst σ) (A.subst σ) 
+def Term.assume_wf_subst: (assume_wf φ A).subst σ = assume_wf (φ.subst σ) (A.subst σ) 
   := by simp only [assume_wf, assume, subst, Subst.lift_wk]
 
 
-def constAnnot: UntypedKind [] -> Annot
-  | UntypedKind.unit => type
-  | UntypedKind.nats => type
-  | UntypedKind.top => prop
-  | UntypedKind.bot => prop
-  | UntypedKind.nil => term unit
-  | UntypedKind.zero => term nats
-  | UntypedKind.succ => term (arrow nats nats)
-  | UntypedKind.triv => proof top
+def constAnnot: TermKind [] -> Annot
+  | TermKind.unit => type
+  | TermKind.nats => type
+  | TermKind.top => prop
+  | TermKind.bot => prop
+  | TermKind.nil => term unit
+  | TermKind.zero => term nats
+  | TermKind.succ => term (arrow nats nats)
+  | TermKind.triv => proof top
 
-def Untyped.sym_ty_tmp: Untyped :=
+def Term.sym_ty_tmp: Term :=
   forall_ (var 0) (
     forall_ (var 1) (
       implies (eq (var 2) (var 1) (var 0)) (eq (var 2) (var 0) (var 1))
     )
   )
 
-def Untyped.trans_ty_tmp: Untyped :=
+def Term.trans_ty_tmp: Term :=
   forall_ (var 0) (
     forall_ (var 1) (
       forall_ (var 2) (
@@ -363,54 +363,54 @@ def Untyped.trans_ty_tmp: Untyped :=
     )
   )
 
-def Untyped.sym_ty_tmp_fv: sym_ty_tmp.fv = 1 := rfl
-def Untyped.trans_ty_tmp_fv: trans_ty_tmp.fv = 1 := rfl
+def Term.sym_ty_tmp_fv: sym_ty_tmp.fv = 1 := rfl
+def Term.trans_ty_tmp_fv: trans_ty_tmp.fv = 1 := rfl
 
-def Untyped.sym_ty (A: Untyped): Untyped := sym_ty_tmp.subst0 A
-def Untyped.trans_ty (A: Untyped): Untyped := trans_ty_tmp.subst0 A
+def Term.sym_ty (A: Term): Term := sym_ty_tmp.subst0 A
+def Term.trans_ty (A: Term): Term := trans_ty_tmp.subst0 A
 
-def Untyped.sym_ty_subst {A σ}: (sym_ty A).subst σ = (sym_ty (A.subst σ)) :=
+def Term.sym_ty_subst {A σ}: (sym_ty A).subst σ = (sym_ty (A.subst σ)) :=
   tmp_fill (by simp)
-def Untyped.trans_ty_subst {A σ}: (trans_ty A).subst σ = (trans_ty (A.subst σ)) :=
+def Term.trans_ty_subst {A σ}: (trans_ty A).subst σ = (trans_ty (A.subst σ)) :=
   tmp_fill (by simp)
 
 def Annot.sym_ty_subst {A σ}: (proof (sym_ty A)).subst σ = proof (sym_ty (A.subst σ)) :=
-  by simp only [proof, Annot.subst, Untyped.sym_ty_subst]
+  by simp only [proof, Annot.subst, Term.sym_ty_subst]
 def Annot.trans_ty_subst {A σ}: (proof (trans_ty A)).subst σ = proof (trans_ty (A.subst σ)) :=
-  by simp only [proof, Annot.subst, Untyped.trans_ty_subst]
+  by simp only [proof, Annot.subst, Term.trans_ty_subst]
 
-def Untyped.sym_ty_wk {A ρ}: (sym_ty A).wk ρ = (sym_ty (A.wk ρ)) :=
+def Term.sym_ty_wk {A ρ}: (sym_ty A).wk ρ = (sym_ty (A.wk ρ)) :=
   tmp_fill_wk (by simp)
-def Untyped.trans_ty_wk {A ρ}: (trans_ty A).wk ρ = (trans_ty (A.wk ρ)) :=
+def Term.trans_ty_wk {A ρ}: (trans_ty A).wk ρ = (trans_ty (A.wk ρ)) :=
   tmp_fill_wk (by simp)
 
 def Annot.sym_ty_wk {A ρ}: (proof (sym_ty A)).wk ρ = proof (sym_ty (A.wk ρ)) :=
-  by simp only [proof, Annot.wk, Untyped.sym_ty_wk]
+  by simp only [proof, Annot.wk, Term.sym_ty_wk]
 def Annot.trans_ty_wk {A ρ}: (proof (trans_ty A)).wk ρ = proof (trans_ty (A.wk ρ)) :=
-  by simp only [proof, Annot.wk, Untyped.trans_ty_wk]
+  by simp only [proof, Annot.wk, Term.trans_ty_wk]
 
-def Untyped.eta_ex (A f: Untyped) := lam A (app f.wk1 (var 0))
+def Term.eta_ex (A f: Term) := lam A (app f.wk1 (var 0))
 
-def Untyped.eta_ex_subst {A f: Untyped} {σ}: (eta_ex A f).subst σ = eta_ex (A.subst σ) (f.subst σ)
+def Term.eta_ex_subst {A f: Term} {σ}: (eta_ex A f).subst σ = eta_ex (A.subst σ) (f.subst σ)
   := by {
     simp only [subst, Subst.lift_wk];
     rfl
   }
 
-def Untyped.eta_ex_wk {A f: Untyped} {ρ}: (eta_ex A f).wk ρ = eta_ex (A.wk ρ) (f.wk ρ) := by {
+def Term.eta_ex_wk {A f: Term} {ρ}: (eta_ex A f).wk ρ = eta_ex (A.wk ρ) (f.wk ρ) := by {
   simp only [<-Subst.subst_wk_compat]
   exact eta_ex_subst
 }
 
-def Untyped.eta_ex_eq_subst {P A f r: Untyped} {σ}: 
+def Term.eta_ex_eq_subst {P A f r: Term} {σ}: 
   (eq P (eta_ex A f) r).subst σ = eq (P.subst σ) (eta_ex (A.subst σ) (f.subst σ)) (r.subst σ)
   := by {
-    rw [<-Untyped.eta_ex_subst]
+    rw [<-Term.eta_ex_subst]
     rfl
   }
 
-def Untyped.eta_ex_eq_wk {P A f r: Untyped} {ρ}:
+def Term.eta_ex_eq_wk {P A f r: Term} {ρ}:
   (eq P (eta_ex A f) r).wk ρ = eq (P.wk ρ) (eta_ex (A.wk ρ) (f.wk ρ)) (r.wk ρ) := by {
-    rw [<-Untyped.eta_ex_wk]
+    rw [<-Term.eta_ex_wk]
     rfl
   }
