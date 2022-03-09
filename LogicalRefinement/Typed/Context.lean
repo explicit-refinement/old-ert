@@ -365,3 +365,16 @@ def Annot.sym_ty_wk {A ρ}: (proof (sym_ty A)).wk ρ = proof (sym_ty (A.wk ρ)) 
   by simp only [proof, Annot.wk, Untyped.sym_ty_wk]
 def Annot.trans_ty_wk {A ρ}: (proof (trans_ty A)).wk ρ = proof (trans_ty (A.wk ρ)) :=
   by simp only [proof, Annot.wk, Untyped.trans_ty_wk]
+
+def Untyped.eta_ex (A f: Untyped) := lam A (app f.wk1 (var 0))
+
+def Untyped.eta_ex_subst {A f: Untyped} {σ}: (eta_ex A f).subst σ = eta_ex (A.subst σ) (f.subst σ)
+  := by {
+    simp only [subst, Subst.lift_wk];
+    rfl
+  }
+
+def Untyped.eta_ex_wk {A f: Untyped} {ρ}: (eta_ex A f).wk ρ = eta_ex (A.wk ρ) (f.wk ρ) := by {
+  simp only [<-Subst.subst_wk_compat]
+  exact eta_ex_subst
+}
