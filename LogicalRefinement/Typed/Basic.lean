@@ -259,6 +259,11 @@ inductive HasType: Context -> Untyped -> Annot -> Prop
     HasType Γ A type ->
     HasType Γ p (proof (eq A x y)) ->
     HasType Γ (cong p P) (proof (implies (P.subst0 x) (P.subst0 y)))
+  | beta {Γ: Context} {A B s t: Untyped}:
+    HasType ((Hyp.mk A (HypKind.val type))::Γ) s (term B) ->
+    HasType Γ A type ->
+    HasType Γ t (term A) ->
+    HasType Γ (beta t s) (proof (eq (B.subst0 t) (app (lam A s) t) (s.subst0 t)))
 
   -- Natural numbers
   | natrec {Γ: Context} {C e z s: Untyped} {k: AnnotSort}:
