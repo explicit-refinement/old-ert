@@ -324,6 +324,17 @@ def Untyped.const_arrow_subst: (const_arrow A B).subst σ = const_arrow (A.subst
 def Untyped.implies_subst: (implies φ ψ).subst σ = implies (φ.subst σ) (ψ.subst σ) 
   := by simp only [implies, dimplies, subst, Subst.lift_wk]
 
+def Untyped.assume_wf (φ A: Untyped) := assume φ (A.wk1)
+
+@[simp]
+def Untyped.assume_wf_wk: (assume_wf φ A).wk ρ = assume_wf (φ.wk ρ) (A.wk ρ) 
+  := by simp [assume_wf, assume]
+
+@[simp]
+def Untyped.assume_wf_subst: (assume_wf φ A).subst σ = assume_wf (φ.subst σ) (A.subst σ) 
+  := by simp only [assume_wf, assume, subst, Subst.lift_wk]
+
+
 def constAnnot: UntypedKind [] -> Annot
   | UntypedKind.nats => type
   | UntypedKind.top => prop
