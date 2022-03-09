@@ -9,6 +9,9 @@ inductive Stlc
 | app (s: Stlc) (t: Stlc)
 | var (n: Nat)
 
+-- Erasure
+| nil
+
 -- Failure
 | abort
 

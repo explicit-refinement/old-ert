@@ -336,12 +336,14 @@ def Untyped.assume_wf_subst: (assume_wf φ A).subst σ = assume_wf (φ.subst σ)
 
 
 def constAnnot: UntypedKind [] -> Annot
+  | UntypedKind.unit => type
   | UntypedKind.nats => type
   | UntypedKind.top => prop
   | UntypedKind.bot => prop
+  | UntypedKind.nil => term unit
   | UntypedKind.zero => term nats
   | UntypedKind.succ => term (arrow nats nats)
-  | UntypedKind.nil => proof top
+  | UntypedKind.triv => proof top
 
 def Untyped.sym_ty_tmp: Untyped :=
   forall_ (var 0) (

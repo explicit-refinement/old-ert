@@ -54,15 +54,6 @@ inductive HasType: Context -> Untyped -> Annot -> Prop
     HasVar Γ A (HypKind.val s) n ->
     HasType Γ (var n) (expr s A)
 
-  -- Constants
-  | nats {Γ}: HasType Γ nats type
-  | top {Γ}: HasType Γ top prop
-  | bot {Γ}: HasType Γ bot prop
-  | zero {Γ}: HasType Γ zero (term nats)
-  | succ {Γ}: HasType Γ succ (term (arrow nats nats))
-  -- Change nil to non-list things
-  | nil {Γ}: HasType Γ nil (proof top)
-
   -- Types
   | pi {Γ: Context} {A B: Untyped}:
     HasType Γ A type -> 
@@ -190,6 +181,9 @@ inductive HasType: Context -> Untyped -> Annot -> Prop
     HasType Γ (let_repr e e') (expr k (C.subst0 e))
 
   -- Basic proof formers
+  | top {Γ}: HasType Γ top prop
+  | bot {Γ}: HasType Γ bot prop
+  | nil {Γ}: HasType Γ triv (proof top)
   | abort {Γ: Context} {A: Annot} {p: Untyped}:
     HasType Γ p (proof bot) ->
     HasType Γ (abort p) A
@@ -280,6 +274,9 @@ inductive HasType: Context -> Untyped -> Annot -> Prop
     HasType Γ (irir f x y) (proof (eq B (app_pr f x) (app_pr f y)))
 
   -- Natural numbers
+  | nats {Γ}: HasType Γ nats type
+  | zero {Γ}: HasType Γ zero (term nats)
+  | succ {Γ}: HasType Γ succ (term (arrow nats nats))
   | natrec {Γ: Context} {C e z s: Untyped} {k: AnnotSort}:
     HasType ((Hyp.mk nats HypKind.gst)::Γ) C k ->
     HasType Γ e (term nats) ->

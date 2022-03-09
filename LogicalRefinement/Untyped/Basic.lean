@@ -4,6 +4,7 @@ import LogicalRefinement.Utils
 --TODO: consider making higher order?
 inductive UntypedKind: List Nat -> Type
   -- Types
+  | unit: UntypedKind []
   | nats: UntypedKind []
   | pi: UntypedKind [0, 1] -- (pi, type, type)
   | sigma: UntypedKind [0, 1] -- (sigma, type, type)
@@ -32,6 +33,7 @@ inductive UntypedKind: List Nat -> Type
   | eq: UntypedKind [0, 0, 0]
 
   -- Terms
+  | nil: UntypedKind []
   -- Consider merging with intro/elim for (pi, type, type)
   | lam: UntypedKind [0, 1]
   | app: UntypedKind [0, 0]
@@ -55,7 +57,7 @@ inductive UntypedKind: List Nat -> Type
   | let_repr: UntypedKind [0, 2]
 
   -- Proofs
-  | nil: UntypedKind []
+  | triv: UntypedKind []
   | abort: UntypedKind [0]
   -- Consider merging with intro/elim for (pi, prop, prop)
   | imp: UntypedKind [0, 1]
@@ -105,6 +107,7 @@ inductive Untyped: Type
   | natrec (K: Untyped) (e: Untyped) (z: Untyped) (s: Untyped)
 
 -- Types
+def Untyped.unit := const UntypedKind.unit
 def Untyped.nats := const UntypedKind.nats
 def Untyped.pi := abs UntypedKind.pi
 def Untyped.sigma := abs UntypedKind.sigma
@@ -125,6 +128,7 @@ def Untyped.exists_ := abs UntypedKind.exists_
 def Untyped.eq := tri UntypedKind.eq
 
 -- Terms
+def Untyped.nil := const UntypedKind.nil
 def Untyped.lam := abs UntypedKind.lam
 def Untyped.app := bin UntypedKind.app
 def Untyped.pair := bin UntypedKind.pair
@@ -141,7 +145,7 @@ def Untyped.repr := bin UntypedKind.repr
 def Untyped.let_repr := let_bin UntypedKind.let_repr
 
 -- Proofs
-def Untyped.nil := const UntypedKind.nil
+def Untyped.triv := const UntypedKind.triv
 def Untyped.abort := unary UntypedKind.abort
 def Untyped.conj := bin UntypedKind.conj
 def Untyped.comp := λb => unary (UntypedKind.comp b)
