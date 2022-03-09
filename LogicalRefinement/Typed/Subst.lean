@@ -98,10 +98,6 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
         rw [Hv]
         exact HasType.var (I S) HΓ
 
-    case eta =>
-      --TODO: rewrite subst0 var0 = self?
-      sorry
-
     all_goals (
       intro σ Γ S;
       rename_i' I5 I4 I3 I2 I1 I0;
@@ -110,6 +106,7 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
         Annot.trans_ty_subst
       ]
       simp only [Annot.subst, proof, implies_subst]
+      try rw [eta_ex_eq_subst]
       simp only [
         Untyped.subst, Annot.subst, term, proof, Untyped.subst0_subst
       ] at *
