@@ -81,6 +81,8 @@ inductive UntypedKind: List Nat -> Type
   | cong: UntypedKind [0, 1]
   | beta: UntypedKind [0, 1]
   | eta: UntypedKind [0, 0]
+  | irir: UntypedKind [0, 0, 0]
+  | prir: UntypedKind [0, 0, 0]
 
   -- Natural numbers
   | zero: UntypedKind []
@@ -159,6 +161,8 @@ def Untyped.trans := unary UntypedKind.trans
 def Untyped.cong := abs UntypedKind.cong
 def Untyped.beta := abs UntypedKind.beta
 def Untyped.eta := bin UntypedKind.eta
+def Untyped.irir := tri UntypedKind.irir
+def Untyped.prir := tri UntypedKind.prir
 
 -- Natural numbers
 def Untyped.zero := const UntypedKind.zero
