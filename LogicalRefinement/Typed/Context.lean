@@ -310,6 +310,16 @@ def Untyped.implies (φ ψ: Untyped) := dimplies φ ψ.wk1
 @[simp]
 def Untyped.implies_wk: (implies φ ψ).wk ρ = implies (φ.wk ρ) (ψ.wk ρ) := by simp [implies, dimplies]
 
+def Untyped.const_arrow (A B: Untyped) := intersect A (wk1 B)
+
+@[simp]
+def Untyped.const_arrow_wk: (const_arrow A B).wk ρ = const_arrow (A.wk ρ) (B.wk ρ) 
+  := by simp [const_arrow, intersect]
+
+@[simp]
+def Untyped.const_arrow_subst: (const_arrow A B).subst σ = const_arrow (A.subst σ) (B.subst σ) 
+  := by simp only [const_arrow, intersect, subst, Subst.lift_wk]
+
 @[simp]
 def Untyped.implies_subst: (implies φ ψ).subst σ = implies (φ.subst σ) (ψ.subst σ) 
   := by simp only [implies, dimplies, subst, Subst.lift_wk]

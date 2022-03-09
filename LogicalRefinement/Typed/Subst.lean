@@ -105,11 +105,9 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
         Annot.sym_ty_subst,
         Annot.trans_ty_subst
       ]
-      simp only [Annot.subst, proof, implies_subst]
+      simp only [Annot.subst, term, proof, implies_subst, const_arrow_subst] at *
       try rw [eta_ex_eq_subst]
-      simp only [
-        Untyped.subst, Annot.subst, term, proof, Untyped.subst0_subst
-      ] at *
+      simp only [Untyped.subst, Untyped.subst0_subst] at *
       constructor <;>
       repeat (
         try constructor

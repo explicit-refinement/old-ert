@@ -90,12 +90,9 @@ theorem HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
         Annot.sym_ty_wk,
         Annot.trans_ty_wk
       ]
-      simp only [Annot.wk, proof, implies_wk]
+      simp only [Annot.wk, term, proof, implies_wk, const_arrow_wk] at *
       try rw [eta_ex_eq_wk]
-      simp only [
-        Untyped.wk, Annot.wk, term, proof, Untyped.subst0_wk,
-        Untyped.wk1
-      ] at *
+      simp only [Untyped.wk, Untyped.subst0_wk, Untyped.wk1] at *
       constructor <;>
       (try rw [Untyped.alpha00_wk_comm (by simp)]) <;>
       (try rw [Untyped.let_bin_ty_alpha_wk_pair]) <;>
