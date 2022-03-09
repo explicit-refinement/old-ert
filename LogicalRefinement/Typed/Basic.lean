@@ -273,6 +273,11 @@ inductive HasType: Context -> Untyped -> Annot -> Prop
     HasType Γ x (term A) ->
     HasType Γ y (term A) ->
     HasType Γ (irir f x y) (proof (eq B (app_irrel f x) (app_irrel f y)))
+  | prir {Γ: Context} {φ A f x y: Untyped}:
+    HasType Γ f (term (assume_wf φ A)) ->
+    HasType Γ x (proof φ) ->
+    HasType Γ y (proof φ) ->
+    HasType Γ (irir f x y) (proof (eq B (app_pr f x) (app_pr f y)))
 
   -- Natural numbers
   | natrec {Γ: Context} {C e z s: Untyped} {k: AnnotSort}:
