@@ -82,6 +82,7 @@ theorem HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
       assumption
       apply HasVar.wk
       repeat assumption
+      
 
     all_goals (
       intro ρ Γ R;
