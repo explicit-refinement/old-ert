@@ -37,5 +37,6 @@ inductive Stlc.HasVar: Context -> Nat -> Ty -> Prop
 | succ {Γ A B n}: HasVar Γ n A -> HasVar (B::Γ) (Nat.succ n) A
 
 inductive Stlc.HasType: Context -> Stlc -> Ty -> Prop
+| var {Γ A n}: HasVar Γ n A -> HasType Γ (var n) A
 | lam {Γ A B s}: HasType (A::Γ) s B -> HasType Γ (lam A s) (fn A B)
 | app {Γ A B s t}: HasType Γ s (fn A B) -> HasType Γ t A -> HasType Γ (app s t) B
