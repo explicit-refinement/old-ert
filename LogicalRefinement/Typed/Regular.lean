@@ -6,7 +6,7 @@ import LogicalRefinement.Typed.Context
 import LogicalRefinement.Typed.Basic
 import LogicalRefinement.Typed.Wk
 import LogicalRefinement.Typed.Subst
-open Untyped
+open Term
 open Annot
 open AnnotSort
 
