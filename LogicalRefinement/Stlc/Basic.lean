@@ -1,13 +1,23 @@
 inductive Ty
-| fn (A: Ty) (B: Ty)
+| unit
 | nats
-| bool
+| fn (A B: Ty)
+| prod (A B: Ty)
+| coprod (A B: Ty)
+
+open Ty
 
 inductive Stlc
 -- Basic
 | lam (A: Ty) (s: Stlc)
-| app (s: Stlc) (t: Stlc)
+| app (s t: Stlc)
 | var (n: Nat)
+
+-- Products and coproducts
+| pair (l r: Stlc)
+| inl (e: Stlc)
+| inr (e: Sltc)
+| cases (d l r: Stlc)
 
 -- Erasure
 | nil
