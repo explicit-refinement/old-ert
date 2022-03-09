@@ -90,7 +90,7 @@ theorem HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
         Annot.sym_ty_wk,
         Annot.trans_ty_wk
       ]
-      simp only [Annot.wk, term, proof, implies_wk, const_arrow_wk] at *
+      simp only [Annot.wk, term, proof, implies_wk, const_arrow_wk, assume_wf_subst] at *
       try rw [eta_ex_eq_wk]
       simp only [Untyped.wk, Untyped.subst0_wk, Untyped.wk1] at *
       constructor <;>
