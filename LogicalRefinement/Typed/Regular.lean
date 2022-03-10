@@ -10,6 +10,10 @@ open Term
 open Annot
 open AnnotSort
 
+theorem HasType.no_poly {Γ v s}: ¬(HasType Γ (Term.var v) (sort s)) := by {
+  intro H; cases H
+}
+
 inductive Annot.regular: Annot -> Context -> Prop
   | sort {Γ s}: regular (sort s) Γ
   | expr {Γ s A}: (Γ ⊢ A: sort s) -> regular (expr s A) Γ
