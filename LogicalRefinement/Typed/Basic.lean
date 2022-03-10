@@ -55,6 +55,7 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType Γ (var n) (expr s A)
 
   -- Types
+  | unit {Γ: Context}: HasType Γ unit type
   | pi {Γ: Context} {A B: Term}:
     HasType Γ A type -> 
     HasType ((Hyp.mk A (HypKind.val type))::Γ) B type ->
@@ -185,9 +186,9 @@ inductive HasType: Context -> Term -> Annot -> Prop
   | top {Γ}: HasType Γ top prop
   | bot {Γ}: HasType Γ bot prop
   | nil {Γ}: HasType Γ triv (proof top)
-  | abort {Γ: Context} {A: Annot} {p: Term}:
+  | abort {Γ: Context} {A: Term} {p: Term} {s: AnnotSort}:
     HasType Γ p (proof bot) ->
-    HasType Γ (abort p) A
+    HasType Γ (abort p) (expr s A)
   | dconj {Γ: Context} {A B l r: Term}:
     HasType Γ l (proof A) -> HasType Γ r (proof (B.subst0 l)) ->
     HasType Γ (dconj l r) (term (dand A B))
