@@ -5,7 +5,6 @@ import LogicalRefinement.Utils
 inductive TermKind: List Nat -> Type
   -- Types
   | unit: TermKind []
-  | nats: TermKind []
   | pi: TermKind [0, 1] -- (pi, type, type)
   | sigma: TermKind [0, 1] -- (sigma, type, type)
   | coprod: TermKind [0, 0]
@@ -87,6 +86,7 @@ inductive TermKind: List Nat -> Type
   | prir: TermKind [0, 0, 0]
 
   -- Natural numbers
+  | nats: TermKind []
   | zero: TermKind []
   | succ: TermKind []
 
