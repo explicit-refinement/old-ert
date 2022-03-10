@@ -14,6 +14,8 @@ theorem HasType.no_poly {Γ v s}: ¬(HasType Γ (Term.var v) (sort s)) := by {
   intro H; cases H
 }
 
+theorem HasType.no_poly_ty {Γ v}: ¬(Γ ⊢ (Term.var v): type) := no_poly
+
 inductive Annot.regular: Annot -> Context -> Prop
   | sort {Γ s}: regular (sort s) Γ
   | expr {Γ s A}: (Γ ⊢ A: sort s) -> regular (expr s A) Γ
