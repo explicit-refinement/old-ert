@@ -49,7 +49,7 @@ def TermKind.term_sort: TermKind l -> TermSort
   | top => prop
   | bot => prop
   | dimplies => prop
-  | and => prop
+  | dand => prop
   | or => prop
   | forall_ => prop
   | exists_ => prop
@@ -76,7 +76,7 @@ def TermKind.term_sort: TermKind l -> TermSort
   | abort => TermSort.proof
   | imp => TermSort.proof 
   | mp => TermSort.proof
-  | conj => TermSort.proof 
+  | dconj => TermSort.proof 
   | comp _ => TermSort.proof 
   | disj _ => TermSort.proof 
   | case_pr => TermSort.proof

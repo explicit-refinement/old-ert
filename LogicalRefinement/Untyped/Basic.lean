@@ -23,7 +23,7 @@ inductive TermKind: List Nat -> Type
   --TODO: consider merging with (pi, prop, prop)
   | dimplies: TermKind [0, 1]
   --TODO: consider dependent and, analogous to (sigma, prop, prop)
-  | and: TermKind [0, 0] 
+  | dand: TermKind [0, 1] 
   | or: TermKind [0, 0]
   --TODO: consider merging with (pi, type, prop) == (pi, ghost, prop)
   | forall_: TermKind [0, 1]
@@ -62,7 +62,7 @@ inductive TermKind: List Nat -> Type
   | imp: TermKind [0, 1]
   | mp: TermKind [0, 0]
   -- Note: (sigma, prop, prop) is not dependent, unlike for prop!  
-  | conj: TermKind [0, 0]
+  | dconj: TermKind [0, 0]
   | comp (b: Bool): TermKind [0]
   | disj (b: Bool): TermKind [0]
   | case_pr: TermKind [1, 0, 1, 1]
@@ -120,7 +120,7 @@ def Term.union := abs TermKind.union
 -- Propositions
 def Term.top := const TermKind.top
 def Term.bot := const TermKind.bot
-def Term.and := bin TermKind.and
+def Term.dand := abs TermKind.dand
 def Term.or := bin TermKind.or
 def Term.dimplies := abs TermKind.dimplies
 def Term.forall_ := abs TermKind.forall_
@@ -147,7 +147,7 @@ def Term.let_repr := let_bin TermKind.let_repr
 -- Proofs
 def Term.triv := const TermKind.triv
 def Term.abort := unary TermKind.abort
-def Term.conj := bin TermKind.conj
+def Term.dconj := bin TermKind.dconj
 def Term.comp := λb => unary (TermKind.comp b)
 def Term.disj := λb => unary (TermKind.disj b)
 def Term.case_pr := cases TermKind.case_pr

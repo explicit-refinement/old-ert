@@ -84,9 +84,10 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType Γ (union A B) type
   
   -- Propositions
-  | and {Γ: Context} {φ ψ: Term}:
-    HasType Γ φ prop -> HasType Γ ψ prop ->
-    HasType Γ (and φ ψ) prop
+  | dand {Γ: Context} {φ ψ: Term}:
+    HasType Γ φ prop -> 
+    HasType ((Hyp.mk φ (HypKind.val prop))::Γ) ψ prop ->
+    HasType Γ (dand φ ψ) prop
   | or {Γ: Context} {φ ψ: Term}:
     HasType Γ φ prop -> HasType Γ ψ prop ->
     HasType Γ (or φ ψ) prop
@@ -187,15 +188,9 @@ inductive HasType: Context -> Term -> Annot -> Prop
   | abort {Γ: Context} {A: Annot} {p: Term}:
     HasType Γ p (proof bot) ->
     HasType Γ (abort p) A
-  | conj {Γ: Context} {A B l r: Term}:
-    HasType Γ l (proof A) -> HasType Γ r (proof B) ->
-    HasType Γ (conj l r) (proof (and A B))
-  | comp_l {Γ: Context} {A B e: Term}:
-    HasType Γ e (proof (and A B)) ->
-    HasType Γ (comp false e) (proof A)
-  | comp_r {Γ: Context} {A B e: Term}:
-    HasType Γ e (proof (and A B)) ->
-    HasType Γ (comp true e) (proof B)
+  | dconj {Γ: Context} {A B l r: Term}:
+    HasType Γ l (proof A) -> HasType Γ r (proof (B.subst0 l)) ->
+    HasType Γ (dconj l r) (term (dand A B))
   | disj_l {Γ: Context} {A B e: Term}:
     HasType Γ e (proof A) ->
     HasType Γ B prop ->
@@ -297,6 +292,7 @@ theorem HasType.fv {Γ a A} (P: Γ ⊢ a: A): a.fv ≤ Γ.length := by {
   case var =>
     apply HasVar.fv
     assumption
+  
   all_goals (
     simp only [
       Term.fv, 
