@@ -372,42 +372,39 @@ theorem Context.is_sub.upgrade_bin: {Γ Δ: Context} -> Γ.is_sub Δ -> Γ.upgra
 
 --TODO: move to Term.Basic?
 def Term.arrow (A B: Term) := pi A (wk1 B)
+def Term.implies (φ ψ: Term) := dimplies φ ψ.wk1
+def Term.and (φ ψ: Term) := dand φ ψ.wk1
+def Term.const_arrow (A B: Term) := intersect A (wk1 B)
+def Term.assume_wf (φ A: Term) := assume φ (A.wk1)
 
 @[simp]
 def Term.arrow_wk: (arrow A B).wk ρ = arrow (A.wk ρ) (B.wk ρ) := by simp [arrow, pi]
+@[simp]
+def Term.implies_wk: (implies φ ψ).wk ρ = implies (φ.wk ρ) (ψ.wk ρ) := by simp [implies, dimplies]
+@[simp]
+def Term.const_arrow_wk: (const_arrow A B).wk ρ = const_arrow (A.wk ρ) (B.wk ρ) 
+  := by simp [const_arrow, intersect]
+@[simp]
+def Term.assume_wf_wk: (assume_wf φ A).wk ρ = assume_wf (φ.wk ρ) (A.wk ρ) 
+  := by simp [assume_wf, assume]
+@[simp]
+def Term.and_wk: (and φ ψ).wk ρ = and (φ.wk ρ) (ψ.wk ρ) := by simp [and, dand]
 
 @[simp]
 def Term.arrow_subst: (arrow A B).subst σ = arrow (A.subst σ) (B.subst σ) 
   := by simp only [arrow, pi, subst, Subst.lift_wk]
-
-def Term.implies (φ ψ: Term) := dimplies φ ψ.wk1
-
-@[simp]
-def Term.implies_wk: (implies φ ψ).wk ρ = implies (φ.wk ρ) (ψ.wk ρ) := by simp [implies, dimplies]
-
-def Term.const_arrow (A B: Term) := intersect A (wk1 B)
-
-@[simp]
-def Term.const_arrow_wk: (const_arrow A B).wk ρ = const_arrow (A.wk ρ) (B.wk ρ) 
-  := by simp [const_arrow, intersect]
-
 @[simp]
 def Term.const_arrow_subst: (const_arrow A B).subst σ = const_arrow (A.subst σ) (B.subst σ) 
   := by simp only [const_arrow, intersect, subst, Subst.lift_wk]
-
 @[simp]
 def Term.implies_subst: (implies φ ψ).subst σ = implies (φ.subst σ) (ψ.subst σ) 
   := by simp only [implies, dimplies, subst, Subst.lift_wk]
-
-def Term.assume_wf (φ A: Term) := assume φ (A.wk1)
-
-@[simp]
-def Term.assume_wf_wk: (assume_wf φ A).wk ρ = assume_wf (φ.wk ρ) (A.wk ρ) 
-  := by simp [assume_wf, assume]
-
 @[simp]
 def Term.assume_wf_subst: (assume_wf φ A).subst σ = assume_wf (φ.subst σ) (A.subst σ) 
   := by simp only [assume_wf, assume, subst, Subst.lift_wk]
+@[simp]
+def Term.and_subst: (and φ ψ).subst σ = and (φ.subst σ) (ψ.subst σ)
+  := by simp only [and, dand, subst, Subst.lift_wk]
 
 
 def constAnnot: TermKind [] -> Annot
