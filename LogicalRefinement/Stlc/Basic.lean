@@ -128,5 +128,18 @@ theorem Stlc.HasType.subst {Γ Δ σ a A}: SubstCtx σ Γ Δ -> HasType Δ a A -
 }
 
 def Stlc.interp {Γ a A}: HasType Γ a A -> A.interp := by {
-  sorry
+  revert Γ A;
+  exact match a with
+  | var _ => sorry
+  | lam _ _ => sorry
+  | app _ _ => sorry
+  | pair _ _ => sorry
+  | let_pair _ _ => sorry
+  | inj _ _ => sorry
+  | nil => sorry
+  | cases _ _ _ => sorry
+  | abort => sorry
+  | zero => sorry
+  | succ => sorry
+  | natrec _ _ _ => sorry
 }
