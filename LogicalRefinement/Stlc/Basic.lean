@@ -63,7 +63,7 @@ inductive Stlc.HasVar: Context -> Ty -> Nat -> Prop
 | zero {Γ A}: HasVar (A::Γ) A 0
 | succ {Γ A B n}: HasVar Γ A n -> HasVar (B::Γ) A (Nat.succ n)
 
-inductive Stlc.HasType: Context -> Stlc -> Ty -> Prop
+inductive Stlc.HasType: Context -> Stlc -> Ty -> Type
 | var {Γ A n}: HasVar Γ A n -> HasType Γ (var n) A
 | lam {Γ A B s}: HasType (A::Γ) s B -> HasType Γ (lam A s) (arrow A B)
 | app {Γ A B s t}: HasType Γ s (arrow A B) -> HasType Γ t A -> HasType Γ (app s t) B
@@ -120,33 +120,24 @@ def Stlc.subst: Stlc -> Subst -> Stlc
 | natrec n z s, σ => natrec (n.subst σ) (z.subst σ) (s.subst σ.lift)
 | c, σ => c
 
-def Stlc.SubstCtx (σ: Subst) (Γ Δ: Context): Prop :=  
+def Stlc.SubstCtx (σ: Subst) (Γ Δ: Context): Type :=  
   ∀{n A}, HasVar Δ A n -> HasType Γ (σ n) A
 
 theorem Stlc.HasType.subst {Γ Δ σ a A}: SubstCtx σ Γ Δ -> HasType Δ a A -> HasType Γ (a.subst σ) A := by {
   sorry
 }
 
-def Stlc.interp {Γ a A}: HasType Γ a A -> Γ.interp -> A.interp := 
-  match a with
-  | var v => sorry
-  | lam X s => by {
-    intro p G;
-    cases A with
-    | arrow A B => 
-      intro x
-      apply @interp (A::Γ) s B
-      cases p; assumption
-      exact (x, G)
-    | _ => apply False.elim; cases p
-  }
-  | app l r => sorry
-  | pair l r => sorry
-  | let_pair e e' => sorry
-  | inj i e => sorry
-  | nil => sorry
-  | cases d l r => sorry
-  | abort => sorry
-  | zero => sorry
-  | succ => sorry
-  | natrec n z s => sorry
+def Stlc.interp {Γ a A}: HasType Γ a A -> Γ.interp -> A.interp
+| HasType.var Hv => by sorry
+| HasType.lam Hs => by sorry
+| HasType.app Hl Hr => by sorry
+| HasType.pair Hl Hr => by sorry
+| HasType.let_pair He He' => by sorry
+| HasType.inj0 He => by sorry
+| HasType.inj1 He => by sorry
+| HasType.cases Hd Hl Hr => by sorry
+| HasType.nil => by sorry
+| HasType.abort => by sorry
+| HasType.zero => by sorry
+| HasType.succ => by sorry
+| HasType.natrec Hn Hz Hs => by sorry
