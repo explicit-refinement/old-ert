@@ -51,6 +51,8 @@ def Stlc.wk: Stlc -> Wk -> Stlc
 | natrec n z s, ρ => natrec (n.wk ρ) (z.wk ρ) (s.wk ρ.lift)
 | c, ρ => c
 
+def Stlc.wk1 (σ: Stlc): Stlc := σ.wk Wk.wk1
+
 def Stlc.Context := List Ty
 
 inductive Stlc.HasVar: Context -> Nat -> Ty -> Prop
@@ -92,3 +94,13 @@ inductive Stlc.WkCtx: Wk -> Context -> Context -> Prop
 theorem Stlc.HasType.wk (a: Stlc): {ρ: Wk} -> {Γ Δ: Context} -> WkCtx ρ Γ Δ -> {A: Ty} -> HasType Δ a A -> HasType Γ (a.wk ρ) A := by {
   sorry
 }
+
+def Stlc.Subst := Nat -> Stlc
+
+def Stlc.Subst.lift (σ: Subst): Subst
+| 0 => var 0
+| n + 1 => (σ n).wk1
+
+def Stlc.Subst.liftn (σ: Subst): Nat -> Subst
+| 0 => σ
+| n + 1 => (σ.lift).liftn n
