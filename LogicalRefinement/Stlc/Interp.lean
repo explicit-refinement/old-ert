@@ -14,6 +14,21 @@ def Term.stlc_ty: {a: Term} -> {Γ: Context} -> (p: HasType Γ a AnnotSort.type)
   | nats => exact Ty.nats
   | _ => apply False.elim; cases p
 }
+| abs k A B, _, p => by {
+    cases k with
+    | pi =>
+      apply Ty.arrow
+      apply @stlc_ty A
+      cases p; assumption
+      apply @stlc_ty B
+      cases p; assumption
+    | sigma => sorry
+    | assume => sorry
+    | set => sorry
+    | intersect => sorry
+    | union => sorry
+    | _ => apply False.elim; cases p
+}
 | _, _, _ => sorry
 
 -- def Term.stlc_ty (a: Term) {Γ: Context} (p: HasType Γ a AnnotSort.type): Ty := by {
