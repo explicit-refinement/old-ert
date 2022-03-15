@@ -6,6 +6,9 @@ import LogicalRefinement.Typed.Regular
 open Term
 open TermKind
 
+-- tfw your termination checker doesn't terminate
+set_option maxHeartbeats 1000000
+
 def Term.stlc_ty: {a: Term} -> {Γ: Context} -> (p: HasType Γ a AnnotSort.type) -> Ty
 | var _, _, p => False.elim p.no_poly
 | const k, _, p => by {
@@ -22,7 +25,12 @@ def Term.stlc_ty: {a: Term} -> {Γ: Context} -> (p: HasType Γ a AnnotSort.type)
       cases p; assumption
       apply @stlc_ty B
       cases p; assumption
-    | sigma => sorry
+    | sigma =>
+      apply Ty.prod
+      apply @stlc_ty A
+      cases p; assumption
+      apply @stlc_ty B
+      cases p; assumption
     | assume => sorry
     | set => sorry
     | intersect => sorry
