@@ -6,6 +6,10 @@ import LogicalRefinement.Typed.Regular
 open Term
 open TermKind
 
+def Term.stlc_ty: {a: Term} -> {Γ: Context} -> (p: HasType Γ a AnnotSort.type) -> Ty
+| var _, _, p => False.elim p.no_poly
+| _, _, _ => sorry
+
 -- def Term.stlc_ty (a: Term) {Γ: Context} (p: HasType Γ a AnnotSort.type): Ty := by {
 --   cases a with
 --   | var => exact False.elim p.no_poly
