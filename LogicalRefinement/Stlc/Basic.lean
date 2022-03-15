@@ -1,3 +1,5 @@
+import LogicalRefinement.Wk
+
 inductive Ty
 | unit
 | nats
@@ -37,6 +39,17 @@ inductive Stlc
 | zero
 | succ
 | natrec (n: Stlc) (z: Stlc) (s: Stlc)
+
+def Stlc.wk: Stlc -> Wk -> Stlc
+| var n, ρ => var (ρ.var n)
+| lam A s, ρ => lam A (s.wk ρ.lift)
+| app s t, ρ => app (s.wk ρ) (t.wk ρ)
+| pair l r, ρ => pair (l.wk ρ) (r.wk ρ)
+| let_pair e e', ρ => let_pair (e.wk ρ) (e'.wk (ρ.liftn 2))
+| inj i e, ρ => inj i (e.wk ρ)
+| cases d l r, ρ => cases (d.wk ρ) (l.wk ρ.lift) (r.wk ρ.lift)
+| natrec n z s, ρ => natrec (n.wk ρ) (z.wk ρ) (s.wk ρ.lift)
+| c, ρ => c
 
 def Stlc.Context := List Ty
 
