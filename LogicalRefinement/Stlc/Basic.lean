@@ -83,3 +83,8 @@ inductive Stlc.HasType: Context -> Stlc -> Ty -> Prop
   HasType Γ z C ->
   HasType (A::Γ) s C ->
   HasType Γ (natrec n z s) C
+
+inductive Stlc.WkCtx: Wk -> Context -> Context -> Type
+  | id: WkCtx Wk.id Γ Γ
+  | step {ρ Γ Δ A}: WkCtx ρ Γ Δ -> WkCtx ρ.step (A::Γ) Δ 
+  | lift {ρ Γ Δ A}: WkCtx ρ Γ Δ -> WkCtx ρ.lift (A::Γ) (A::Δ)
