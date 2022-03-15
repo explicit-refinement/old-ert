@@ -31,10 +31,18 @@ def Term.stlc_ty: {a: Term} -> {Γ: Context} -> (p: HasType Γ a AnnotSort.type)
       cases p; assumption
       apply @stlc_ty B
       cases p; assumption
-    | assume => sorry
-    | set => sorry
-    | intersect => sorry
-    | union => sorry
+    | assume =>
+      apply @stlc_ty B
+      cases p; assumption
+    | set =>
+      apply @stlc_ty A
+      cases p; assumption
+    | intersect =>
+      apply @stlc_ty B
+      cases p; assumption
+    | union => 
+      apply @stlc_ty B
+      cases p; assumption
     | _ => apply False.elim; cases p
 }
 | unary k _, _, p => by { cases k <;> apply False.elim <;> cases p }
