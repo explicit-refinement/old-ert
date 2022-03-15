@@ -29,7 +29,16 @@ def Term.stlc_ty: {a: Term} -> {Γ: Context} -> (p: HasType Γ a AnnotSort.type)
     | union => sorry
     | _ => apply False.elim; cases p
 }
-| _, _, _ => sorry
+| unary k _, _, p => by { cases k <;> apply False.elim <;> cases p }
+| let_bin k _ _, _, p => by { cases k <;> apply False.elim <;> cases p }
+| bin k A B, _, p => by {
+  cases k with
+  | coprod => sorry
+  | _ => apply False.elim; cases p
+}
+| tri k _ _ _, _, p => by { cases k <;> apply False.elim <;> cases p }
+| cases k _ _ _ _, _, p => by { cases k <;> apply False.elim <;> cases p }
+| natrec _ _ _ _, _, p => by { apply False.elim; cases p }
 
 -- def Term.stlc_ty (a: Term) {Γ: Context} (p: HasType Γ a AnnotSort.type): Ty := by {
 --   cases a with
