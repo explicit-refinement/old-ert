@@ -104,3 +104,14 @@ def Stlc.Subst.lift (σ: Subst): Subst
 def Stlc.Subst.liftn (σ: Subst): Nat -> Subst
 | 0 => σ
 | n + 1 => (σ.lift).liftn n
+
+def Stlc.subst: Stlc -> Subst -> Stlc
+| var n, σ => σ n
+| lam A s, σ => lam A (s.subst σ.lift)
+| app s t, σ => app (s.subst σ) (t.subst σ)
+| pair l r, σ => pair (l.subst σ) (r.subst σ)
+| let_pair e e', σ => let_pair (e.subst σ) (e'.subst (σ.liftn 2))
+| inj i e, σ => inj i (e.subst σ)
+| cases d l r, σ => cases (d.subst σ) (l.subst σ.lift) (r.subst σ.lift)
+| natrec n z s, σ => natrec (n.subst σ) (z.subst σ) (s.subst σ.lift)
+| c, σ => c
