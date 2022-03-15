@@ -49,7 +49,12 @@ def Term.stlc_ty: {a: Term} -> {Γ: Context} -> (p: HasType Γ a AnnotSort.type)
 | let_bin k _ _, _, p => by { cases k <;> apply False.elim <;> cases p }
 | bin k A B, _, p => by {
   cases k with
-  | coprod => sorry
+  | coprod =>
+    apply Ty.coprod
+    apply @stlc_ty A
+    cases p; assumption
+    apply @stlc_ty B
+    cases p; assumption
   | _ => apply False.elim; cases p
 }
 | tri k _ _ _, _, p => by { cases k <;> apply False.elim <;> cases p }
