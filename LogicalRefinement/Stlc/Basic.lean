@@ -55,12 +55,12 @@ def Stlc.wk1 (σ: Stlc): Stlc := σ.wk Wk.wk1
 
 def Stlc.Context := List Ty
 
-inductive Stlc.HasVar: Context -> Nat -> Ty -> Prop
-| zero {Γ A}: HasVar (A::Γ) 0 A
-| succ {Γ A B n}: HasVar Γ n A -> HasVar (B::Γ) (Nat.succ n) A
+inductive Stlc.HasVar: Context -> Ty -> Nat -> Prop
+| zero {Γ A}: HasVar (A::Γ) A 0
+| succ {Γ A B n}: HasVar Γ A n -> HasVar (B::Γ) A (Nat.succ n)
 
 inductive Stlc.HasType: Context -> Stlc -> Ty -> Prop
-| var {Γ A n}: HasVar Γ n A -> HasType Γ (var n) A
+| var {Γ A n}: HasVar Γ A n -> HasType Γ (var n) A
 | lam {Γ A B s}: HasType (A::Γ) s B -> HasType Γ (lam A s) (arrow A B)
 | app {Γ A B s t}: HasType Γ s (arrow A B) -> HasType Γ t A -> HasType Γ (app s t) B
 
@@ -91,7 +91,7 @@ inductive Stlc.WkCtx: Wk -> Context -> Context -> Prop
   | step {ρ Γ Δ A}: WkCtx ρ Γ Δ -> WkCtx ρ.step (A::Γ) Δ 
   | lift {ρ Γ Δ A}: WkCtx ρ Γ Δ -> WkCtx ρ.lift (A::Γ) (A::Δ)
 
-theorem Stlc.HasType.wk (a: Stlc): {ρ: Wk} -> {Γ Δ: Context} -> WkCtx ρ Γ Δ -> {A: Ty} -> HasType Δ a A -> HasType Γ (a.wk ρ) A := by {
+theorem Stlc.HasType.wk {Γ Δ ρ a A}: WkCtx ρ Γ Δ -> HasType Δ a A -> HasType Γ (a.wk ρ) A := by {
   sorry
 }
 
@@ -115,3 +115,10 @@ def Stlc.subst: Stlc -> Subst -> Stlc
 | cases d l r, σ => cases (d.subst σ) (l.subst σ.lift) (r.subst σ.lift)
 | natrec n z s, σ => natrec (n.subst σ) (z.subst σ) (s.subst σ.lift)
 | c, σ => c
+
+def Stlc.SubstCtx (σ: Subst) (Γ Δ: Context): Prop :=  
+  ∀{n A}, HasVar Δ A n -> HasType Γ (σ n) A
+
+theorem Stlc.HasType.subst {Γ Δ σ a A}: SubstCtx σ Γ Δ -> HasType Δ a A -> HasType Γ (a.subst σ) A := by {
+  sorry
+}
