@@ -55,6 +55,10 @@ def Stlc.wk1 (σ: Stlc): Stlc := σ.wk Wk.wk1
 
 def Stlc.Context := List Ty
 
+def Stlc.Context.interp: Context -> Type
+| [] => Unit
+| A::As => Prod A.interp (interp As)
+
 inductive Stlc.HasVar: Context -> Ty -> Nat -> Prop
 | zero {Γ A}: HasVar (A::Γ) A 0
 | succ {Γ A B n}: HasVar Γ A n -> HasVar (B::Γ) A (Nat.succ n)
@@ -120,5 +124,9 @@ def Stlc.SubstCtx (σ: Subst) (Γ Δ: Context): Prop :=
   ∀{n A}, HasVar Δ A n -> HasType Γ (σ n) A
 
 theorem Stlc.HasType.subst {Γ Δ σ a A}: SubstCtx σ Γ Δ -> HasType Δ a A -> HasType Γ (a.subst σ) A := by {
+  sorry
+}
+
+def Stlc.interp {Γ a A}: HasType Γ a A -> A.interp := by {
   sorry
 }
