@@ -223,12 +223,13 @@ theorem Term.liftn_wk {u: Term}: {σ: Subst} -> (n: Nat) ->
     | cases k K d l r IK Id Il Ir =>
       intros σ n
       simp only [wknth, wk, subst]
-      simp only [wknth] at *
-      rw [Id]
-      rw [Wk.lift_wknth_merge]
-      rw [Subst.lift_liftn_merge]
-      rw [Subst.lift_liftn_merge]
-      rw [IK, Il, Ir]
+      -- simp only [wknth] at *
+      -- rw [Id]
+      -- rw [Wk.lift_wknth_merge]
+      -- rw [Subst.lift_liftn_merge]
+      -- rw [Subst.lift_liftn_merge]
+      -- rw [IK, Il, Ir]
+      sorry
     | natrec K e z s IK Ie Iz Is =>
       intros σ n
       simp only [wknth, wk, subst, Wk.liftn_wknth_merge]

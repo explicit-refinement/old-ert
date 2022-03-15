@@ -101,7 +101,7 @@ def Term.wk_bounds {u: Term}: {n m: Nat} -> {ρ: Wk} ->
       apply And.intro;
       case abs.left => exact IHA Hm HA
       case abs.right => 
-        exact IHs (Wk.liftn_maps Hm) Hs
+        exact IHs (Wk.lift_maps Hm) Hs
     | tri k A l r IHA IHl IHr =>
       simp only [fv, Nat.max_r_le_split]
       intros n m ρ Hm
