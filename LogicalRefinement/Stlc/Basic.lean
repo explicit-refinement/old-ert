@@ -7,6 +7,13 @@ inductive Ty
 
 open Ty
 
+def Ty.interp: (A: Ty) -> Type
+| unit => Unit
+| nats => Nat
+| arrow A B => A.interp -> B.interp
+| prod A B => Prod A.interp B.interp
+| coprod A B => Sum A.interp B.interp
+
 inductive Stlc
 -- Basic
 | var (n: Nat)
