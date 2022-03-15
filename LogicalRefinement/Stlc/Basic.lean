@@ -123,7 +123,8 @@ def Stlc.subst: Stlc -> Subst -> Stlc
 def Stlc.SubstCtx (σ: Subst) (Γ Δ: Context): Type :=  
   ∀{n A}, HasVar Δ A n -> HasType Γ (σ n) A
 
-theorem Stlc.HasType.subst {Γ Δ σ a A}: SubstCtx σ Γ Δ -> HasType Δ a A -> HasType Γ (a.subst σ) A := by {
+theorem Stlc.HasType.subst {Γ Δ σ a A}: 
+  SubstCtx σ Γ Δ -> HasType Δ a A -> HasType Γ (a.subst σ) A := by {
   sorry
 }
 
