@@ -71,7 +71,7 @@ theorem HasVar.wk:
         assumption
   } 
 
-theorem HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
+def HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
   {ρ: Wk} -> {Γ: Context} -> WkCtx ρ Γ Δ ->
   (Γ ⊢ (a.wk ρ): (A.wk ρ)) := by {
     induction HΔ;
@@ -82,7 +82,6 @@ theorem HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
       assumption
       apply HasVar.wk
       repeat assumption
-
 
     all_goals (
       intro ρ Γ R;

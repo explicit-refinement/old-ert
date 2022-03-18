@@ -110,15 +110,13 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
       simp only [Term.subst, Term.subst0_subst] at *
       constructor <;>
       repeat (
-        try constructor
         try rw [Term.alpha00_comm (by simp)]
         try rw [Term.let_bin_ty_alpha_pair]
         try rw [Term.let_bin_ty_alpha_elem]
         try rw [Term.let_bin_ty_alpha_repr]
         try rw [Term.let_bin_ty_alpha_wit]
         try rw [Term.var2_var1_alpha]
-        first 
-        | apply I0 | apply I1 | apply I2 | apply I3 | apply I4 | apply I5
+        first | apply I0 | apply I1 | apply I2 | apply I3 | apply I4 | apply I5 | constructor
         first
         | exact S
         | exact SubstCtx.upgrade S
@@ -128,9 +126,6 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
         )
       )
     )
-
-    --TODO: fix hax
-    repeat constructor
   }
 
 theorem HasType.subst_sort {Γ Δ σ a k} 

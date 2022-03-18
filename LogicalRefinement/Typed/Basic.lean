@@ -115,8 +115,9 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType Γ A type ->
     HasType Γ (lam A s) (term (pi A B))
   | app {Γ: Context} {A B l r: Term}:
+    HasType Γ (pi A B) type ->
     HasType Γ l (term (pi A B)) -> HasType Γ r (term A) ->
-    HasType Γ (app l r) (term (B.subst0 l))
+    HasType Γ (app (pi A B) l r) (term (B.subst0 l))
   | pair {Γ: Context} {A B l r: Term}:
     HasType Γ l (term A) -> HasType Γ r (term (B.subst0 l)) ->
     HasType Γ (pair l r) (term (sigma A B))
@@ -253,11 +254,11 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType ((Hyp.mk A (HypKind.val type))::Γ) s (term B) ->
     HasType Γ A type ->
     HasType Γ t (term A) ->
-    HasType Γ (beta t s) (proof (eq (B.subst0 t) (app (lam A s) t) (s.subst0 t)))
-  | eta {Γ: Context} {A B f: Term}:
-    HasType Γ f (term (pi A B)) ->
-    HasType Γ A type ->
-    HasType Γ (eta A f) (proof (eq (pi A B) (eta_ex A f) f))
+    HasType Γ (beta t s) (proof (eq (B.subst0 t) (app (pi A B) (lam A s) t) (s.subst0 t)))
+  -- | eta {Γ: Context} {A B f: Term}:
+  --   HasType Γ f (term (pi A B)) ->
+  --   HasType Γ A type ->
+  --   HasType Γ (eta A f) (proof (eq (pi A B) (eta_ex A f) f))
   | irir {Γ: Context} {A B f x y: Term}:
     HasType Γ f (term (const_arrow A B)) ->
     HasType Γ x (term A) ->
@@ -293,17 +294,17 @@ theorem HasType.fv {Γ a A} (P: Γ ⊢ a: A): a.fv ≤ Γ.length := by {
   case var =>
     apply HasVar.fv
     assumption
-  
+
   all_goals (
     simp only [
       Term.fv, 
       Nat.max_r_le_split, 
       Nat.le_sub_is_le_add
-    ];
+    ] at *;
     simp only [
       Context.upgrade_length_is_length
     ] at *
-    repeat first | apply And.intro | assumption
+    repeat first | assumption | apply And.intro
   )
 } 
 
@@ -404,7 +405,7 @@ theorem HasType.upgrade (p: Γ ⊢ a: A): Γ.upgrade ⊢ a: A
 
 --TODO: define context type, coercion to raw context?
 
-inductive IsCtx: Context -> Prop
+inductive IsCtx: Context -> Type
   | nil: IsCtx []
   | cons_val {Γ A s}: 
     IsCtx Γ -> (Γ ⊢ A: sort s) 

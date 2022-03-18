@@ -35,7 +35,7 @@ inductive TermKind: List Nat -> Type
   | nil: TermKind []
   -- Consider merging with intro/elim for (pi, type, type)
   | lam: TermKind [0, 1]
-  | app: TermKind [0, 0]
+  | app: TermKind [0, 0, 0]
   -- Consider merging with intro/elim for (sigma, type, type)
   | pair: TermKind [0, 0]
   | let_pair: TermKind [0, 2]
@@ -130,7 +130,7 @@ def Term.eq := tri TermKind.eq
 -- Terms
 def Term.nil := const TermKind.nil
 def Term.lam := abs TermKind.lam
-def Term.app := bin TermKind.app
+def Term.app := tri TermKind.app
 def Term.pair := bin TermKind.pair
 def Term.let_pair := let_bin TermKind.let_pair
 def Term.inj := λb => unary (TermKind.inj b)

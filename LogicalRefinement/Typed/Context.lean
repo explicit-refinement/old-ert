@@ -461,28 +461,28 @@ def Annot.sym_ty_wk {A ρ}: (proof (sym_ty A)).wk ρ = proof (sym_ty (A.wk ρ)) 
 def Annot.trans_ty_wk {A ρ}: (proof (trans_ty A)).wk ρ = proof (trans_ty (A.wk ρ)) :=
   by simp only [proof, Annot.wk, Term.trans_ty_wk]
 
-def Term.eta_ex (A f: Term) := lam A (app f.wk1 (var 0))
+-- def Term.eta_ex (A f: Term) := lam A (app f.wk1 (var 0))
 
-def Term.eta_ex_subst {A f: Term} {σ}: (eta_ex A f).subst σ = eta_ex (A.subst σ) (f.subst σ)
-  := by {
-    simp only [subst, Subst.lift_wk];
-    rfl
-  }
+-- def Term.eta_ex_subst {A f: Term} {σ}: (eta_ex A f).subst σ = eta_ex (A.subst σ) (f.subst σ)
+--   := by {
+--     simp only [subst, Subst.lift_wk];
+--     rfl
+--   }
 
-def Term.eta_ex_wk {A f: Term} {ρ}: (eta_ex A f).wk ρ = eta_ex (A.wk ρ) (f.wk ρ) := by {
-  simp only [<-Subst.subst_wk_compat]
-  exact eta_ex_subst
-}
+-- def Term.eta_ex_wk {A f: Term} {ρ}: (eta_ex A f).wk ρ = eta_ex (A.wk ρ) (f.wk ρ) := by {
+--   simp only [<-Subst.subst_wk_compat]
+--   exact eta_ex_subst
+-- }
 
-def Term.eta_ex_eq_subst {P A f r: Term} {σ}: 
-  (eq P (eta_ex A f) r).subst σ = eq (P.subst σ) (eta_ex (A.subst σ) (f.subst σ)) (r.subst σ)
-  := by {
-    rw [<-Term.eta_ex_subst]
-    rfl
-  }
+-- def Term.eta_ex_eq_subst {P A f r: Term} {σ}: 
+--   (eq P (eta_ex A f) r).subst σ = eq (P.subst σ) (eta_ex (A.subst σ) (f.subst σ)) (r.subst σ)
+--   := by {
+--     rw [<-Term.eta_ex_subst]
+--     rfl
+--   }
 
-def Term.eta_ex_eq_wk {P A f r: Term} {ρ}:
-  (eq P (eta_ex A f) r).wk ρ = eq (P.wk ρ) (eta_ex (A.wk ρ) (f.wk ρ)) (r.wk ρ) := by {
-    rw [<-Term.eta_ex_wk]
-    rfl
-  }
+-- def Term.eta_ex_eq_wk {P A f r: Term} {ρ}:
+--   (eq P (eta_ex A f) r).wk ρ = eq (P.wk ρ) (eta_ex (A.wk ρ) (f.wk ρ)) (r.wk ρ) := by {
+--     rw [<-Term.eta_ex_wk]
+--     rfl
+--   }
