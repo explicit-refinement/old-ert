@@ -20,7 +20,7 @@ inductive Stlc
 -- Basic
 | var (n: Nat)
 | lam (A: Ty) (s: Stlc)
-| app (s t: Stlc)
+| app (F: Ty) (s t: Stlc)
 
 -- Products and coproducts
 | pair (l r: Stlc)
@@ -43,7 +43,7 @@ inductive Stlc
 def Stlc.wk: Stlc -> Wk -> Stlc
 | var n, ρ => var (ρ.var n)
 | lam A s, ρ => lam A (s.wk ρ.lift)
-| app s t, ρ => app (s.wk ρ) (t.wk ρ)
+| app F s t, ρ => app F (s.wk ρ) (t.wk ρ)
 | pair l r, ρ => pair (l.wk ρ) (r.wk ρ)
 | let_pair e e', ρ => let_pair (e.wk ρ) (e'.wk (ρ.liftn 2))
 | inj i e, ρ => inj i (e.wk ρ)
@@ -63,10 +63,10 @@ inductive Stlc.HasVar: Context -> Ty -> Nat -> Prop
 | zero {Γ A}: HasVar (A::Γ) A 0
 | succ {Γ A B n}: HasVar Γ A n -> HasVar (B::Γ) A (Nat.succ n)
 
-inductive Stlc.HasType: Context -> Stlc -> Ty -> Type
+inductive Stlc.HasType: Context -> Stlc -> Ty -> Prop
 | var {Γ A n}: HasVar Γ A n -> HasType Γ (var n) A
 | lam {Γ A B s}: HasType (A::Γ) s B -> HasType Γ (lam A s) (arrow A B)
-| app {Γ A B s t}: HasType Γ s (arrow A B) -> HasType Γ t A -> HasType Γ (app s t) B
+| app {Γ A B s t}: HasType Γ s (arrow A B) -> HasType Γ t A -> HasType Γ (app (arrow A B) s t) B
 
 | pair {Γ A B l r}: HasType Γ l A -> HasType Γ r B -> HasType Γ (pair l r) (prod A B)
 | let_pair {Γ A B C e e'}: 
@@ -112,7 +112,7 @@ def Stlc.Subst.liftn (σ: Subst): Nat -> Subst
 def Stlc.subst: Stlc -> Subst -> Stlc
 | var n, σ => σ n
 | lam A s, σ => lam A (s.subst σ.lift)
-| app s t, σ => app (s.subst σ) (t.subst σ)
+| app (arrow A B) s t, σ => app (arrow A B) (s.subst σ) (t.subst σ)
 | pair l r, σ => pair (l.subst σ) (r.subst σ)
 | let_pair e e', σ => let_pair (e.subst σ) (e'.subst (σ.liftn 2))
 | inj i e, σ => inj i (e.subst σ)
@@ -120,7 +120,7 @@ def Stlc.subst: Stlc -> Subst -> Stlc
 | natrec n z s, σ => natrec (n.subst σ) (z.subst σ) (s.subst σ.lift)
 | c, σ => c
 
-def Stlc.SubstCtx (σ: Subst) (Γ Δ: Context): Type :=  
+def Stlc.SubstCtx (σ: Subst) (Γ Δ: Context): Prop :=  
   ∀{n A}, HasVar Δ A n -> HasType Γ (σ n) A
 
 theorem Stlc.HasType.subst {Γ Δ σ a A}: 
@@ -128,17 +128,6 @@ theorem Stlc.HasType.subst {Γ Δ σ a A}:
   sorry
 }
 
-def Stlc.interp {Γ a A}: HasType Γ a A -> Γ.interp -> A.interp
-| HasType.var Hv => by sorry
-| HasType.lam Hs => by sorry
-| HasType.app Hl Hr => by sorry
-| HasType.pair Hl Hr => by sorry
-| HasType.let_pair He He' => by sorry
-| HasType.inj0 He => by sorry
-| HasType.inj1 He => by sorry
-| HasType.cases Hd Hl Hr => by sorry
-| HasType.nil => by sorry
-| HasType.abort => by sorry
-| HasType.zero => by sorry
-| HasType.succ => by sorry
-| HasType.natrec Hn Hz Hs => by sorry
+def Stlc.interp {Γ a A}: HasType Γ a A -> Γ.interp -> A.interp :=
+  match a with
+  | _ => sorry
