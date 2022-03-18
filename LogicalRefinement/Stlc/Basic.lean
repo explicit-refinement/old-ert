@@ -1,6 +1,7 @@
 import LogicalRefinement.Wk
 
 inductive Ty
+| bot
 | unit
 | nats
 | arrow (A B: Ty)
@@ -9,12 +10,15 @@ inductive Ty
 
 open Ty
 
-def Ty.interp: (A: Ty) -> Type
-| unit => Unit
-| nats => Nat
-| arrow A B => A.interp -> B.interp
-| prod A B => Prod A.interp B.interp
-| coprod A B => Sum A.interp B.interp
+def Ty.interp_in: (A: Ty) -> (M: Type -> Type) -> Type
+| bot, M => M Empty
+| unit, M => M Unit
+| nats, M => M Nat
+| arrow A B, M => A.interp_in (λx => x) -> B.interp_in M
+| prod A B, M => M (Prod (A.interp_in (λx => x)) (B.interp_in (λx => x)))
+| coprod A B, M => M (Sum (A.interp_in (λx => x)) (B.interp_in (λx => x)))
+
+def Ty.interp (A: Ty): Type := A.interp_in Option
 
 inductive Stlc
 -- Basic

@@ -9,54 +9,9 @@ open TermKind
 -- tfw your termination checker doesn't terminate
 set_option maxHeartbeats 1000000
 
-def Term.stlc_ty: {a: Term} -> {Γ: Context} -> (p: HasType Γ a AnnotSort.type) -> Ty
-| var _, _, p => False.elim p.no_poly
-| const k, _, p => by {
-  cases k with
-  | unit => exact Ty.unit
-  | nats => exact Ty.nats
-  | _ => apply False.elim; cases p
-}
-| abs k A B, _, p => by {
-    cases k with
-    | pi =>
-      apply Ty.arrow
-      apply @stlc_ty A
-      cases p; assumption
-      apply @stlc_ty B
-      cases p; assumption
-    | sigma =>
-      apply Ty.prod
-      apply @stlc_ty A
-      cases p; assumption
-      apply @stlc_ty B
-      cases p; assumption
-    | assume =>
-      apply @stlc_ty B
-      cases p; assumption
-    | set =>
-      apply @stlc_ty A
-      cases p; assumption
-    | intersect =>
-      apply @stlc_ty B
-      cases p; assumption
-    | union => 
-      apply @stlc_ty B
-      cases p; assumption
-    | _ => apply False.elim; cases p
-}
-| unary k _, _, p => by { cases k <;> apply False.elim <;> cases p }
-| let_bin k _ _, _, p => by { cases k <;> apply False.elim <;> cases p }
-| bin k A B, _, p => by {
-  cases k with
-  | coprod =>
-    apply Ty.coprod
-    apply @stlc_ty A
-    cases p; assumption
-    apply @stlc_ty B
-    cases p; assumption
-  | _ => apply False.elim; cases p
-}
-| tri k _ _ _, _, p => by { cases k <;> apply False.elim <;> cases p }
-| cases k _ _ _ _, _, p => by { cases k <;> apply False.elim <;> cases p }
-| natrec _ _ _ _, _, p => by { apply False.elim; cases p }
+def Term.stlc_ty: Term -> Ty
+| var _ => Ty.unit
+| const TermKind.unit => Ty.unit
+| const TermKind.nats => Ty.nats
+| abs TermKind.pi A B => Ty.arrow A.stlc_ty B.stlc_ty
+| _ => Ty.bot
