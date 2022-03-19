@@ -62,7 +62,6 @@ def TermKind.term_sort: TermKind l -> TermSort
   | let_pair => TermSort.term
   | inj _ => TermSort.term
   | case => TermSort.term
-  | cases => TermSort.term
   | lam_pr => TermSort.term
   | app_pr => TermSort.term
   | elem => TermSort.term
