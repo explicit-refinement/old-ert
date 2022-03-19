@@ -40,7 +40,7 @@ inductive TermKind: List Nat -> Type
   | pair: TermKind [0, 0]
   | let_pair: TermKind [0, 2]
   | inj (b: Bool): TermKind [0]
-  | case: TermKind [1, 0, 1, 1]
+  | case: TermKind [0, 0, 1, 1]
   -- Consider merging with intro/elim for (pi, type, prop)
   | lam_pr: TermKind [0, 1]
   | app_pr: TermKind [0, 0]
@@ -64,7 +64,7 @@ inductive TermKind: List Nat -> Type
   | dconj: TermKind [0, 0]
   | comp (b: Bool): TermKind [0]
   | disj (b: Bool): TermKind [0]
-  | case_pr: TermKind [1, 0, 1, 1]
+  | case_pr: TermKind [0, 0, 1, 1]
   -- Consider merging with intro/elim for 
   -- (pi, ghost, prop) == (pi, type, prop)
   | general: TermKind [0, 1]
@@ -102,7 +102,7 @@ inductive Term: Type
   | abs (k: TermKind [0, 1]) (A: Term) (t: Term)
   | tri (k: TermKind [0, 0, 0]) (A: Term) (l: Term) (r: Term)
   -- TODO: no cases?
-  | cases (k: TermKind [1, 0, 1, 1]) (K: Term) (d: Term) (l: Term) (r: Term)
+  | cases (k: TermKind [0, 0, 1, 1]) (K: Term) (d: Term) (l: Term) (r: Term)
   | natrec (K: Term) (e: Term) (z: Term) (s: Term)
 
 -- Types
@@ -179,7 +179,7 @@ def Term.succ := const TermKind.succ
   | bin _ l r => Nat.max (fv l) (fv r)
   | abs _ A t => Nat.max (fv A) (fv t - 1)
   | tri _ A l r => Nat.max (fv A) (Nat.max (fv l) (fv r))
-  | cases _ K d l r => Nat.max (fv K - 1) (Nat.max (fv d) (Nat.max (fv l - 1) (fv r - 1)))
+  | cases _ K d l r => Nat.max (fv K) (Nat.max (fv d) (Nat.max (fv l - 1) (fv r - 1)))
   | natrec K e z s => Nat.max (fv K - 1) (Nat.max (fv e) (Nat.max (fv z) (fv s - 2)))
 
 @[simp] def Term.has_dep: Term -> Nat -> Prop
@@ -191,7 +191,7 @@ def Term.succ := const TermKind.succ
   | abs _ A t, i => has_dep A i ∨ has_dep t (i + 1)
   | tri _ A l r, i => has_dep A i ∨ has_dep l i ∨ has_dep r i
   | cases _ K d l r, i => 
-    has_dep K (i + 1) ∨ has_dep d i ∨ has_dep l (i + 1) ∨ has_dep r (i + 1)
+    has_dep K i ∨ has_dep d i ∨ has_dep l (i + 1) ∨ has_dep r (i + 1)
   | natrec K e z s, i =>
     has_dep K (i + 1) ∨ has_dep e i ∨ has_dep z i ∨ has_dep s (i + 2)
 

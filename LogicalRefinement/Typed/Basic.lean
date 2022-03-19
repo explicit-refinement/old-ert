@@ -143,7 +143,7 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType ((Hyp.mk (coprod A B) (HypKind.val type))::Γ) C k ->
     HasType ((Hyp.mk A (HypKind.val type))::Γ) l (term (C.alpha0 (inj false (var 0)))) ->
     HasType ((Hyp.mk B (HypKind.val type))::Γ) r (term (C.alpha0 (inj true (var 0)))) ->
-    HasType Γ (case C e l r) (expr k (C.subst0 e))
+    HasType Γ (case (coprod A B) e l r) (expr k (C.subst0 e))
   | elem {Γ: Context} {A φ l r: Term}:
     HasType Γ l (term A) -> HasType Γ r (proof (φ.subst0 l)) ->
     HasType Γ (elem l r) (term (set A φ))
@@ -208,7 +208,7 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType ((Hyp.mk (or A B) (HypKind.val prop))::Γ) C prop ->
     HasType ((Hyp.mk A (HypKind.val prop))::Γ) l (proof (C.alpha0 (disj false (var 0)))) ->
     HasType ((Hyp.mk B (HypKind.val prop))::Γ) r (proof (C.alpha0 (disj true (var 0)))) ->
-    HasType Γ (case_pr C e l r) (term (C.subst0 e))
+    HasType Γ (case_pr (or A B) e l r) (term (C.subst0 e))
   | imp {Γ: Context} {φ s ψ: Term}:
     HasType Γ φ prop ->
     HasType ((Hyp.mk φ (HypKind.val prop))::Γ) s (proof ψ) ->
@@ -304,9 +304,11 @@ theorem HasType.fv {Γ a A} (P: Γ ⊢ a: A): a.fv ≤ Γ.length := by {
     simp only [
       Context.upgrade_length_is_length
     ] at *
-    repeat first | assumption | apply And.intro
+    repeat first 
+    | assumption
+    | apply And.intro
   )
-} 
+}
 
 theorem HasVar.upgrade (p: HasVar Γ A k n): 
   HasVar Γ.upgrade A (HypKind.val k.annot) n := by {

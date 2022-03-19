@@ -11,7 +11,7 @@ import LogicalRefinement.Untyped.Basic
   | abs k A t, ρ => abs k (A.wk ρ) (t.wk ρ.lift)
   | tri k A l r, ρ => tri k (A.wk ρ) (l.wk ρ) (r.wk ρ)
   | cases k K d l r, ρ => 
-    cases k (K.wk ρ.lift) (d.wk ρ) (l.wk ρ.lift) (r.wk ρ.lift)
+    cases k (K.wk ρ) (d.wk ρ) (l.wk ρ.lift) (r.wk ρ.lift)
   | natrec K e z s, ρ =>
     natrec (K.wk ρ.lift) (e.wk ρ) (z.wk ρ) (s.wk (ρ.liftn 2))
 
@@ -50,7 +50,7 @@ def Term.wknth_def {u: Term} {n}: u.wknth n = u.wk (Wk.wknth n) := rfl
   | cases k K d l r IK Id Il Ir => 
     intros ρ σ H;
     simp only [
-      wk, IK (Wk.lift_equiv H), Id H, Il (Wk.lift_equiv H), Ir (Wk.lift_equiv H)
+      wk, IK H, Id H, Il (Wk.lift_equiv H), Ir (Wk.lift_equiv H)
     ]
   | natrec K e z s IK Ie Iz Is =>
     intros ρ σ H; 
@@ -117,10 +117,10 @@ def Term.wk_bounds {u: Term}: {n m: Nat} -> {ρ: Wk} ->
       intros n m ρ Hm
       intro ⟨HK, Hd, Hl, Hr⟩
       apply And.intro;
-      case cases.left => apply IK (@Wk.liftn_maps ρ 1 n m Hm) HK
+      case cases.left => exact IK Hm HK
       case cases.right => 
         apply And.intro;
-        case left => apply IHd Hm Hd
+        case left => exact IHd Hm Hd
         case right =>
           apply And.intro;
           case left => apply IHl (@Wk.liftn_maps ρ 1 n m Hm) Hl
