@@ -73,12 +73,17 @@ theorem HasType.stlc_ty_subst {Γ A σ s} (H: Γ ⊢ A: sort s):
 theorem Annot.stlc_ty_subst {Γ A σ s k} (H: Γ ⊢ A: sort s):
   (expr k (A.subst σ)).stlc_ty = (expr k A).stlc_ty := H.stlc_ty_subst
 
+theorem HasVar.stlc_val {Γ A s n} (H: HasVar Γ A (HypKind.val s) n):
+  Stlc.HasVar Γ.stlc (Annot.expr s A).stlc_ty n := by {
+    sorry
+  }
+
 theorem HasType.stlc {Γ a A} (H: Γ ⊢ a: A):
   Stlc.HasType Γ.stlc a.stlc A.stlc_ty
   := by {
     induction H;
 
-    case var => sorry
+    case var Hv IA => exact Stlc.HasType.var Hv.stlc_val
 
     case let_set => sorry
     case abort => sorry
