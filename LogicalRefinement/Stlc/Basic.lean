@@ -243,7 +243,10 @@ def Stlc.HasType.interp {Γ a A} (H: HasType Γ a A) (G: Γ.interp): A.interp :=
     | coprod A' B' =>
       have ⟨Hd, Hl, Hr⟩: HasType Γ d (coprod A' B') ∧ HasType (A'::Γ) l A ∧ HasType (B'::Γ) r A :=
         by cases H; exact ⟨by assumption, by assumption, by assumption⟩
-      sorry
+      let Id := Hd.interp G;
+      let Il := λa => Hl.interp (a, G);
+      let Ir := λb => Hr.interp (b, G);
+      exact Id.cases Il Ir
     | _ => apply False.elim; cases H
   | Stlc.nil => sorry
   | Stlc.abort => sorry
