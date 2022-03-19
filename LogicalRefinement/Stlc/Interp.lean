@@ -35,11 +35,11 @@ def Term.stlc: Term -> Stlc
 | abs TermKind.lam_pr φ x => x.stlc
 | bin TermKind.app_pr e φ => e.stlc
 | bin TermKind.elem e φ => e.stlc
---TODO: let_set
+| let_bin TermKind.let_set P e e' => e.stlc
 | abs TermKind.lam_irrel A x => x.stlc
 | bin TermKind.app_irrel l r => l.stlc
 | bin TermKind.repr l r => r.stlc
---TODO: let_repr
+| let_bin TermKind.let_repr P e e' => e'.stlc
 | const TermKind.zero => Stlc.zero
 | const TermKind.succ => Stlc.succ
 | _ => Stlc.abort
