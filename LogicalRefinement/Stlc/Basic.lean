@@ -149,9 +149,9 @@ inductive Stlc.WkCtx: Wk -> Context -> Context -> Prop
   | step {ρ Γ Δ A}: WkCtx ρ Γ Δ -> WkCtx ρ.step (A::Γ) Δ 
   | lift {ρ Γ Δ A}: WkCtx ρ Γ Δ -> WkCtx ρ.lift (A::Γ) (A::Δ)
 
-theorem Stlc.HasType.wk {Γ Δ ρ a A}: WkCtx ρ Γ Δ -> HasType Δ a A -> HasType Γ (a.wk ρ) A := by {
-  sorry
-}
+-- theorem Stlc.HasType.wk {Γ Δ ρ a A}: WkCtx ρ Γ Δ -> HasType Δ a A -> HasType Γ (a.wk ρ) A := by {
+--   sorry
+-- }
 
 def Stlc.Subst := Nat -> Stlc
 
@@ -177,10 +177,10 @@ def Stlc.subst: Stlc -> Subst -> Stlc
 def Stlc.SubstCtx (σ: Subst) (Γ Δ: Context): Prop :=  
   ∀{n A}, HasVar Δ A n -> HasType Γ (σ n) A
 
-theorem Stlc.HasType.subst {Γ Δ σ a A}: 
-  SubstCtx σ Γ Δ -> HasType Δ a A -> HasType Γ (a.subst σ) A := by {
-  sorry
-}
+-- theorem Stlc.HasType.subst {Γ Δ σ a A}: 
+--   SubstCtx σ Γ Δ -> HasType Δ a A -> HasType Γ (a.subst σ) A := by {
+--   sorry
+-- }
 
 def Stlc.HasType.interp {Γ a A} (H: HasType Γ a A) (G: Γ.interp): A.interp :=
   match a with
