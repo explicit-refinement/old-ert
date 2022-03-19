@@ -119,6 +119,7 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType Γ l (term (pi A B)) -> HasType Γ r (term A) ->
     HasType Γ (app (pi A B) l r) (term (B.subst0 l))
   | pair {Γ: Context} {A B l r: Term}:
+    HasType Γ (sigma A B) type ->
     HasType Γ l (term A) -> HasType Γ r (term (B.subst0 l)) ->
     HasType Γ (pair l r) (term (sigma A B))
   | let_pair {Γ: Context} {A B C e e': Term} {k: AnnotSort}:
@@ -145,6 +146,7 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType ((Hyp.mk B (HypKind.val type))::Γ) r (term (C.alpha0 (inj 1 (var 0)))) ->
     HasType Γ (case (coprod A B) e l r) (expr k (C.subst0 e))
   | elem {Γ: Context} {A φ l r: Term}:
+    HasType Γ (set A φ) type ->
     HasType Γ l (term A) -> HasType Γ r (proof (φ.subst0 l)) ->
     HasType Γ (elem l r) (term (set A φ))
   | let_set {Γ: Context} {A φ C e e': Term} {k: AnnotSort}:
@@ -173,6 +175,7 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType Γ l (term (intersect A B)) -> HasType Γ.upgrade r (term A) ->
     HasType Γ (app_irrel (intersect A B) l r) (term (B.subst0 l))
   | repr {Γ: Context} {A B l r: Term}:
+    HasType Γ (union A B) type ->
     HasType Γ l (term A) -> HasType Γ r (term (B.subst0 l)) ->
     HasType Γ (repr l r) (term (union A B))
   | let_repr {Γ: Context} {A B C e e': Term} {k: AnnotSort}:
@@ -193,6 +196,7 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType Γ p (proof bot) ->
     HasType Γ (abort p) (expr s A)
   | dconj {Γ: Context} {A B l r: Term}:
+    HasType Γ (dand A B) prop ->
     HasType Γ l (proof A) -> HasType Γ r (proof (B.subst0 l)) ->
     HasType Γ (dconj l r) (term (dand A B))
   | let_conj {Γ: Context} {A B C e e': Term} {k: AnnotSort}:
@@ -236,6 +240,7 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType Γ l (proof (forall_ A φ)) -> HasType Γ.upgrade r (term A) ->
     HasType Γ (inst l r) (proof (φ.subst0 l))
   | wit {Γ: Context} {A φ l r: Term}:
+    HasType Γ (exists_ A φ) prop ->
     HasType Γ l (term A) -> HasType Γ.upgrade r (proof (φ.subst0 l)) ->
     HasType Γ (repr l r) (proof (exists_ A φ))
   | let_wit {Γ: Context} {A φ C e e': Term} {k: AnnotSort}:

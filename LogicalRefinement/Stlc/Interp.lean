@@ -97,14 +97,11 @@ theorem HasType.stlc {Γ a A} (H: Γ ⊢ a: A):
     case app_irrel => sorry
     case repr => sorry
     case let_repr => sorry
-    case dconj => sorry
 
     all_goals (
-      simp only [subst0, alpha0, term, proof] at *
-      try rw [Annot.stlc_ty_subst] at *
       constructor <;>
-      simp only [subst0, alpha0, term] <;>
-      try rw [Annot.stlc_ty_subst];
+      simp only [subst0, alpha0, term, proof] at * <;>
+      try rw [Annot.stlc_ty_subst] at * <;>
       all_goals assumption
     )
 
