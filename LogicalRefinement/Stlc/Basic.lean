@@ -36,11 +36,16 @@ def Ty.interp (A: Ty): Type := A.interp_in Option
 def Ty.interp_val (A: Ty): Type := A.interp_val_in Option
 
 def Ty.abort (A: Ty): A.interp := by cases A <;> exact none
-def Ty.interp.app {A B} (l: (arrow A B).interp) (r: A.interp): B.interp := by
-  cases A <;>
-  exact match l, r with
-  | some l, some r => l r
-  | _, _ => B.abort
+def Ty.interp.app_inner {A B: Ty} 
+  (l: A.interp_val -> B.interp) (r: A.interp): B.interp
+  := by cases A <;>
+     exact match r with
+     | some r => l r
+     | none => B.abort
+def Ty.interp.app {A B} (l: (arrow A B).interp) (r: A.interp): B.interp :=
+  match l with
+  | some l => app_inner l r
+  | none => B.abort
 def Ty.interp.pair {A B} (l: A.interp) (r: B.interp): (prod A B).interp := by
   cases A <;> cases B <;>
   exact match l, r with
@@ -66,13 +71,13 @@ def Ty.interp.cases {A B C: Ty}
   | some (Sum.inr b) => r b
   | none => C.abort
 def Ty.interp.natrec_inner {C: Ty} (n: Nat) 
-  (z: C.interp) (s: C.interp -> C.interp)
+  (z: C.interp) (s: C.interp_val -> C.interp)
   : C.interp
   := match n with
   | 0 => z
-  | n + 1 => s (natrec_inner n z s)
+  | n + 1 => app_inner s (natrec_inner n z s)
 def Ty.interp.natrec {C: Ty} (n: nats.interp)
-  (z: C.interp) (s: C.interp -> C.interp)
+  (z: C.interp) (s: C.interp_val -> C.interp)
   : C.interp
   := match n with
   | some n => natrec_inner n z s
@@ -280,4 +285,7 @@ def Stlc.HasType.interp {Γ a A} (H: HasType Γ a A) (G: Γ.interp): A.interp :=
   | Stlc.natrec n z s =>
     let ⟨Hn, Hz, Hs⟩: HasType Γ n nats ∧ HasType Γ z A ∧ HasType (A::Γ) s A
       := by cases H; exact ⟨by assumption, by assumption, by assumption⟩
-    sorry
+    let In := Hn.interp G;
+    let Iz := Hz.interp G;
+    let Is := λc => Hs.interp (c, G);
+    In.natrec Iz Is
