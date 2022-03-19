@@ -55,10 +55,31 @@ def Context.stlc: Context -> Stlc.Context
 open Annot
 open AnnotSort
 
-theorem HasType.stlc_helper {Γ a A} (H: Γ ⊢ a: A):
+theorem HasType.stlc_ty_subst {Γ A σ s} (H: Γ ⊢ A: sort s):
+  A.stlc_ty = (A.subst σ).stlc_ty := by {
+  revert H s σ Γ;
+  induction A <;> intro Γ σ s H <;> cases H <;> try rfl
+  all_goals (
+    simp only [Term.stlc_ty, Term.subst]
+    rename_i' I0 I1 I2 I3
+    try rw [I0]
+    try rw [I1]
+    try rw [I2]
+    try rw [I3]
+    all_goals assumption
+  )
+}
+
+theorem HasType.stlc {Γ a A} (H: Γ ⊢ a: A):
   Stlc.HasType Γ.stlc a.stlc A.stlc_ty
   := by {
     induction H;
+
+    case case =>
+      constructor
+      assumption
+      sorry
+      sorry
 
     --TODO: this
 
