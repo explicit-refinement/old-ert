@@ -10,15 +10,15 @@ inductive Ty
 
 open Ty
 
-def Ty.interp_in: (A: Ty) -> (M: Type -> Type) -> Type
-| bot, M => M Empty
-| unit, M => M Unit
-| nats, M => M Nat
-| arrow A B, M => A.interp_in (λx => x) -> B.interp_in M
-| prod A B, M => M (Prod (A.interp_in (λx => x)) (B.interp_in (λx => x)))
-| coprod A B, M => M (Sum (A.interp_in (λx => x)) (B.interp_in (λx => x)))
+def Ty.interp_based_in: Ty -> (Type -> Type) -> (Type -> Type) -> Type
+| bot, M, U => U Empty
+| unit, M, U => U Unit
+| nats, M, U => U Nat
+| arrow A B, M, U => A.interp_based_in M (λx => x) -> B.interp_based_in M M
+| prod A B, M, U => U (Prod (A.interp_based_in M (λx => x)) (B.interp_based_in M (λx => x)))
+| coprod A B, M, U => U (Sum (A.interp_based_in M (λx => x)) (B.interp_based_in M (λx => x)))
 
-def Ty.interp (A: Ty): Type := A.interp_in Option
+def Ty.interp (A: Ty): Type := A.interp_based_in Option Option
 
 inductive Stlc
 -- Basic
