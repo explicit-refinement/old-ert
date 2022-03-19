@@ -20,6 +20,18 @@ def Ty.interp_based_in: Ty -> (Type -> Type) -> (Type -> Type) -> Type
 
 def Ty.interp_in (A: Ty) (M: Type -> Type) := A.interp_based_in M M
 def Ty.interp_val_in (A: Ty) (M: Type -> Type) := A.interp_based_in M id
+theorem Ty.interp_arrow (A B: Ty) (M: Type -> Type): (arrow A B).interp_val_in M = (arrow A B).interp_in M := rfl
+
+-- Note: if the λx gets moved into the match, we get a kernel error; maybe post on Zulip about this...
+def Ty.val_interp (A: Ty) (M: Type -> Type) [Monad M]: A.interp_val_in M -> A.interp_in M := 
+  λx =>
+  match A with
+  | bot => by cases x
+  | unit => do return x
+  | nats => do return x
+  | arrow A B => x
+  | prod A B => do return x
+  | coprod A B => do return x
 
 def Ty.interp (A: Ty): Type := A.interp_in Option
 def Ty.interp_val (A: Ty): Type := A.interp_val_in Option
