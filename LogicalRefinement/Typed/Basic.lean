@@ -129,7 +129,7 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType 
     ((Hyp.mk B (HypKind.val type))::(Hyp.mk A (HypKind.val type))::Γ) 
     e' (expr k ((C.wknth 1).alpha0 (pair (var 1) (var 0)))) ->
-    HasType Γ (let_pair e e') (expr k (C.subst0 e))
+    HasType Γ (let_pair (sigma A B) e e') (expr k (C.subst0 e))
   | inj_l {Γ: Context} {A B e: Term}:
     HasType Γ e (term A) -> HasType Γ B type ->
     HasType Γ (inj false e) (term (coprod A B))
@@ -155,7 +155,7 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType 
     ((Hyp.mk φ (HypKind.val prop))::(Hyp.mk A (HypKind.val type))::Γ) 
     e' (expr k ((C.wknth 1).alpha0 (elem (var 1) (var 0)))) ->
-    HasType Γ (let_set e e') (expr k (C.subst0 e))
+    HasType Γ (let_set (set A φ) e e') (expr k (C.subst0 e))
   | lam_pr {Γ: Context} {φ s A: Term}:
     HasType Γ φ prop ->
     HasType ((Hyp.mk φ (HypKind.val prop))::Γ) s (term A) ->
@@ -181,7 +181,7 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType 
     ((Hyp.mk B (HypKind.val type))::(Hyp.mk A HypKind.gst)::Γ) 
     e' (term ((C.wknth 1).alpha0 (repr (var 1) (var 0)))) ->
-    HasType Γ (let_repr e e') (expr k (C.subst0 e))
+    HasType Γ (let_repr (union A B) e e') (expr k (C.subst0 e))
 
   -- Basic proof formers
   | top {Γ}: HasType Γ top prop
@@ -234,7 +234,7 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType 
     ((Hyp.mk φ (HypKind.val prop))::(Hyp.mk A HypKind.gst)::Γ) 
     e' (term ((C.wknth 1).alpha0 (wit (var 1) (var 0)))) ->
-    HasType Γ (let_wit e e') (expr k (C.subst0 e))
+    HasType Γ (let_wit (exists_ A φ) e e') (expr k (C.subst0 e))
 
   -- Theory of equality
   | refl {Γ: Context} {A a: Term}:

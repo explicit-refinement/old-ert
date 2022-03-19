@@ -38,7 +38,7 @@ inductive TermKind: List Nat -> Type
   | app: TermKind [0, 0, 0]
   -- Consider merging with intro/elim for (sigma, type, type)
   | pair: TermKind [0, 0]
-  | let_pair: TermKind [0, 2]
+  | let_pair: TermKind [0, 0, 2]
   | inj (b: Bool): TermKind [0]
   | case: TermKind [0, 0, 1, 1]
   -- Consider merging with intro/elim for (pi, type, prop)
@@ -46,13 +46,13 @@ inductive TermKind: List Nat -> Type
   | app_pr: TermKind [0, 0]
   -- Consider merging with intro/elim for (sigma, type, prop)
   | elem: TermKind [0, 0]
-  | let_set: TermKind [0, 2]
+  | let_set: TermKind [0, 0, 2]
   -- Consider merging with intro/elim for (pi, ghost, type)
   | lam_irrel: TermKind [0, 1]
   | app_irrel: TermKind [0, 0]
   -- Consider merging with intro/elim for (sigma, ghost, type)
   | repr: TermKind [0, 0]
-  | let_repr: TermKind [0, 2]
+  | let_repr: TermKind [0, 0, 2]
 
   -- Proofs
   | triv: TermKind []
@@ -72,7 +72,7 @@ inductive TermKind: List Nat -> Type
   -- Consider merging with intro/elim for 
   -- (sigma, ghost, prop) == (sigma, type, prop)
   | wit: TermKind [0, 0]
-  | let_wit: TermKind [0, 2]
+  | let_wit: TermKind [0, 0, 2]
 
   -- Theory of equality
   | refl: TermKind [0]
@@ -95,7 +95,7 @@ inductive Term: Type
   | const (c: TermKind [])
   | unary (k: TermKind [0]) (t: Term)
   -- TODO: let n?
-  | let_bin (k: TermKind [0, 2]) (e: Term) (e': Term)
+  | let_bin (k: TermKind [0, 0, 2]) (P: Term) (e: Term) (e': Term)
   -- TODO: bin n? Can't, due to, of course, lack of nested inductive types...
   | bin (k: TermKind [0, 0]) (l: Term) (r: Term)
   -- TODO: abs n?
@@ -175,7 +175,7 @@ def Term.succ := const TermKind.succ
   | var v => Nat.succ v
   | const c => 0
   | unary _ t => fv t
-  | let_bin _ e e' => Nat.max (fv e) ((fv e') - 2)
+  | let_bin _ P e e' => Nat.max (fv P) (Nat.max (fv e) ((fv e') - 2))
   | bin _ l r => Nat.max (fv l) (fv r)
   | abs _ A t => Nat.max (fv A) (fv t - 1)
   | tri _ A l r => Nat.max (fv A) (Nat.max (fv l) (fv r))
@@ -186,7 +186,8 @@ def Term.succ := const TermKind.succ
   | var v, i => v = i
   | const c, _ => False
   | unary _ t, i => has_dep t i
-  | let_bin _ e e', i => has_dep e i ∨ has_dep e' (i + 2)
+  | let_bin _ P e e', i => 
+    has_dep P i ∨ has_dep e i ∨ has_dep e' (i + 2)
   | bin _ l r, i => has_dep l i ∨ has_dep r i
   | abs _ A t, i => has_dep A i ∨ has_dep t (i + 1)
   | tri _ A l r, i => has_dep A i ∨ has_dep l i ∨ has_dep r i
