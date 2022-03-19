@@ -132,17 +132,17 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType Γ (let_pair (sigma A B) e e') (expr k (C.subst0 e))
   | inj_l {Γ: Context} {A B e: Term}:
     HasType Γ e (term A) -> HasType Γ B type ->
-    HasType Γ (inj false e) (term (coprod A B))
+    HasType Γ (inj 0 e) (term (coprod A B))
   | inj_r {Γ: Context} {A B e: Term}:
     HasType Γ e (term B) -> HasType Γ A type ->
-    HasType Γ (inj true e) (term (coprod A B))
+    HasType Γ (inj 1 e) (term (coprod A B))
   | case {Γ: Context} {A B C e l r: Term} {k: AnnotSort}:
     HasType Γ e (term (coprod A B)) ->
     HasType Γ A type ->
     HasType Γ B type ->
     HasType ((Hyp.mk (coprod A B) (HypKind.val type))::Γ) C k ->
-    HasType ((Hyp.mk A (HypKind.val type))::Γ) l (term (C.alpha0 (inj false (var 0)))) ->
-    HasType ((Hyp.mk B (HypKind.val type))::Γ) r (term (C.alpha0 (inj true (var 0)))) ->
+    HasType ((Hyp.mk A (HypKind.val type))::Γ) l (term (C.alpha0 (inj 0 (var 0)))) ->
+    HasType ((Hyp.mk B (HypKind.val type))::Γ) r (term (C.alpha0 (inj 1 (var 0)))) ->
     HasType Γ (case (coprod A B) e l r) (expr k (C.subst0 e))
   | elem {Γ: Context} {A φ l r: Term}:
     HasType Γ l (term A) -> HasType Γ r (proof (φ.subst0 l)) ->
@@ -196,18 +196,18 @@ inductive HasType: Context -> Term -> Annot -> Prop
   | disj_l {Γ: Context} {A B e: Term}:
     HasType Γ e (proof A) ->
     HasType Γ B prop ->
-    HasType Γ (disj false e) (proof (or A B))
+    HasType Γ (disj 0 e) (proof (or A B))
   | disj_r {Γ: Context} {A B e: Term}:
     HasType Γ e (proof B) ->
     HasType Γ A prop ->
-    HasType Γ (disj true e) (proof (or A B))
+    HasType Γ (disj 1 e) (proof (or A B))
   | case_pr {Γ: Context} {A B C e l r: Term}:
     HasType Γ e (proof (or A B)) ->
     HasType Γ A prop ->
     HasType Γ B prop ->
     HasType ((Hyp.mk (or A B) (HypKind.val prop))::Γ) C prop ->
-    HasType ((Hyp.mk A (HypKind.val prop))::Γ) l (proof (C.alpha0 (disj false (var 0)))) ->
-    HasType ((Hyp.mk B (HypKind.val prop))::Γ) r (proof (C.alpha0 (disj true (var 0)))) ->
+    HasType ((Hyp.mk A (HypKind.val prop))::Γ) l (proof (C.alpha0 (disj 0 (var 0)))) ->
+    HasType ((Hyp.mk B (HypKind.val prop))::Γ) r (proof (C.alpha0 (disj 1 (var 0)))) ->
     HasType Γ (case_pr (or A B) e l r) (term (C.subst0 e))
   | imp {Γ: Context} {φ s ψ: Term}:
     HasType Γ φ prop ->

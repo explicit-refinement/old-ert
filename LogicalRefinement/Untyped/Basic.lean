@@ -39,7 +39,7 @@ inductive TermKind: List Nat -> Type
   -- Consider merging with intro/elim for (sigma, type, type)
   | pair: TermKind [0, 0]
   | let_pair: TermKind [0, 0, 2]
-  | inj (b: Bool): TermKind [0]
+  | inj (b: Fin 2): TermKind [0]
   | case: TermKind [0, 0, 1, 1]
   -- Consider merging with intro/elim for (pi, type, prop)
   | lam_pr: TermKind [0, 1]
@@ -60,10 +60,10 @@ inductive TermKind: List Nat -> Type
   -- Consider merging with intro/elim for (pi, prop, prop)
   | imp: TermKind [0, 1]
   | mp: TermKind [0, 0]
-  -- Note: (sigma, prop, prop) is not dependent, unlike for prop!  
+  -- Consider merging with intro/elim for (sigma, prop, prop)
   | dconj: TermKind [0, 0]
-  | comp (b: Bool): TermKind [0]
-  | disj (b: Bool): TermKind [0]
+  --TODO: eliminator for (sigma, prop, prop)
+  | disj (b: Fin 2): TermKind [0]
   | case_pr: TermKind [0, 0, 1, 1]
   -- Consider merging with intro/elim for 
   -- (pi, ghost, prop) == (pi, type, prop)
@@ -147,7 +147,6 @@ def Term.let_repr := let_bin TermKind.let_repr
 def Term.triv := const TermKind.triv
 def Term.abort := unary TermKind.abort
 def Term.dconj := bin TermKind.dconj
-def Term.comp := λb => unary (TermKind.comp b)
 def Term.disj := λb => unary (TermKind.disj b)
 def Term.case_pr := cases TermKind.case_pr
 def Term.imp := abs TermKind.imp

@@ -75,8 +75,7 @@ def TermKind.term_sort: TermKind l -> TermSort
   | abort => TermSort.proof
   | imp => TermSort.proof 
   | mp => TermSort.proof
-  | dconj => TermSort.proof 
-  | comp _ => TermSort.proof 
+  | dconj => TermSort.proof
   | disj _ => TermSort.proof 
   | case_pr => TermSort.proof
   | general => TermSort.proof
