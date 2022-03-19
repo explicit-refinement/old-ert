@@ -43,13 +43,13 @@ inductive TermKind: List Nat -> Type
   | case: TermKind [0, 0, 1, 1]
   -- Consider merging with intro/elim for (pi, type, prop)
   | lam_pr: TermKind [0, 1]
-  | app_pr: TermKind [0, 0]
+  | app_pr: TermKind [0, 0, 0]
   -- Consider merging with intro/elim for (sigma, type, prop)
   | elem: TermKind [0, 0]
   | let_set: TermKind [0, 0, 2]
   -- Consider merging with intro/elim for (pi, ghost, type)
   | lam_irrel: TermKind [0, 1]
-  | app_irrel: TermKind [0, 0]
+  | app_irrel: TermKind [0, 0, 0]
   -- Consider merging with intro/elim for (sigma, ghost, type)
   | repr: TermKind [0, 0]
   | let_repr: TermKind [0, 0, 2]
@@ -59,7 +59,7 @@ inductive TermKind: List Nat -> Type
   | abort: TermKind [0]
   -- Consider merging with intro/elim for (pi, prop, prop)
   | imp: TermKind [0, 1]
-  | mp: TermKind [0, 0]
+  | mp: TermKind [0, 0, 0]
   -- Consider merging with intro/elim for (sigma, prop, prop)
   | dconj: TermKind [0, 0]
   | let_conj: TermKind [0, 0, 2]
@@ -137,9 +137,9 @@ def Term.case := cases TermKind.case
 def Term.elem := bin TermKind.elem
 def Term.let_set := let_bin TermKind.let_set
 def Term.lam_pr := abs TermKind.lam_pr
-def Term.app_pr := bin TermKind.app_pr
+def Term.app_pr := tri TermKind.app_pr
 def Term.lam_irrel := abs TermKind.lam_irrel
-def Term.app_irrel := bin TermKind.app_irrel
+def Term.app_irrel := tri TermKind.app_irrel
 def Term.repr := bin TermKind.repr
 def Term.let_repr := let_bin TermKind.let_repr
 
@@ -151,7 +151,7 @@ def Term.let_conj := let_bin TermKind.let_conj
 def Term.disj := λb => unary (TermKind.disj b)
 def Term.case_pr := cases TermKind.case_pr
 def Term.imp := abs TermKind.imp
-def Term.mp := bin TermKind.mp
+def Term.mp := tri TermKind.mp
 def Term.general := abs TermKind.general
 def Term.inst := bin TermKind.inst
 def Term.wit := bin TermKind.wit

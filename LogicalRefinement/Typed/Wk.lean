@@ -92,6 +92,8 @@ def HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
       ]
       simp only [Annot.wk, term, proof, implies_wk, const_arrow_wk, assume_wf_wk] at *
       try rw [eta_ex_eq_wk]
+      try rw [irir_ex_eq_wk]
+      try rw [prir_ex_eq_wk]
       simp only [Term.wk, Term.subst0_wk, Term.wk1] at *
       constructor <;>
       (try rw [Term.alpha00_wk_comm (by simp)]) <;>

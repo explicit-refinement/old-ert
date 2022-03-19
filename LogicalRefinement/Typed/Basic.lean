@@ -161,15 +161,17 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType ((Hyp.mk φ (HypKind.val prop))::Γ) s (term A) ->
     HasType Γ (lam_pr φ s) (term (assume φ A))
   | app_pr {Γ: Context} {φ A l r: Term}:
+    HasType Γ (assume φ A) type ->
     HasType Γ l (term (assume φ A)) -> HasType Γ.upgrade r (proof φ) ->
-    HasType Γ (app_pr l r) (term (A.subst0 l))
+    HasType Γ (app_pr (assume φ A) l r) (term (A.subst0 l))
   | lam_irrel {Γ: Context} {A s B: Term}:
     HasType Γ A type ->
     HasType ((Hyp.mk A (HypKind.val type))::Γ) s (term B) ->
     HasType Γ (lam_irrel A s) (term (intersect A B))
   | app_irrel {Γ: Context} {A B l r: Term}:
+    HasType Γ (intersect A B) type ->
     HasType Γ l (term (intersect A B)) -> HasType Γ.upgrade r (term A) ->
-    HasType Γ (app_irrel l r) (term (B.subst0 l))
+    HasType Γ (app_irrel (intersect A B) l r) (term (B.subst0 l))
   | repr {Γ: Context} {A B l r: Term}:
     HasType Γ l (term A) -> HasType Γ r (term (B.subst0 l)) ->
     HasType Γ (repr l r) (term (union A B))
@@ -217,14 +219,15 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType ((Hyp.mk (or A B) (HypKind.val prop))::Γ) C prop ->
     HasType ((Hyp.mk A (HypKind.val prop))::Γ) l (proof (C.alpha0 (disj 0 (var 0)))) ->
     HasType ((Hyp.mk B (HypKind.val prop))::Γ) r (proof (C.alpha0 (disj 1 (var 0)))) ->
-    HasType Γ (case_pr (or A B) e l r) (term (C.subst0 e))
+    HasType Γ (case_pr (or A B) e l r) (proof (C.subst0 e))
   | imp {Γ: Context} {φ s ψ: Term}:
     HasType Γ φ prop ->
     HasType ((Hyp.mk φ (HypKind.val prop))::Γ) s (proof ψ) ->
     HasType Γ (imp φ s) (proof (dimplies φ ψ))
   | mp {Γ: Context} {φ ψ l r: Term}:
+    HasType Γ (dimplies φ ψ) prop ->
     HasType Γ l (term (dimplies φ ψ)) -> HasType Γ.upgrade r (proof φ) ->
-    HasType Γ (mp l r) (proof (ψ.subst0 l))
+    HasType Γ (mp (dimplies φ ψ) l r) (proof (ψ.subst0 l))
   | general {Γ: Context} {A s φ: Term}:
     HasType Γ A type ->
     HasType ((Hyp.mk A (HypKind.val type))::Γ) s (proof φ) ->
@@ -274,12 +277,14 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType Γ f (term (const_arrow A B)) ->
     HasType Γ x (term A) ->
     HasType Γ y (term A) ->
-    HasType Γ (irir f x y) (proof (eq B (app_irrel f x) (app_irrel f y)))
+    HasType Γ (irir f x y) 
+    (proof (eq B (irir_ex A B f x) (irir_ex A B f y)))
   | prir {Γ: Context} {φ A f x y: Term}:
     HasType Γ f (term (assume_wf φ A)) ->
     HasType Γ x (proof φ) ->
     HasType Γ y (proof φ) ->
-    HasType Γ (irir f x y) (proof (eq B (app_pr f x) (app_pr f y)))
+    HasType Γ (irir f x y) 
+    (proof (eq B (prir_ex φ A f x) (prir_ex φ A f y)))
 
   -- Natural numbers
   | nats {Γ}: HasType Γ nats type

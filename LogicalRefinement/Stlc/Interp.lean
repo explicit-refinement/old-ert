@@ -12,12 +12,12 @@ def Term.stlc_ty: Term -> Ty
 | abs TermKind.pi A B => Ty.arrow A.stlc_ty B.stlc_ty
 | abs TermKind.sigma A B => Ty.prod A.stlc_ty B.stlc_ty
 | bin TermKind.coprod A B => Ty.coprod A.stlc_ty B.stlc_ty
-| abs TermKind.assume φ A => A.stlc_ty
-| abs TermKind.set A φ => A.stlc_ty
-| abs TermKind.intersect A B => B.stlc_ty
-| abs TermKind.union A B => B.stlc_ty
+| abs TermKind.assume φ A => Ty.arrow φ.stlc_ty A.stlc_ty
+| abs TermKind.set A φ => Ty.prod A.stlc_ty φ.stlc_ty
+| abs TermKind.intersect A B => Ty.arrow Ty.unit B.stlc_ty
+| abs TermKind.union A B => Ty.prod Ty.unit B.stlc_ty
 | const TermKind.nats => Ty.nats
-| _ => Ty.bot
+| _ => Ty.unit
 
 def Term.stlc: Term -> Stlc
 | var n => Stlc.var n
@@ -30,17 +30,18 @@ def Term.stlc: Term -> Stlc
 | unary (TermKind.inj i) e => Stlc.inj i e.stlc
 | cases TermKind.case P d l r => 
   Stlc.case P.stlc_ty d.stlc l.stlc r.stlc
-| abs TermKind.lam_pr φ x => x.stlc
-| bin TermKind.app_pr e φ => e.stlc
+| abs TermKind.lam_pr φ x => Stlc.lam φ.stlc_ty x.stlc
+| tri TermKind.app_pr P e φ => Stlc.app P.stlc_ty e.stlc φ.stlc
 | bin TermKind.elem e φ => e.stlc
-| let_bin TermKind.let_set P e e' => e.stlc
-| abs TermKind.lam_irrel A x => x.stlc
-| bin TermKind.app_irrel l r => l.stlc
-| bin TermKind.repr l r => r.stlc
-| let_bin TermKind.let_repr P e e' => e'.stlc
+| let_bin TermKind.let_set P e e' => Stlc.pair e.stlc Stlc.nil
+| abs TermKind.lam_irrel A x => Stlc.lam Ty.unit x.stlc
+| tri TermKind.app_irrel P l r => Stlc.app P.stlc_ty l.stlc Stlc.nil
+| bin TermKind.repr l r => Stlc.pair Stlc.nil r.stlc
+| let_bin TermKind.let_repr P e e' => 
+  Stlc.let_pair P.stlc_ty e.stlc e'.stlc
 | const TermKind.zero => Stlc.zero
 | const TermKind.succ => Stlc.succ
-| _ => Stlc.abort
+| _ => Stlc.nil
 
 def Context.stlc: Context -> Stlc.Context
 | [] => []
@@ -54,7 +55,7 @@ theorem HasType.stlc_helper {Γ a A} (H: Γ ⊢ a: A):
   ∀{X}, A = term X -> 
   Stlc.HasType Γ.stlc a.stlc X.stlc_ty
   := by {
-    induction H;
+    induction H <;> intro X HX;
 
     --TODO: this
 

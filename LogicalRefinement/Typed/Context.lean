@@ -433,3 +433,79 @@ def Term.eta_ex_eq_wk {P A B f r: Term} {ρ}:
     rw [<-Term.eta_ex_wk]
     rfl
   }
+
+def Term.irir_ex (A B f x) := app_irrel (const_arrow A B) f x
+
+def Term.irir_ex_subst: 
+  (irir_ex A B f x).subst σ 
+  = irir_ex (A.subst σ) (B.subst σ) (f.subst σ) (x.subst σ)
+  := by {
+    simp only [subst, Subst.lift_wk]
+    rfl
+  }
+
+def Term.irir_ex_wk: 
+  (irir_ex A B f x).wk ρ 
+  = irir_ex (A.wk ρ) (B.wk ρ) (f.wk ρ) (x.wk ρ)
+  := by {
+    simp only [<-Subst.subst_wk_compat, <-Wk.to_subst_lift]
+    exact irir_ex_subst
+  }
+
+def Term.irir_ex_eq_subst: 
+  (eq P (irir_ex A B f x) (irir_ex A B f y)).subst σ 
+  = eq (P.subst σ) 
+  (irir_ex (A.subst σ) (B.subst σ) (f.subst σ) (x.subst σ))
+  (irir_ex (A.subst σ) (B.subst σ) (f.subst σ) (y.subst σ))
+  := by {
+    simp only [<-Term.irir_ex_subst]
+    rfl
+  }
+
+def Term.irir_ex_eq_wk: 
+  (eq P (irir_ex A B f x) (irir_ex A B f y)).wk ρ 
+  = eq (P.wk ρ) 
+  (irir_ex (A.wk ρ) (B.wk ρ) (f.wk ρ) (x.wk ρ))
+  (irir_ex (A.wk ρ) (B.wk ρ) (f.wk ρ) (y.wk ρ))
+  := by {
+    simp only [<-Term.irir_ex_wk]
+    rfl
+  }
+
+def Term.prir_ex (A B f x) := app_pr (const_arrow A B) f x
+
+def Term.prir_ex_subst: 
+  (prir_ex A B f x).subst σ 
+  = prir_ex (A.subst σ) (B.subst σ) (f.subst σ) (x.subst σ)
+  := by {
+    simp only [subst, Subst.lift_wk]
+    rfl
+  }
+
+def Term.prir_ex_wk: 
+  (prir_ex A B f x).wk ρ 
+  = prir_ex (A.wk ρ) (B.wk ρ) (f.wk ρ) (x.wk ρ)
+  := by {
+    simp only [<-Subst.subst_wk_compat, <-Wk.to_subst_lift]
+    exact prir_ex_subst
+  }
+
+def Term.prir_ex_eq_subst: 
+  (eq P (prir_ex A B f x) (prir_ex A B f y)).subst σ 
+  = eq (P.subst σ) 
+  (prir_ex (A.subst σ) (B.subst σ) (f.subst σ) (x.subst σ))
+  (prir_ex (A.subst σ) (B.subst σ) (f.subst σ) (y.subst σ))
+  := by {
+    simp only [<-Term.prir_ex_subst]
+    rfl
+  }
+
+def Term.prir_ex_eq_wk: 
+  (eq P (prir_ex A B f x) (prir_ex A B f y)).wk ρ 
+  = eq (P.wk ρ) 
+  (prir_ex (A.wk ρ) (B.wk ρ) (f.wk ρ) (x.wk ρ))
+  (prir_ex (A.wk ρ) (B.wk ρ) (f.wk ρ) (y.wk ρ))
+  := by {
+    simp only [<-Term.prir_ex_wk]
+    rfl
+  }

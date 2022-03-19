@@ -108,6 +108,8 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
       ]
       simp only [Annot.subst, term, proof, implies_subst, const_arrow_subst, assume_wf_subst] at *
       try rw [eta_ex_eq_subst]
+      try rw [irir_ex_eq_subst]
+      try rw [prir_ex_eq_subst]
       simp only [Term.subst, Term.subst0_subst] at *
       constructor <;>
       repeat (
