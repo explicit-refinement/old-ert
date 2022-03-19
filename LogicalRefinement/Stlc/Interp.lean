@@ -32,7 +32,7 @@ def Term.stlc: Term -> Stlc
   Stlc.case P.stlc_ty d.stlc l.stlc r.stlc
 | abs TermKind.lam_pr φ x => Stlc.lam φ.stlc_ty x.stlc
 | tri TermKind.app_pr P e φ => Stlc.app P.stlc_ty e.stlc φ.stlc
-| bin TermKind.elem e φ => e.stlc
+| bin TermKind.elem e φ => Stlc.pair e.stlc φ.stlc
 | let_bin TermKind.let_set P e e' => Stlc.pair e.stlc Stlc.nil
 | abs TermKind.lam_irrel A x => Stlc.lam Ty.unit x.stlc
 | tri TermKind.app_irrel P l r => Stlc.app P.stlc_ty l.stlc Stlc.nil
