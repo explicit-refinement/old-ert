@@ -55,14 +55,14 @@ inductive Stlc
 -- Basic
 | var (n: Nat)
 | lam (A: Ty) (s: Stlc)
-| app (C: Ty) (s t: Stlc)
+| app (P: Ty) (s t: Stlc)
 
 -- Products and coproducts
 | pair (l r: Stlc)
-| let_pair (C: Ty) (e: Stlc) (e': Stlc)
+| let_pair (P: Ty) (e: Stlc) (e': Stlc)
 
 | inj (f: Fin 2) (e: Stlc)
-| cases (C: Ty) (d l r: Stlc)
+| cases (P: Ty) (d l r: Stlc)
 
 -- Erasure
 | nil
@@ -78,11 +78,11 @@ inductive Stlc
 def Stlc.wk: Stlc -> Wk -> Stlc
 | var n, ρ => var (ρ.var n)
 | lam A s, ρ => lam A (s.wk ρ.lift)
-| app C s t, ρ => app C (s.wk ρ) (t.wk ρ)
+| app P s t, ρ => app P (s.wk ρ) (t.wk ρ)
 | pair l r, ρ => pair (l.wk ρ) (r.wk ρ)
-| let_pair C e e', ρ => let_pair C (e.wk ρ) (e'.wk (ρ.liftn 2))
+| let_pair P e e', ρ => let_pair P (e.wk ρ) (e'.wk (ρ.liftn 2))
 | inj i e, ρ => inj i (e.wk ρ)
-| cases C d l r, ρ => cases C (d.wk ρ) (l.wk ρ.lift) (r.wk ρ.lift)
+| cases P d l r, ρ => cases P (d.wk ρ) (l.wk ρ.lift) (r.wk ρ.lift)
 | natrec n z s, ρ => natrec (n.wk ρ) (z.wk ρ) (s.wk ρ.lift)
 | c, ρ => c
 
@@ -120,7 +120,7 @@ inductive Stlc.HasType: Context -> Stlc -> Ty -> Prop
 
 | pair {Γ A B l r}: HasType Γ l A -> HasType Γ r B -> HasType Γ (pair l r) (prod A B)
 | let_pair {Γ A B C e e'}: 
-  HasType Γ e (prod A B) -> HasType (B::A::Γ) e' C -> HasType Γ (let_pair C e e') C
+  HasType Γ e (prod A B) -> HasType (B::A::Γ) e' C -> HasType Γ (let_pair (prod A B) e e') C
 
 | inj0 {Γ A B e}: HasType Γ e A -> HasType Γ (inj 0 e) (coprod A B)
 | inj1 {Γ A B e}: HasType Γ e B -> HasType Γ (inj 1 e) (coprod A B)
@@ -162,11 +162,11 @@ def Stlc.Subst.liftn (σ: Subst): Nat -> Subst
 def Stlc.subst: Stlc -> Subst -> Stlc
 | var n, σ => σ n
 | lam A s, σ => lam A (s.subst σ.lift)
-| app (arrow A B) s t, σ => app (arrow A B) (s.subst σ) (t.subst σ)
+| app P s t, σ => app P (s.subst σ) (t.subst σ)
 | pair l r, σ => pair (l.subst σ) (r.subst σ)
-| let_pair C e e', σ => let_pair C (e.subst σ) (e'.subst (σ.liftn 2))
+| let_pair P e e', σ => let_pair P (e.subst σ) (e'.subst (σ.liftn 2))
 | inj i e, σ => inj i (e.subst σ)
-| cases C d l r, σ => cases C (d.subst σ) (l.subst σ.lift) (r.subst σ.lift)
+| cases P d l r, σ => cases P (d.subst σ) (l.subst σ.lift) (r.subst σ.lift)
 | natrec n z s, σ => natrec (n.subst σ) (z.subst σ) (s.subst σ.lift)
 | c, σ => c
 
@@ -209,7 +209,14 @@ def Stlc.HasType.interp {Γ a A} (H: HasType Γ a A) (G: Γ.interp): A.interp :=
       let Ir := Hr.interp G;
       exact Il.pair Ir
     | _ => apply False.elim; cases H
-  | Stlc.let_pair C e e' => sorry
+  | Stlc.let_pair P e e' => by cases P with
+    | prod A' B' =>
+      have ⟨He, He'⟩: HasType Γ e (prod A' B') ∧ HasType (B'::A'::Γ) e' A
+        := by cases H; exact ⟨by assumption, by assumption⟩
+      let Ie := He.interp G;
+      let Ie' := λ b a => He'.interp (b, (a, G));
+      sorry
+    | _ => apply False.elim; cases H
   | Stlc.inj 0 e => sorry
   | Stlc.inj 1 e => sorry
   | Stlc.cases C d l r => sorry
