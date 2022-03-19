@@ -46,3 +46,12 @@ def Context.stlc: Context -> Stlc.Context
 | [] => []
 | (Hyp.mk A (HypKind.val type))::Hs => A.stlc_ty::(stlc Hs)
 | _::Hs => Ty.unit::(stlc Hs)
+
+open Annot
+open AnnotSort
+
+theorem HasType.stlc {Γ a A} (H: Γ ⊢ a: term A):
+  Stlc.HasType Γ.stlc a.stlc A.stlc_ty
+  := by {
+    sorry
+  }
