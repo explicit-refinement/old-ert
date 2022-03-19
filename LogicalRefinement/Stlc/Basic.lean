@@ -14,11 +14,15 @@ def Ty.interp_based_in: Ty -> (Type -> Type) -> (Type -> Type) -> Type
 | bot, M, U => U Empty
 | unit, M, U => U Unit
 | nats, M, U => U Nat
-| arrow A B, M, U => A.interp_based_in M (λx => x) -> B.interp_based_in M M
-| prod A B, M, U => U (Prod (A.interp_based_in M (λx => x)) (B.interp_based_in M (λx => x)))
-| coprod A B, M, U => U (Sum (A.interp_based_in M (λx => x)) (B.interp_based_in M (λx => x)))
+| arrow A B, M, U => A.interp_based_in M id -> B.interp_based_in M M
+| prod A B, M, U => U (Prod (A.interp_based_in M id) (B.interp_based_in M id))
+| coprod A B, M, U => U (Sum (A.interp_based_in M id) (B.interp_based_in M id))
 
-def Ty.interp (A: Ty): Type := A.interp_based_in Option Option
+def Ty.interp_in (A: Ty) (M: Type -> Type) := A.interp_based_in M M
+def Ty.interp_val_in (A: Ty) (M: Type -> Type) := A.interp_based_in M id
+
+def Ty.interp (A: Ty): Type := A.interp_in Option
+def Ty.interp_val (A: Ty): Type := A.interp_val_in Option
 
 inductive Stlc
 -- Basic
@@ -152,4 +156,10 @@ def Stlc.HasType.interp {Γ a A} (H: HasType Γ a A) (G: Γ.interp): A.interp :=
   | Stlc.var n => 
     let v: HasVar Γ A n := by cases H; assumption;
     v.interp G
+  | Stlc.lam X s => by cases A with
+    | arrow A B =>
+      have H': HasType (A::Γ) s B := by cases H; assumption;
+      intro x;
+      sorry
+    | _ => apply False.elim; cases H
   | _ => sorry
