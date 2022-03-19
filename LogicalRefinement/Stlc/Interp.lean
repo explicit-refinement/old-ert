@@ -1,8 +1,6 @@
 import LogicalRefinement.Stlc.Basic
-import LogicalRefinement.Untyped.Basic
-import LogicalRefinement.Typed.Context
-import LogicalRefinement.Typed.Basic
-import LogicalRefinement.Typed.Regular
+import LogicalRefinement.Untyped
+import LogicalRefinement.Typed
 open Term
 open TermKind
 
