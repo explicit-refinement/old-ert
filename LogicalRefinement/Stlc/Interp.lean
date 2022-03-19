@@ -50,12 +50,17 @@ def Context.stlc: Context -> Stlc.Context
 open Annot
 open AnnotSort
 
-theorem HasType.stlc {Γ a A} (H: Γ ⊢ a: term A):
-  Stlc.HasType Γ.stlc a.stlc A.stlc_ty
+theorem HasType.stlc_helper {Γ a A} (H: Γ ⊢ a: A):
+  ∀{X}, A = term X -> 
+  Stlc.HasType Γ.stlc a.stlc X.stlc_ty
   := by {
-    cases H;
+    induction H;
 
     --TODO: this
 
     all_goals sorry
   }
+
+theorem HasType.stlc {Γ a A} (H: Γ ⊢ a: term A)
+  : Stlc.HasType Γ.stlc a.stlc A.stlc_ty
+  := stlc_helper H rfl
