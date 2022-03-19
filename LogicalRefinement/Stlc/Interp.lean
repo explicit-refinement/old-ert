@@ -20,3 +20,24 @@ def Term.stlc_ty: Term -> Ty
 | abs TermKind.union A B => B.stlc_ty
 | const TermKind.nats => Ty.nats
 | _ => Ty.bot
+
+def Term.stlc: Term -> Stlc
+| var n => Stlc.var n
+| const TermKind.nil => Stlc.nil
+| abs TermKind.lam A x => Stlc.lam A.stlc_ty x.stlc
+| tri TermKind.app P l r => Stlc.app P.stlc_ty l.stlc r.stlc
+| bin TermKind.pair l r => Stlc.pair l.stlc r.stlc
+--TODO: let_pair
+--TODO: inj
+--TODO: case
+| abs TermKind.lam_pr φ x => x.stlc
+| bin TermKind.app_pr e φ => e.stlc
+| bin TermKind.elem e φ => e.stlc
+--TODO: let_set
+| abs TermKind.lam_irrel A x => x.stlc
+| bin TermKind.app_irrel l r => l.stlc
+| bin TermKind.repr l r => r.stlc
+--TODO: let_repr
+| const TermKind.zero => Stlc.zero
+| const TermKind.succ => Stlc.succ
+| _ => Stlc.abort

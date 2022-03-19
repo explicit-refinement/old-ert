@@ -41,7 +41,6 @@ inductive TermKind: List Nat -> Type
   | let_pair: TermKind [0, 2]
   | inj (b: Bool): TermKind [0]
   | case: TermKind [1, 0, 1, 1]
-  | cases: TermKind [1]
   -- Consider merging with intro/elim for (pi, type, prop)
   | lam_pr: TermKind [0, 1]
   | app_pr: TermKind [0, 0]
