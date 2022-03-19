@@ -20,8 +20,8 @@ def Term.stlc_ty: Term -> Ty
 | _ => Ty.unit
 
 def Annot.stlc_ty: Annot -> Ty
-| expr type A => A.stlc_ty
-| _ => Ty.unit
+| expr _ A => A.stlc_ty
+| sort _ => Ty.unit
 
 def Term.stlc: Term -> Stlc
 | var n => Stlc.var n
@@ -56,7 +56,7 @@ open Annot
 open AnnotSort
 
 theorem HasType.stlc_ty_subst {Γ A σ s} (H: Γ ⊢ A: sort s):
-  A.stlc_ty = (A.subst σ).stlc_ty := by {
+  (A.subst σ).stlc_ty = A.stlc_ty := by {
   revert H s σ Γ;
   induction A <;> intro Γ σ s H <;> cases H <;> try rfl
   all_goals (
@@ -70,16 +70,43 @@ theorem HasType.stlc_ty_subst {Γ A σ s} (H: Γ ⊢ A: sort s):
   )
 }
 
+theorem Annot.stlc_ty_subst {Γ A σ s k} (H: Γ ⊢ A: sort s):
+  (expr k (A.subst σ)).stlc_ty = (expr k A).stlc_ty := H.stlc_ty_subst
+
 theorem HasType.stlc {Γ a A} (H: Γ ⊢ a: A):
   Stlc.HasType Γ.stlc a.stlc A.stlc_ty
   := by {
     induction H;
 
-    case case =>
-      constructor
-      assumption
-      sorry
-      sorry
+    case var => sorry
+
+    case let_set => sorry
+    case abort => sorry
+    case let_conj => sorry
+    case case_pr => sorry
+    case mp => sorry
+    case inst => sorry
+    case wit => sorry
+    case let_wit => sorry
+    case natrec => sorry
+    case app => sorry
+    case pair => sorry
+    case let_pair => sorry
+    case elem => sorry
+    case app_pr => sorry
+    case app_irrel => sorry
+    case repr => sorry
+    case let_repr => sorry
+    case dconj => sorry
+
+    all_goals (
+      simp only [subst0, alpha0, term, proof] at *
+      try rw [Annot.stlc_ty_subst] at *
+      constructor <;>
+      simp only [subst0, alpha0, term] <;>
+      try rw [Annot.stlc_ty_subst];
+      all_goals assumption
+    )
 
     --TODO: this
 

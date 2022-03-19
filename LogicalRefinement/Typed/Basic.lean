@@ -166,7 +166,7 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType Γ (app_pr (assume φ A) l r) (term (A.subst0 l))
   | lam_irrel {Γ: Context} {A s B: Term}:
     HasType Γ A type ->
-    HasType ((Hyp.mk A (HypKind.val type))::Γ) s (term B) ->
+    HasType ((Hyp.mk A (HypKind.gst))::Γ) s (term B) ->
     HasType Γ (lam_irrel A s) (term (intersect A B))
   | app_irrel {Γ: Context} {A B l r: Term}:
     HasType Γ (intersect A B) type ->
