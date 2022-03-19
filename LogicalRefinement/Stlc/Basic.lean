@@ -14,24 +14,18 @@ def Ty.interp_based_in: Ty -> (Type -> Type) -> (Type -> Type) -> Type
 | bot, M, U => U Empty
 | unit, M, U => U Unit
 | nats, M, U => U Nat
-| arrow A B, M, U => A.interp_based_in M id -> B.interp_based_in M M
+| arrow A B, M, U => U (A.interp_based_in M id -> B.interp_based_in M M)
 | prod A B, M, U => U (Prod (A.interp_based_in M id) (B.interp_based_in M id))
 | coprod A B, M, U => U (Sum (A.interp_based_in M id) (B.interp_based_in M id))
 
 def Ty.interp_in (A: Ty) (M: Type -> Type) := A.interp_based_in M M
 def Ty.interp_val_in (A: Ty) (M: Type -> Type) := A.interp_based_in M id
-theorem Ty.interp_arrow (A B: Ty) (M: Type -> Type): (arrow A B).interp_val_in M = (arrow A B).interp_in M := rfl
 
 -- Note: if the λx gets moved into the match, we get a kernel error; maybe post on Zulip about this...
 def Ty.val_interp {A: Ty} {M: Type -> Type} [Monad M]: A.interp_val_in M -> A.interp_in M := 
-  λx =>
-  match A with
-  | bot => by cases x
-  | unit => do return x
-  | nats => do return x
-  | arrow A B => x
-  | prod A B => do return x
-  | coprod A B => do return x
+  λx => by cases A with
+    | bot => cases x
+    | _ => exact do return x
 
 instance myOptionMonad: Monad Option where
   pure := some
@@ -39,6 +33,7 @@ instance myOptionMonad: Monad Option where
 
 def Ty.interp (A: Ty): Type := A.interp_in Option
 def Ty.interp_val (A: Ty): Type := A.interp_val_in Option
+def Ty.abort (A: Ty): A.interp := by cases A <;> exact none
 
 inductive Stlc
 -- Basic
@@ -175,7 +170,6 @@ def Stlc.HasType.interp {Γ a A} (H: HasType Γ a A) (G: Γ.interp): A.interp :=
   | Stlc.lam X s => by cases A with
     | arrow A B =>
       have H: HasType (A::Γ) s B := by cases H; assumption;
-      intro x;
-      exact H.interp (x, G)
+      exact some (λx => H.interp (x, G))
     | _ => apply False.elim; cases H
   | _ => sorry
