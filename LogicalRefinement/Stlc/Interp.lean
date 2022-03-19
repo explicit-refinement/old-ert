@@ -29,7 +29,7 @@ def Term.stlc: Term -> Stlc
 | bin TermKind.pair l r => Stlc.pair l.stlc r.stlc
 | let_bin TermKind.let_pair P e e' => 
   Stlc.let_pair P.stlc_ty e.stlc e'.stlc
---TODO: inj
+| unary (TermKind.inj i) e => Stlc.inj i e.stlc
 | cases TermKind.case P d l r => 
   Stlc.case P.stlc_ty d.stlc l.stlc r.stlc
 | abs TermKind.lam_pr φ x => x.stlc
