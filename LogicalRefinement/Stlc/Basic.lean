@@ -147,10 +147,9 @@ theorem Stlc.HasType.subst {Γ Δ σ a A}:
   sorry
 }
 
-def Stlc.HasType.interp {Γ a A}: HasType Γ a A -> Γ.interp -> A.interp :=
+def Stlc.HasType.interp {Γ a A} (H: HasType Γ a A) (G: Γ.interp): A.interp :=
   match a with
-  | Stlc.var n => by {
-    intro p G;
-    sorry
-  }
+  | Stlc.var n => 
+    let v: HasVar Γ A n := by cases H; assumption;
+    v.interp G
   | _ => sorry
