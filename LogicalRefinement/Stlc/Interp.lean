@@ -41,3 +41,8 @@ def Term.stlc: Term -> Stlc
 | const TermKind.zero => Stlc.zero
 | const TermKind.succ => Stlc.succ
 | _ => Stlc.abort
+
+def Context.stlc: Context -> Stlc.Context
+| [] => []
+| (Hyp.mk A (HypKind.val type))::Hs => A.stlc_ty::(stlc Hs)
+| _::Hs => Ty.unit::(stlc Hs)
