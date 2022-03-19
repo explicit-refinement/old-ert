@@ -46,14 +46,23 @@ def Ty.interp.pair {A B} (l: A.interp) (r: B.interp): (prod A B).interp := by
   exact match l, r with
   | some l, some r => some (l, r)
   | _, _ => none
-def Ty.interp.let_pair {A B C: Ty} (e: (prod A B).interp) (e': B.interp_val -> A.interp_val -> C.interp): C.interp :=
-  match e with
+def Ty.interp.let_pair {A B C: Ty} 
+  (e: (prod A B).interp) 
+  (e': B.interp_val -> A.interp_val -> C.interp): C.interp 
+  := match e with
   | some (a, b) => e' b a
   | none => C.abort
 def Ty.interp.inl {A B} (e: A.interp): (coprod A B).interp := by 
   cases A <;> exact e.map Sum.inl
 def Ty.interp.inr {A B} (e: B.interp): (coprod A B).interp := by 
   cases B <;> exact e.map Sum.inr
+def Ty.interp.cases {A B C: Ty} 
+  (d: (coprod A B).interp) 
+  (l: A.interp_val -> C.interp) (r: B.interp_val -> C.interp): C.interp
+  := match d with
+  | some (Sum.inl a) => l a
+  | some (Sum.inr b) => r b
+  | none => C.abort
 
 inductive Stlc
 -- Basic
