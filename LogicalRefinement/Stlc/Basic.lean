@@ -22,7 +22,7 @@ def Ty.interp_in (A: Ty) (M: Type -> Type) := A.interp_based_in M M
 def Ty.interp_val_in (A: Ty) (M: Type -> Type) := A.interp_based_in M id
 
 -- Note: if the λx gets moved into the match, we get a kernel error; maybe post on Zulip about this...
-def Ty.val_interp {A: Ty} {M: Type -> Type} [Monad M]: A.interp_val_in M -> A.interp_in M := 
+def Ty.eager {A: Ty} {M: Type -> Type} [Monad M]: A.interp_val_in M -> A.interp_in M := 
   λx => by cases A with
     | bot => cases x
     | _ => exact do return x
@@ -166,7 +166,7 @@ def Stlc.HasType.interp {Γ a A} (H: HasType Γ a A) (G: Γ.interp): A.interp :=
   match a with
   | Stlc.var n => 
     let v: HasVar Γ A n := by cases H; assumption;
-    Ty.val_interp (v.interp G)
+    Ty.eager (v.interp G)
   | Stlc.lam X s => by cases A with
     | arrow A B =>
       have H: HasType (A::Γ) s B := by cases H; assumption;
