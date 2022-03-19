@@ -23,7 +23,7 @@ def Ty.interp_val_in (A: Ty) (M: Type -> Type) := A.interp_based_in M id
 theorem Ty.interp_arrow (A B: Ty) (M: Type -> Type): (arrow A B).interp_val_in M = (arrow A B).interp_in M := rfl
 
 -- Note: if the λx gets moved into the match, we get a kernel error; maybe post on Zulip about this...
-def Ty.val_interp (A: Ty) (M: Type -> Type) [Monad M]: A.interp_val_in M -> A.interp_in M := 
+def Ty.val_interp {A: Ty} {M: Type -> Type} [Monad M]: A.interp_val_in M -> A.interp_in M := 
   λx =>
   match A with
   | bot => by cases x
@@ -32,6 +32,10 @@ def Ty.val_interp (A: Ty) (M: Type -> Type) [Monad M]: A.interp_val_in M -> A.in
   | arrow A B => x
   | prod A B => do return x
   | coprod A B => do return x
+
+instance myOptionMonad: Monad Option where
+  pure := some
+  bind := λx f => match x with | none => none | some x => f x 
 
 def Ty.interp (A: Ty): Type := A.interp_in Option
 def Ty.interp_val (A: Ty): Type := A.interp_val_in Option
@@ -77,7 +81,7 @@ def Stlc.Context := List Ty
 
 def Stlc.Context.interp: Context -> Type
 | [] => Unit
-| A::As => Prod A.interp (interp As)
+| A::As => Prod A.interp_val (interp As)
 
 inductive Stlc.HasVar: Context -> Ty -> Nat -> Prop
 | zero {Γ A}: HasVar (A::Γ) A 0
@@ -86,7 +90,7 @@ inductive Stlc.HasVar: Context -> Ty -> Nat -> Prop
 theorem Stlc.HasVar.zero_invert {Γ A B} (P: HasVar (A::Γ) B 0): A = B := by cases P; rfl
 theorem Stlc.HasVar.succ_invert {Γ A B} (P: HasVar (A::Γ) B (n + 1)): HasVar Γ B n := by cases P; assumption
 
-def Stlc.HasVar.interp {Γ A n} (H: HasVar Γ A n) (G: Γ.interp): A.interp :=
+def Stlc.HasVar.interp {Γ A n} (H: HasVar Γ A n) (G: Γ.interp): A.interp_val :=
   match Γ with
   | [] => by {
     apply False.elim;
@@ -167,7 +171,7 @@ def Stlc.HasType.interp {Γ a A} (H: HasType Γ a A) (G: Γ.interp): A.interp :=
   match a with
   | Stlc.var n => 
     let v: HasVar Γ A n := by cases H; assumption;
-    v.interp G
+    Ty.val_interp (v.interp G)
   | Stlc.lam X s => by cases A with
     | arrow A B =>
       have H': HasType (A::Γ) s B := by cases H; assumption;
