@@ -53,5 +53,9 @@ open AnnotSort
 theorem HasType.stlc {Γ a A} (H: Γ ⊢ a: term A):
   Stlc.HasType Γ.stlc a.stlc A.stlc_ty
   := by {
-    sorry
+    cases H;
+
+    --TODO: this
+
+    all_goals sorry
   }
