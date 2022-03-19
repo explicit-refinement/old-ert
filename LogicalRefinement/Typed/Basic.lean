@@ -254,11 +254,13 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType ((Hyp.mk A (HypKind.val type))::Γ) s (term B) ->
     HasType Γ A type ->
     HasType Γ t (term A) ->
-    HasType Γ (beta t s) (proof (eq (B.subst0 t) (app (pi A B) (lam A s) t) (s.subst0 t)))
-  -- | eta {Γ: Context} {A B f: Term}:
-  --   HasType Γ f (term (pi A B)) ->
-  --   HasType Γ A type ->
-  --   HasType Γ (eta A f) (proof (eq (pi A B) (eta_ex A f) f))
+    HasType Γ (beta t s) 
+    (proof (eq (B.subst0 t) 
+    (app (pi A B) (lam A s) t) (s.subst0 t)))
+  | eta {Γ: Context} {A B f: Term}:
+    HasType Γ f (term (pi A B)) ->
+    HasType Γ A type ->
+    HasType Γ (eta A f) (proof (eq (pi A B) (eta_ex A B f) f))
   | irir {Γ: Context} {A B f x y: Term}:
     HasType Γ f (term (const_arrow A B)) ->
     HasType Γ x (term A) ->
