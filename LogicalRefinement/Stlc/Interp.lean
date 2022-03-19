@@ -19,6 +19,10 @@ def Term.stlc_ty: Term -> Ty
 | const TermKind.nats => Ty.nats
 | _ => Ty.unit
 
+def Annot.stlc_ty: Annot -> Ty
+| expr type A => A.stlc_ty
+| _ => Ty.unit
+
 def Term.stlc: Term -> Stlc
 | var n => Stlc.var n
 | const TermKind.nil => Stlc.nil
@@ -52,16 +56,11 @@ open Annot
 open AnnotSort
 
 theorem HasType.stlc_helper {Γ a A} (H: Γ ⊢ a: A):
-  ∀{X}, A = term X -> 
-  Stlc.HasType Γ.stlc a.stlc X.stlc_ty
+  Stlc.HasType Γ.stlc a.stlc A.stlc_ty
   := by {
-    induction H <;> intro X HX;
+    induction H;
 
     --TODO: this
 
     all_goals sorry
   }
-
-theorem HasType.stlc {Γ a A} (H: Γ ⊢ a: term A)
-  : Stlc.HasType Γ.stlc a.stlc A.stlc_ty
-  := stlc_helper H rfl
