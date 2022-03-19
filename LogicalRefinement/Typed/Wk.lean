@@ -100,6 +100,7 @@ def HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
       (try rw [Term.let_bin_ty_alpha_wk_repr]) <;>
       (try rw [Term.let_bin_ty_alpha_wk_wit]) <;>
       (try rw [Term.var2_var1_alpha_wk]) <;>
+      (try rw [Term.let_bin_ty_alpha_wk_conj]) <;>
       (first | apply I0 | apply I1 | apply I2 | apply I3 | apply I4 | apply I5) <;> 
       simp only [<-Hyp.wk_components] <;> 
       first 

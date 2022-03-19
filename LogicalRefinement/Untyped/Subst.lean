@@ -920,32 +920,50 @@ theorem Term.let_bin_ty_alpha_wk {C: Term} {ρ: Wk} {k: TermKind [0, 0]}:
 
 theorem Term.let_bin_ty_alpha_pair {C: Term} {σ: Subst}:
   ((C.subst σ.lift).wknth 1).alpha0 (pair (var 1) (var 0)) =
-  ((C.wknth 1).alpha0 (pair (var 1) (var 0))).subst (σ.liftn 2) := let_bin_ty_alpha
+  ((C.wknth 1).alpha0 (pair (var 1) (var 0))).subst (σ.liftn 2) 
+  := let_bin_ty_alpha
 
 theorem Term.let_bin_ty_alpha_wk_pair {C: Term} {ρ: Wk}:
   ((C.wk ρ.lift).wknth 1).alpha0 (pair (var 1) (var 0)) =
-  ((C.wknth 1).alpha0 (pair (var 1) (var 0))).wk (ρ.liftn 2) := let_bin_ty_alpha_wk
+  ((C.wknth 1).alpha0 (pair (var 1) (var 0))).wk (ρ.liftn 2) 
+  := let_bin_ty_alpha_wk
 
 theorem Term.let_bin_ty_alpha_elem {C: Term} {σ: Subst}:
   ((C.subst σ.lift).wknth 1).alpha0 (elem (var 1) (var 0)) =
-  ((C.wknth 1).alpha0 (elem (var 1) (var 0))).subst (σ.liftn 2) := let_bin_ty_alpha
+  ((C.wknth 1).alpha0 (elem (var 1) (var 0))).subst (σ.liftn 2) 
+  := let_bin_ty_alpha
 
 theorem Term.let_bin_ty_alpha_wk_elem {C: Term} {ρ: Wk}:
   ((C.wk ρ.lift).wknth 1).alpha0 (elem (var 1) (var 0)) =
-  ((C.wknth 1).alpha0 (elem (var 1) (var 0))).wk (ρ.liftn 2) := let_bin_ty_alpha_wk
+  ((C.wknth 1).alpha0 (elem (var 1) (var 0))).wk (ρ.liftn 2) 
+  := let_bin_ty_alpha_wk
 
 theorem Term.let_bin_ty_alpha_repr {C: Term} {σ: Subst}:
   ((C.subst σ.lift).wknth 1).alpha0 (repr (var 1) (var 0)) =
-  ((C.wknth 1).alpha0 (repr (var 1) (var 0))).subst (σ.liftn 2) := let_bin_ty_alpha
+  ((C.wknth 1).alpha0 (repr (var 1) (var 0))).subst (σ.liftn 2) 
+  := let_bin_ty_alpha
 
 theorem Term.let_bin_ty_alpha_wk_repr {C: Term} {ρ: Wk}:
   ((C.wk ρ.lift).wknth 1).alpha0 (repr (var 1) (var 0)) =
-  ((C.wknth 1).alpha0 (repr (var 1) (var 0))).wk (ρ.liftn 2) := let_bin_ty_alpha_wk
+  ((C.wknth 1).alpha0 (repr (var 1) (var 0))).wk (ρ.liftn 2) 
+  := let_bin_ty_alpha_wk
 
 theorem Term.let_bin_ty_alpha_wit {C: Term} {σ: Subst}:
   ((C.subst σ.lift).wknth 1).alpha0 (wit (var 1) (var 0)) =
-  ((C.wknth 1).alpha0 (wit (var 1) (var 0))).subst (σ.liftn 2) := let_bin_ty_alpha
+  ((C.wknth 1).alpha0 (wit (var 1) (var 0))).subst (σ.liftn 2) 
+  := let_bin_ty_alpha
 
 theorem Term.let_bin_ty_alpha_wk_wit {C: Term} {ρ: Wk}:
   ((C.wk ρ.lift).wknth 1).alpha0 (wit (var 1) (var 0)) =
-  ((C.wknth 1).alpha0 (wit (var 1) (var 0))).wk (ρ.liftn 2) := let_bin_ty_alpha_wk
+  ((C.wknth 1).alpha0 (wit (var 1) (var 0))).wk (ρ.liftn 2) 
+  := let_bin_ty_alpha_wk
+
+  theorem Term.let_bin_ty_alpha_conj {C: Term} {σ: Subst}:
+  ((C.subst σ.lift).wknth 1).alpha0 (dconj (var 1) (var 0)) =
+  ((C.wknth 1).alpha0 (dconj (var 1) (var 0))).subst (σ.liftn 2) 
+  := let_bin_ty_alpha
+
+theorem Term.let_bin_ty_alpha_wk_conj {C: Term} {ρ: Wk}:
+  ((C.wk ρ.lift).wknth 1).alpha0 (dconj (var 1) (var 0)) =
+  ((C.wknth 1).alpha0 (dconj (var 1) (var 0))).wk (ρ.liftn 2) 
+  := let_bin_ty_alpha_wk

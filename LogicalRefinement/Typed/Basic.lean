@@ -193,6 +193,15 @@ inductive HasType: Context -> Term -> Annot -> Prop
   | dconj {Γ: Context} {A B l r: Term}:
     HasType Γ l (proof A) -> HasType Γ r (proof (B.subst0 l)) ->
     HasType Γ (dconj l r) (term (dand A B))
+  | let_conj {Γ: Context} {A B C e e': Term} {k: AnnotSort}:
+    HasType Γ e (proof (dand A B)) ->
+    HasType Γ A prop ->
+    HasType ((Hyp.mk A (HypKind.val prop))::Γ) B prop ->
+    HasType ((Hyp.mk (dand A B) (HypKind.val prop))::Γ) C k ->
+    HasType 
+    ((Hyp.mk B (HypKind.val prop))::(Hyp.mk A (HypKind.val prop))::Γ) 
+    e' (expr k ((C.wknth 1).alpha0 (dconj (var 1) (var 0)))) ->
+    HasType Γ (let_conj (dand A B) e e') (expr k (C.subst0 e))
   | disj_l {Γ: Context} {A B e: Term}:
     HasType Γ e (proof A) ->
     HasType Γ B prop ->

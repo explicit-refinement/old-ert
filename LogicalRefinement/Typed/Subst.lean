@@ -98,6 +98,7 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
         rw [Hv]
         exact HasType.var (I S) HΓ
 
+
     all_goals (
       intro σ Γ S;
       rename_i' I5 I4 I3 I2 I1 I0;
@@ -115,6 +116,7 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
         try rw [Term.let_bin_ty_alpha_elem]
         try rw [Term.let_bin_ty_alpha_repr]
         try rw [Term.let_bin_ty_alpha_wit]
+        try rw [Term.let_bin_ty_alpha_conj]
         try rw [Term.var2_var1_alpha]
         first | apply I0 | apply I1 | apply I2 | apply I3 | apply I4 | apply I5 | constructor
         first
