@@ -62,7 +62,7 @@ def Ty.interp.inl {A B} (e: A.interp): (coprod A B).interp := by
   cases A <;> exact e.map Sum.inl
 def Ty.interp.inr {A B} (e: B.interp): (coprod A B).interp := by 
   cases B <;> exact e.map Sum.inr
-def Ty.interp.cases {A B C: Ty} 
+def Ty.interp.case {A B C: Ty} 
   (d: (coprod A B).interp) 
   (l: A.interp_val -> C.interp) (r: B.interp_val -> C.interp)
   : C.interp
@@ -94,7 +94,7 @@ inductive Stlc
 | let_pair (P: Ty) (e: Stlc) (e': Stlc)
 
 | inj (f: Fin 2) (e: Stlc)
-| cases (P: Ty) (d l r: Stlc)
+| case (P: Ty) (d l r: Stlc)
 
 -- Erasure
 | nil
@@ -114,7 +114,7 @@ def Stlc.wk: Stlc -> Wk -> Stlc
 | pair l r, ρ => pair (l.wk ρ) (r.wk ρ)
 | let_pair P e e', ρ => let_pair P (e.wk ρ) (e'.wk (ρ.liftn 2))
 | inj i e, ρ => inj i (e.wk ρ)
-| cases P d l r, ρ => cases P (d.wk ρ) (l.wk ρ.lift) (r.wk ρ.lift)
+| case P d l r, ρ => case P (d.wk ρ) (l.wk ρ.lift) (r.wk ρ.lift)
 | natrec n z s, ρ => natrec (n.wk ρ) (z.wk ρ) (s.wk ρ.lift)
 | c, ρ => c
 
@@ -156,9 +156,9 @@ inductive Stlc.HasType: Context -> Stlc -> Ty -> Prop
 
 | inj0 {Γ A B e}: HasType Γ e A -> HasType Γ (inj 0 e) (coprod A B)
 | inj1 {Γ A B e}: HasType Γ e B -> HasType Γ (inj 1 e) (coprod A B)
-| cases {Γ A B C d l r}: 
+| case {Γ A B C d l r}: 
   HasType Γ d (coprod A B) -> HasType (A::Γ) l C -> HasType (B::Γ) r C -> 
-  HasType Γ (cases (coprod A B) d l r) C
+  HasType Γ (case (coprod A B) d l r) C
 
 | nil {Γ}: HasType Γ nil unit
 
@@ -198,7 +198,7 @@ def Stlc.subst: Stlc -> Subst -> Stlc
 | pair l r, σ => pair (l.subst σ) (r.subst σ)
 | let_pair P e e', σ => let_pair P (e.subst σ) (e'.subst (σ.liftn 2))
 | inj i e, σ => inj i (e.subst σ)
-| cases P d l r, σ => cases P (d.subst σ) (l.subst σ.lift) (r.subst σ.lift)
+| case P d l r, σ => case P (d.subst σ) (l.subst σ.lift) (r.subst σ.lift)
 | natrec n z s, σ => natrec (n.subst σ) (z.subst σ) (s.subst σ.lift)
 | c, σ => c
 
@@ -258,14 +258,14 @@ def Stlc.HasType.interp {Γ a A} (H: HasType Γ a A) (G: Γ.interp): A.interp :=
         have He: HasType Γ e B := by cases H; assumption;
         exact (He.interp G).inr
     | _ => apply False.elim; cases H
-  | Stlc.cases P d l r => by cases P with
+  | Stlc.case P d l r => by cases P with
     | coprod A' B' =>
       have ⟨Hd, Hl, Hr⟩: HasType Γ d (coprod A' B') ∧ HasType (A'::Γ) l A ∧ HasType (B'::Γ) r A :=
         by cases H; exact ⟨by assumption, by assumption, by assumption⟩
       let Id := Hd.interp G;
       let Il := λa => Hl.interp (a, G);
       let Ir := λb => Hr.interp (b, G);
-      exact Id.cases Il Ir
+      exact Id.case Il Ir
     | _ => apply False.elim; cases H
   | Stlc.nil => by cases A with 
     | unit => exact some () 

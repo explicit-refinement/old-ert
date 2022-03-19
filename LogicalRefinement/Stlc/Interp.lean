@@ -27,9 +27,11 @@ def Term.stlc: Term -> Stlc
 | abs TermKind.lam A x => Stlc.lam A.stlc_ty x.stlc
 | tri TermKind.app P l r => Stlc.app P.stlc_ty l.stlc r.stlc
 | bin TermKind.pair l r => Stlc.pair l.stlc r.stlc
---TODO: let_pair
+| let_bin TermKind.let_pair P e e' => 
+  Stlc.let_pair P.stlc_ty e.stlc e'.stlc
 --TODO: inj
---TODO: case
+| cases TermKind.case P d l r => 
+  Stlc.case P.stlc_ty d.stlc l.stlc r.stlc
 | abs TermKind.lam_pr φ x => x.stlc
 | bin TermKind.app_pr e φ => e.stlc
 | bin TermKind.elem e φ => e.stlc
