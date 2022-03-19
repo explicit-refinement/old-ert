@@ -248,8 +248,19 @@ def Stlc.HasType.interp {Γ a A} (H: HasType Γ a A) (G: Γ.interp): A.interp :=
       let Ir := λb => Hr.interp (b, G);
       exact Id.cases Il Ir
     | _ => apply False.elim; cases H
-  | Stlc.nil => sorry
-  | Stlc.abort => sorry
-  | Stlc.zero => sorry
-  | Stlc.succ => sorry
+  | Stlc.nil => by cases A with 
+    | unit => exact some () 
+    | _ => apply False.elim; cases H 
+  | Stlc.abort => A.abort
+  | Stlc.zero => by cases A with 
+    | nats => exact some 0 
+    | _ => apply False.elim; cases H 
+  | Stlc.succ => by cases A with 
+    | arrow A B =>
+      cases A with
+      | nats => cases B with
+        | nats => exact some (λn => some n.succ)
+        | _ => apply False.elim; cases H 
+      | _ => apply False.elim; cases H 
+    | _ => apply False.elim; cases H 
   | Stlc.natrec n z s => sorry
