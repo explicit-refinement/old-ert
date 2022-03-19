@@ -35,66 +35,6 @@ instance annotSortCoe: Coe AnnotSort Annot where
 
 instance termSortCoe: Coe AnnotSort TermSort where
   coe := TermSort.sort
-  
-def TermKind.term_sort: TermKind l -> TermSort
-  | unit => type
-  | pi => type
-  | sigma => type
-  | coprod => type
-  | assume => type
-  | set => type
-  | intersect => type
-  | union => type
-
-  | top => prop
-  | bot => prop
-  | dimplies => prop
-  | dand => prop
-  | or => prop
-  | forall_ => prop
-  | exists_ => prop
-  | eq => prop
-
-  | nil => TermSort.term
-  | lam => TermSort.term
-  | app => TermSort.term
-  | pair => TermSort.term
-  | let_pair => TermSort.term
-  | inj _ => TermSort.term
-  | case => TermSort.term
-  | lam_pr => TermSort.term
-  | app_pr => TermSort.term
-  | elem => TermSort.term
-  | let_set => TermSort.term
-  | lam_irrel => TermSort.term
-  | app_irrel => TermSort.term
-  | repr => TermSort.term
-  | let_repr => TermSort.term
-  
-  | triv => TermSort.proof
-  | abort => TermSort.proof
-  | imp => TermSort.proof 
-  | mp => TermSort.proof
-  | dconj => TermSort.proof
-  | disj _ => TermSort.proof 
-  | case_pr => TermSort.proof
-  | general => TermSort.proof
-  | inst => TermSort.proof
-  | wit => TermSort.proof 
-  | let_wit => TermSort.proof
-
-  | refl => TermSort.proof
-  | sym => TermSort.proof
-  | trans => TermSort.proof
-  | cong => TermSort.proof
-  | beta => TermSort.proof
-  | eta => TermSort.proof
-  | irir => TermSort.proof
-  | prir => TermSort.proof
-
-  | nats => type
-  | zero => TermSort.term
-  | succ => TermSort.term
 
 @[simp]
 def Annot.lift1: Annot -> Annot
