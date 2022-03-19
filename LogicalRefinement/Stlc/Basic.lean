@@ -10,16 +10,17 @@ inductive Ty
 
 open Ty
 
-def Ty.interp_based_in: Ty -> (Type -> Type) -> (Type -> Type) -> Type
-| bot, M, U => U Empty
-| unit, M, U => U Unit
-| nats, M, U => U Nat
-| arrow A B, M, U => U (A.interp_based_in M id -> B.interp_based_in M M)
-| prod A B, M, U => U (Prod (A.interp_based_in M id) (B.interp_based_in M id))
-| coprod A B, M, U => U (Sum (A.interp_based_in M id) (B.interp_based_in M id))
+def Ty.interp_based_in (A: Ty) (M: Type -> Type) (U: Type -> Type): Type := U (match A with
+| bot => Empty
+| unit => Unit
+| nats => Nat
+| arrow A B => A.interp_based_in M id -> B.interp_based_in M M
+| prod A B => Prod (A.interp_based_in M id) (B.interp_based_in M id)
+| coprod A B => Sum (A.interp_based_in M id) (B.interp_based_in M id))
 
 def Ty.interp_in (A: Ty) (M: Type -> Type) := A.interp_based_in M M
 def Ty.interp_val_in (A: Ty) (M: Type -> Type) := A.interp_based_in M id
+def Ty.interp_val_char {A: Ty} {M}: A.interp_in M = M (A.interp_val_in M) := by cases A <;> rfl
 
 -- Note: if the λx gets moved into the match, we get a kernel error; maybe post on Zulip about this...
 def Ty.eager {A: Ty} {M: Type -> Type} [Monad M]: A.interp_val_in M -> A.interp_in M := 
@@ -33,7 +34,13 @@ instance myOptionMonad: Monad Option where
 
 def Ty.interp (A: Ty): Type := A.interp_in Option
 def Ty.interp_val (A: Ty): Type := A.interp_val_in Option
+
 def Ty.abort (A: Ty): A.interp := by cases A <;> exact none
+def Ty.app (A B: Ty) (l: (arrow A B).interp) (r: A.interp): B.interp := by
+  cases A <;>
+  exact match l, r with
+  | some l, some r => l r
+  | _, _ => B.abort
 
 inductive Stlc
 -- Basic
