@@ -10,7 +10,7 @@ inductive Ty
 
 open Ty
 
-def Ty.interp_based_in (A: Ty) (M: Type -> Type) (U: Type -> Type): Type := U (match A with
+def Ty.interp_based_in (A: Ty) (M: Type -> Type): (Type -> Type) -> Type := λU => U (match A with
 | bot => Empty
 | unit => Unit
 | nats => Nat
@@ -36,11 +36,20 @@ def Ty.interp (A: Ty): Type := A.interp_in Option
 def Ty.interp_val (A: Ty): Type := A.interp_val_in Option
 
 def Ty.abort (A: Ty): A.interp := by cases A <;> exact none
-def Ty.app (A B: Ty) (l: (arrow A B).interp) (r: A.interp): B.interp := by
+def Ty.app {A B} (l: (arrow A B).interp) (r: A.interp): B.interp := by
   cases A <;>
   exact match l, r with
   | some l, some r => l r
   | _, _ => B.abort
+def Ty.pair {A B} (l: A.interp) (r: B.interp): (prod A B).interp := by
+  cases A <;> cases B <;>
+  exact match l, r with
+  | some l, some r => some (l, r)
+  | _, _ => none
+def Ty.inl {A B} (e: A.interp): (coprod A B).interp := by 
+  cases A <;> exact e.map Sum.inl
+def Ty.inr {A B} (e: B.interp): (coprod A B).interp := by 
+  cases B <;> exact e.map Sum.inr
 
 inductive Stlc
 -- Basic
