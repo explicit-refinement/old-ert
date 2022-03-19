@@ -219,7 +219,7 @@ def Stlc.HasType.interp {Γ a A} (H: HasType Γ a A) (G: Γ.interp): A.interp :=
         := by cases H; exact ⟨by assumption, by assumption⟩
       let Ie := He.interp G;
       let Ie' := λ b a => He'.interp (b, (a, G));
-      sorry
+      exact Ie.let_pair Ie'
     | _ => apply False.elim; cases H
   | Stlc.inj 0 e => sorry
   | Stlc.inj 1 e => sorry
