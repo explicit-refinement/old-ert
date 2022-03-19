@@ -37,7 +37,8 @@ def Term.stlc: Term -> Stlc
 | abs TermKind.lam_pr φ x => Stlc.lam φ.stlc_ty x.stlc
 | tri TermKind.app_pr P e φ => Stlc.app P.stlc_ty e.stlc φ.stlc
 | bin TermKind.elem e φ => Stlc.pair e.stlc φ.stlc
-| let_bin TermKind.let_set P e e' => Stlc.pair e.stlc Stlc.nil
+| let_bin TermKind.let_set P e e' =>
+  Stlc.let_pair P.stlc_ty e.stlc Stlc.nil
 | abs TermKind.lam_irrel A x => Stlc.lam Ty.unit x.stlc
 | tri TermKind.app_irrel P l r => Stlc.app P.stlc_ty l.stlc Stlc.nil
 | bin TermKind.repr l r => Stlc.pair Stlc.nil r.stlc
@@ -106,7 +107,7 @@ theorem HasType.stlc {Γ a A} (H: Γ ⊢ a: A):
     all_goals (
       constructor <;>
       simp only [subst0, alpha0, term, proof] at * <;>
-      try rw [Annot.stlc_ty_subst] at * <;>
+      try rw [Annot.stlc_ty_subst] at *
       all_goals assumption
     )
 

@@ -115,6 +115,11 @@ def HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
     )
   }
 
+def HasType.wk_sort {Δ a s}: 
+  (Δ ⊢ a: sort s) ->
+  {ρ: Wk} -> {Γ: Context} -> WkCtx ρ Γ Δ ->
+  (Γ ⊢ (a.wk ρ): sort s) := wk
+
 def HasType.wk1 {H} (Ha: Γ ⊢ a: A): (H::Γ) ⊢ a.wk1: A.wk1 
 := wk Ha WkCtx.wk1
 
