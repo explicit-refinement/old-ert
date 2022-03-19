@@ -48,7 +48,8 @@ def Ty.interp.pair {A B} (l: A.interp) (r: B.interp): (prod A B).interp := by
   | _, _ => none
 def Ty.interp.let_pair {A B C: Ty} 
   (e: (prod A B).interp) 
-  (e': B.interp_val -> A.interp_val -> C.interp): C.interp 
+  (e': B.interp_val -> A.interp_val -> C.interp)
+  : C.interp 
   := match e with
   | some (a, b) => e' b a
   | none => C.abort
@@ -58,10 +59,23 @@ def Ty.interp.inr {A B} (e: B.interp): (coprod A B).interp := by
   cases B <;> exact e.map Sum.inr
 def Ty.interp.cases {A B C: Ty} 
   (d: (coprod A B).interp) 
-  (l: A.interp_val -> C.interp) (r: B.interp_val -> C.interp): C.interp
+  (l: A.interp_val -> C.interp) (r: B.interp_val -> C.interp)
+  : C.interp
   := match d with
   | some (Sum.inl a) => l a
   | some (Sum.inr b) => r b
+  | none => C.abort
+def Ty.interp.natrec_inner {C: Ty} (n: Nat) 
+  (z: C.interp) (s: C.interp -> C.interp)
+  : C.interp
+  := match n with
+  | 0 => z
+  | n + 1 => s (natrec_inner n z s)
+def Ty.interp.natrec {C: Ty} (n: nats.interp)
+  (z: C.interp) (s: C.interp -> C.interp)
+  : C.interp
+  := match n with
+  | some n => natrec_inner n z s
   | none => C.abort
 
 inductive Stlc
