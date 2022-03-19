@@ -192,13 +192,21 @@ def Stlc.HasType.interp {Γ a A} (H: HasType Γ a A) (G: Γ.interp): A.interp :=
     by 
     have Hl: HasType Γ l P := by cases H; assumption;
     cases P with
-    | arrow X A' =>
-      have ⟨HA, Hr⟩: A' = A ∧ HasType Γ r X 
+    | arrow A' B' =>
+      have ⟨HA, Hr⟩: B' = A ∧ HasType Γ r A' 
         := by cases H; exact ⟨by rfl, by assumption⟩;
       let Il := Hl.interp G;
       let Ir := Hr.interp G;
       let I := Il.app Ir;
       rw [HA] at I;
       exact I
+    | _ => apply False.elim; cases H
+  | Stlc.pair l r => by cases A with
+    | prod A B =>
+      have ⟨Hl, Hr⟩: HasType Γ l A ∧ HasType Γ r B
+        := by cases H; exact ⟨by assumption, by assumption⟩
+      let Il := Hl.interp G;
+      let Ir := Hr.interp G;
+      exact Il.pair Ir
     | _ => apply False.elim; cases H
   | _ => sorry
