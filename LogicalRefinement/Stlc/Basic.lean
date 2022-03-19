@@ -129,8 +129,8 @@ inductive Stlc.HasType: Context -> Stlc -> Ty -> Prop
 | inj0 {Γ A B e}: HasType Γ e A -> HasType Γ (inj 0 e) (coprod A B)
 | inj1 {Γ A B e}: HasType Γ e B -> HasType Γ (inj 1 e) (coprod A B)
 | cases {Γ A B C d l r}: 
-  HasType Γ d (coprod A B) -> HasType (A::Γ) l C -> HasType (A::Γ) r C -> 
-  HasType Γ (cases C d l r) C
+  HasType Γ d (coprod A B) -> HasType (A::Γ) l C -> HasType (B::Γ) r C -> 
+  HasType Γ (cases (coprod A B) d l r) C
 
 | nil {Γ}: HasType Γ nil unit
 
@@ -230,7 +230,12 @@ def Stlc.HasType.interp {Γ a A} (H: HasType Γ a A) (G: Γ.interp): A.interp :=
         have He: HasType Γ e B := by cases H; assumption;
         exact (He.interp G).inr
     | _ => apply False.elim; cases H
-  | Stlc.cases C d l r => sorry
+  | Stlc.cases P d l r => by cases P with
+    | coprod A' B' =>
+      have ⟨Hd, Hl, Hr⟩: HasType Γ d (coprod A' B') ∧ HasType (A'::Γ) l A ∧ HasType (B'::Γ) r A :=
+        by cases H; exact ⟨by assumption, by assumption, by assumption⟩
+      sorry
+    | _ => apply False.elim; cases H
   | Stlc.nil => sorry
   | Stlc.abort => sorry
   | Stlc.zero => sorry
