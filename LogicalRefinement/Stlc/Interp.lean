@@ -132,52 +132,6 @@ theorem HasType.stlc {Γ a A} (H: Γ ⊢ a: A):
 
     case var Hv IA => exact Stlc.HasType.var Hv.stlc_val
 
-    case case_pr =>
-      simp only [proof, subst0]
-      rw [Annot.stlc_ty_subst]
-      rw [Annot.prop_is_unit]
-      constructor
-      assumption
-      assumption
-
-    case let_conj =>
-      simp only [proof, subst0]
-      rw [Annot.stlc_ty_subst]
-      rw [Annot.prop_is_unit]
-      constructor
-      assumption
-      assumption
-
-    case mp Hφψ _ _ _ _ _ => 
-      simp only [proof, subst0]
-      rw [Annot.stlc_ty_subst]
-      rw [Annot.prop_is_unit]
-      constructor
-      cases Hφψ; assumption
-      cases Hφψ; assumption
-
-    case inst HφA _ _ _ _ _ =>
-      simp only [proof, subst0]
-      rw [Annot.stlc_ty_subst]
-      rw [Annot.prop_is_unit]
-      constructor
-      cases HφA; assumption
-      cases HφA; assumption
-
-    case wit =>
-      simp only [proof, subst0]
-      rw [Annot.prop_is_unit]
-      constructor
-      assumption
-    
-    case let_wit =>
-      simp only [proof, subst0]
-      rw [Annot.stlc_ty_subst]
-      rw [Annot.prop_is_unit]
-      constructor
-      assumption
-      assumption
-
     case natrec => sorry
     case app => sorry
     case pair => sorry
@@ -197,4 +151,17 @@ theorem HasType.stlc {Γ a A} (H: Γ ⊢ a: A):
       | assumption 
       | apply HasType.wk_sort (by assumption); repeat constructor
     )
+
+    all_goals (
+      simp only [proof, subst0]
+      rw [Annot.stlc_ty_subst]
+      rw [Annot.prop_is_unit]
+      constructor
+      repeat assumption
+    )
+
+    repeat case mp Hφψ _ _ _ _ _ => 
+      cases Hφψ; assumption
+    repeat case inst HφA _ _ _ _ _ =>
+      cases HφA; assumption
   }
