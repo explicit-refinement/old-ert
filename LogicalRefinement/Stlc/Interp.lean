@@ -123,8 +123,4 @@ theorem HasType.stlc {Γ a A} (H: Γ ⊢ a: A):
       | assumption 
       | apply HasType.wk_sort (by assumption); repeat constructor
     )
-
-    --TODO: this
-
-    all_goals sorry
   }
