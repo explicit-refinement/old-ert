@@ -38,7 +38,7 @@ def Term.stlc: Term -> Stlc
 | tri TermKind.app_pr P e φ => Stlc.app P.stlc_ty e.stlc φ.stlc
 | bin TermKind.elem e φ => Stlc.pair e.stlc φ.stlc
 | let_bin TermKind.let_set P e e' =>
-  Stlc.let_pair P.stlc_ty e.stlc Stlc.nil
+  Stlc.let_pair P.stlc_ty e.stlc e'.stlc
 | abs TermKind.lam_irrel A x => Stlc.lam Ty.unit x.stlc
 | tri TermKind.app_irrel P l r => Stlc.app P.stlc_ty l.stlc Stlc.nil
 | bin TermKind.repr l r => Stlc.pair Stlc.nil r.stlc
@@ -96,15 +96,23 @@ theorem HasType.stlc {Γ a A} (H: Γ ⊢ a: A):
     case var Hv IA => exact Stlc.HasType.var Hv.stlc_val
 
     case let_set =>
-      constructor
+      constructor <;>
       simp only [
         subst0, alpha0, term, proof, wknth, wk1
-      ] at *
-      try rw [Annot.stlc_ty_subst] at *
-      try rw [Annot.stlc_ty_wk] at *
+      ] at * <;>
+      (try rw [Annot.stlc_ty_subst] at *) <;>
+      (try rw [Annot.stlc_ty_wk] at *)
       assumption
       assumption
-      repeat sorry
+      apply HasType.wk_sort
+      assumption
+      repeat constructor
+      assumption
+      assumption
+      apply HasType.wk_sort
+      assumption
+      repeat constructor
+      assumption
     
     case abort => sorry
     case let_conj => sorry
