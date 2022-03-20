@@ -48,10 +48,13 @@ def Term.stlc: Term -> Stlc
 | const TermKind.succ => Stlc.succ
 | _ => Stlc.nil
 
+def Hyp.stlc: Hyp -> Ty
+| Hyp.mk A (HypKind.val s) => A.stlc_ty
+| Hyp.mk A HypKind.gst => Ty.unit
+
 def Context.stlc: Context -> Stlc.Context
 | [] => []
-| (Hyp.mk A (HypKind.val type))::Hs => A.stlc_ty::(stlc Hs)
-| _::Hs => Ty.unit::(stlc Hs)
+| H::Hs => H.stlc::(stlc Hs)
 
 open Annot
 open AnnotSort
@@ -90,10 +93,6 @@ theorem Annot.stlc_ty_subst {Γ A σ s k} (H: Γ ⊢ A: sort s):
 theorem Annot.stlc_ty_wk {A k}: ∀{ρ},
   (expr k (A.wk ρ)).stlc_ty = (expr k A).stlc_ty := Term.stlc_ty_wk
 
-theorem Hyp.stlc_ty: Hyp -> Ty
-| Hyp.mk A (HypKind.val s) => A.stlc_ty
-| Hyp.mk A HypKind.gst => Ty.unit
-
 theorem HasVar.stlc_val {Γ A s n}: 
   HasVar Γ A (HypKind.val s) n ->
   Stlc.HasVar Γ.stlc (Annot.expr s A).stlc_ty n := by {
@@ -108,7 +107,12 @@ theorem HasVar.stlc_val {Γ A s n}:
         simp only [Annot.stlc_ty, Context.stlc, Term.wk1]
         rw [Term.stlc_ty_wk]
         constructor
-      | var_succ => sorry
+      | var_succ =>
+        apply Stlc.HasVar.succ
+        simp only [Term.wk1]
+        rw [Annot.stlc_ty_wk]
+        apply I
+        assumption
   }
 
 theorem HasType.stlc {Γ a A} (H: Γ ⊢ a: A):
