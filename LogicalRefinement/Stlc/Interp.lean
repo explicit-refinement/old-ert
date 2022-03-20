@@ -186,8 +186,6 @@ theorem HasType.stlc {Γ a A} (H: Γ ⊢ a: A):
       assumption
       cases HAB; assumption
 
-    case wit => sorry
-
     all_goals try (
       constructor <;>
       simp only [
