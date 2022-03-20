@@ -48,7 +48,7 @@ def Term.stlc: Term -> Stlc
   Stlc.case P.stlc_ty d.stlc l.stlc r.stlc
 | abs TermKind.lam_pr φ x => Stlc.lam φ.stlc_ty x.stlc
 | tri TermKind.app_pr P e φ => Stlc.app P.stlc_ty e.stlc φ.stlc
-| bin TermKind.elem e φ => Stlc.pair e.stlc φ.stlc
+| bin TermKind.elem e φ => Stlc.pair e.stlc Stlc.nil
 | let_bin TermKind.let_set P e e' =>
   Stlc.let_pair P.stlc_ty e.stlc e'.stlc
 | abs TermKind.lam_irrel A x => Stlc.lam Ty.unit x.stlc
@@ -132,9 +132,32 @@ theorem HasType.stlc {Γ a A} (H: Γ ⊢ a: A):
 
     case var Hv IA => exact Stlc.HasType.var Hv.stlc_val
 
-    case app => sorry
-    case pair => sorry
-    case elem => sorry
+    case app HAB _ _ _ _ _ =>
+      simp only [Term.stlc, Term.stlc_ty, subst0, term]
+      repeat rw [Annot.stlc_ty_subst] at *
+      constructor
+      assumption
+      assumption
+      cases HAB; assumption
+
+    case pair  HAB _ _ _ _ _ =>
+      simp only [Term.stlc, Term.stlc_ty, subst0, term] at *
+      repeat rw [Annot.stlc_ty_subst] at *
+      constructor
+      assumption
+      assumption
+      cases HAB; assumption
+
+    case elem  HAφ _ _ _ _ _ =>
+      simp only [Term.stlc, Term.stlc_ty, subst0, term] at *
+      repeat rw [Annot.stlc_ty_subst] at *
+      constructor
+      assumption
+      simp only [Term.stlc, Term.stlc_ty, subst0, term] at *
+      rw [HasType.prop_is_unit]
+      constructor
+      cases HAφ; assumption
+
     case app_pr => sorry
     case app_irrel => sorry
     case repr => sorry
