@@ -245,15 +245,15 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType Γ (exists_ A φ) prop ->
     HasType Γ l (term A) -> HasType Γ.upgrade r (proof (φ.subst0 l)) ->
     HasType Γ (repr l r) (proof (exists_ A φ))
-  | let_wit {Γ: Context} {A φ C e e': Term} {k: AnnotSort}:
+  | let_wit {Γ: Context} {A φ C e e': Term}:
     HasType Γ e (term (exists_ A φ)) ->
     HasType Γ A type ->
     HasType ((Hyp.mk A HypKind.gst)::Γ) φ prop ->
-    HasType ((Hyp.mk (exists_ A φ) (HypKind.val prop))::Γ) C k ->
+    HasType ((Hyp.mk (exists_ A φ) (HypKind.val prop))::Γ) C prop ->
     HasType 
     ((Hyp.mk φ (HypKind.val prop))::(Hyp.mk A HypKind.gst)::Γ) 
-    e' (expr k ((C.wknth 1).alpha0 (wit (var 1) (var 0)))) ->
-    HasType Γ (let_wit (exists_ A φ) e e') (expr k (C.subst0 e))
+    e' (proof ((C.wknth 1).alpha0 (wit (var 1) (var 0)))) ->
+    HasType Γ (let_wit (exists_ A φ) e e') (proof (C.subst0 e))
 
   -- Theory of equality
   | refl {Γ: Context} {A a: Term}:

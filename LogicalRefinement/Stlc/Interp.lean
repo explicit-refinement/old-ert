@@ -167,11 +167,17 @@ theorem HasType.stlc {Γ a A} (H: Γ ⊢ a: A):
     case wit =>
       simp only [proof, subst0]
       rw [Annot.prop_is_unit]
-      simp only [Term.stlc]
       constructor
       assumption
     
-    case let_wit => sorry
+    case let_wit =>
+      simp only [proof, subst0]
+      rw [Annot.stlc_ty_subst]
+      rw [Annot.prop_is_unit]
+      constructor
+      assumption
+      assumption
+
     case natrec => sorry
     case app => sorry
     case pair => sorry
