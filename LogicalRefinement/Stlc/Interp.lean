@@ -94,17 +94,6 @@ theorem HasType.stlc {Γ a A} (H: Γ ⊢ a: A):
     induction H;
 
     case var Hv IA => exact Stlc.HasType.var Hv.stlc_val
-
-    case let_set =>
-      constructor <;>
-      simp only [
-        subst0, alpha0, term, proof, wknth, wk1
-      ] at * <;>
-      (try rw [Annot.stlc_ty_subst] at *) <;>
-      (try rw [Annot.stlc_ty_wk] at *) <;>
-      first 
-      | assumption 
-      | apply HasType.wk_sort (by assumption); repeat constructor
     
     case abort => sorry
     case let_conj => sorry
@@ -125,9 +114,14 @@ theorem HasType.stlc {Γ a A} (H: Γ ⊢ a: A):
 
     all_goals (
       constructor <;>
-      simp only [subst0, alpha0, term, proof] at * <;>
-      try rw [Annot.stlc_ty_subst] at *
-      all_goals assumption
+      simp only [
+        subst0, alpha0, term, proof, wknth, wk1
+      ] at * <;>
+      (try rw [Annot.stlc_ty_subst] at *) <;>
+      (try rw [Annot.stlc_ty_wk] at *) <;>
+      first 
+      | assumption 
+      | apply HasType.wk_sort (by assumption); repeat constructor
     )
 
     --TODO: this
