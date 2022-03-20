@@ -71,8 +71,17 @@ theorem HasType.stlc_ty_subst {Γ A σ s} (H: Γ ⊢ A: sort s):
   )
 }
 
+theorem HasType.stlc_ty_wk {Γ A ρ s} (H: Γ ⊢ A: sort s):
+  (A.wk ρ).stlc_ty = A.stlc_ty := by {
+  rw [<-Subst.subst_wk_compat]
+  exact stlc_ty_subst H
+}
+
 theorem Annot.stlc_ty_subst {Γ A σ s k} (H: Γ ⊢ A: sort s):
   (expr k (A.subst σ)).stlc_ty = (expr k A).stlc_ty := H.stlc_ty_subst
+
+theorem Annot.stlc_ty_wk {Γ A ρ s k} (H: Γ ⊢ A: sort s):
+  (expr k (A.wk ρ)).stlc_ty = (expr k A).stlc_ty := H.stlc_ty_wk
 
 theorem HasVar.stlc_val {Γ A s n} (H: HasVar Γ A (HypKind.val s) n):
   Stlc.HasVar Γ.stlc (Annot.expr s A).stlc_ty n := by {
@@ -86,7 +95,17 @@ theorem HasType.stlc {Γ a A} (H: Γ ⊢ a: A):
 
     case var Hv IA => exact Stlc.HasType.var Hv.stlc_val
 
-    case let_set => sorry
+    case let_set =>
+      constructor
+      simp only [
+        subst0, alpha0, term, proof, wknth, wk1
+      ] at *
+      try rw [Annot.stlc_ty_subst] at *
+      try rw [Annot.stlc_ty_wk] at *
+      assumption
+      assumption
+      repeat sorry
+    
     case abort => sorry
     case let_conj => sorry
     case case_pr => sorry
