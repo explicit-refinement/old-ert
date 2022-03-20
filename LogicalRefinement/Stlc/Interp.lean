@@ -73,7 +73,15 @@ theorem HasType.stlc_ty_subst {Γ A σ s} (H: Γ ⊢ A: sort s):
 
 theorem Term.stlc_ty_wk {A: Term}: ∀{ρ}, (A.wk ρ).stlc_ty = A.stlc_ty 
 := by {
-  sorry
+  induction A <;> intro ρ <;> 
+  simp only [Term.stlc_ty, Term.wk]
+
+  case bin k l r Il Ir =>
+    cases k <;>
+    simp only [Term.stlc_ty, Term.wk, *]
+  case abs k l r Il Ir =>
+    cases k <;>
+    simp only [Term.stlc_ty, Term.wk, *]
 }
 
 theorem Annot.stlc_ty_subst {Γ A σ s k} (H: Γ ⊢ A: sort s):
