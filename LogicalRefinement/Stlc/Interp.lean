@@ -162,14 +162,17 @@ theorem HasType.stlc {Γ a A} (H: Γ ⊢ a: A):
     case repr => sorry
 
     all_goals (
-      constructor <;>
-      simp only [
-        subst0, alpha0, term, proof, wknth, wk1
-      ] at * <;>
-      (try rw [Annot.stlc_ty_subst] at *) <;>
-      (try rw [Annot.stlc_ty_wk] at *) <;>
       first 
-      | assumption 
-      | apply HasType.wk_sort (by assumption); repeat constructor
+      | (
+        constructor <;>
+        simp only [
+          subst0, alpha0, term, proof, wknth, wk1
+        ] at * <;>
+        (try rw [Annot.stlc_ty_subst] at *) <;>
+        (try rw [Annot.stlc_ty_wk] at *) <;>
+        first 
+        | assumption 
+        | apply HasType.wk_sort (by assumption); repeat constructor
+      )
     )
   }
