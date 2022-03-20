@@ -428,8 +428,6 @@ theorem HasType.sub (p: Γ ⊢ a: A): ∀{Δ}, Γ.is_sub Δ -> Δ ⊢ a: A := by
 theorem HasType.upgrade (p: Γ ⊢ a: A): Γ.upgrade ⊢ a: A 
   := HasType.sub p Context.is_sub.upgrade
 
---TODO: define context type, coercion to raw context?
-
 inductive IsCtx: Context -> Type
   | nil: IsCtx []
   | cons_val {Γ A s}: 
@@ -439,18 +437,4 @@ inductive IsCtx: Context -> Type
     IsCtx Γ -> (Γ ⊢ A: type) -> 
     IsCtx ((Hyp.mk A HypKind.gst)::Γ)
 
--- theorem HasType.ctx_regular (p: Γ ⊢ a: A): IsCtx Γ := by {
---   induction p <;> first
---   | assumption
---   | constructor <;> assumption
--- }
-
 def IsHyp (Γ: Context) (H: Hyp): Prop := Γ ⊢ H.ty: sort H.kind.annot
-
--- def HasType.wk1
---   (Ha: HasType Γ a A) (H: Hyp) (HH: IsHyp Γ H):
---   HasType (H::Γ) a.wk1 A.wk1 := by { 
---     cases HH <;>
---     apply wk1_inner <;>
---     first | assumption | constructor
---   }
