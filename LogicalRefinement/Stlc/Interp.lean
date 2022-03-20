@@ -132,7 +132,6 @@ theorem HasType.stlc {Γ a A} (H: Γ ⊢ a: A):
 
     case var Hv IA => exact Stlc.HasType.var Hv.stlc_val
 
-    case natrec => sorry
     case app => sorry
     case pair => sorry
     case elem => sorry
@@ -145,11 +144,14 @@ theorem HasType.stlc {Γ a A} (H: Γ ⊢ a: A):
       simp only [
         subst0, alpha0, term, proof, wknth, wk1
       ] at * <;>
-      (try rw [Annot.stlc_ty_subst] at *) <;>
-      (try rw [Annot.stlc_ty_wk] at *) <;>
+      (repeat rw [Annot.stlc_ty_subst] at *) <;>
+      (repeat rw [Annot.stlc_ty_wk] at *) <;>
       first 
       | assumption 
-      | apply HasType.wk_sort (by assumption); repeat constructor
+      | (
+        apply HasType.wk_sort (by assumption); 
+        repeat first | assumption | constructor
+      )
     )
 
     all_goals (
