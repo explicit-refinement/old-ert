@@ -237,8 +237,10 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType ((Hyp.mk A (HypKind.val type))::Γ) s (proof φ) ->
     HasType Γ (general A s) (proof (forall_ A φ))
   | inst {Γ: Context} {A φ l r: Term}:
-    HasType Γ l (proof (forall_ A φ)) -> HasType Γ.upgrade r (term A) ->
-    HasType Γ (inst l r) (proof (φ.subst0 l))
+    HasType Γ (forall_ A φ) prop ->
+    HasType Γ l (proof (forall_ A φ)) -> 
+    HasType Γ.upgrade r (term A) ->
+    HasType Γ (inst (forall_ A φ) l r) (proof (φ.subst0 l))
   | wit {Γ: Context} {A φ l r: Term}:
     HasType Γ (exists_ A φ) prop ->
     HasType Γ l (term A) -> HasType Γ.upgrade r (proof (φ.subst0 l)) ->

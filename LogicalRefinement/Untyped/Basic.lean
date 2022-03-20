@@ -68,7 +68,7 @@ inductive TermKind: List Nat -> Type
   -- Consider merging with intro/elim for 
   -- (pi, ghost, prop) == (pi, type, prop)
   | general: TermKind [0, 1]
-  | inst: TermKind [0, 0]
+  | inst: TermKind [0, 0, 0]
   -- Consider merging with intro/elim for 
   -- (sigma, ghost, prop) == (sigma, type, prop)
   | wit: TermKind [0, 0]
@@ -153,7 +153,7 @@ def Term.case_pr := cases TermKind.case_pr
 def Term.imp := abs TermKind.imp
 def Term.mp := tri TermKind.mp
 def Term.general := abs TermKind.general
-def Term.inst := bin TermKind.inst
+def Term.inst := tri TermKind.inst
 def Term.wit := bin TermKind.wit
 def Term.let_wit := let_bin TermKind.let_wit
 
