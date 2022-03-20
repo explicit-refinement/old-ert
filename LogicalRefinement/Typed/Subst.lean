@@ -9,8 +9,6 @@ open Term
 open Annot
 open AnnotSort
 
---TODO: fill in with proper definition
-
 inductive SubstVar: Subst -> Context -> Nat -> Term -> HypKind -> Prop
   | expr {σ Γ n A k}: (Γ ⊢ σ n: expr k.annot (A.subst σ)) -> SubstVar σ Γ n A k
   | var {σ Γ n A k m}: σ n = var m -> HasVar Γ (A.subst σ) k m -> SubstVar σ Γ n A k
@@ -18,7 +16,6 @@ inductive SubstVar: Subst -> Context -> Nat -> Term -> HypKind -> Prop
 def SubstCtx (σ: Subst) (Γ Δ: Context): Prop :=  
   ∀{n A k}, HasVar Δ A k n -> SubstVar σ Γ n A k
 
---TODO: this is inconsistent, fill in with proper definition
 theorem SubstCtx.lift_primitive 
   {σ: Subst} {Γ Δ: Context} {A: Term} {k k': HypKind}:
   SubstCtx σ Γ Δ ->
