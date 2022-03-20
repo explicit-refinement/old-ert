@@ -131,12 +131,10 @@ theorem HasType.stlc {Γ a A} (H: Γ ⊢ a: A):
     case natrec => sorry
     case app => sorry
     case pair => sorry
-    case let_pair => sorry
     case elem => sorry
     case app_pr => sorry
     case app_irrel => sorry
     case repr => sorry
-    case let_repr => sorry
 
     all_goals (
       constructor <;>
