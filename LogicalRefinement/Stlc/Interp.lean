@@ -46,6 +46,7 @@ def Term.stlc: Term -> Stlc
   Stlc.let_pair P.stlc_ty e.stlc e'.stlc
 | const TermKind.zero => Stlc.zero
 | const TermKind.succ => Stlc.succ
+| unary TermKind.abort _ => Stlc.abort
 | _ => Stlc.nil
 
 def Hyp.stlc: Hyp -> Ty
@@ -121,8 +122,6 @@ theorem HasType.stlc {Γ a A} (H: Γ ⊢ a: A):
     induction H;
 
     case var Hv IA => exact Stlc.HasType.var Hv.stlc_val
-    
-    case abort => sorry
     case let_conj => sorry
     case case_pr => sorry
     case mp => sorry
