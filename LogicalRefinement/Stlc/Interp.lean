@@ -101,18 +101,10 @@ theorem HasType.stlc {Γ a A} (H: Γ ⊢ a: A):
         subst0, alpha0, term, proof, wknth, wk1
       ] at * <;>
       (try rw [Annot.stlc_ty_subst] at *) <;>
-      (try rw [Annot.stlc_ty_wk] at *)
-      assumption
-      assumption
-      apply HasType.wk_sort
-      assumption
-      repeat constructor
-      assumption
-      assumption
-      apply HasType.wk_sort
-      assumption
-      repeat constructor
-      assumption
+      (try rw [Annot.stlc_ty_wk] at *) <;>
+      first 
+      | assumption 
+      | apply HasType.wk_sort (by assumption); repeat constructor
     
     case abort => sorry
     case let_conj => sorry
