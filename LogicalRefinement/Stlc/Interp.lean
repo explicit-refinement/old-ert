@@ -19,9 +19,19 @@ def Term.stlc_ty: Term -> Ty
 | const TermKind.nats => Ty.nats
 | _ => Ty.unit
 
+theorem HasType.prop_is_unit {Γ A}: (Γ ⊢ A: prop) -> A.stlc_ty = Ty.unit
+:= sorry
+
+open Annot
+open AnnotSort
+
 def Annot.stlc_ty: Annot -> Ty
 | expr _ A => A.stlc_ty
 | sort _ => Ty.unit
+
+theorem Annot.prop_is_unit {Γ A s}: 
+  (Γ ⊢ A: prop) -> (expr s A).stlc_ty = Ty.unit
+  := HasType.prop_is_unit
 
 def Term.stlc: Term -> Stlc
 | var n => Stlc.var n
@@ -57,9 +67,6 @@ def Hyp.stlc: Hyp -> Ty
 def Context.stlc: Context -> Stlc.Context
 | [] => []
 | H::Hs => H.stlc::(stlc Hs)
-
-open Annot
-open AnnotSort
 
 theorem HasType.stlc_ty_subst {Γ A σ s} (H: Γ ⊢ A: sort s):
   (A.subst σ).stlc_ty = A.stlc_ty := by {
@@ -123,8 +130,16 @@ theorem HasType.stlc {Γ a A} (H: Γ ⊢ a: A):
     induction H;
 
     case var Hv IA => exact Stlc.HasType.var Hv.stlc_val
+
+    case case_pr =>
+      simp only [proof, subst0]
+      rw [Annot.stlc_ty_subst]
+      rw [Annot.prop_is_unit]
+      constructor
+      assumption
+      assumption
+
     case let_conj => sorry
-    case case_pr => sorry
     case mp => sorry
     case inst => sorry
     case wit => sorry
