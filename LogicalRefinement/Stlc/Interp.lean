@@ -47,6 +47,7 @@ def Term.stlc: Term -> Stlc
 | const TermKind.zero => Stlc.zero
 | const TermKind.succ => Stlc.succ
 | unary TermKind.abort _ => Stlc.abort
+| natrec K n z s => Stlc.natrec n.stlc z.stlc s.stlc
 | _ => Stlc.nil
 
 def Hyp.stlc: Hyp -> Ty
