@@ -3,6 +3,8 @@ import LogicalRefinement.Untyped
 import LogicalRefinement.Typed
 open Term
 open TermKind
+open Annot
+open AnnotSort
 
 -- tfw your termination checker doesn't terminate
 set_option maxHeartbeats 1000000
@@ -20,10 +22,10 @@ def Term.stlc_ty: Term -> Ty
 | _ => Ty.unit
 
 theorem HasType.prop_is_unit {Γ A}: (Γ ⊢ A: prop) -> A.stlc_ty = Ty.unit
-:= sorry
-
-open Annot
-open AnnotSort
+:= by {
+  intro H;
+  cases H <;> rfl
+}
 
 def Annot.stlc_ty: Annot -> Ty
 | expr _ A => A.stlc_ty
