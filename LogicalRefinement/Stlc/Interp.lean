@@ -149,7 +149,7 @@ theorem HasType.stlc {Γ a A} (H: Γ ⊢ a: A):
       assumption
       assumption
 
-    case mp Hφψ I2 I3 _ _ _ => 
+    case mp Hφψ _ _ _ _ _ => 
       simp only [proof, subst0]
       rw [Annot.stlc_ty_subst]
       rw [Annot.prop_is_unit]
