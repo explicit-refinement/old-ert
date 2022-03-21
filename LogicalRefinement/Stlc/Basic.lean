@@ -257,6 +257,12 @@ def Stlc.subst: Stlc -> Subst -> Stlc
 def Stlc.SubstCtx (σ: Subst) (Γ Δ: Context): Prop :=  
   ∀{n A}, HasVar Δ n A -> HasType Γ (σ n) A
 
+def Stlc.SubstCtx.lift {σ Γ Δ A} (S: SubstCtx σ Γ Δ)
+  : SubstCtx (σ.lift) (A::Γ) (A::Δ)
+  := by {
+    sorry
+  }
+
 theorem Stlc.HasType.subst {Δ a A} (H: HasType Δ a A): 
   ∀{Γ σ}, SubstCtx σ Γ Δ -> HasType Γ (a.subst σ) A := by {
   induction H <;> intro Γ σ S;
