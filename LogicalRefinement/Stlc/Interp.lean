@@ -57,7 +57,7 @@ def Term.stlc: Term -> Stlc
 | const TermKind.succ => Stlc.succ
 | unary TermKind.abort _ => Stlc.abort
 | natrec K n z s => Stlc.natrec n.stlc z.stlc s.stlc.lower1
-| _ => Stlc.nil
+| _ => Stlc.abort
 
 def Hyp.stlc: Hyp -> Ty
 | Hyp.mk A (HypKind.val s) => A.stlc_ty
@@ -146,7 +146,7 @@ set_option maxHeartbeats 1000000
 theorem HasType.stlc {Γ a A} (H: Γ ⊢ a: A):
   Stlc.HasType Γ.stlc a.stlc A.stlc_ty
   := by {
-    induction H;
+    induction H <;> try exact Stlc.HasType.abort
 
     case var Hv IA => exact Stlc.HasType.var Hv.stlc_val
 
@@ -189,5 +189,23 @@ theorem HasType.stlc {Γ a A} (H: Γ ⊢ a: A):
       assumption
       cases HAB; assumption
 
-    all_goals sorry
+    case lam_pr => sorry
+    case lam_irrel => sorry
+
+    case let_pair => sorry
+    case let_set => sorry
+    case let_repr => sorry
+
+    case case => sorry
+    case natrec => sorry
+
+    all_goals try (
+      constructor <;>
+      simp only [
+        subst0, alpha0, term, proof, wknth, wk1
+      ] at * <;>
+      (repeat rw [Annot.stlc_nil_ty_subst] at *) <;>
+      (repeat rw [Annot.stlc_nil_ty_wk] at *) <;>
+      assumption
+    )
   }
