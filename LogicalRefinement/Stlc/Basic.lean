@@ -113,9 +113,6 @@ inductive Stlc
   | succ
   | natrec (n: Stlc) (z: Stlc) (s: Stlc)
 
-  -- An invalid term, used as a placeholder
-  | invalid
-
 def Stlc.wk: Stlc -> Wk -> Stlc
 | var n, ρ => var (ρ.var n)
 | lam A s, ρ => lam A (s.wk ρ.lift)
@@ -252,10 +249,19 @@ def Stlc.subst: Stlc -> Subst -> Stlc
 
 def Stlc.subst0 (s: Stlc) (e: Stlc): Stlc := s.subst e.to_subst
 
-def Stlc.lower_var (s: Stlc): Stlc := s.subst0 invalid
+def Stlc.lower_var (s: Stlc): Stlc := s.subst0 abort
 
 def Stlc.SubstCtx (σ: Subst) (Γ Δ: Context): Prop :=  
   ∀{n A}, HasVar Δ n A -> HasType Γ (σ n) A
+
+def Stlc.HasType.subst_ctx {Γ a A} (H: HasType Γ a A)
+  : SubstCtx (a.to_subst) Γ (A::Γ)
+  := by {
+    intro n;
+    cases n with
+    | zero => intro B H; cases H; assumption
+    | succ => intro B H; cases H; constructor; assumption
+  } 
 
 def Stlc.SubstCtx.lift {σ Γ Δ A} (S: SubstCtx σ Γ Δ)
   : SubstCtx (σ.lift) (A::Γ) (A::Δ)
