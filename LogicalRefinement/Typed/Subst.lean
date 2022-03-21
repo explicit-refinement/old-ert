@@ -11,10 +11,10 @@ open AnnotSort
 
 inductive SubstVar: Subst -> Context -> Nat -> Term -> HypKind -> Prop
   | expr {σ Γ n A k}: (Γ ⊢ σ n: expr k.annot (A.subst σ)) -> SubstVar σ Γ n A k
-  | var {σ Γ n A k m}: σ n = var m -> HasVar Γ (A.subst σ) k m -> SubstVar σ Γ n A k
+  | var {σ Γ n A k m}: σ n = var m -> HasVar Γ m k (A.subst σ) -> SubstVar σ Γ n A k
 
 def SubstCtx (σ: Subst) (Γ Δ: Context): Prop :=  
-  ∀{n A k}, HasVar Δ A k n -> SubstVar σ Γ n A k
+  ∀{n A k}, HasVar Δ n k A -> SubstVar σ Γ n A k
 
 theorem SubstCtx.lift_primitive 
   {σ: Subst} {Γ Δ: Context} {A: Term} {k k': HypKind}:

@@ -126,14 +126,17 @@ def Stlc.Context.interp: Context -> Type
 | [] => Unit
 | A::As => Prod A.interp_val (interp As)
 
-inductive Stlc.HasVar: Context -> Ty -> Nat -> Prop
-| zero {Γ A}: HasVar (A::Γ) A 0
-| succ {Γ A B n}: HasVar Γ A n -> HasVar (B::Γ) A (Nat.succ n)
+inductive Stlc.HasVar: Context -> Nat -> Ty -> Prop
+| zero {Γ A}: HasVar (A::Γ) 0 A
+| succ {Γ A B n}: HasVar Γ n A -> HasVar (B::Γ) (Nat.succ n) A
 
-theorem Stlc.HasVar.zero_invert {Γ A B} (P: HasVar (A::Γ) B 0): A = B := by cases P; rfl
-theorem Stlc.HasVar.succ_invert {Γ A B} (P: HasVar (A::Γ) B (n + 1)): HasVar Γ B n := by cases P; assumption
+theorem Stlc.HasVar.zero_invert {Γ A B} (P: HasVar (A::Γ) 0 B): A = B 
+  := by cases P; rfl
+theorem Stlc.HasVar.succ_invert {Γ A B} (P: HasVar (A::Γ) (n + 1) B)
+  : HasVar Γ n B := by cases P; assumption
 
-def Stlc.HasVar.interp {Γ A n} (H: HasVar Γ A n) (G: Γ.interp): A.interp_val :=
+def Stlc.HasVar.interp {Γ A n} (H: HasVar Γ n A) (G: Γ.interp)
+  : A.interp_val :=
   match Γ with
   | [] => by {
     apply False.elim;
@@ -146,7 +149,7 @@ def Stlc.HasVar.interp {Γ A n} (H: HasVar Γ A n) (G: Γ.interp): A.interp_val 
     | Nat.succ n => H.succ_invert.interp G
 
 inductive Stlc.HasType: Context -> Stlc -> Ty -> Prop
-| var {Γ A n}: HasVar Γ A n -> HasType Γ (var n) A
+| var {Γ A n}: HasVar Γ n A -> HasType Γ (var n) A
 | lam {Γ A B s}: HasType (A::Γ) s B -> HasType Γ (lam A s) (arrow A B)
 | app {Γ A B s t}: HasType Γ s (arrow A B) -> HasType Γ t A -> HasType Γ (app (arrow A B) s t) B
 
@@ -177,8 +180,8 @@ inductive Stlc.WkCtx: Wk -> Context -> Context -> Prop
   | step {ρ Γ Δ A}: WkCtx ρ Γ Δ -> WkCtx ρ.step (A::Γ) Δ 
   | lift {ρ Γ Δ A}: WkCtx ρ Γ Δ -> WkCtx ρ.lift (A::Γ) (A::Δ)
 
-theorem Stlc.HasVar.wk {Γ Δ n A} (H: HasVar Δ A n):
-  ∀{ρ}, WkCtx ρ Γ Δ -> HasVar Γ A (ρ.var n) := by {
+theorem Stlc.HasVar.wk {Γ Δ n A} (H: HasVar Δ n A):
+  ∀{ρ}, WkCtx ρ Γ Δ -> HasVar Γ (ρ.var n) A := by {
     sorry
   }
 
@@ -222,7 +225,7 @@ def Stlc.subst: Stlc -> Subst -> Stlc
 | c, σ => c
 
 def Stlc.SubstCtx (σ: Subst) (Γ Δ: Context): Prop :=  
-  ∀{n A}, HasVar Δ A n -> HasType Γ (σ n) A
+  ∀{n A}, HasVar Δ n A -> HasType Γ (σ n) A
 
 theorem Stlc.HasType.subst {Γ Δ a A} (H: HasType Δ a A): 
   ∀{σ}, SubstCtx σ Γ Δ -> HasType Γ (a.subst σ) A := by {
@@ -245,7 +248,7 @@ theorem Stlc.HasType.subst {Γ Δ a A} (H: HasType Δ a A):
 def Stlc.HasType.interp {Γ a A} (H: HasType Γ a A) (G: Γ.interp): A.interp :=
   match a with
   | Stlc.var n => 
-    let v: HasVar Γ A n := by cases H; assumption;
+    let v: HasVar Γ n A := by cases H; assumption;
     Ty.eager (v.interp G)
   | Stlc.lam X s => by cases A with
     | arrow A B =>

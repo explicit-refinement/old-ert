@@ -8,13 +8,13 @@ open Annot
 open AnnotSort
 
 
-inductive HasVar: Context -> Term -> HypKind -> Nat -> Prop
+inductive HasVar: Context -> Nat -> HypKind -> Term -> Prop
   | var0 {Γ: Context} {A: Term} {k k': HypKind}:
-    k'.is_sub k -> HasVar ((Hyp.mk A k)::Γ) A.wk1 k' 0
+    k'.is_sub k -> HasVar ((Hyp.mk A k)::Γ) 0 k' A.wk1 
   | var_succ {Γ: Context} {A: Term} {k: HypKind} {H: Hyp} {n: Nat}:
-    HasVar Γ A k n -> HasVar (H::Γ) A.wk1 k (n + 1)
+    HasVar Γ n k A -> HasVar (H::Γ) (n + 1) k A.wk1
 
-theorem HasVar.fv (H: HasVar Γ A s n): n < Γ.length := by {
+theorem HasVar.fv (H: HasVar Γ n s A): n < Γ.length := by {
   induction H with
   | var0 =>
     apply Nat.succ_le_succ
@@ -51,7 +51,7 @@ inductive HasType: Context -> Term -> Annot -> Prop
   -- Variables
   | var {Γ: Context} {A: Term} {s: AnnotSort} {n: Nat}:
     HasType Γ A (sort s) ->
-    HasVar Γ A (HypKind.val s) n ->
+    HasVar Γ n (HypKind.val s) A ->
     HasType Γ (var n) (expr s A)
 
   -- Types

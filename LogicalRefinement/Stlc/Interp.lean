@@ -105,8 +105,8 @@ theorem Annot.stlc_ty_wk {A k}: ∀{ρ},
   (expr k (A.wk ρ)).stlc_ty = (expr k A).stlc_ty := Term.stlc_ty_wk
 
 theorem HasVar.stlc_val {Γ A s n}: 
-  HasVar Γ A (HypKind.val s) n ->
-  Stlc.HasVar Γ.stlc (Annot.expr s A).stlc_ty n := by {
+  HasVar Γ n (HypKind.val s) A ->
+  Stlc.HasVar Γ.stlc n (Annot.expr s A).stlc_ty := by {
     revert A s n;
     induction Γ with
     | nil => intro A s n H; cases H
