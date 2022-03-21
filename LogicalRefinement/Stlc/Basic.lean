@@ -238,7 +238,7 @@ def Stlc.subst: Stlc -> Subst -> Stlc
 | var n, σ => σ n
 | lam A s, σ => lam A (s.subst σ.lift)
 | app P s t, σ => app P (s.subst σ) (t.subst σ)
-| let_in A e e', σ => let_in A (e.subst σ) (e'.subst σ)
+| let_in A e e', σ => let_in A (e.subst σ) (e'.subst σ.lift)
 | pair l r, σ => pair (l.subst σ) (r.subst σ)
 | let_pair P e e', σ => let_pair P (e.subst σ) (e'.subst (σ.liftn 2))
 | inj i e, σ => inj i (e.subst σ)
@@ -259,19 +259,13 @@ theorem Stlc.HasType.subst {Δ a A} (H: HasType Δ a A):
   ∀{Γ σ}, SubstCtx σ Γ Δ -> HasType Γ (a.subst σ) A := by {
   induction H <;> intro Γ σ S;
   case var H => exact S H
-  case lam => sorry
-  case app => sorry
-  case let_in => sorry
-  case pair => sorry
-  case let_pair => sorry
-  case inj0 => sorry
-  case inj1 => sorry
-  case case => sorry
-  case nil => sorry
-  case abort => sorry
-  case zero => sorry
-  case succ => sorry
-  case natrec => sorry
+  all_goals (
+    rename_i' I0 I1 I2;
+    constructor <;>
+    (first | apply I0 | apply I1 | apply I2) <;>
+    (repeat apply SubstCtx.lift) <;>
+    exact S
+  )
 }
 
 def Stlc.HasType.interp {Γ a A} (H: HasType Γ a A) (G: Γ.interp): A.interp :=
