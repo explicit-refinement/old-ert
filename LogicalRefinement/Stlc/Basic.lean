@@ -257,23 +257,23 @@ def Stlc.subst: Stlc -> Subst -> Stlc
 def Stlc.SubstCtx (σ: Subst) (Γ Δ: Context): Prop :=  
   ∀{n A}, HasVar Δ n A -> HasType Γ (σ n) A
 
-theorem Stlc.HasType.subst {Γ Δ a A} (H: HasType Δ a A): 
-  ∀{σ}, SubstCtx σ Γ Δ -> HasType Γ (a.subst σ) A := by {
-  induction H with
-  | var => sorry
-  | lam => sorry
-  | app => sorry
-  | let_in => sorry
-  | pair => sorry
-  | let_pair => sorry
-  | inj0 => sorry
-  | inj1 => sorry
-  | case => sorry
-  | nil => sorry
-  | abort => sorry
-  | zero => sorry
-  | succ => sorry
-  | natrec => sorry
+theorem Stlc.HasType.subst {Δ a A} (H: HasType Δ a A): 
+  ∀{Γ σ}, SubstCtx σ Γ Δ -> HasType Γ (a.subst σ) A := by {
+  induction H <;> intro Γ σ S;
+  case var H => exact S H
+  case lam => sorry
+  case app => sorry
+  case let_in => sorry
+  case pair => sorry
+  case let_pair => sorry
+  case inj0 => sorry
+  case inj1 => sorry
+  case case => sorry
+  case nil => sorry
+  case abort => sorry
+  case zero => sorry
+  case succ => sorry
+  case natrec => sorry
 }
 
 def Stlc.HasType.interp {Γ a A} (H: HasType Γ a A) (G: Γ.interp): A.interp :=
