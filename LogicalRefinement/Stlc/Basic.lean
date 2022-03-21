@@ -226,6 +226,10 @@ theorem Stlc.HasType.wk {Δ a A} (H: HasType Δ a A):
 
 def Stlc.Subst := Nat -> Stlc
 
+def Stlc.to_subst (s: Stlc): Subst
+| 0 => s
+| n + 1 => var n
+
 def Stlc.Subst.lift (σ: Subst): Subst
 | 0 => var 0
 | n + 1 => (σ n).wk1
@@ -245,6 +249,10 @@ def Stlc.subst: Stlc -> Subst -> Stlc
 | case P d l r, σ => case P (d.subst σ) (l.subst σ.lift) (r.subst σ.lift)
 | natrec n z s, σ => natrec (n.subst σ) (z.subst σ) (s.subst σ.lift)
 | c, σ => c
+
+def Stlc.subst0 (s: Stlc) (e: Stlc): Stlc := s.subst e.to_subst
+
+def Stlc.lower_var (s: Stlc): Stlc := s.subst0 invalid
 
 def Stlc.SubstCtx (σ: Subst) (Γ Δ: Context): Prop :=  
   ∀{n A}, HasVar Δ n A -> HasType Γ (σ n) A
