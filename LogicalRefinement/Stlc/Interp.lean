@@ -79,9 +79,9 @@ def Context.stlc_subst: (Γ: Context) -> Stlc.Subst
                   | 0 => Stlc.abort
                   | Nat.succ n => stlc_subst Hs n)
 
-theorem Context.stlc_subst_ctx {Γ: Context}
-  : Stlc.SubstCtx Γ.stlc_subst Γ.stlc_strict Γ.stlc
-  := by sorry
+-- theorem Context.stlc_subst_ctx {Γ: Context}
+--   : Stlc.SubstCtx Γ.stlc_subst Γ.stlc_strict Γ.stlc
+--   := by sorry
 
 theorem HasType.stlc_ty_subst {Γ A σ s} (H: Γ ⊢ A: sort s):
   (A.subst σ).stlc_ty = A.stlc_ty := by {
