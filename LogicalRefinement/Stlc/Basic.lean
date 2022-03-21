@@ -248,8 +248,10 @@ def Stlc.subst: Stlc -> Subst -> Stlc
 | c, σ => c
 
 def Stlc.subst0 (s: Stlc) (e: Stlc): Stlc := s.subst e.to_subst
+def Stlc.subst1 (s: Stlc) (e: Stlc): Stlc := s.subst e.to_subst.lift
 
-def Stlc.lower_var (s: Stlc): Stlc := s.subst0 abort
+def Stlc.lower_0 (s: Stlc): Stlc := s.subst0 abort
+def Stlc.lower_1 (s: Stlc): Stlc := s.subst1 abort
 
 def Stlc.SubstCtx (σ: Subst) (Γ Δ: Context): Prop :=  
   ∀{n A}, HasVar Δ n A -> HasType Γ (σ n) A
