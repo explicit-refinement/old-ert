@@ -43,20 +43,20 @@ def Term.stlc: Term -> Stlc
 | unary (TermKind.inj i) e => Stlc.inj i e.stlc
 | cases TermKind.case P d l r => 
   Stlc.case P.stlc_ty d.stlc l.stlc r.stlc
-| abs TermKind.lam_pr φ x => x.stlc.lower_0
+| abs TermKind.lam_pr φ x => x.stlc.lower0
 | tri TermKind.app_pr P e φ => e.stlc
 | bin TermKind.elem e φ => e.stlc
 | let_bin TermKind.let_set P e e' =>
-  Stlc.let_in P.stlc_ty e.stlc e'.stlc.lower_0
-| abs TermKind.lam_irrel A x => x.stlc.lower_0
+  Stlc.let_in P.stlc_ty e.stlc e'.stlc.lower0
+| abs TermKind.lam_irrel A x => x.stlc.lower0
 | tri TermKind.app_irrel P l r => l.stlc
 | bin TermKind.repr l r => r.stlc
 | let_bin TermKind.let_repr P e e' => 
-  Stlc.let_in P.stlc_ty e.stlc e'.stlc.lower_1
+  Stlc.let_in P.stlc_ty e.stlc e'.stlc.lower1
 | const TermKind.zero => Stlc.zero
 | const TermKind.succ => Stlc.succ
 | unary TermKind.abort _ => Stlc.abort
-| natrec K n z s => Stlc.natrec n.stlc z.stlc s.stlc.lower_1
+| natrec K n z s => Stlc.natrec n.stlc z.stlc s.stlc.lower1
 | _ => Stlc.nil
 
 def Hyp.stlc: Hyp -> Ty
