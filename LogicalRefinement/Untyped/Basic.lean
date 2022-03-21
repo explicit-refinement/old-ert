@@ -80,7 +80,8 @@ inductive TermKind: List Nat -> Type
   | trans: TermKind [0]
   | cong: TermKind [0, 1]
   | beta: TermKind [0, 1]
-  --TODO: reduction rules for cases
+  | cases_left: TermKind [0, 0, 1, 1]
+  | cases_right: TermKind [0, 0, 1, 1]
   | eta: TermKind [0, 0]
   | irir: TermKind [0, 0, 0]
   | prir: TermKind [0, 0, 0]
@@ -89,7 +90,9 @@ inductive TermKind: List Nat -> Type
   | nats: TermKind []
   | zero: TermKind []
   | succ: TermKind []
-  --TODO: reduction rules for natural numbers eliminator
+  --TODO: add natrec here
+  | natrec_zero: TermKind [0, 0, 1, 2]
+  | natrec_succ: TermKind [0, 0, 1, 2]
 
   -- Placeholder for invalid terms/types
   | invalid: TermKind []
