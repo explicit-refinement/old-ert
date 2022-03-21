@@ -140,9 +140,54 @@ theorem HasVar.stlc_val {Γ A s n}:
 
   }
 
+-- But why...
+set_option maxHeartbeats 1000000
+
 theorem HasType.stlc {Γ a A} (H: Γ ⊢ a: A):
   Stlc.HasType Γ.stlc a.stlc A.stlc_ty
   := by {
     induction H;
+
+    case var Hv IA => exact Stlc.HasType.var Hv.stlc_val
+
+    case app HAB _ _ _ _ _ =>
+      simp only [Term.stlc, Term.stlc_ty, subst0, term] at *
+      repeat rw [Annot.stlc_ty_subst] at *
+      constructor
+      assumption
+      assumption
+      cases HAB; assumption
+
+    case pair  HAB _ _ _ _ _ =>
+      simp only [Term.stlc, Term.stlc_ty, subst0, term] at *
+      repeat rw [Annot.stlc_ty_subst] at *
+      constructor
+      assumption
+      assumption
+      cases HAB; assumption
+
+    case elem HAφ _ _ _ _ _ =>
+      simp only [Term.stlc, Term.stlc_ty, subst0, term] at *
+      repeat rw [Annot.stlc_ty_subst] at *
+      assumption
+
+    case app_pr HφA _ _ _ _ _ =>
+      simp only [Term.stlc, Term.stlc_ty, subst0, term]
+      repeat rw [Annot.stlc_ty_subst] at *
+      assumption
+      cases HφA; assumption
+
+    case app_irrel HAB _ _ _ _ _ =>
+      simp only [Term.stlc, Term.stlc_ty, subst0, term]
+      repeat rw [Annot.stlc_ty_subst] at *
+      assumption
+      cases HAB; assumption
+
+    case repr HAB _ _ _ _ _ =>
+      simp only [Term.stlc, Term.stlc_ty, subst0, term] at *
+      repeat rw [Annot.stlc_ty_subst] at *
+      assumption
+      cases HAB; assumption
+
     all_goals sorry
   }
