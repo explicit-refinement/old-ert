@@ -254,7 +254,7 @@ def Stlc.lower_var (s: Stlc): Stlc := s.subst0 abort
 def Stlc.SubstCtx (σ: Subst) (Γ Δ: Context): Prop :=  
   ∀{n A}, HasVar Δ n A -> HasType Γ (σ n) A
 
-def Stlc.HasType.subst_ctx {Γ a A} (H: HasType Γ a A)
+def Stlc.HasType.subst0 {Γ a A} (H: HasType Γ a A)
   : SubstCtx (a.to_subst) Γ (A::Γ)
   := by {
     intro n;
