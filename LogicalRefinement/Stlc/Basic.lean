@@ -84,28 +84,31 @@ def Ty.interp.natrec {C: Ty} (n: nats.interp)
   | none => C.abort
 
 inductive Stlc
--- Basic
-| var (n: Nat)
-| lam (A: Ty) (s: Stlc)
-| app (P: Ty) (s t: Stlc)
+  -- Basic
+  | var (n: Nat)
+  | lam (A: Ty) (s: Stlc)
+  | app (P: Ty) (s t: Stlc)
 
--- Products and coproducts
-| pair (l r: Stlc)
-| let_pair (P: Ty) (e: Stlc) (e': Stlc)
+  -- Products and coproducts
+  | pair (l r: Stlc)
+  | let_pair (P: Ty) (e: Stlc) (e': Stlc)
 
-| inj (f: Fin 2) (e: Stlc)
-| case (P: Ty) (d l r: Stlc)
+  | inj (f: Fin 2) (e: Stlc)
+  | case (P: Ty) (d l r: Stlc)
 
--- Erasure
-| nil
+  -- Erasure
+  | nil
 
--- Failure
-| abort
+  -- Failure
+  | abort
 
--- Natural numbers
-| zero
-| succ
-| natrec (n: Stlc) (z: Stlc) (s: Stlc)
+  -- Natural numbers
+  | zero
+  | succ
+  | natrec (n: Stlc) (z: Stlc) (s: Stlc)
+
+  -- An invalid term, used as a placeholder
+  | invalid
 
 def Stlc.wk: Stlc -> Wk -> Stlc
 | var n, ρ => var (ρ.var n)
@@ -115,7 +118,7 @@ def Stlc.wk: Stlc -> Wk -> Stlc
 | let_pair P e e', ρ => let_pair P (e.wk ρ) (e'.wk (ρ.liftn 2))
 | inj i e, ρ => inj i (e.wk ρ)
 | case P d l r, ρ => case P (d.wk ρ) (l.wk ρ.lift) (r.wk ρ.lift)
-| natrec n z s, ρ => natrec (n.wk ρ) (z.wk ρ) (s.wk (ρ.liftn 2))
+| natrec n z s, ρ => natrec (n.wk ρ) (z.wk ρ) (s.wk ρ.lift)
 | c, ρ => c
 
 def Stlc.wk1 (σ: Stlc): Stlc := σ.wk Wk.wk1
@@ -196,22 +199,25 @@ theorem Stlc.HasVar.wk {Γ Δ n A} (H: HasVar Δ n A):
       | succ H => exact HasVar.succ (I H) 
   }
 
-theorem Stlc.HasType.wk {Γ Δ a A} (H: HasType Δ a A): 
-  ∀{ρ}, WkCtx ρ Γ Δ -> HasType Γ (a.wk ρ) A := by {
-  induction H with
-  | var => sorry
-  | lam => sorry
-  | app => sorry
-  | pair => sorry
-  | let_pair => sorry
-  | inj0 => sorry
-  | inj1 => sorry
-  | case => sorry
-  | nil => sorry
-  | abort => sorry
-  | zero => sorry
-  | succ => sorry
-  | natrec => sorry
+theorem Stlc.HasType.wk {Δ a A} (H: HasType Δ a A): 
+  ∀{Γ ρ}, WkCtx ρ Γ Δ -> HasType Γ (a.wk ρ) A := by {
+  induction H <;> intro Γ ρ R;
+  case var H => exact HasType.var (H.wk R)
+  case lam Hs Is => exact HasType.lam (Is R.lift)
+  case app Hl Hr Il Ir => exact HasType.app (Il R) (Ir R)
+  case pair Hl Hr Il Ir => exact HasType.pair (Il R) (Ir R)
+  case let_pair He He' Ie Ie' => 
+     exact HasType.let_pair (Ie R) (Ie' R.lift.lift)
+  case inj0 He Ie => exact HasType.inj0 (Ie R)
+  case inj1 He Ie => exact HasType.inj1 (Ie R)
+  case case Hd Hl Hr Ie Il Ir => 
+    exact HasType.case (Ie R) (Il R.lift) (Ir R.lift) 
+  case nil => exact HasType.nil
+  case abort => exact HasType.abort
+  case zero => exact HasType.zero
+  case succ => exact HasType.succ
+  case natrec Hn Hz Hs In Iz Is =>
+    exact HasType.natrec (In R) (Iz R) (Is R.lift)
 }
 
 def Stlc.Subst := Nat -> Stlc
@@ -232,7 +238,7 @@ def Stlc.subst: Stlc -> Subst -> Stlc
 | let_pair P e e', σ => let_pair P (e.subst σ) (e'.subst (σ.liftn 2))
 | inj i e, σ => inj i (e.subst σ)
 | case P d l r, σ => case P (d.subst σ) (l.subst σ.lift) (r.subst σ.lift)
-| natrec n z s, σ => natrec (n.subst σ) (z.subst σ) (s.subst (σ.liftn 2))
+| natrec n z s, σ => natrec (n.subst σ) (z.subst σ) (s.subst σ.lift)
 | c, σ => c
 
 def Stlc.SubstCtx (σ: Subst) (Γ Δ: Context): Prop :=  
