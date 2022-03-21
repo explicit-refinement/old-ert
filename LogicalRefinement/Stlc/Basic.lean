@@ -36,7 +36,8 @@ def Ty.interp (A: Ty): Type := A.interp_in Option
 def Ty.interp_val (A: Ty): Type := A.interp_val_in Option
 
 def Ty.abort (A: Ty): A.interp := by cases A <;> exact none
-def Ty.interp.app_inner {A B: Ty} 
+
+def Ty.interp.bind_val {A B: Ty} 
   (l: A.interp_val -> B.interp) (r: A.interp): B.interp
   := by cases A <;>
      exact match r with
@@ -44,7 +45,7 @@ def Ty.interp.app_inner {A B: Ty}
      | none => B.abort
 def Ty.interp.app {A B} (l: (arrow A B).interp) (r: A.interp): B.interp :=
   match l with
-  | some l => app_inner l r
+  | some l => bind_val l r
   | none => B.abort
 def Ty.interp.pair {A B} (l: A.interp) (r: B.interp): (prod A B).interp := by
   cases A <;> cases B <;>
@@ -75,7 +76,7 @@ def Ty.interp.natrec_inner {C: Ty} (n: Nat)
   : C.interp
   := match n with
   | 0 => z
-  | n + 1 => app_inner s (natrec_inner n z s)
+  | n + 1 => bind_val s (natrec_inner n z s)
 def Ty.interp.natrec {C: Ty} (n: nats.interp)
   (z: C.interp) (s: C.interp_val -> C.interp)
   : C.interp
@@ -89,10 +90,14 @@ inductive Stlc
   | lam (A: Ty) (s: Stlc)
   | app (P: Ty) (s t: Stlc)
 
-  -- Products and coproducts
+  -- Sugar
+  | let_in (A: Ty) (e: Stlc) (e': Stlc)
+
+  -- Products
   | pair (l r: Stlc)
   | let_pair (P: Ty) (e: Stlc) (e': Stlc)
 
+  -- Coproducts
   | inj (f: Fin 2) (e: Stlc)
   | case (P: Ty) (d l r: Stlc)
 
@@ -114,6 +119,7 @@ def Stlc.wk: Stlc -> Wk -> Stlc
 | var n, ρ => var (ρ.var n)
 | lam A s, ρ => lam A (s.wk ρ.lift)
 | app P s t, ρ => app P (s.wk ρ) (t.wk ρ)
+| let_in A e e', ρ => let_in A (e.wk ρ) (e'.wk ρ.lift)
 | pair l r, ρ => pair (l.wk ρ) (r.wk ρ)
 | let_pair P e e', ρ => let_pair P (e.wk ρ) (e'.wk (ρ.liftn 2))
 | inj i e, ρ => inj i (e.wk ρ)
@@ -156,9 +162,14 @@ inductive Stlc.HasType: Context -> Stlc -> Ty -> Prop
 | lam {Γ A B s}: HasType (A::Γ) s B -> HasType Γ (lam A s) (arrow A B)
 | app {Γ A B s t}: HasType Γ s (arrow A B) -> HasType Γ t A -> HasType Γ (app (arrow A B) s t) B
 
-| pair {Γ A B l r}: HasType Γ l A -> HasType Γ r B -> HasType Γ (pair l r) (prod A B)
+| let_in {Γ A B e e'}: HasType Γ e A -> HasType (A::Γ) e' B ->
+  HasType Γ (let_in A e e') B
+
+| pair {Γ A B l r}: HasType Γ l A -> HasType Γ r B -> 
+  HasType Γ (pair l r) (prod A B)
 | let_pair {Γ A B C e e'}: 
-  HasType Γ e (prod A B) -> HasType (B::A::Γ) e' C -> HasType Γ (let_pair (prod A B) e e') C
+  HasType Γ e (prod A B) -> HasType (B::A::Γ) e' C -> 
+  HasType Γ (let_pair (prod A B) e e') C
 
 | inj0 {Γ A B e}: HasType Γ e A -> HasType Γ (inj 0 e) (coprod A B)
 | inj1 {Γ A B e}: HasType Γ e B -> HasType Γ (inj 1 e) (coprod A B)
@@ -205,6 +216,7 @@ theorem Stlc.HasType.wk {Δ a A} (H: HasType Δ a A):
   case var H => exact HasType.var (H.wk R)
   case lam Hs Is => exact HasType.lam (Is R.lift)
   case app Hl Hr Il Ir => exact HasType.app (Il R) (Ir R)
+  case let_in He He' Ie Ie' => exact HasType.let_in (Ie R) (Ie' R.lift)
   case pair Hl Hr Il Ir => exact HasType.pair (Il R) (Ir R)
   case let_pair He He' Ie Ie' => 
      exact HasType.let_pair (Ie R) (Ie' R.lift.lift)
@@ -234,6 +246,7 @@ def Stlc.subst: Stlc -> Subst -> Stlc
 | var n, σ => σ n
 | lam A s, σ => lam A (s.subst σ.lift)
 | app P s t, σ => app P (s.subst σ) (t.subst σ)
+| let_in A e e', σ => let_in A (e.subst σ) (e'.subst σ)
 | pair l r, σ => pair (l.subst σ) (r.subst σ)
 | let_pair P e e', σ => let_pair P (e.subst σ) (e'.subst (σ.liftn 2))
 | inj i e, σ => inj i (e.subst σ)
@@ -250,6 +263,7 @@ theorem Stlc.HasType.subst {Γ Δ a A} (H: HasType Δ a A):
   | var => sorry
   | lam => sorry
   | app => sorry
+  | let_in => sorry
   | pair => sorry
   | let_pair => sorry
   | inj0 => sorry
@@ -285,6 +299,10 @@ def Stlc.HasType.interp {Γ a A} (H: HasType Γ a A) (G: Γ.interp): A.interp :=
       rw [HA] at I;
       exact I
     | _ => apply False.elim; cases H
+  | Stlc.let_in A' e e' => by
+    have ⟨He, He'⟩: HasType Γ e A' ∧ HasType (A'::Γ) e' A :=
+      by cases H; apply And.intro <;> assumption;
+    exact (He.interp G).bind_val (λv => He'.interp (v, G))
   | Stlc.pair l r => by cases A with
     | prod A B =>
       have ⟨Hl, Hr⟩: HasType Γ l A ∧ HasType Γ r B
