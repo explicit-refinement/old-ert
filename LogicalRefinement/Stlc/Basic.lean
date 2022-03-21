@@ -177,6 +177,11 @@ inductive Stlc.WkCtx: Wk -> Context -> Context -> Prop
   | step {ρ Γ Δ A}: WkCtx ρ Γ Δ -> WkCtx ρ.step (A::Γ) Δ 
   | lift {ρ Γ Δ A}: WkCtx ρ Γ Δ -> WkCtx ρ.lift (A::Γ) (A::Δ)
 
+theorem Stlc.HasVar.wk {Γ Δ n A} (H: HasVar Δ A n):
+  ∀{ρ}, WkCtx ρ Γ Δ -> HasVar Γ A (ρ.var n) := by {
+    sorry
+  }
+
 theorem Stlc.HasType.wk {Γ Δ a A} (H: HasType Δ a A): 
   ∀{ρ}, WkCtx ρ Γ Δ -> HasType Γ (a.wk ρ) A := by {
   induction H with
