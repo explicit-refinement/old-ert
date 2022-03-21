@@ -189,8 +189,14 @@ theorem HasType.stlc {Γ a A} (H: Γ ⊢ a: A):
       assumption
       cases HAB; assumption
 
-    case lam_pr => sorry
-    case lam_irrel => sorry
+    case lam_pr =>
+      simp only [Term.stlc, Term.stlc_ty, subst0, term] at *
+      apply Stlc.HasType.lower0;
+      assumption
+    case lam_irrel =>
+      simp only [Term.stlc, Term.stlc_ty, subst0, term] at *
+      apply Stlc.HasType.lower0;
+      assumption
 
     case let_pair => sorry
     case let_set => sorry
