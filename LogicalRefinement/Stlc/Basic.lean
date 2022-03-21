@@ -115,7 +115,7 @@ def Stlc.wk: Stlc -> Wk -> Stlc
 | let_pair P e e', ρ => let_pair P (e.wk ρ) (e'.wk (ρ.liftn 2))
 | inj i e, ρ => inj i (e.wk ρ)
 | case P d l r, ρ => case P (d.wk ρ) (l.wk ρ.lift) (r.wk ρ.lift)
-| natrec n z s, ρ => natrec (n.wk ρ) (z.wk ρ) (s.wk ρ.lift)
+| natrec n z s, ρ => natrec (n.wk ρ) (z.wk ρ) (s.wk (ρ.liftn 2))
 | c, ρ => c
 
 def Stlc.wk1 (σ: Stlc): Stlc := σ.wk Wk.wk1
@@ -177,9 +177,23 @@ inductive Stlc.WkCtx: Wk -> Context -> Context -> Prop
   | step {ρ Γ Δ A}: WkCtx ρ Γ Δ -> WkCtx ρ.step (A::Γ) Δ 
   | lift {ρ Γ Δ A}: WkCtx ρ Γ Δ -> WkCtx ρ.lift (A::Γ) (A::Δ)
 
--- theorem Stlc.HasType.wk {Γ Δ ρ a A}: WkCtx ρ Γ Δ -> HasType Δ a A -> HasType Γ (a.wk ρ) A := by {
---   sorry
--- }
+theorem Stlc.HasType.wk {Γ Δ a A} (H: HasType Δ a A): 
+  ∀{ρ}, WkCtx ρ Γ Δ -> HasType Γ (a.wk ρ) A := by {
+  induction H with
+  | var => sorry
+  | lam => sorry
+  | app => sorry
+  | pair => sorry
+  | let_pair => sorry
+  | inj0 => sorry
+  | inj1 => sorry
+  | case => sorry
+  | nil => sorry
+  | abort => sorry
+  | zero => sorry
+  | succ => sorry
+  | natrec => sorry
+}
 
 def Stlc.Subst := Nat -> Stlc
 
@@ -199,16 +213,29 @@ def Stlc.subst: Stlc -> Subst -> Stlc
 | let_pair P e e', σ => let_pair P (e.subst σ) (e'.subst (σ.liftn 2))
 | inj i e, σ => inj i (e.subst σ)
 | case P d l r, σ => case P (d.subst σ) (l.subst σ.lift) (r.subst σ.lift)
-| natrec n z s, σ => natrec (n.subst σ) (z.subst σ) (s.subst σ.lift)
+| natrec n z s, σ => natrec (n.subst σ) (z.subst σ) (s.subst (σ.liftn 2))
 | c, σ => c
 
 def Stlc.SubstCtx (σ: Subst) (Γ Δ: Context): Prop :=  
   ∀{n A}, HasVar Δ A n -> HasType Γ (σ n) A
 
--- theorem Stlc.HasType.subst {Γ Δ σ a A}: 
---   SubstCtx σ Γ Δ -> HasType Δ a A -> HasType Γ (a.subst σ) A := by {
---   sorry
--- }
+theorem Stlc.HasType.subst {Γ Δ a A} (H: HasType Δ a A): 
+  ∀{σ}, SubstCtx σ Γ Δ -> HasType Γ (a.subst σ) A := by {
+  induction H with
+  | var => sorry
+  | lam => sorry
+  | app => sorry
+  | pair => sorry
+  | let_pair => sorry
+  | inj0 => sorry
+  | inj1 => sorry
+  | case => sorry
+  | nil => sorry
+  | abort => sorry
+  | zero => sorry
+  | succ => sorry
+  | natrec => sorry
+}
 
 def Stlc.HasType.interp {Γ a A} (H: HasType Γ a A) (G: Γ.interp): A.interp :=
   match a with
