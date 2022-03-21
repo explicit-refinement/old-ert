@@ -256,14 +256,14 @@ def Stlc.lower_1 (s: Stlc): Stlc := s.subst1 abort
 def Stlc.SubstCtx (σ: Subst) (Γ Δ: Context): Prop :=  
   ∀{n A}, HasVar Δ n A -> HasType Γ (σ n) A
 
-def Stlc.HasType.subst0 {Γ a A} (H: HasType Γ a A)
+def Stlc.HasType.subst0_ctx {Γ a A} (H: HasType Γ a A)
   : SubstCtx (a.to_subst) Γ (A::Γ)
   := by {
     intro n;
     cases n with
     | zero => intro B H; cases H; assumption
     | succ => intro B H; cases H; constructor; assumption
-  } 
+  }
 
 def Stlc.SubstCtx.lift {σ Γ Δ A} (S: SubstCtx σ Γ Δ)
   : SubstCtx (σ.lift) (A::Γ) (A::Δ)
@@ -292,6 +292,20 @@ theorem Stlc.HasType.subst {Δ a A} (H: HasType Δ a A):
     exact S
   )
 }
+
+theorem Stlc.HasType.subst0 {Γ a A s B} 
+  (H: HasType (B::Γ) a A) 
+  (Hs: HasType Γ s B):
+  HasType Γ (a.subst0 s) A := H.subst Hs.subst0_ctx
+
+theorem Stlc.HasType.subst1 {Γ a A s B P} 
+  (H: HasType (P::B::Γ) a A) 
+  (Hs: HasType Γ s B):
+  HasType (P::Γ) (a.subst1 s) A := by {
+    apply subst H;
+    apply SubstCtx.lift;
+    exact Hs.subst0_ctx
+  }
 
 def Stlc.HasType.interp {Γ a A} (H: HasType Γ a A) (G: Γ.interp): A.interp :=
   match a with
