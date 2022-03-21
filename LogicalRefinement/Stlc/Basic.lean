@@ -182,7 +182,18 @@ inductive Stlc.WkCtx: Wk -> Context -> Context -> Prop
 
 theorem Stlc.HasVar.wk {Γ Δ n A} (H: HasVar Δ n A):
   ∀{ρ}, WkCtx ρ Γ Δ -> HasVar Γ (ρ.var n) A := by {
-    sorry
+    intro ρ R;
+    revert H A n;
+    induction R with
+    | id => intros; assumption
+    | step R I =>
+      intro n A H;
+      exact HasVar.succ (I H)
+    | lift R I =>
+      intro n A H;
+      cases H with
+      | zero => exact HasVar.zero
+      | succ H => exact HasVar.succ (I H) 
   }
 
 theorem Stlc.HasType.wk {Γ Δ a A} (H: HasType Δ a A): 
