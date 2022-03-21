@@ -252,7 +252,16 @@ def Stlc.SubstCtx (σ: Subst) (Γ Δ: Context): Prop :=
 def Stlc.SubstCtx.lift {σ Γ Δ A} (S: SubstCtx σ Γ Δ)
   : SubstCtx (σ.lift) (A::Γ) (A::Δ)
   := by {
-    sorry
+    intro n;
+    cases n with
+    | zero => intro B H; cases H; repeat constructor
+    | succ n => 
+      intro B H 
+      cases H
+      apply HasType.wk; 
+      apply S; 
+      assumption
+      repeat constructor
   }
 
 theorem Stlc.HasType.subst {Δ a A} (H: HasType Δ a A): 
