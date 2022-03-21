@@ -172,7 +172,7 @@ inductive Stlc.HasType: Context -> Stlc -> Ty -> Prop
 | natrec {Γ C n z s}:
   HasType Γ n nats ->
   HasType Γ z C ->
-  HasType (C::Ty.unit::Γ) s C ->
+  HasType (C::Γ) s C ->
   HasType Γ (natrec n z s) C
 
 inductive Stlc.WkCtx: Wk -> Context -> Context -> Prop
@@ -329,9 +329,9 @@ def Stlc.HasType.interp {Γ a A} (H: HasType Γ a A) (G: Γ.interp): A.interp :=
       | _ => apply False.elim; cases H 
     | _ => apply False.elim; cases H 
   | Stlc.natrec n z s =>
-    let ⟨Hn, Hz, Hs⟩: HasType Γ n nats ∧ HasType Γ z A ∧ HasType (A::Ty.unit::Γ) s A
+    let ⟨Hn, Hz, Hs⟩: HasType Γ n nats ∧ HasType Γ z A ∧ HasType (A::Γ) s A
       := by cases H; exact ⟨by assumption, by assumption, by assumption⟩
     let In := Hn.interp G;
     let Iz := Hz.interp G;
-    let Is := λc => Hs.interp (c, ((), G));
+    let Is := λc => Hs.interp (c, G);
     In.natrec Iz Is

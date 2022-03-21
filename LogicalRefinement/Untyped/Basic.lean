@@ -94,9 +94,6 @@ inductive TermKind: List Nat -> Type
   | natrec_zero: TermKind [0, 0, 1, 2]
   | natrec_succ: TermKind [0, 0, 1, 2]
 
-  -- Placeholder for invalid terms/types
-  | invalid: TermKind []
-
 inductive Term: Type
   | var (v: Nat)
 
