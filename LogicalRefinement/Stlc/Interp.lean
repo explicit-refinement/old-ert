@@ -198,24 +198,6 @@ theorem HasType.stlc {Γ a A} (H: Γ ⊢ a: A):
       apply Stlc.HasType.lower0;
       assumption
 
-    case let_pair =>
-      simp only [Term.stlc, Term.stlc_ty, subst0, alpha0, term, wknth] at *
-      constructor
-      assumption
-      repeat rw [Annot.stlc_ty_subst] at *
-      repeat rw [Annot.stlc_ty_wk] at *
-      assumption
-      apply HasType.wk_sort
-      assumption
-      repeat constructor
-      assumption
-
-    case let_set => sorry
-    case let_repr => sorry
-
-    case case => sorry
-    case natrec => sorry
-
     all_goals try (
       constructor <;>
       simp only [
@@ -223,6 +205,20 @@ theorem HasType.stlc {Γ a A} (H: Γ ⊢ a: A):
       ] at * <;>
       (repeat rw [Annot.stlc_ty_subst] at *) <;>
       (repeat rw [Annot.stlc_ty_wk] at *) <;>
-      assumption
+      first 
+      | assumption
+      | (
+        apply Stlc.HasType.lower0;
+        assumption
+      )
+      | (
+        apply Stlc.HasType.lower1;
+        assumption
+      ) 
+      | (
+        apply HasType.wk_sort
+        assumption
+        repeat constructor
+      )
     )
   }
