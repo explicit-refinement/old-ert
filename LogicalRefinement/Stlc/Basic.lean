@@ -1,4 +1,5 @@
 import LogicalRefinement.Wk
+import LogicalRefinement.Tactics
 
 inductive Ty
 | bot
@@ -214,22 +215,13 @@ theorem Stlc.HasType.wk {Δ a A} (H: HasType Δ a A):
   ∀{Γ ρ}, WkCtx ρ Γ Δ -> HasType Γ (a.wk ρ) A := by {
   induction H <;> intro Γ ρ R;
   case var H => exact HasType.var (H.wk R)
-  case lam Hs Is => exact HasType.lam (Is R.lift)
-  case app Hl Hr Il Ir => exact HasType.app (Il R) (Ir R)
-  case let_in He He' Ie Ie' => exact HasType.let_in (Ie R) (Ie' R.lift)
-  case pair Hl Hr Il Ir => exact HasType.pair (Il R) (Ir R)
-  case let_pair He He' Ie Ie' => 
-     exact HasType.let_pair (Ie R) (Ie' R.lift.lift)
-  case inj0 He Ie => exact HasType.inj0 (Ie R)
-  case inj1 He Ie => exact HasType.inj1 (Ie R)
-  case case Hd Hl Hr Ie Il Ir => 
-    exact HasType.case (Ie R) (Il R.lift) (Ir R.lift) 
-  case nil => exact HasType.nil
-  case abort => exact HasType.abort
-  case zero => exact HasType.zero
-  case succ => exact HasType.succ
-  case natrec Hn Hz Hs In Iz Is =>
-    exact HasType.natrec (In R) (Iz R) (Is R.lift)
+  all_goals (
+    rename_i' I0 I1 I2;
+    constructor <;>
+    (first | apply I0 | apply I1 | apply I2) <;>
+    (repeat apply WkCtx.lift) <;>
+    exact R
+  )
 }
 
 def Stlc.Subst := Nat -> Stlc
