@@ -119,8 +119,25 @@ theorem Annot.stlc_ty_wk {A k}: ∀{ρ},
 
 theorem HasVar.stlc_val {Γ A s n}: 
   HasVar Γ n (HypKind.val s) A ->
-  Stlc.HasVar Γ.stlc n (Annot.expr s A).stlc_ty := by {
-    sorry
+  Stlc.HasVar Γ.stlc n (Annot.expr s A).stlc_ty := by {    
+    revert A s n;
+    induction Γ with
+    | nil => intro A s n H; cases H
+    | cons H Γ I =>
+      intro A s n HΓ;
+      cases HΓ with
+      | var0 S =>
+        cases S;
+        simp only [Annot.stlc_ty, Context.stlc, Term.wk1]
+        rw [Term.stlc_ty_wk]
+        constructor
+      | var_succ =>
+        apply Stlc.HasVar.succ
+        simp only [Term.wk1]
+        rw [Annot.stlc_ty_wk]
+        apply I
+        assumption
+
   }
 
 theorem HasType.stlc {Γ a A} (H: Γ ⊢ a: A):
