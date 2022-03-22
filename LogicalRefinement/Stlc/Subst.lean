@@ -4,7 +4,7 @@ import LogicalRefinement.Stlc.Basic
 import LogicalRefinement.Stlc.Interp
 
 def Stlc.InterpSubst (Γ Δ: Context): Type := 
-  ∀{n A}, Stlc.HasVar Δ n A -> Γ.interp -> A.interp
+  ∀{n A}, Stlc.HasVar Δ n A -> Γ.deriv A
 
 def Stlc.SubstCtx.interp {σ: Subst} {Γ Δ: Context} (S: SubstCtx σ Γ Δ)
   : InterpSubst Γ Δ
