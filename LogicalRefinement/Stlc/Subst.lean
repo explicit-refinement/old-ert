@@ -10,8 +10,6 @@ def Stlc.SubstCtx.interp {σ: Subst} {Γ Δ: Context} (S: SubstCtx σ Γ Δ)
   : InterpSubst Γ Δ
   := sorry
   
-def Stlc.HasType.subst_interp {Γ Δ a A} 
-  (H: HasType Δ a A) 
-  (S: InterpSubst Γ Δ)
-  : Γ.interp -> A.interp
+def Stlc.subst_deriv {Γ Δ: Context} {A}:
+  Δ.deriv A -> InterpSubst Γ Δ -> Γ.deriv A
   := sorry
