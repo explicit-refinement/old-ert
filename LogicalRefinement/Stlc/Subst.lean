@@ -10,7 +10,8 @@ def Stlc.SubstCtx.interp {σ: Subst} {Γ Δ: Context} (S: SubstCtx σ Γ Δ)
   : InterpSubst Γ Δ
   := sorry
   
--- def Stlc.HasType.subst_interp {σ Γ Δ a A} 
---   (H: HasType Δ a A) 
---   (S: SubstCtx σ Γ Δ):
---   (H.subst S).interp = ...
+def Stlc.HasType.subst_interp {Γ Δ a A} 
+  (H: HasType Δ a A) 
+  (S: InterpSubst Γ Δ)
+  : Γ.interp -> A.interp
+  := sorry
