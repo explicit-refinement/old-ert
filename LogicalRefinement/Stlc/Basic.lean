@@ -315,6 +315,9 @@ theorem Stlc.HasType.lower1 {Γ a A B P} (H: HasType (P::B::Γ) a A)
   : HasType (P::Γ) a.lower1 A 
   := H.subst1 abort
 
+def Stlc.Context.deriv (Γ: Context) (A: Ty): Type 
+  := Γ.interp -> A.interp
+
 def Stlc.HasType.interp {Γ a A} (H: HasType Γ a A) (G: Γ.interp): A.interp :=
   match a with
   | Stlc.var n => 
