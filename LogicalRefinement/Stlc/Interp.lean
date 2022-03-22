@@ -150,6 +150,7 @@ theorem HasType.stlc {Γ a A} (H: Γ ⊢ a: A):
 
     case var Hv IA => exact Stlc.HasType.var Hv.stlc_val
 
+    --TODO: automate remaining cases with rename_i' or something like
     case app HAB _ _ _ _ _ =>
       simp only [Term.stlc, Term.stlc_ty, subst0, term] at *
       repeat rw [Annot.stlc_ty_subst] at *
