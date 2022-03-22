@@ -47,25 +47,25 @@ theorem HasVar.wk:
     case step ρ I Γ H R =>
       intros n A s HΔ;
       simp only [Term.step_wk1]
-      exact var_succ (I R HΔ)
+      exact HasVar.succ (I R HΔ)
     case lift ρ I Γ Δ k A R =>
       intros n A s HΔ;
       cases HΔ with
-      | var0 =>
+      | zero =>
         simp only [
           Wk.lift,
           Term.wk_composes,
           Wk.var, Term.lift_wk1
         ]
-        apply var0
+        apply HasVar.zero
         assumption
-      | var_succ =>
+      | succ =>
         simp only [
           Wk.lift,
           Term.wk_composes,
           Wk.var, Nat.add, Term.lift_wk1
         ]
-        apply var_succ
+        apply HasVar.succ
         apply I
         apply R
         assumption

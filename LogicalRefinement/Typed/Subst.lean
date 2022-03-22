@@ -27,13 +27,13 @@ theorem SubstCtx.lift_primitive
     | zero =>
       simp only [Annot.subst]
       cases HΔ with
-      | var0 Hkk' =>
+      | zero Hkk' =>
         rename_i k'
         apply SubstVar.var
         rfl
         simp only [Subst.lift_wk]
         simp only [Subst.lift]
-        apply HasVar.var0
+        apply HasVar.zero
         apply HypKind.is_sub.trans
         assumption
         assumption
@@ -53,7 +53,7 @@ theorem SubstCtx.lift_primitive
         simp [Subst.wk1, Hv]
         rfl
         simp only [Subst.lift_wk]
-        exact HasVar.var_succ HΓ
+        exact HasVar.succ HΓ
   }
 
 theorem SubstCtx.lift_loose

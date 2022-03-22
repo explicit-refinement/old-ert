@@ -9,17 +9,17 @@ open AnnotSort
 
 
 inductive HasVar: Context -> Nat -> HypKind -> Term -> Prop
-  | var0 {Γ: Context} {A: Term} {k k': HypKind}:
+  | zero {Γ: Context} {A: Term} {k k': HypKind}:
     k'.is_sub k -> HasVar ((Hyp.mk A k)::Γ) 0 k' A.wk1 
-  | var_succ {Γ: Context} {A: Term} {k: HypKind} {H: Hyp} {n: Nat}:
+  | succ {Γ: Context} {A: Term} {k: HypKind} {H: Hyp} {n: Nat}:
     HasVar Γ n k A -> HasVar (H::Γ) (n + 1) k A.wk1
 
 theorem HasVar.fv (H: HasVar Γ n s A): n < Γ.length := by {
   induction H with
-  | var0 =>
+  | zero =>
     apply Nat.succ_le_succ
     apply Nat.zero_le
-  | var_succ =>
+  | succ =>
     simp only [List.length]
     apply Nat.succ_le_succ
     assumption
@@ -36,11 +36,11 @@ theorem HasVar.sub (HΓ: HasVar Γ A s n): Γ.is_sub Δ -> HasVar Δ A s n := by
     | @cons Γ Δ _ H HΓΔ HH =>  
       cases HH;
       cases HΓ with
-      | var0 =>
-        apply var0
+      | zero =>
+        apply zero
         apply HypKind.is_sub.trans <;> assumption
-      | var_succ =>
-        apply var_succ
+      | succ =>
+        apply succ
         apply I <;> assumption
 }
 
@@ -336,29 +336,29 @@ theorem HasType.fv {Γ a A} (P: Γ ⊢ a: A): a.fv ≤ Γ.length := by {
 theorem HasVar.upgrade (p: HasVar Γ A k n): 
   HasVar Γ.upgrade A (HypKind.val k.annot) n := by {
   induction p with
-  | var0 H => 
+  | zero H => 
     rename_i k k';
     simp only [Context.upgrade, Hyp.upgrade]
-    apply var0
+    apply zero
     cases H;
     cases k <;> constructor
     constructor
-  | var_succ => apply var_succ; assumption
+  | succ => apply succ; assumption
 }
 
 theorem HasVar.wk_sort {k k'} (Hk: k.is_sub k') (p: HasVar Γ A k' n): 
   HasVar Γ A k n := by {
   induction p with
-  | var0 H => 
+  | zero H => 
     rename_i k k';
     simp only [Context.upgrade, Hyp.upgrade]
-    apply var0
+    apply zero
     cases H;
     apply Hk
     cases Hk
     constructor
-  | var_succ H I => 
-    apply var_succ
+  | succ H I => 
+    apply succ
     apply I
     apply Hk
 }
@@ -377,12 +377,12 @@ theorem HasVar.downgrade_helper: {Γ Γ': Context} -> Γ' = Γ.upgrade ->
     simp only [Context.upgrade, HΓ']
     intro n a K H;
     cases H with
-    | var0 =>
-      apply var0
+    | zero =>
+      apply zero
       apply HypKind.downgrade_wk
       assumption
-    | var_succ => 
-      apply var_succ
+    | succ => 
+      apply succ
       apply I rfl
       assumption
   }
