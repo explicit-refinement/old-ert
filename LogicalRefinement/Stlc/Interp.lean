@@ -196,7 +196,7 @@ theorem HasType.stlc {Γ a A} (H: Γ ⊢ a: A):
       apply Stlc.HasType.lower0;
       assumption
 
-    all_goals try (
+    all_goals (
       constructor <;>
       simp only [
         subst0, alpha0, term, proof, wknth, wk1
