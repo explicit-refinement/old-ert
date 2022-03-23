@@ -9,9 +9,21 @@ def Stlc.InterpSubst (Γ Δ: Context): Type :=
 def Stlc.InterpSubst.pop {Γ Δ: Context} (S: InterpSubst Γ (H::Δ)): InterpSubst Γ Δ
   := λHv => S Hv.succ
 
-def Stlc.SubstCtx.interp {σ: Subst} {Γ Δ: Context} (S: SubstCtx σ Γ Δ)
-  : InterpSubst Γ Δ
-  := λHv => (S Hv).interp
+def Stlc.SubstCtx.interp_helper 
+  {σ: Subst} 
+  {Γ Δ: Context} 
+  (S: SubstCtx σ Γ Δ)
+  {n A}
+  (Hv: Stlc.HasVar Δ n A)
+  : Γ.deriv A
+  := (S Hv).interp
+
+def Stlc.SubstCtx.interp
+  {σ: Subst} 
+  {Γ Δ: Context} 
+  (S: SubstCtx σ Γ Δ)
+  : Stlc.InterpSubst Γ Δ
+  := interp_helper S
   
 def Stlc.InterpSubst.transport_ctx {Γ Δ: Context} (S: InterpSubst Γ Δ) 
   (G: Γ.interp_effect)
@@ -23,18 +35,3 @@ def Stlc.InterpSubst.transport_ctx {Γ Δ: Context} (S: InterpSubst Γ Δ)
 def Stlc.Context.deriv.subst {Γ Δ: Context} {A} (D: Δ.deriv A) (S: InterpSubst Γ Δ)
   : Γ.deriv A
   := λG => D.ctx_effect (S.transport_ctx (some G))
-
-theorem Stlc.HasType.subst_interp_dist {Γ Δ σ A a} (H: HasType Δ a A) (S: SubstCtx σ Γ Δ)
-  : (H.subst S).interp = H.interp.subst S.interp
-  := by {
-    revert H S;
-    revert Γ Δ σ A;
-    induction a;
-
-    case var v =>
-      intro Γ Δ σ A H S;
-      unfold interp;
-      
-
-    all_goals sorry   
-  }
