@@ -126,12 +126,12 @@ theorem HasVar.stlc_val {Γ A s n}:
     | cons H Γ I =>
       intro A s n HΓ;
       cases HΓ with
-      | var0 S =>
+      | zero S =>
         cases S;
         simp only [Annot.stlc_ty, Context.stlc, Term.wk1]
         rw [Term.stlc_ty_wk]
         constructor
-      | var_succ =>
+      | succ =>
         apply Stlc.HasVar.succ
         simp only [Term.wk1]
         rw [Annot.stlc_ty_wk]
