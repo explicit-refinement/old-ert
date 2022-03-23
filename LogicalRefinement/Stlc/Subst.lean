@@ -18,7 +18,7 @@ def Stlc.InterpSubst.transport_ctx {Γ Δ: Context} (S: InterpSubst Γ Δ)
   : Δ.interp_effect
   := match Δ with
      | [] => some ()
-     | A::Δ => (transport_ctx S.pop G).push_effect (S HasVar.zero G)
+     | A::Δ => (transport_ctx S.pop G).push_effect ((S HasVar.zero).ctx_effect G)
 
 def Stlc.InterpSubst.subst {Γ Δ: Context} (S: InterpSubst Γ Δ):
   ∀{A}, Δ.deriv A -> Γ.deriv A
