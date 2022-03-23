@@ -13,11 +13,12 @@ def Stlc.SubstCtx.interp {σ: Subst} {Γ Δ: Context} (S: SubstCtx σ Γ Δ)
   : InterpSubst Γ Δ
   := λHv => (S Hv).interp
   
-def Stlc.InterpSubst.transport_ctx {Γ Δ: Context} (S: InterpSubst Γ Δ) (G: Γ.interp)
+def Stlc.InterpSubst.transport_ctx {Γ Δ: Context} (S: InterpSubst Γ Δ) 
+  (G: Γ.interp_effect)
   : Δ.interp
   := match Δ with
      | [] => ()
-     | A::Δ => sorry --((S HasVar.zero G), S.pop.transport_ctx G)
+     | A::Δ => (S.pop.transport_ctx G).push_effect (S HasVar.zero G)
 
 def Stlc.InterpSubst.subst {Γ Δ: Context} (S: InterpSubst Γ Δ):
   ∀{A}, Δ.deriv A -> Γ.deriv A
