@@ -33,11 +33,12 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
     constructor; constructor <;>
     first | assumption | { apply Annot.regular_expr; assumption }
 
-  case app HP Hl Hr Is IP IA =>
+  case app A B l r HP Hl Hr Is IP IA =>
     constructor;
     apply subst_sort
     cases HP <;> assumption
-    sorry
+    have Hr': SubstCtx r.to_subst _ Γ := Hr.to_subst;
+
 
   --TODO: general tactic for app requires substitution lemma for subst0
 
