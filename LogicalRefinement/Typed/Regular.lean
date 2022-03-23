@@ -30,15 +30,16 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
   all_goals try exact Annot.regular.sort
 
   all_goals (
-    constructor; first | assumption | (try (
-      constructor <;>
-      (
+    constructor; 
+    first 
+    | assumption 
+    | (constructor <;> (
         first 
         | assumption 
         | ( apply Annot.regular_expr; assumption )
         | skip
-      )
-    ))
+      ))
+    | skip
   )
 
   case app A B l r HP Hl Hr Is IP IA =>
