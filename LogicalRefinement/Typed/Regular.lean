@@ -46,6 +46,13 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
     cases HP <;> assumption
     intro n A Hv;
     sorry
+    
+  case app_irrel A B l r HP Hl Hr Is IP IA =>
+    constructor;
+    apply subst_sort
+    cases HP <;> assumption
+    intro n A Hv;
+    sorry
 
   --TODO: general tactic for app requires substitution lemma for subst0
 
