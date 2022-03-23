@@ -136,6 +136,19 @@ def Stlc.Context.interp: Context -> Type
 def Stlc.Context.interp_effect (Γ: Context): Type
   := Option (Γ.interp)
 
+def Stlc.Context.push_effect {A: Ty} {Γ: Context}
+  : A.interp -> Γ.interp_effect -> interp_effect (A::Γ)
+  := by {
+    intro I Γ;
+    match Γ with
+    | none => exact none
+    | some Γ =>
+      cases A <;> 
+      match I with
+      | none => exact none
+      | some I => exact some (I, Γ)
+  }
+
 inductive Stlc.HasVar: Context -> Nat -> Ty -> Prop
 | zero {Γ A}: HasVar (A::Γ) 0 A
 | succ {Γ A B n}: HasVar Γ n A -> HasVar (B::Γ) (Nat.succ n) A
