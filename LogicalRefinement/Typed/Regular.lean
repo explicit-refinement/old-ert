@@ -37,8 +37,8 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
     constructor;
     apply subst_sort
     cases HP <;> assumption
-    have Hr': SubstCtx r.to_subst _ Γ := Hr.to_subst;
-
+    intro n A Hv;
+    exact Hr.to_subst
 
   --TODO: general tactic for app requires substitution lemma for subst0
 
