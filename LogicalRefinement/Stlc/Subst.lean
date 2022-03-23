@@ -24,6 +24,17 @@ def Stlc.Context.deriv.subst {Γ Δ: Context} {A} (D: Δ.deriv A) (S: InterpSubs
   : Γ.deriv A
   := λG => D.ctx_effect (S.transport_ctx (some G))
 
-def Stlc.HasType.subst_interp_dist {Γ Δ σ A a} (H: HasType Δ a A) (S: SubstCtx σ Γ Δ)
+theorem Stlc.HasType.subst_interp_dist {Γ Δ σ A a} (H: HasType Δ a A) (S: SubstCtx σ Γ Δ)
   : (H.subst S).interp = H.interp.subst S.interp
-  := sorry
+  := by {
+    revert H S;
+    revert Γ Δ σ A;
+    induction a;
+
+    case var v =>
+      intro Γ Δ σ A H S;
+      unfold interp;
+      
+
+    all_goals sorry   
+  }
