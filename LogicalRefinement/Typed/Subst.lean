@@ -137,3 +137,10 @@ theorem HasType.to_subst {Γ a s A} (H: HasType Γ a (expr s A)):
   SubstCtx a.to_subst ((Hyp.mk A (HypKind.val s))::Γ) Γ := by {
     sorry
   }
+
+theorem HasType.subst0 {Γ e B t s A} 
+  (He: HasType ((Hyp.mk A (HypKind.val s))::Γ) e B)
+  (Ht: HasType Γ t (expr s A)):
+  HasType Γ (e.subst0 t) (B.subst t.to_subst) := by {
+    sorry
+  }
