@@ -117,7 +117,7 @@ inductive HasType: Context -> Term -> Annot -> Prop
   | app {Γ: Context} {A B l r: Term}:
     HasType Γ (pi A B) type ->
     HasType Γ l (term (pi A B)) -> HasType Γ r (term A) ->
-    HasType Γ (app (pi A B) l r) (term (B.subst0 l))
+    HasType Γ (app (pi A B) l r) (term (B.subst0 r))
   | pair {Γ: Context} {A B l r: Term}:
     HasType Γ (sigma A B) type ->
     HasType Γ l (term A) -> HasType Γ r (term (B.subst0 l)) ->
@@ -165,7 +165,7 @@ inductive HasType: Context -> Term -> Annot -> Prop
   | app_pr {Γ: Context} {φ A l r: Term}:
     HasType Γ (assume φ A) type ->
     HasType Γ l (term (assume φ A)) -> HasType Γ.upgrade r (proof φ) ->
-    HasType Γ (app_pr (assume φ A) l r) (term (A.subst0 l))
+    HasType Γ (app_pr (assume φ A) l r) (term (A.subst0 r))
   | lam_irrel {Γ: Context} {A s B: Term}:
     HasType Γ A type ->
     HasType ((Hyp.mk A (HypKind.gst))::Γ) s (term B) ->
@@ -173,7 +173,7 @@ inductive HasType: Context -> Term -> Annot -> Prop
   | app_irrel {Γ: Context} {A B l r: Term}:
     HasType Γ (intersect A B) type ->
     HasType Γ l (term (intersect A B)) -> HasType Γ.upgrade r (term A) ->
-    HasType Γ (app_irrel (intersect A B) l r) (term (B.subst0 l))
+    HasType Γ (app_irrel (intersect A B) l r) (term (B.subst0 r))
   | repr {Γ: Context} {A B l r: Term}:
     HasType Γ (union A B) type ->
     HasType Γ l (term A) -> HasType Γ r (term (B.subst0 l)) ->
