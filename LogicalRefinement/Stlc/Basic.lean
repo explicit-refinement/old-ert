@@ -133,6 +133,9 @@ def Stlc.Context.interp: Context -> Type
 | [] => Unit
 | A::As => Prod A.interp_val (interp As)
 
+def Stlc.Context.interp_effect (Γ: Context): Type
+  := Option (Γ.interp)
+
 inductive Stlc.HasVar: Context -> Nat -> Ty -> Prop
 | zero {Γ A}: HasVar (A::Γ) 0 A
 | succ {Γ A B n}: HasVar Γ n A -> HasVar (B::Γ) (Nat.succ n) A
