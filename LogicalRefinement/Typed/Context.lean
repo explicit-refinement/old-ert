@@ -59,6 +59,8 @@ def Annot.subst: Annot -> Subst -> Annot
   | sort s, _ => sort s
   | expr s A, σ => expr s (A.subst σ)
 
+@[simp] def Annot.subst0 (A: Annot) (e: Term) := A.subst e.to_subst
+
 def Annot.subst_sort_const {s σ}:
     (sort s).subst σ = sort s := rfl
 
