@@ -22,4 +22,4 @@ def Stlc.InterpSubst.transport_ctx {Γ Δ: Context} (S: InterpSubst Γ Δ)
 
 def Stlc.InterpSubst.subst {Γ Δ: Context} (S: InterpSubst Γ Δ):
   ∀{A}, Δ.deriv A -> Γ.deriv A
-  := λD G => D (S.transport_ctx G)
+  := λD G => D.ctx_effect (S.transport_ctx (some G))
