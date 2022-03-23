@@ -15,10 +15,10 @@ def Stlc.SubstCtx.interp {σ: Subst} {Γ Δ: Context} (S: SubstCtx σ Γ Δ)
   
 def Stlc.InterpSubst.transport_ctx {Γ Δ: Context} (S: InterpSubst Γ Δ) 
   (G: Γ.interp_effect)
-  : Δ.interp
+  : Δ.interp_effect
   := match Δ with
-     | [] => ()
-     | A::Δ => (S.pop.transport_ctx G).push_effect (S HasVar.zero G)
+     | [] => some ()
+     | A::Δ => (transport_ctx S.pop G).push_effect (S HasVar.zero G)
 
 def Stlc.InterpSubst.subst {Γ Δ: Context} (S: InterpSubst Γ Δ):
   ∀{A}, Δ.deriv A -> Γ.deriv A

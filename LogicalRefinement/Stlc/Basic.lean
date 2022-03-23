@@ -136,7 +136,7 @@ def Stlc.Context.interp: Context -> Type
 def Stlc.Context.interp_effect (Γ: Context): Type
   := Option (Γ.interp)
 
-def Stlc.Context.push_effect {A: Ty} {Γ: Context}
+def Stlc.Context.interp_effect.push_effect {A: Ty} {Γ: Context}
   : A.interp -> Γ.interp_effect -> interp_effect (A::Γ)
   := by {
     intro I Γ;
