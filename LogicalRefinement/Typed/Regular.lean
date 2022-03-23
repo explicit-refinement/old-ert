@@ -29,30 +29,31 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
   -- Types and propositions are trivially regular
   all_goals try exact Annot.regular.sort
 
-  case lam =>
-    constructor; constructor <;>
-    first | assumption | { apply Annot.regular_expr; assumption }
+  all_goals (
+    constructor; first | assumption | (try (
+      constructor <;>
+      (
+        first 
+        | assumption 
+        | ( apply Annot.regular_expr; assumption )
+        | skip
+      )
+    ))
+  )
 
   case app A B l r HP Hl Hr Is IP IA =>
-    constructor;
     apply subst_sort
     cases HP <;> assumption
     intro n A Hv;
     exact Hr.to_subst
 
-  case pair A B l r HP Hl Hr Is IP IA =>
-    constructor;
-    assumption
-    
   case app_pr A B l r HP Hl Hr Is IP IA =>
-    constructor;
     apply subst_sort
     cases HP <;> assumption
     intro n A Hv;
     sorry
     
   case app_irrel A B l r HP Hl Hr Is IP IA =>
-    constructor;
     apply subst_sort
     cases HP <;> assumption
     intro n A Hv;
