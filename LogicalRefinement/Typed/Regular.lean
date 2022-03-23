@@ -60,8 +60,6 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
     intro n A Hv;
     sorry
 
-  --TODO: general tactic for app requires substitution lemma for subst0
-
   repeat sorry
 }
 
