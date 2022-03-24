@@ -11,13 +11,17 @@ inductive Ty
 
 open Ty
 
-def Ty.interp_based_in (A: Ty) (M: Type -> Type): (Type -> Type) -> Type := λU => U (match A with
-| bot => Empty
-| unit => Unit
-| nats => Nat
-| arrow A B => A.interp_based_in M id -> B.interp_based_in M M
-| prod A B => Prod (A.interp_based_in M id) (B.interp_based_in M id)
-| coprod A B => Sum (A.interp_based_in M id) (B.interp_based_in M id))
+def Ty.interp_based_in (A: Ty) (M: Type -> Type)
+  : (Type -> Type) -> Type 
+  := λU => U (
+    match A with
+    | bot => Empty
+    | unit => Unit
+    | nats => Nat
+    | arrow A B => A.interp_based_in M id -> B.interp_based_in M M
+    | prod A B => Prod (A.interp_based_in M id) (B.interp_based_in M id)
+    | coprod A B => Sum (A.interp_based_in M id) (B.interp_based_in M id)
+  )
 
 def Ty.interp_in (A: Ty) (M: Type -> Type) := A.interp_based_in M M
 def Ty.interp_val_in (A: Ty) (M: Type -> Type) := A.interp_based_in M id
