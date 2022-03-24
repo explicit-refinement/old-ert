@@ -425,10 +425,3 @@ def Stlc.HasType.interp {Γ a A} (H: HasType Γ a A): Γ.deriv A :=
     let Iz := Hz.interp G;
     let Is := λc => Hs.interp (c, G);
     exact In.natrec_int Iz Is
-
-def Stlc.interp_zero 
-  {Γ: Stlc.Context} 
-  {H: Stlc.HasType Γ Stlc.zero Ty.nats} 
-  {G: Γ.interp}
-  : H.interp G = some 0
-  := rfl
