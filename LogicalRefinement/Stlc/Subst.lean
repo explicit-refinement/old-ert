@@ -30,6 +30,17 @@ def Stlc.Context.deriv.subst {Γ Δ: Context} {A} (D: Δ.deriv A) (S: InterpSubs
 def Stlc.HasType.subst_interp_dist {Γ Δ σ A a} (H: HasType Δ a A) (S: SubstCtx σ Γ Δ)
   : (H.subst S).interp = H.interp.subst S.interp
   := by {
-    unfold HasType.interp;
-    sorry
+    revert σ Γ S;
+    induction H <;> intro Γ σ S <;> funext D;
+
+    case var =>
+      simp only [
+        HasType.interp,
+        SubstCtx.interp,
+        Context.deriv.subst,
+        InterpSubst.transport_ctx
+      ]
+      sorry
+
+    all_goals sorry
   }
