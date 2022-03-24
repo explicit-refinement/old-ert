@@ -78,7 +78,7 @@ def Ty.interp.natrec_inner {C: Ty} (n: Nat)
   := match n with
   | 0 => z
   | n + 1 => bind_val s (natrec_inner n z s)
-def Ty.interp.natrec {C: Ty} (n: nats.interp)
+def Ty.interp.natrec_int {C: Ty} (n: nats.interp)
   (z: C.interp) (s: C.interp_val -> C.interp)
   : C.interp
   := match n with
@@ -422,4 +422,11 @@ def Stlc.HasType.interp {Γ a A} (H: HasType Γ a A): Γ.deriv A :=
     let In := Hn.interp G;
     let Iz := Hz.interp G;
     let Is := λc => Hs.interp (c, G);
-    In.natrec Iz Is
+    In.natrec_int Iz Is
+
+def Stlc.interp_zero 
+  {Γ: Stlc.Context} 
+  {H: Stlc.HasType Γ Stlc.zero Ty.nats} 
+  {G: Γ.interp}
+  : H.interp G = some 0
+  := rfl

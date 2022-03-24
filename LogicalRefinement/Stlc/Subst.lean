@@ -9,21 +9,12 @@ def Stlc.InterpSubst (Γ Δ: Context): Type :=
 def Stlc.InterpSubst.pop {Γ Δ: Context} (S: InterpSubst Γ (H::Δ)): InterpSubst Γ Δ
   := λHv => S Hv.succ
 
-def Stlc.SubstCtx.interp_helper 
-  {σ: Subst} 
-  {Γ Δ: Context} 
-  (S: SubstCtx σ Γ Δ)
-  {n A}
-  (Hv: Stlc.HasVar Δ n A)
-  : Γ.deriv A
-  := (S Hv).interp
-
 def Stlc.SubstCtx.interp
   {σ: Subst} 
   {Γ Δ: Context} 
   (S: SubstCtx σ Γ Δ)
   : Stlc.InterpSubst Γ Δ
-  := interp_helper S
+  := λHv => (S Hv).interp
   
 def Stlc.InterpSubst.transport_ctx {Γ Δ: Context} (S: InterpSubst Γ Δ) 
   (G: Γ.interp_effect)

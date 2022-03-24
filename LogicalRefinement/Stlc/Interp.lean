@@ -152,7 +152,7 @@ theorem HasType.stlc {Γ a A} (H: Γ ⊢ a: A):
 
     --TODO: automate remaining cases with rename_i' or something like
     case app HAB _ _ _ _ _ =>
-      simp only [Term.stlc, Term.stlc_ty, subst0, term] at *
+      simp only [Term.stlc, Term.stlc_ty, Term.subst0, term] at *
       repeat rw [Annot.stlc_ty_subst] at *
       constructor
       assumption
@@ -160,7 +160,7 @@ theorem HasType.stlc {Γ a A} (H: Γ ⊢ a: A):
       cases HAB; assumption
 
     case pair  HAB _ _ _ _ _ =>
-      simp only [Term.stlc, Term.stlc_ty, subst0, term] at *
+      simp only [Term.stlc, Term.stlc_ty, Term.subst0, term] at *
       repeat rw [Annot.stlc_ty_subst] at *
       constructor
       assumption
@@ -168,24 +168,24 @@ theorem HasType.stlc {Γ a A} (H: Γ ⊢ a: A):
       cases HAB; assumption
 
     case elem HAφ _ _ _ _ _ =>
-      simp only [Term.stlc, Term.stlc_ty, subst0, term] at *
+      simp only [Term.stlc, Term.stlc_ty, Term.subst0, term] at *
       repeat rw [Annot.stlc_ty_subst] at *
       assumption
 
     case app_pr HφA _ _ _ _ _ =>
-      simp only [Term.stlc, Term.stlc_ty, subst0, term]
+      simp only [Term.stlc, Term.stlc_ty, Term.subst0, term]
       repeat rw [Annot.stlc_ty_subst] at *
       assumption
       cases HφA; assumption
 
     case app_irrel HAB _ _ _ _ _ =>
-      simp only [Term.stlc, Term.stlc_ty, subst0, term]
+      simp only [Term.stlc, Term.stlc_ty, Term.subst0, term]
       repeat rw [Annot.stlc_ty_subst] at *
       assumption
       cases HAB; assumption
 
     case repr HAB _ _ _ _ _ =>
-      simp only [Term.stlc, Term.stlc_ty, subst0, term] at *
+      simp only [Term.stlc, Term.stlc_ty, Term.subst0, term] at *
       repeat rw [Annot.stlc_ty_subst] at *
       assumption
       cases HAB; assumption
@@ -200,7 +200,7 @@ theorem HasType.stlc {Γ a A} (H: Γ ⊢ a: A):
     all_goals (
       constructor <;>
       simp only [
-        subst0, alpha0, term, proof, wknth, wk1
+        Term.subst0, Term.alpha0, term, proof, Term.wknth, Term.wk1
       ] at * <;>
       (repeat rw [Annot.stlc_ty_subst] at *) <;>
       (repeat rw [Annot.stlc_ty_wk] at *) <;>
