@@ -416,13 +416,15 @@ def Stlc.HasType.interp {Γ a A} (H: HasType Γ a A): Γ.deriv A :=
         | _ => apply False.elim; cases H 
       | _ => apply False.elim; cases H 
     | _ => apply False.elim; cases H 
+  --TODO: report that; if the "by", "exact", and "have" are removed, this breaks, to Zulip/GitHub. Fascinating!
   | Stlc.natrec n z s =>
-    let ⟨Hn, Hz, Hs⟩: HasType Γ n nats ∧ HasType Γ z A ∧ HasType (A::Γ) s A
+    by
+    have ⟨Hn, Hz, Hs⟩: HasType Γ n nats ∧ HasType Γ z A ∧ HasType (A::Γ) s A
       := by cases H; exact ⟨by assumption, by assumption, by assumption⟩
     let In := Hn.interp G;
     let Iz := Hz.interp G;
     let Is := λc => Hs.interp (c, G);
-    In.natrec_int Iz Is
+    exact In.natrec_int Iz Is
 
 def Stlc.interp_zero 
   {Γ: Stlc.Context} 
