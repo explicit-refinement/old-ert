@@ -42,5 +42,11 @@ def Stlc.HasType.subst_interp_dist {Γ Δ σ A a} (H: HasType Δ a A) (S: SubstC
       ]
       sorry
 
+    case app =>
+      simp only [
+        HasType.interp
+      ]
+      sorry
+
     all_goals sorry
   }
