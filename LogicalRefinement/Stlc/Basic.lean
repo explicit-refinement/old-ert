@@ -27,12 +27,14 @@ def Ty.interp_in (A: Ty) (M: Type -> Type) := A.interp_based_in M M
 def Ty.interp_val_in (A: Ty) (M: Type -> Type) := A.interp_based_in M id
 def Ty.interp_val_char {A: Ty} {M}: A.interp_in M = M (A.interp_val_in M) := by cases A <;> rfl
 
--- Note: if the λx gets moved into the match, we get a kernel error; maybe post on Zulip about this...
+-- Note: if the λx gets moved into the match, we get a kernel error; 
+-- maybe post on Zulip about this...
 def Ty.eager {A: Ty} {M: Type -> Type} [Monad M]: A.interp_val_in M -> A.interp_in M := 
   λx => by cases A with
     | bot => cases x
     | _ => exact do return x
 
+--TODO: why is this not already defined? Is there a Maybe somewhere?
 instance myOptionMonad: Monad Option where
   pure := some
   bind := λx f => match x with | none => none | some x => f x 
