@@ -26,3 +26,10 @@ def Stlc.InterpSubst.transport_ctx {Γ Δ: Context} (S: InterpSubst Γ Δ)
 def Stlc.Context.deriv.subst {Γ Δ: Context} {A} (D: Δ.deriv A) (S: InterpSubst Γ Δ)
   : Γ.deriv A
   := λG => D.ctx_effect (S.transport_ctx (some G))
+
+def Stlc.HasType.subst_interp_dist {Γ Δ σ A a} (H: HasType Δ a A) (S: SubstCtx σ Γ Δ)
+  : (H.subst S).interp = H.interp.subst S.interp
+  := by {
+    unfold HasType.interp;
+    sorry
+  }
