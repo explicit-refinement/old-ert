@@ -444,3 +444,7 @@ def Stlc.HasType.interp {Γ a A} (H: HasType Γ a A): Γ.deriv A :=
 def Stlc.HasType.interp_var {Γ n A} (H: Stlc.HasType Γ (Stlc.var n) A)
   : H.interp = (λG => Ty.eager (H.has_var.interp G))
   := rfl
+def Stlc.HasType.interp_var_app {Γ G n A} 
+  (H: Stlc.HasType Γ (Stlc.var n) A)
+  : H.interp G = Ty.eager (H.has_var.interp G)
+  := rfl
