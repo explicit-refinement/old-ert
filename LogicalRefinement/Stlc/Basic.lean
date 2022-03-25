@@ -269,6 +269,8 @@ def Stlc.subst: Stlc -> Subst -> Stlc
 | natrec n z s, σ => natrec (n.subst σ) (z.subst σ) (s.subst σ.lift)
 | c, σ => c
 
+def Stlc.subst_var: (Stlc.var n).subst σ = σ n := rfl
+
 def Stlc.subst0 (s: Stlc) (e: Stlc): Stlc := s.subst e.to_subst
 def Stlc.subst1 (s: Stlc) (e: Stlc): Stlc := s.subst e.to_subst.lift
 
