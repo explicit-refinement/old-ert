@@ -33,12 +33,9 @@ def Stlc.HasType.subst_interp_dist {Γ Δ σ A a} (H: HasType Δ a A) (S: SubstC
     revert σ Γ S;
     induction H <;> intro Γ σ S <;> funext D;
 
-    case var =>
+    case var v =>
       simp only [
-        HasType.interp,
-        SubstCtx.interp,
-        Context.deriv.subst,
-        InterpSubst.transport_ctx
+        Stlc.subst
       ]
       sorry
 
