@@ -36,7 +36,7 @@ def Stlc.HasType.subst_interp_dist {Γ Δ σ A a}
     induction H <;> intro Γ σ S <;> funext D;
 
     case var v =>
-      rw [Stlc.HasType.interp_var_app]
+      rw [Stlc.HasType.interp_var]
       sorry
 
     case app =>
