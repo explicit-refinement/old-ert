@@ -37,6 +37,7 @@ def Stlc.HasType.subst_interp_dist {Γ Δ σ A a}
 
     case var v =>
       rw [Stlc.HasType.interp_var]
+      rw [Stlc.HasType.interp_var]
       sorry
 
     case app =>
