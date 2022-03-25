@@ -37,6 +37,8 @@ def Stlc.HasType.subst_interp_dist {Γ Δ σ A a}
 
     case var v =>
       rw [Stlc.HasType.interp_var]
+      simp only [Context.deriv.subst]
+      simp only [Context.deriv.ctx_effect]
       sorry
 
     case app =>
