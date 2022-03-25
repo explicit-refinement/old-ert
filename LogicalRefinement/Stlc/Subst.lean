@@ -41,6 +41,7 @@ def Stlc.HasType.subst_interp_dist {Γ Δ σ A a}
       simp only [Context.deriv.ctx_effect]
       unfold InterpSubst.transport_ctx
       simp only [Context.deriv.ctx_effect]
+      simp only [Context.interp_effect.push_effect]
       sorry
 
     case app =>
