@@ -209,6 +209,13 @@ inductive Stlc.HasType: Context -> Stlc -> Ty -> Prop
   HasType (C::Γ) s C ->
   HasType Γ (natrec n z s) C
 
+def Stlc.HasType.has_var: HasType Γ (Stlc.var n) A -> HasVar Γ n A
+  := by {
+    intro H;
+    cases H;
+    assumption
+  }
+
 inductive Stlc.WkCtx: Wk -> Context -> Context -> Prop
   | id: WkCtx Wk.id Γ Γ
   | step {ρ Γ Δ A}: WkCtx ρ Γ Δ -> WkCtx ρ.step (A::Γ) Δ 
