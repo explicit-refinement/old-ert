@@ -99,7 +99,7 @@ def Stlc.HasType.subst_interp_dist {Γ Δ σ A a}
         by intros; simp [*];
       apply Hsome;
       funext x;
-      rw [Is]
+      rw [Is S.lift]
       repeat sorry
 
     all_goals sorry
