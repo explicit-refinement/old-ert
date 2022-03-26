@@ -25,6 +25,8 @@ def Ty.interp_based_in (A: Ty) (M: Type -> Type)
 
 def Ty.interp_in (A: Ty) (M: Type -> Type) := A.interp_based_in M M
 def Ty.interp_val_in (A: Ty) (M: Type -> Type) := A.interp_based_in M id
+
+--TODO: why is the `cases` necessary here...
 def Ty.interp_val_char {A: Ty} {M}
   : A.interp_in M = M (A.interp_val_in M) 
   := by cases A <;> rfl
