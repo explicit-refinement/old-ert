@@ -33,19 +33,27 @@ def Stlc.HasType.subst_var {Γ Δ σ A n}
   : H.subst S = S H.has_var
   := rfl
 
+def Stlc.HasVar.subst_interp_dist {Γ Δ σ A n}
+  (Hv: HasVar Δ a A)
+  (S: SubstCtx σ Γ Δ)
+  (H: HasType Γ (σ n) A)
+  (G: Γ.interp)
+  : H.interp G = Hv.interp (Stlc.InterpSubst.transport_ctx S.interp G)
+  := by sorry
+
 def Stlc.HasType.subst_interp_dist {Γ Δ σ A a} 
   (H: HasType Δ a A) 
   (S: SubstCtx σ Γ Δ)
   : (H.subst S).interp = H.interp.subst S.interp
   := by {
     revert σ Γ S;
-    induction H <;> intro Γ σ S <;> funext D;
+    induction H <;> intro Γ σ S <;> funext G;
 
     case var Hv =>
      rw [Stlc.HasType.subst_var (var Hv) S]
      simp only [Context.deriv.subst]
      simp only [HasType.interp]
-     sorry
+     rw [Stlc.HasVar.subst_interp_dist]
 
     case app =>
       simp only [
