@@ -34,12 +34,14 @@ def Stlc.HasType.subst_var {Γ Δ σ A n}
   := rfl
 
 def Stlc.HasVar.subst_interp_dist {Γ Δ σ A n}
-  (Hv: HasVar Δ a A)
+  (Hv: HasVar Δ n A)
   (S: SubstCtx σ Γ Δ)
   (H: HasType Γ (σ n) A)
   (G: Γ.interp)
   : H.interp G = Hv.interp (Stlc.InterpSubst.transport_ctx S.interp G)
-  := by sorry
+  := by {
+    sorry
+  }
 
 def Stlc.HasType.subst_interp_dist {Γ Δ σ A a} 
   (H: HasType Δ a A) 
