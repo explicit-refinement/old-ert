@@ -356,21 +356,25 @@ def Stlc.HasType.interp {Γ a A} (H: HasType Γ a A): Γ.deriv A :=
       exact I
     | _ => apply False.elim; cases H
   | Stlc.let_in A' e e' => by
-    have ⟨He, He'⟩: HasType Γ e A' ∧ HasType (A'::Γ) e' A :=
-      by cases H; apply And.intro <;> assumption;
+    have He: HasType Γ e A' :=
+      by cases H; assumption;
+    have He': HasType (A'::Γ) e' A :=
+      by cases H; assumption;
     exact (He.interp G).bind_val (λv => He'.interp (Ty.eager v, G))
   | Stlc.pair l r => by cases A with
     | prod A B =>
-      have ⟨Hl, Hr⟩: HasType Γ l A ∧ HasType Γ r B
-        := by cases H; exact ⟨by assumption, by assumption⟩
+      have Hl: HasType Γ l A := by cases H; assumption;
+      have Hr: HasType Γ r B := by cases H; assumption;
       let Il := Hl.interp G;
       let Ir := Hr.interp G;
       exact Il.pair Ir
     | _ => apply False.elim; cases H
   | Stlc.let_pair P e e' => by cases P with
     | prod A' B' =>
-      have ⟨He, He'⟩: HasType Γ e (prod A' B') ∧ HasType (B'::A'::Γ) e' A
-        := by cases H; exact ⟨by assumption, by assumption⟩
+      have He: HasType Γ e (prod A' B')
+        := by cases H; assumption;
+      have He':HasType (B'::A'::Γ) e' A
+        := by cases H; assumption;
       let Ie := He.interp G;
       let Ie' := λ b a => He'.interp (Ty.eager b, (Ty.eager a, G));
       exact Ie.let_pair Ie'
@@ -386,8 +390,12 @@ def Stlc.HasType.interp {Γ a A} (H: HasType Γ a A): Γ.deriv A :=
     | _ => apply False.elim; cases H
   | Stlc.case P d l r => by cases P with
     | coprod A' B' =>
-      have ⟨Hd, Hl, Hr⟩: HasType Γ d (coprod A' B') ∧ HasType (A'::Γ) l A ∧ HasType (B'::Γ) r A :=
-        by cases H; exact ⟨by assumption, by assumption, by assumption⟩
+      have Hd: HasType Γ d (coprod A' B') :=
+        by cases H; assumption;
+      have Hl: HasType (A'::Γ) l A :=
+        by cases H; assumption;
+      have Hr: HasType (B'::Γ) r A :=
+        by cases H; assumption;
       let Id := Hd.interp G;
       let Il := λa => Hl.interp (Ty.eager a, G);
       let Ir := λb => Hr.interp (Ty.eager b, G);
@@ -411,8 +419,12 @@ def Stlc.HasType.interp {Γ a A} (H: HasType Γ a A): Γ.deriv A :=
   --TODO: report that; if the "by", "exact", and "have" are removed, this breaks, to Zulip/GitHub. Fascinating!
   | Stlc.natrec n z s =>
     by
-    have ⟨Hn, Hz, Hs⟩: HasType Γ n nats ∧ HasType Γ z A ∧ HasType (A::Γ) s A
-      := by cases H; exact ⟨by assumption, by assumption, by assumption⟩
+    have Hn: HasType Γ n nats
+      := by cases H; assumption;
+    have Hz: HasType Γ z A
+      := by cases H; assumption;
+    have Hs: HasType (A::Γ) s A
+      := by cases H; assumption;
     let In := Hn.interp G;
     let Iz := Hz.interp G;
     let Is := λc => Hs.interp (Ty.eager c, G);

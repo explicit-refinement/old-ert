@@ -90,6 +90,12 @@ def Stlc.HasType.subst_interp_dist {Γ Δ σ A a}
         rw [Il S]
         rw [Ir S]
 
+    case pair Il Ir =>
+      simp only [interp]
+      rw [Il S]
+      rw [Ir S]
+      rfl
+
     case lam Is =>
       simp only [interp]
       simp only [Context.deriv.subst]
