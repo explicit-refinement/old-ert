@@ -136,7 +136,7 @@ def Stlc.HasType.subst_interp_dist {Γ Δ σ A a}
       funext x;
       rw [Is S.lift]
       rw [Stlc.SubstCtx.lift_interp S]
-      rfl
+      sorry
 
     all_goals sorry
   }
