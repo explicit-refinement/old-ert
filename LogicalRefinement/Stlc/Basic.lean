@@ -142,23 +142,7 @@ def Stlc.Context := List Ty
 
 def Stlc.Context.interp: Context -> Type
 | [] => Unit
-| A::As => Prod A.interp_val (interp As)
-
-def Stlc.Context.interp_effect (Γ: Context): Type
-  := Option (Γ.interp)
-
-def Stlc.Context.interp_effect.push_effect {A: Ty} {Γ: Context}
-  : A.interp -> Γ.interp_effect -> interp_effect (A::Γ)
-  := by {
-    intro I Γ;
-    match Γ with
-    | none => exact none
-    | some Γ =>
-      cases A <;> 
-      match I with
-      | none => exact none
-      | some I => exact some (I, Γ)
-  }
+| A::As => Prod A.interp (interp As)
 
 inductive Stlc.HasVar: Context -> Nat -> Ty -> Prop
 | zero {Γ A}: HasVar (A::Γ) 0 A
@@ -170,7 +154,7 @@ theorem Stlc.HasVar.succ_invert {Γ A B} (P: HasVar (A::Γ) (n + 1) B)
   : HasVar Γ n B := by cases P; assumption
 
 def Stlc.HasVar.interp {Γ A n} (H: HasVar Γ n A) (G: Γ.interp)
-  : A.interp_val :=
+  : A.interp :=
   match Γ with
   | [] => by {
     apply False.elim;
@@ -354,21 +338,16 @@ theorem Stlc.HasType.lower1 {Γ a A B P} (H: HasType (P::B::Γ) a A)
 def Stlc.Context.deriv (Γ: Context) (A: Ty): Type 
   := Γ.interp -> A.interp
 
-def Stlc.Context.deriv.ctx_effect {Γ: Context} {A: Ty} (D: Γ.deriv A)
-  : Γ.interp_effect -> A.interp
-  | some Γ => D Γ
-  | none => A.abort
-
 def Stlc.HasType.interp {Γ a A} (H: HasType Γ a A): Γ.deriv A :=
   λG =>
   match a with
   | Stlc.var n => 
     let v: HasVar Γ n A := by cases H; assumption;
-    Ty.eager (v.interp G)
+    v.interp G
   | Stlc.lam X s => by cases A with
     | arrow A B =>
       have H: HasType (A::Γ) s B := by cases H; assumption;
-      exact some (λx => H.interp (x, G))
+      exact some (λx => H.interp (Ty.eager x, G))
     | _ => apply False.elim; cases H
   | Stlc.app P l r => 
     by 
@@ -386,7 +365,7 @@ def Stlc.HasType.interp {Γ a A} (H: HasType Γ a A): Γ.deriv A :=
   | Stlc.let_in A' e e' => by
     have ⟨He, He'⟩: HasType Γ e A' ∧ HasType (A'::Γ) e' A :=
       by cases H; apply And.intro <;> assumption;
-    exact (He.interp G).bind_val (λv => He'.interp (v, G))
+    exact (He.interp G).bind_val (λv => He'.interp (Ty.eager v, G))
   | Stlc.pair l r => by cases A with
     | prod A B =>
       have ⟨Hl, Hr⟩: HasType Γ l A ∧ HasType Γ r B
@@ -400,7 +379,7 @@ def Stlc.HasType.interp {Γ a A} (H: HasType Γ a A): Γ.deriv A :=
       have ⟨He, He'⟩: HasType Γ e (prod A' B') ∧ HasType (B'::A'::Γ) e' A
         := by cases H; exact ⟨by assumption, by assumption⟩
       let Ie := He.interp G;
-      let Ie' := λ b a => He'.interp (b, (a, G));
+      let Ie' := λ b a => He'.interp (Ty.eager b, (Ty.eager a, G));
       exact Ie.let_pair Ie'
     | _ => apply False.elim; cases H
   | Stlc.inj i e => by cases A with
@@ -417,8 +396,8 @@ def Stlc.HasType.interp {Γ a A} (H: HasType Γ a A): Γ.deriv A :=
       have ⟨Hd, Hl, Hr⟩: HasType Γ d (coprod A' B') ∧ HasType (A'::Γ) l A ∧ HasType (B'::Γ) r A :=
         by cases H; exact ⟨by assumption, by assumption, by assumption⟩
       let Id := Hd.interp G;
-      let Il := λa => Hl.interp (a, G);
-      let Ir := λb => Hr.interp (b, G);
+      let Il := λa => Hl.interp (Ty.eager a, G);
+      let Ir := λb => Hr.interp (Ty.eager b, G);
       exact Id.case Il Ir
     | _ => apply False.elim; cases H
   | Stlc.nil => by cases A with 
@@ -443,13 +422,13 @@ def Stlc.HasType.interp {Γ a A} (H: HasType Γ a A): Γ.deriv A :=
       := by cases H; exact ⟨by assumption, by assumption, by assumption⟩
     let In := Hn.interp G;
     let Iz := Hz.interp G;
-    let Is := λc => Hs.interp (c, G);
+    let Is := λc => Hs.interp (Ty.eager c, G);
     exact In.natrec_int Iz Is
 
 def Stlc.HasType.interp_var {Γ n A} (H: Stlc.HasType Γ (Stlc.var n) A)
-  : H.interp = (λG => Ty.eager (H.has_var.interp G))
+  : H.interp = H.has_var.interp
   := rfl
 def Stlc.HasType.interp_var_app {Γ G n A} 
   (H: Stlc.HasType Γ (Stlc.var n) A)
-  : H.interp G = Ty.eager (H.has_var.interp G)
+  : H.interp G = H.has_var.interp G
   := rfl

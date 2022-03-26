@@ -17,15 +17,15 @@ def Stlc.SubstCtx.interp
   := λHv => (S Hv).interp
   
 def Stlc.InterpSubst.transport_ctx {Γ Δ: Context} (S: InterpSubst Γ Δ) 
-  (G: Γ.interp_effect)
-  : Δ.interp_effect
+  (G: Γ.interp)
+  : Δ.interp
   := match Δ with
-     | [] => match G with | none => none | some _ => some ()
-     | A::Δ => (transport_ctx S.pop G).push_effect ((S HasVar.zero).ctx_effect G)
+     | [] => ()
+     | A::Δ => (S HasVar.zero G, transport_ctx S.pop G)
 
 def Stlc.Context.deriv.subst {Γ Δ: Context} {A} (D: Δ.deriv A) (S: InterpSubst Γ Δ)
   : Γ.deriv A
-  := λG => D.ctx_effect (S.transport_ctx (some G))
+  := λG => D (S.transport_ctx G)
 
 def Stlc.HasType.subst_var {Γ Δ σ A n}
   (H: Stlc.HasType Δ (Stlc.var n) A)
@@ -45,7 +45,6 @@ def Stlc.HasType.subst_interp_dist {Γ Δ σ A a}
      rw [Stlc.HasType.subst_var (var Hv) S]
      simp only [Context.deriv.subst]
      simp only [HasType.interp]
-     simp only [Context.deriv.ctx_effect]
      sorry
 
     case app =>
