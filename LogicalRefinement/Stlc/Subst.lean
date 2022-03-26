@@ -45,7 +45,15 @@ def Stlc.HasVar.subst_interp_dist {Γ Δ σ A n}
     | zero =>
       intro Γ Δ σ A Hv S H G;
       cases Δ <;> cases Hv <;> rfl
-    | succ n => sorry
+    | succ n I =>
+      intro Γ Δ σ A Hv S H G;
+      cases Δ with
+      | nil => cases Hv
+      | cons B Δ =>
+        cases Hv with
+        | succ Hv =>
+          simp only [HasVar.interp, InterpSubst.transport_ctx]
+          sorry
   }
 
 def Stlc.HasType.subst_interp_dist {Γ Δ σ A a} 
