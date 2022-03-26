@@ -38,8 +38,9 @@ def Stlc.SubstCtx.pop_interp {σ Γ Δ H} (S: SubstCtx σ Γ (H::Δ))
     simp only [InterpSubst.pop, SubstCtx.interp]
   }
 
-def Stlc.SubstCtx.lift_interp {σ Γ Δ H} (S: SubstCtx σ Γ Δ)
-  : S.lift.interp = S.interp.lift
+def Stlc.SubstCtx.lift_interp {σ Γ Δ} (S: SubstCtx σ Γ Δ)
+  : Stlc.SubstCtx.interp S.lift
+  = Stlc.InterpSubst.lift S.interp
   := by {
     sorry
   }
