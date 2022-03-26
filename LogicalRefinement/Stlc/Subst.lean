@@ -109,7 +109,8 @@ def Stlc.HasType.subst_interp_dist {Γ Δ σ A a}
   : (H.subst S).interp = H.interp.subst S.interp
   := by {
     revert σ Γ S;
-    induction H <;> intro Γ σ S <;> funext G;
+    induction H <;> intro Γ σ S <;> funext G
+    <;> try rfl;
 
     case var Hv =>
      rw [Stlc.HasType.subst_var (var Hv) S]
