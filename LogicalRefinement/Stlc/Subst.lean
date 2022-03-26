@@ -118,6 +118,17 @@ def Stlc.HasType.subst_interp_dist {Γ Δ σ A a}
      simp only [HasType.interp]
      rw [Stlc.HasVar.subst_interp_dist]
 
+    case lam Is =>
+      simp only [interp]
+      simp only [Context.deriv.subst]
+      have Hsome: ∀{A}, ∀{a b: A}, a = b -> some a = some b :=
+        by intros; simp [*];
+      apply Hsome;
+      funext x;
+      rw [Is S.lift]
+      rw [Stlc.SubstCtx.lift_interp S]
+      sorry
+      
     case app Il Ir =>
       simp only [interp, eq_mp_helper']
       rw [Il S, Ir S]
@@ -137,17 +148,6 @@ def Stlc.HasType.subst_interp_dist {Γ Δ σ A a}
       simp only [interp]
       rw [Ie S]
       rfl
-
-    case lam Is =>
-      simp only [interp]
-      simp only [Context.deriv.subst]
-      have Hsome: ∀{A}, ∀{a b: A}, a = b -> some a = some b :=
-        by intros; simp [*];
-      apply Hsome;
-      funext x;
-      rw [Is S.lift]
-      rw [Stlc.SubstCtx.lift_interp S]
-      sorry
 
     all_goals sorry
   }
