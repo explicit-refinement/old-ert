@@ -11,33 +11,22 @@ inductive Ty
 
 open Ty
 
-def Ty.interp_based_in (A: Ty) (M: Type -> Type)
-  : (Type -> Type) -> Type 
-  := λU => U (
+def Ty.interp_val_in (A: Ty) (M: Type -> Type): Type 
+  :=
     match A with
     | bot => Empty
     | unit => Unit
     | nats => Nat
-    | arrow A B => A.interp_based_in M id -> B.interp_based_in M M
-    | prod A B => Prod (A.interp_based_in M id) (B.interp_based_in M id)
-    | coprod A B => Sum (A.interp_based_in M id) (B.interp_based_in M id)
-  )
+    | arrow A B => A.interp_val_in M -> M (B.interp_val_in M)
+    | prod A B => Prod (A.interp_val_in M) (B.interp_val_in M)
+    | coprod A B => Sum (A.interp_val_in M) (B.interp_val_in M)
 
-def Ty.interp_in (A: Ty) (M: Type -> Type) := A.interp_based_in M M
-def Ty.interp_val_in (A: Ty) (M: Type -> Type) := A.interp_based_in M id
-
---TODO: why is the `cases` necessary here...
+def Ty.interp_in (A: Ty) (M: Type -> Type) := M (A.interp_val_in M)
 def Ty.interp_val_char {A: Ty} {M}
   : A.interp_in M = M (A.interp_val_in M) 
-  := by cases A <;> rfl
+  := rfl
 
--- Note: if the λx gets moved into the match, we get a kernel error; 
--- maybe post on Zulip about this...
-def Ty.eager {A: Ty} {M: Type -> Type} [Monad M]: A.interp_val_in M -> A.interp_in M := 
-  by {
-    rw [Ty.interp_val_char];
-    exact pure
-  }
+def Ty.eager {A: Ty} {M: Type -> Type} [Monad M]: A.interp_val_in M -> A.interp_in M := pure
 
 --TODO: why is this not already defined? Is there a Maybe somewhere?
 instance myOptionMonad: Monad Option where
@@ -358,8 +347,8 @@ def Stlc.HasType.interp {Γ a A} (H: HasType Γ a A): Γ.deriv A :=
     have Hl: HasType Γ l P := by cases H; assumption;
     cases P with
     | arrow A' B' =>
-      have ⟨HA, Hr⟩: B' = A ∧ HasType Γ r A' 
-        := by cases H; exact ⟨by rfl, by assumption⟩;
+      have HA: B' = A := by cases H; rfl;
+      have Hr: HasType Γ r A' := by cases H; assumption;
       let Il := Hl.interp G;
       let Ir := Hr.interp G;
       let I := Il.app Ir;
@@ -409,7 +398,7 @@ def Stlc.HasType.interp {Γ a A} (H: HasType Γ a A): Γ.deriv A :=
     | _ => apply False.elim; cases H 
   | Stlc.abort => A.abort
   | Stlc.zero => by cases A with 
-    | nats => exact some 0 
+    | nats => exact some Nat.zero 
     | _ => apply False.elim; cases H 
   | Stlc.succ => by cases A with 
     | arrow A B =>
