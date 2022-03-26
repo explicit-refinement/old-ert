@@ -276,6 +276,10 @@ def Stlc.lower1 (s: Stlc): Stlc := s.subst1 abort
 def Stlc.SubstCtx (σ: Subst) (Γ Δ: Context): Prop :=  
   ∀{n A}, HasVar Δ n A -> HasType Γ (σ n) A
 
+def Stlc.SubstCtx.pop {σ} {Γ Δ: Context} (S: SubstCtx σ Γ (H::Δ))
+  : SubstCtx (λn => σ n.succ) Γ Δ
+  := λHv => S Hv.succ
+
 def Stlc.HasType.subst0_ctx {Γ a A} (H: HasType Γ a A)
   : SubstCtx (a.to_subst) Γ (A::Γ)
   := by {

@@ -6,16 +6,19 @@ import LogicalRefinement.Stlc.Interp
 def Stlc.InterpSubst (Γ Δ: Context): Type := 
   ∀{n A}, Stlc.HasVar Δ n A -> Γ.deriv A
 
-def Stlc.InterpSubst.pop {Γ Δ: Context} (S: InterpSubst Γ (H::Δ)): InterpSubst Γ Δ
+def Stlc.InterpSubst.pop {H Γ Δ} (S: InterpSubst Γ (H::Δ))
+  : InterpSubst Γ Δ
   := λHv => S Hv.succ
 
-def Stlc.SubstCtx.interp
-  {σ: Subst} 
-  {Γ Δ: Context} 
-  (S: SubstCtx σ Γ Δ)
+def Stlc.SubstCtx.interp {σ Γ Δ} (S: SubstCtx σ Γ Δ)
   : Stlc.InterpSubst Γ Δ
   := λHv => (S Hv).interp
   
+def Stlc.SubstCtx.pop_interp {σ Γ Δ H} (S: SubstCtx σ Γ (H::Δ))
+  : @Stlc.InterpSubst.pop H Γ Δ (Stlc.SubstCtx.interp S)
+  = @Stlc.SubstCtx.interp (λn => σ n.succ) Γ Δ (Stlc.SubstCtx.pop S)
+  := sorry
+
 def Stlc.InterpSubst.transport_ctx {Γ Δ: Context} (S: InterpSubst Γ Δ) 
   (G: Γ.interp)
   : Δ.interp
