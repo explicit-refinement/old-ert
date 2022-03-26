@@ -42,7 +42,10 @@ def Stlc.SubstCtx.lift_interp {σ Γ Δ H} (S: SubstCtx σ Γ Δ)
   : @Stlc.SubstCtx.interp σ.lift (H::Γ) (H::Δ) S.lift
   = @Stlc.InterpSubst.lift H Γ Δ S.interp
   := by {
-    sorry
+    funext n;
+    cases n with
+    | zero => sorry
+    | succ n => sorry
   }
 
 def Stlc.InterpSubst.transport_ctx {Γ Δ: Context} (S: InterpSubst Γ Δ) 
