@@ -85,15 +85,11 @@ def Stlc.HasType.subst_interp_dist {Γ Δ σ A a}
     case app Il Ir =>
       conv =>
         lhs
-        simp only [interp]
-        rw [eq_mp_helper']
-        rw [Il S]
-        rw [Ir S]
+        simp only [interp, eq_mp_helper', Il S, Ir S]
 
     case pair Il Ir =>
       simp only [interp]
-      rw [Il S]
-      rw [Ir S]
+      rw [Il S, Ir S]
       rfl
 
     case lam Is =>
