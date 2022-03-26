@@ -44,7 +44,10 @@ def Stlc.SubstCtx.lift_interp {σ Γ Δ H} (S: SubstCtx σ Γ Δ)
   := by {
     funext n;
     cases n with
-    | zero => sorry
+    | zero => 
+      funext A Hv G;
+      simp only [InterpSubst.lift, SubstCtx.interp]
+      sorry
     | succ n => sorry
   }
 
