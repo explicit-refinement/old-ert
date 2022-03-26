@@ -13,14 +13,15 @@ def Stlc.InterpSubst.pop {H Γ Δ} (S: InterpSubst Γ (H::Δ))
 def Stlc.InterpSubst.lift {H Γ Δ} (S: InterpSubst Γ Δ)
   : InterpSubst (H::Γ) (H::Δ)
   := by {
-    intro n A Hv D;
+    intro n A Hv G;
     cases n with
     | zero => 
       have P: A = H := by cases Hv; rfl;
       rw [P];
-      exact HasVar.zero.interp D
+      exact HasVar.zero.interp G
     | succ n =>
-      sorry
+      let (x, G) := G;
+      exact S (by cases Hv; assumption) G
   }
 
 def Stlc.SubstCtx.interp {σ Γ Δ} (S: SubstCtx σ Γ Δ)
