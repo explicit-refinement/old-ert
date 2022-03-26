@@ -29,8 +29,8 @@ def Stlc.SubstCtx.interp {σ Γ Δ} (S: SubstCtx σ Γ Δ)
   := λHv => (S Hv).interp
   
 def Stlc.SubstCtx.pop_interp {σ Γ Δ H} (S: SubstCtx σ Γ (H::Δ))
-  : @Stlc.InterpSubst.pop H Γ Δ (Stlc.SubstCtx.interp S)
-  = @Stlc.SubstCtx.interp (λn => σ n.succ) Γ Δ (Stlc.SubstCtx.pop S)
+  : @Stlc.InterpSubst.pop H Γ Δ S.interp
+  = @Stlc.SubstCtx.interp (λn => σ n.succ) Γ Δ S.pop
   := by {
     funext n;
     cases n <;>
@@ -38,9 +38,9 @@ def Stlc.SubstCtx.pop_interp {σ Γ Δ H} (S: SubstCtx σ Γ (H::Δ))
     simp only [InterpSubst.pop, SubstCtx.interp]
   }
 
-def Stlc.SubstCtx.lift_interp {σ Γ Δ} (S: SubstCtx σ Γ Δ)
-  : Stlc.SubstCtx.interp S.lift
-  = Stlc.InterpSubst.lift S.interp
+def Stlc.SubstCtx.lift_interp {σ Γ Δ H} (S: SubstCtx σ Γ Δ)
+  : @Stlc.SubstCtx.interp σ.lift (H::Γ) (H::Δ) S.lift
+  = @Stlc.InterpSubst.lift H Γ Δ S.interp
   := by {
     sorry
   }
