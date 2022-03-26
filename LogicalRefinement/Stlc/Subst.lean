@@ -79,11 +79,10 @@ def Stlc.HasType.subst_interp_dist {Γ Δ σ A a}
      simp only [HasType.interp]
      rw [Stlc.HasVar.subst_interp_dist]
 
-    case app =>
-      simp only [
-        HasType.interp
-      ]
-      sorry
+    case app Il Ir =>
+      simp only [interp]
+      rw [Il, Ir]
+      rfl
 
     all_goals sorry
   }
