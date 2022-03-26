@@ -52,7 +52,15 @@ def Stlc.SubstCtx.lift_interp {σ Γ Δ H} (S: SubstCtx σ Γ Δ)
         Subst.lift, HasType.interp
       ]
       rfl
-    | succ n => sorry
+    | succ n => 
+      funext A Hv G;
+      cases G;
+      simp only [
+        InterpSubst.lift, SubstCtx.interp, 
+        Subst.lift,
+        HasType.interp
+      ]
+      rfl
   }
 
 def Stlc.InterpSubst.transport_ctx {Γ Δ: Context} (S: InterpSubst Γ Δ) 
