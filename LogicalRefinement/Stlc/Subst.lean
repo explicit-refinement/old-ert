@@ -17,7 +17,12 @@ def Stlc.SubstCtx.interp {σ Γ Δ} (S: SubstCtx σ Γ Δ)
 def Stlc.SubstCtx.pop_interp {σ Γ Δ H} (S: SubstCtx σ Γ (H::Δ))
   : @Stlc.InterpSubst.pop H Γ Δ (Stlc.SubstCtx.interp S)
   = @Stlc.SubstCtx.interp (λn => σ n.succ) Γ Δ (Stlc.SubstCtx.pop S)
-  := sorry
+  := by {
+    funext n;
+    cases n <;>
+    funext _ _ <;>
+    simp only [InterpSubst.pop, SubstCtx.interp]
+  }
 
 def Stlc.InterpSubst.transport_ctx {Γ Δ: Context} (S: InterpSubst Γ Δ) 
   (G: Γ.interp)
