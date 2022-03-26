@@ -56,7 +56,8 @@ def Stlc.HasVar.subst_interp_dist {Γ Δ σ A n}
         cases Hv with
         | succ Hv =>
           simp only [HasVar.interp, InterpSubst.transport_ctx]
-          sorry
+          rw [S.pop_interp]
+          apply I Hv S.pop
   }
 
 def Stlc.HasType.subst_interp_dist {Γ Δ σ A a} 
