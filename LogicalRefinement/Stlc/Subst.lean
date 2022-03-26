@@ -40,7 +40,12 @@ def Stlc.HasVar.subst_interp_dist {Γ Δ σ A n}
   (G: Γ.interp)
   : H.interp G = Hv.interp (Stlc.InterpSubst.transport_ctx S.interp G)
   := by {
-    sorry
+    revert Γ Δ σ A Hv S H G;
+    induction n with
+    | zero =>
+      intro Γ Δ σ A Hv S H G;
+      cases Δ <;> cases Hv <;> rfl
+    | succ n => sorry
   }
 
 def Stlc.HasType.subst_interp_dist {Γ Δ σ A a} 
