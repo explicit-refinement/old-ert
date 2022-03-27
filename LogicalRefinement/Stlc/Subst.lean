@@ -58,7 +58,7 @@ def Stlc.SubstCtx.lift_interp {σ Γ Δ H} (S: SubstCtx σ Γ Δ)
             InterpSubst.lift, SubstCtx.interp,
             HasType.interp
           ]
-          --rw [Stlc.Subst.lift_succ]
+          arg 1
           --rw [Stlc.HasType.interp_wk1]
         sorry
   }
