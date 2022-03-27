@@ -443,10 +443,10 @@ def Stlc.HasType.interp_var_app {Γ G n A}
 
 def Stlc.HasType.interp_wk1 {Γ a} {A B: Ty}
   (H: HasType Γ a A)
-  (x: B.interp_val)
+  (x: B.interp)
   (G: Γ.interp)
   :
-  (H.wk (B.to_wk)).interp (Ty.eager x, G) = H.interp G
+  (H.wk (B.to_wk)).interp (x, G) = H.interp G
   := by {
     sorry
   }
