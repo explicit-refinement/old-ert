@@ -196,8 +196,11 @@ def Stlc.HasType.has_var: HasType Γ (Stlc.var n) A -> HasVar Γ n A
 
 inductive Stlc.WkCtx: Wk -> Context -> Context -> Prop
   | id: WkCtx Wk.id Γ Γ
-  | step {ρ Γ Δ A}: WkCtx ρ Γ Δ -> WkCtx ρ.step (A::Γ) Δ 
-  | lift {ρ Γ Δ A}: WkCtx ρ Γ Δ -> WkCtx ρ.lift (A::Γ) (A::Δ)
+  | step {A ρ Γ Δ}: WkCtx ρ Γ Δ -> WkCtx ρ.step (A::Γ) Δ 
+  | lift {A ρ Γ Δ}: WkCtx ρ Γ Δ -> WkCtx ρ.lift (A::Γ) (A::Δ)
+
+theorem Ty.to_wk {Γ} (B: Ty): Stlc.WkCtx Wk.wk1 (B::Γ) Γ 
+  := Stlc.WkCtx.step Stlc.WkCtx.id
 
 theorem Stlc.HasVar.wk {Γ Δ n A} (H: HasVar Δ n A):
   ∀{ρ}, WkCtx ρ Γ Δ -> HasVar Γ (ρ.var n) A := by {
@@ -437,3 +440,13 @@ def Stlc.HasType.interp_var_app {Γ G n A}
   (H: Stlc.HasType Γ (Stlc.var n) A)
   : H.interp G = H.has_var.interp G
   := rfl
+
+def Stlc.HasType.interp_wk1 {Γ a} {A B: Ty}
+  (H: HasType Γ a A)
+  (x: B.interp)
+  (G: Γ.interp)
+  :
+  (H.wk (B.to_wk)).interp (x, G) = H.interp G
+  := by {
+    sorry
+  }
