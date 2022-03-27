@@ -128,11 +128,13 @@ def Stlc.HasType.subst_interp_dist {Γ Δ σ A a}
       rw [Is S.lift]
       rw [Stlc.SubstCtx.lift_interp S]
       sorry
-      
+
     case app Il Ir =>
       simp only [interp, eq_mp_helper']
       rw [Il S, Ir S]
       rfl
+
+    case let_in => sorry
 
     case pair Il Ir =>
       simp only [interp]
