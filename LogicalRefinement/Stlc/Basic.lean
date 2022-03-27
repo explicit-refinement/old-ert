@@ -241,6 +241,9 @@ def Stlc.Subst.lift (σ: Subst): Subst
 | 0 => var 0
 | n + 1 => (σ n).wk1
 
+def Stlc.Subst.lift_succ (σ: Subst): σ.lift (Nat.succ n) = (σ n).wk1
+:= rfl
+
 def Stlc.Subst.liftn (σ: Subst): Nat -> Subst
 | 0 => σ
 | n + 1 => (σ.lift).liftn n
