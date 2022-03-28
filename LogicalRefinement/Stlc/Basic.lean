@@ -532,7 +532,9 @@ theorem Stlc.HasType.interp_wk {Γ Δ ρ a A}
   := by {
     revert Γ ρ R;
     induction H with
-    | var v => sorry
+    | var v =>
+      intros;
+      apply Stlc.HasVar.interp_wk
     | lam s Is => sorry
     | app l r Il Ir => sorry
     | let_in e e' Ie Ie' => sorry
