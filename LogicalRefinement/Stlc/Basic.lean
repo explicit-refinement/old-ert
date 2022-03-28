@@ -494,5 +494,6 @@ theorem Stlc.HasType.interp_wk1 {Γ a} {A B: Ty}
   :
   (H.wk (B.to_wk)).interp (x, G) = H.interp G
   := by {
-    sorry
+    rw [interp_wk H B.to_wk]
+    rfl
   }
