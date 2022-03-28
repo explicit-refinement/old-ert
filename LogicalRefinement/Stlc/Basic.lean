@@ -231,25 +231,23 @@ theorem Stlc.HasType.wk {Δ a A} (H: HasType Δ a A):
   )
 }
 
-theorem Stlc.Context.interp.wk {Γ Δ ρ} (G: Γ.interp): WkCtx ρ Γ Δ -> Δ.interp := by {
-    revert Γ Δ G;
-    induction ρ with
-    | id =>
-      intro Γ Δ G R;
+def Stlc.Context.interp.wk {Γ Δ ρ} (G: Γ.interp) (R: WkCtx ρ Γ Δ): Δ.interp := 
+  match ρ with
+  | Wk.id => by {
       have HΓΔ: Δ = Γ := by cases R; rfl;
       rw [HΓΔ];
       exact G
-    | step ρ I =>
-      intro Γ Δ G R;
+    }
+  | Wk.step ρ => by {
       cases Γ with
       | nil => apply False.elim; cases R
       | cons H Γ =>
         have R': WkCtx ρ Γ Δ := by cases R; assumption;
         cases G with
         | mk x G =>
-          exact I G R'
-    | lift ρ I =>
-      intro Γ Δ G R;
+          exact G.wk R'
+    }
+  | Wk.lift ρ => by {
       cases Γ with
       | nil => apply False.elim; cases R
       | cons H Γ =>
@@ -261,8 +259,8 @@ theorem Stlc.Context.interp.wk {Γ Δ ρ} (G: Γ.interp): WkCtx ρ Γ Δ -> Δ.i
           rw [HH] at G;
           cases G with
           | mk x G =>
-            exact (x, I G R')
-  }
+            exact (x, G.wk R')
+    }
 
 def Stlc.Subst := Nat -> Stlc
 
