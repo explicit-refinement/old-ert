@@ -524,6 +524,8 @@ theorem Stlc.HasVar.interp_wk {Γ Δ ρ n A}
         rfl
   }
 
+theorem option_helper {a b: A}: a = b -> some a = some b := by intros; simp [*]
+
 theorem Stlc.HasType.interp_wk {Γ Δ ρ a A}
   (H: HasType Δ a A)
   (R: WkCtx ρ Γ Δ)
@@ -532,10 +534,15 @@ theorem Stlc.HasType.interp_wk {Γ Δ ρ a A}
   := by {
     revert Γ ρ R;
     induction H with
-    | var v =>
-      intros;
-      apply Stlc.HasVar.interp_wk
-    | lam s Is => sorry
+    | var v => intros; apply Stlc.HasVar.interp_wk
+    | lam s Is => 
+      intro Γ ρ R;
+      funext G;
+      simp only [interp, Context.deriv.wk]
+      apply option_helper
+      funext x;
+      rw [Is R.lift]
+      rfl
     | app l r Il Ir => sorry
     | let_in e e' Ie Ie' => sorry
     | pair l r Il Ir => sorry
