@@ -363,6 +363,11 @@ def Stlc.Context.deriv.wk_step {Γ Δ ρ A} {B: Ty}
   : D.wk R.step (x, G) = D.wk R G
   := rfl
 
+def Stlc.Context.deriv.wk_lift {Γ Δ ρ A} {B: Ty} 
+  (D: Context.deriv (B::Δ) A) (R: WkCtx ρ Γ Δ) (x: B.interp) (G: Γ.interp)
+  : D.wk R.lift (x, G) = Context.deriv.wk (λD' => D (x, D')) R G
+  := rfl
+
 def Stlc.HasVar.interp {Γ A n} (H: HasVar Γ n A): Γ.deriv A :=
   λG =>
   match Γ with
@@ -497,12 +502,26 @@ theorem Stlc.HasVar.interp_wk {Γ Δ ρ n A}
       funext G; cases G;
       conv =>
         congr
-        simp only [interp, Wk.var]
         reduce
         skip
         rw [H.interp.wk_step R]
         rw [<-I]
-    | lift R I => sorry
+    | lift R I =>
+      intro N A H;
+      funext G; cases G;
+      cases H with
+      | zero => rfl
+      | succ H =>
+        conv =>
+          congr
+          reduce
+          skip
+          rw [H.succ.interp.wk_lift R]
+          arg 1
+          reduce
+          ext
+        rw [<-I]
+        rfl
   }
 
 theorem Stlc.HasType.interp_wk {Γ Δ ρ a A}
