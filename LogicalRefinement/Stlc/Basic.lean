@@ -142,19 +142,6 @@ theorem Stlc.HasVar.zero_invert {Γ A B} (P: HasVar (A::Γ) 0 B): A = B
 theorem Stlc.HasVar.succ_invert {Γ A B} (P: HasVar (A::Γ) (n + 1) B)
   : HasVar Γ n B := by cases P; assumption
 
-def Stlc.HasVar.interp {Γ A n} (H: HasVar Γ n A) (G: Γ.interp)
-  : A.interp :=
-  match Γ with
-  | [] => by {
-    apply False.elim;
-    cases H
-  }
-  | B::Γ => 
-    let (IA, G) := G; 
-    match n with
-    | 0 => by rw [H.zero_invert] at IA; exact IA
-    | Nat.succ n => H.succ_invert.interp G
-
 inductive Stlc.HasType: Context -> Stlc -> Ty -> Prop
 | var {Γ A n}: HasVar Γ n A -> HasType Γ (var n) A
 | lam {Γ A B s}: HasType (A::Γ) s B -> HasType Γ (lam A s) (arrow A B)
@@ -371,6 +358,19 @@ def Stlc.Context.deriv (Γ: Context) (A: Ty): Type
 def Stlc.Context.deriv.wk {Γ Δ ρ A} (D: Δ.deriv A) (R: WkCtx ρ Γ Δ): Γ.deriv A
   := λG => D (Stlc.Context.interp.wk G R)
 
+def Stlc.HasVar.interp {Γ A n} (H: HasVar Γ n A): Γ.deriv A :=
+  λG =>
+  match Γ with
+  | [] => by {
+    apply False.elim;
+    cases H
+  }
+  | B::Γ => 
+    let (IA, G) := G; 
+    match n with
+    | 0 => by rw [H.zero_invert] at IA; exact IA
+    | Nat.succ n => H.succ_invert.interp G
+
 def Stlc.HasType.interp {Γ a A} (H: HasType Γ a A): Γ.deriv A :=
   λG =>
   match a with
@@ -477,6 +477,15 @@ def Stlc.HasType.interp_var_app {Γ G n A}
   (H: Stlc.HasType Γ (Stlc.var n) A)
   : H.interp G = H.has_var.interp G
   := rfl
+
+theorem Stlc.HasVar.interp_wk {Γ Δ ρ n A}
+  (H: HasVar Δ n A)
+  (R: WkCtx ρ Γ Δ)
+  :
+  (H.wk R).interp = H.interp.wk R
+  := by {
+    sorry
+  }
 
 theorem Stlc.HasType.interp_wk {Γ Δ ρ a A}
   (H: HasType Δ a A)
