@@ -262,7 +262,7 @@ theorem Stlc.Context.interp.wk {Γ Δ ρ} (G: Γ.interp): WkCtx ρ Γ Δ -> Δ.i
           cases G with
           | mk x G =>
             exact (x, I G R')
-  } 
+  }
 
 def Stlc.Subst := Nat -> Stlc
 
@@ -369,6 +369,9 @@ theorem Stlc.HasType.lower1 {Γ a A B P} (H: HasType (P::B::Γ) a A)
 
 def Stlc.Context.deriv (Γ: Context) (A: Ty): Type 
   := Γ.interp -> A.interp
+
+def Stlc.Context.deriv.wk {Γ Δ ρ A} (D: Δ.deriv A) (R: WkCtx ρ Γ Δ): Γ.deriv A
+  := λG => D (Stlc.Context.interp.wk G R)
 
 def Stlc.HasType.interp {Γ a A} (H: HasType Γ a A): Γ.deriv A :=
   λG =>
