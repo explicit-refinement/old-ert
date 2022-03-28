@@ -530,6 +530,9 @@ def eq_mp_helper' {p: A = A}: Eq.mp p x = x := rfl
 def bind_val_helper (p: a = b) (p': c = d)
   : Ty.interp.bind_val a c = Ty.interp.bind_val b d
   := by simp [p, p']
+def let_pair_helper (p: a = b) (p': c = d)
+  : Ty.interp.let_pair a c = Ty.interp.let_pair b d
+  := by simp [p, p']
 
 theorem Stlc.HasType.interp_wk {Γ Δ ρ a A}
   (H: HasType Δ a A)
@@ -563,10 +566,31 @@ theorem Stlc.HasType.interp_wk {Γ Δ ρ a A}
       rfl
       rw [Ie R]
       rfl
-    | pair l r Il Ir => sorry
-    | let_pair e e' Ie Ie' => sorry
-    | inj0 e Ie => sorry
-    | inj1 e Ie => sorry
+    | pair l r Il Ir => 
+      intro Γ ρ R;
+      funext G;
+      simp only [interp, eq_mp_helper', Il R, Ir R]
+      rfl
+    | let_pair e e' Ie Ie' => 
+      intro Γ ρ R;
+      funext G;
+      simp only [interp, Context.deriv.wk]
+      apply let_pair_helper
+      rw [Ie R]
+      rfl
+      funext x y;
+      rw [Ie'] <;> try exact R.lift.lift
+      rfl
+    | inj0 e Ie => 
+      intro Γ ρ R;
+      funext G;
+      simp only [interp, eq_mp_helper', Ie R]
+      rfl
+    | inj1 e Ie => 
+      intro Γ ρ R;
+      funext G;
+      simp only [interp, eq_mp_helper', Ie R]
+      rfl
     | case d l r Id Il Ir => sorry
     | natrec n z s In Iz Is => sorry
     | _ => intros; rfl
