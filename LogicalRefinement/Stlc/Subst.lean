@@ -103,9 +103,6 @@ def Stlc.HasVar.subst_interp_dist {Γ Δ σ A n}
           apply I Hv S.pop
   }
 
-def eq_mp_helper {p: A = A}: Eq.mp p = id := rfl
-def eq_mp_helper' {p: A = A}: Eq.mp p x = x := rfl
-
 def Stlc.HasType.subst_interp_dist {Γ Δ σ A a} 
   (H: HasType Δ a A) 
   (S: SubstCtx σ Γ Δ)
