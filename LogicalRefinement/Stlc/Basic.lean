@@ -527,6 +527,9 @@ theorem Stlc.HasVar.interp_wk {Γ Δ ρ n A}
 theorem option_helper {a b: A}: a = b -> some a = some b := by intros; simp [*]
 def eq_mp_helper {p: A = A}: Eq.mp p = id := rfl
 def eq_mp_helper' {p: A = A}: Eq.mp p x = x := rfl
+def bind_val_helper (p: a = b) (p': c = d)
+  : Ty.interp.bind_val a c = Ty.interp.bind_val b d
+  := by simp [p, p']
 
 theorem Stlc.HasType.interp_wk {Γ Δ ρ a A}
   (H: HasType Δ a A)
@@ -548,10 +551,18 @@ theorem Stlc.HasType.interp_wk {Γ Δ ρ a A}
     | app l r Il Ir =>
       intro Γ ρ R;
       funext G;
-      simp only [interp, eq_mp_helper']
-      rw [Il R, Ir R]
+      simp only [interp, eq_mp_helper', Il R, Ir R]
       rfl
-    | let_in e e' Ie Ie' => sorry
+    | let_in e e' Ie Ie' =>
+      intro Γ ρ R;
+      funext G;
+      simp only [interp, Context.deriv.wk]
+      apply bind_val_helper
+      funext x;
+      rw [Ie' R.lift]
+      rfl
+      rw [Ie R]
+      rfl
     | pair l r Il Ir => sorry
     | let_pair e e' Ie Ie' => sorry
     | inj0 e Ie => sorry
