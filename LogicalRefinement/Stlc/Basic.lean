@@ -478,7 +478,16 @@ def Stlc.HasType.interp_var_app {Γ G n A}
   : H.interp G = H.has_var.interp G
   := rfl
 
-def Stlc.HasType.interp_wk1 {Γ a} {A B: Ty}
+theorem Stlc.HasType.interp_wk {Γ Δ ρ a A}
+  (H: HasType Δ a A)
+  (R: WkCtx ρ Γ Δ)
+  :
+  (H.wk R).interp = H.interp.wk R
+  := by {
+    sorry
+  }
+
+theorem Stlc.HasType.interp_wk1 {Γ a} {A B: Ty}
   (H: HasType Γ a A)
   (x: B.interp)
   (G: Γ.interp)
