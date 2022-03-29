@@ -56,7 +56,7 @@ def Stlc.SubstCtx.lift_interp {σ Γ Δ H} (S: SubstCtx σ Γ Δ)
           lhs
           simp only [
             InterpSubst.lift, SubstCtx.interp,
-            HasType.interp
+            HasType.interp, Subst.lift
           ]
           --rw [Stlc.HasType.interp_wk1]
         sorry
@@ -72,6 +72,14 @@ def Stlc.InterpSubst.transport_ctx {Γ Δ: Context} (S: InterpSubst Γ Δ)
 def Stlc.Context.deriv.subst {Γ Δ: Context} {A} (D: Δ.deriv A) (S: InterpSubst Γ Δ)
   : Γ.deriv A
   := λG => D (S.transport_ctx G)
+
+def Stlc.Context.deriv.subst_lift {Γ Δ: Context} {A B} 
+  (D: Context.deriv (B::Δ) A) 
+  (S: InterpSubst Γ Δ)
+  (x: B.interp)
+  (G: Γ.interp)
+  : D.subst S.lift (x, G) = D (x, S.transport_ctx G)
+  := by sorry
 
 def Stlc.HasType.subst_var {Γ Δ σ A n}
   (H: Stlc.HasType Δ (Stlc.var n) A)
@@ -125,9 +133,11 @@ def Stlc.HasType.subst_interp_dist {Γ Δ σ A a}
         by intros; simp [*];
       apply Hsome;
       funext x;
-      rw [Is S.lift]
-      rw [Stlc.SubstCtx.lift_interp S]
-      sorry
+      conv =>
+        lhs
+        rw [Is S.lift]
+        rw [Stlc.SubstCtx.lift_interp S]
+        rw [Stlc.Context.deriv.subst_lift]
 
     case app Il Ir =>
       simp only [interp, eq_mp_helper']
