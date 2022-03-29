@@ -73,13 +73,22 @@ def Stlc.Context.deriv.subst {Γ Δ: Context} {A} (D: Δ.deriv A) (S: InterpSubs
   : Γ.deriv A
   := λG => D (S.transport_ctx G)
 
+def second_helper {a a': A} {f: A -> B}: a = a' -> f a = f a' := by intros; simp [*]
+def pair_helper: a = a' -> b = b' -> (a, b) = (a', b') := by intros; simp [*]
+
 def Stlc.Context.deriv.subst_lift {Γ Δ: Context} {A B} 
   (D: Context.deriv (B::Δ) A) 
   (S: InterpSubst Γ Δ)
   (x: B.interp)
   (G: Γ.interp)
   : D.subst S.lift (x, G) = D (x, S.transport_ctx G)
-  := by sorry
+  := by {
+    simp only [subst, InterpSubst.transport_ctx]
+    apply second_helper;
+    apply pair_helper;
+    rfl
+    sorry
+  }
 
 def Stlc.HasType.subst_var {Γ Δ σ A n}
   (H: Stlc.HasType Δ (Stlc.var n) A)
