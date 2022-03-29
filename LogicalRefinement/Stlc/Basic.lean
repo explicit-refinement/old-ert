@@ -550,75 +550,24 @@ theorem Stlc.HasType.interp_wk {Γ Δ ρ a A}
 
     induction H with
     | var v => intros; apply Stlc.HasVar.interp_wk
-    | lam s Is => 
+    | _ => 
       intro Γ ρ R;
       funext G;
-      simp only [interp, Context.deriv.wk]
-      apply option_helper
-      rw [Is R.lift]
-      rfl
-    | app l r Il Ir =>
-      intro Γ ρ R;
-      funext G;
-      simp only [interp, eq_mp_helper', Il R, Ir R]
-      rfl
-    | let_in e e' Ie Ie' =>
-      intro Γ ρ R;
-      funext G;
-      simp only [interp, Context.deriv.wk]
-      apply bind_val_helper
-      funext x;
-      rw [Ie' R.lift]
-      rfl
-      rw [Ie R]
-      rfl
-    | pair l r Il Ir => 
-      intro Γ ρ R;
-      funext G;
-      simp only [interp, eq_mp_helper', Il R, Ir R]
-      rfl
-    | let_pair e e' Ie Ie' => 
-      intro Γ ρ R;
-      funext G;
-      simp only [interp, Context.deriv.wk]
-      apply let_pair_helper
-      rw [Ie R]
-      rfl
-      rw [Ie'] <;> try exact R.lift.lift
-      rfl
-    | inj0 e Ie => 
-      intro Γ ρ R;
-      funext G;
-      simp only [interp, eq_mp_helper', Ie R]
-      rfl
-    | inj1 e Ie => 
-      intro Γ ρ R;
-      funext G;
-      simp only [interp, eq_mp_helper', Ie R]
-      rfl
-    | case d l r Id Il Ir =>
-      intro Γ ρ R;
-      funext G;
-      simp only [interp, Context.deriv.wk]
-      apply case_helper
-      rw [Id R]
-      rfl
-      rw [Il R.lift]
-      rfl
-      rw [Ir R.lift]
-      rfl
-    | natrec n z s In Iz Is => 
-      intro Γ ρ R;
-      funext G;
-      simp only [interp, Context.deriv.wk]
-      apply natrec_helper
-      rw [In R]
-      rfl
-      rw [Iz R]
-      rfl
-      rw [Is R.lift]
-      rfl
-    | _ => intros; rfl
+      first | rfl |
+      rename_i' I0 I1 I2;
+      simp only [interp, eq_mp_helper']
+      first
+      | apply option_helper
+      | apply bind_val_helper
+      | apply let_pair_helper
+      | apply case_helper
+      | apply natrec_helper
+      | skip 
+      repeat any_goals (
+        (first | rw [I0] | rw [I1] | rw [I2])
+        <;> (first | exact R | exact R.lift | exact R.lift.lift | skip); 
+        try rfl
+      )
   }
 
 theorem Stlc.HasType.interp_wk1 {Γ a} {A B: Ty}
