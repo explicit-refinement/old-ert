@@ -24,6 +24,10 @@ def Stlc.InterpSubst.lift {H Γ Δ} (S: InterpSubst Γ Δ)
       exact S (by cases Hv; assumption) G
   }
 
+def Stlc.InterpSubst.step {H Γ Δ} (S: InterpSubst Γ Δ)
+  : InterpSubst (H::Γ) Δ
+  := λHv => (S Hv).step H
+
 def Stlc.SubstCtx.interp {σ Γ Δ} (S: SubstCtx σ Γ Δ)
   : Stlc.InterpSubst Γ Δ
   := λHv => (S Hv).interp

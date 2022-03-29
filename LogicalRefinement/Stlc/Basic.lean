@@ -580,3 +580,7 @@ theorem Stlc.HasType.interp_wk1 {Γ a} {A B: Ty}
     rw [interp_wk H B.to_wk]
     rfl
   }
+
+def Stlc.Context.deriv.step {Γ: Context} {A} (D: Γ.deriv A) (B: Ty)
+  : Context.deriv (B::Γ) A
+  := λ(x, G) => D G
