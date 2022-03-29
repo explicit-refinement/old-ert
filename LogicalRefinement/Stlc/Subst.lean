@@ -279,7 +279,35 @@ theorem Stlc.HasType.subst_interp_dist {Γ Δ σ A a}
       rw [Ie S]
       rfl
 
-    case case Id Il Ir => sorry
+    case case Id Il Ir => 
+      simp only [interp, Context.deriv.subst]
+      apply case_helper
+      rw [Id S]
+      rfl
+      funext x
+      conv =>
+        lhs
+        rw [Il S.lift]
+        rw [Stlc.SubstCtx.lift_interp S]
+        rw [Stlc.Context.deriv.subst_lift]
+      funext x
+      conv =>
+        lhs
+        rw [Ir S.lift]
+        rw [Stlc.SubstCtx.lift_interp S]
+        rw [Stlc.Context.deriv.subst_lift]
 
-    case natrec In Iz Is => sorry
+    case natrec In Iz Is => 
+      simp only [interp, Context.deriv.subst]
+      apply natrec_helper
+      rw [In S]
+      rfl
+      rw [Iz S]
+      rfl
+      funext x
+      conv =>
+        lhs
+        rw [Is S.lift]
+        rw [Stlc.SubstCtx.lift_interp S]
+        rw [Stlc.Context.deriv.subst_lift]
   }
