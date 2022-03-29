@@ -110,7 +110,8 @@ def Stlc.InterpSubst.transport_step {Γ Δ: Context} {H: Ty} (S: InterpSubst Γ 
       intro Γ H S G x;
       simp only [transport_ctx]
       apply pair_helper rfl;
-      sorry
+      rw [<-pop_step_commute]
+      apply I
   }
 
 def Stlc.InterpSubst.transport_pop_lift {Γ Δ: Context} {H: Ty} (S: InterpSubst Γ Δ)
