@@ -317,6 +317,10 @@ def Stlc.SubstCtx.lift {σ Γ Δ A} (S: SubstCtx σ Γ Δ)
       repeat constructor
   }
 
+def Stlc.SubstCtx.lift2 {σ Γ Δ A B} (S: SubstCtx σ Γ Δ)
+  : SubstCtx (σ.liftn 2) (A::B::Γ) (A::B::Δ)
+  := lift S.lift
+
 theorem Stlc.HasType.subst {Δ a A} (H: HasType Δ a A): 
   ∀{Γ σ}, SubstCtx σ Γ Δ -> HasType Γ (a.subst σ) A := by {
   induction H <;> intro Γ σ S;

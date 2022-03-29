@@ -24,6 +24,10 @@ def Stlc.InterpSubst.lift {H Γ Δ} (S: InterpSubst Γ Δ)
       exact S (by cases Hv; assumption) G
   }
 
+def Stlc.InterpSubst.lift2 {A B Γ Δ} (S: InterpSubst Γ Δ)
+  : InterpSubst (A::B::Γ) (A::B::Δ)
+  := lift S.lift
+
 def Stlc.InterpSubst.step {H Γ Δ} (S: InterpSubst Γ Δ)
   : InterpSubst (H::Γ) Δ
   := λHv => (S Hv).step H
@@ -75,6 +79,16 @@ def Stlc.SubstCtx.lift_interp {σ Γ Δ H} (S: SubstCtx σ Γ Δ)
         simp only [InterpSubst.lift]
         apply Stlc.HasType.interp_wk1
   }
+  
+  def Stlc.SubstCtx.lift2_interp {σ Γ Δ A B} (S: SubstCtx σ Γ Δ)
+  : @Stlc.SubstCtx.interp (σ.liftn 2) (A::B::Γ) (A::B::Δ) S.lift2
+  = @Stlc.InterpSubst.lift2 A B Γ Δ S.interp
+  := by {
+    simp only [InterpSubst.lift2]
+    rw [<-lift_interp]
+    rw [<-lift_interp]
+    rfl
+  }
 
 def Stlc.InterpSubst.transport_ctx {Γ Δ: Context} (S: InterpSubst Γ Δ) 
   (G: Γ.interp)
@@ -125,6 +139,20 @@ def Stlc.InterpSubst.transport_lift {Γ Δ: Context} {H: Ty} (S: InterpSubst Γ 
     apply pair_helper rfl;
     apply transport_pop_lift
   }
+  
+def Stlc.InterpSubst.transport_lift2 {Γ Δ: Context} {A B: Ty} (S: InterpSubst Γ Δ)
+  (G: Γ.interp) (a: A.interp) (b: B.interp)
+  : transport_ctx (Stlc.InterpSubst.lift2 S) (a, b, G) = (a, b, S.transport_ctx G)
+  := by {
+    simp only [transport_ctx]
+    apply pair_helper rfl;
+    apply pair_helper rfl;
+    simp only [lift2]
+    rw [pop_lift_step]
+    rw [<-pop_step_commute]
+    rw [transport_step]
+    rw [transport_pop_lift]
+  }
 
 def Stlc.Context.deriv.subst {Γ Δ: Context} {A} (D: Δ.deriv A) (S: InterpSubst Γ Δ)
   : Γ.deriv A
@@ -139,6 +167,18 @@ def Stlc.Context.deriv.subst_lift {Γ Δ: Context} {A B}
   := by {
     simp only [subst]
     rw [Stlc.InterpSubst.transport_lift]
+  }
+  
+def Stlc.Context.deriv.subst_lift2 {Γ Δ: Context} {A B C} 
+  (D: Context.deriv (B::C::Δ) A) 
+  (S: InterpSubst Γ Δ)
+  (b: B.interp)
+  (c: C.interp)
+  (G: Γ.interp)
+  : D.subst S.lift2 (b, c, G) = D (b, c, S.transport_ctx G)
+  := by {
+    simp only [subst]
+    rw [Stlc.InterpSubst.transport_lift2]
   }
 
 def Stlc.HasType.subst_var {Γ Δ σ A n}
@@ -217,7 +257,17 @@ theorem Stlc.HasType.subst_interp_dist {Γ Δ σ A a}
       rw [Il S, Ir S]
       rfl
 
-    case let_pair => sorry
+    case let_pair Ie Ie' => 
+      simp only [interp, Context.deriv.subst]
+      apply let_pair_helper
+      rw [Ie S]
+      rfl
+      funext a b
+      conv =>
+        lhs
+        rw [Ie' S.lift2]
+        rw [Stlc.SubstCtx.lift2_interp S]
+        rw [Stlc.Context.deriv.subst_lift2]
 
     case inj0 Ie =>
       simp only [interp]
