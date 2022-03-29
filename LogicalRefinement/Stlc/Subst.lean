@@ -171,7 +171,7 @@ def Stlc.HasVar.subst_interp_dist {Γ Δ σ A n}
           apply I Hv S.pop
   }
 
-def Stlc.HasType.subst_interp_dist {Γ Δ σ A a} 
+theorem Stlc.HasType.subst_interp_dist {Γ Δ σ A a} 
   (H: HasType Δ a A) 
   (S: SubstCtx σ Γ Δ)
   : (H.subst S).interp = H.interp.subst S.interp
@@ -182,16 +182,12 @@ def Stlc.HasType.subst_interp_dist {Γ Δ σ A a}
 
     case var Hv =>
      rw [Stlc.HasType.subst_var (var Hv) S]
-     simp only [Context.deriv.subst]
-     simp only [HasType.interp]
+     simp only [Context.deriv.subst, HasType.interp]
      rw [Stlc.HasVar.subst_interp_dist]
 
     case lam Is =>
-      simp only [interp]
-      simp only [Context.deriv.subst]
-      have Hsome: ∀{A}, ∀{a b: A}, a = b -> some a = some b :=
-        by intros; simp [*];
-      apply Hsome;
+      simp only [interp, Context.deriv.subst]
+      apply option_helper
       funext x;
       conv =>
         lhs
@@ -204,12 +200,24 @@ def Stlc.HasType.subst_interp_dist {Γ Δ σ A a}
       rw [Il S, Ir S]
       rfl
 
-    case let_in => sorry
+    case let_in Ie Ie' => 
+      simp only [interp, Context.deriv.subst]
+      apply bind_val_helper
+      funext x
+      conv =>
+        lhs
+        rw [Ie' S.lift]
+        rw [Stlc.SubstCtx.lift_interp S]
+        rw [Stlc.Context.deriv.subst_lift]
+      rw [Ie S]
+      rfl
 
     case pair Il Ir =>
       simp only [interp]
       rw [Il S, Ir S]
       rfl
+
+    case let_pair => sorry
 
     case inj0 Ie =>
       simp only [interp]
@@ -221,5 +229,7 @@ def Stlc.HasType.subst_interp_dist {Γ Δ σ A a}
       rw [Ie S]
       rfl
 
-    all_goals sorry
+    case case Id Il Ir => sorry
+
+    case natrec In Iz Is => sorry
   }
