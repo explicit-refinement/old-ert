@@ -72,12 +72,19 @@ def Stlc.InterpSubst.transport_ctx {Γ Δ: Context} (S: InterpSubst Γ Δ)
 
 def second_helper {a a': A} {f: A -> B}: a = a' -> f a = f a' := by intros; simp [*]
 def pair_helper: a = a' -> b = b' -> (a, b) = (a', b') := by intros; simp [*]
+def Stlc.InterpSubst.transport_helper {Γ Δ: Context} {H: Ty} 
+  (S: InterpSubst Γ (H::Δ))
+  (G: Γ.interp)
+  : S.transport_ctx G = (S HasVar.zero G, transport_ctx S.pop G)
+  := by rfl
 
-def Stlc.InterpSubst.transport_pop {Γ Δ: Context} {H: Ty} (S: InterpSubst Γ Δ)
+def Stlc.InterpSubst.transport_pop_lift {Γ Δ: Context} {H: Ty} (S: InterpSubst Γ Δ)
   (G: Γ.interp) (x: H.interp)
   : transport_ctx (@InterpSubst.lift H Γ Δ S).pop (x, G) 
   = S.transport_ctx G
-  := sorry
+  := by {
+    sorry
+  }
 
 def Stlc.InterpSubst.transport_lift {Γ Δ: Context} {H: Ty} (S: InterpSubst Γ Δ)
   (G: Γ.interp) (x: H.interp)
@@ -85,7 +92,7 @@ def Stlc.InterpSubst.transport_lift {Γ Δ: Context} {H: Ty} (S: InterpSubst Γ 
   := by {
     simp only [transport_ctx]
     apply pair_helper rfl;
-    apply transport_pop
+    apply transport_pop_lift
   }
 
 def Stlc.Context.deriv.subst {Γ Δ: Context} {A} (D: Δ.deriv A) (S: InterpSubst Γ Δ)
