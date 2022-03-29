@@ -28,6 +28,14 @@ def Stlc.InterpSubst.step {H Γ Δ} (S: InterpSubst Γ Δ)
   : InterpSubst (H::Γ) Δ
   := λHv => (S Hv).step H
 
+def Stlc.InterpSubst.pop_lift_step {H Γ Δ} (S: InterpSubst Γ Δ)
+  : @pop H (H::Γ) Δ (@lift H Γ Δ S) = @step H Γ Δ S
+  := by {
+    funext n A Hv G;
+    cases G;
+    rfl
+  }
+
 def Stlc.SubstCtx.interp {σ Γ Δ} (S: SubstCtx σ Γ Δ)
   : Stlc.InterpSubst Γ Δ
   := λHv => (S Hv).interp
@@ -82,12 +90,19 @@ def Stlc.InterpSubst.transport_helper {Γ Δ: Context} {H: Ty}
   : S.transport_ctx G = (S HasVar.zero G, transport_ctx S.pop G)
   := by rfl
 
+def Stlc.InterpSubst.transport_step {Γ Δ: Context} {H: Ty} (S: InterpSubst Γ Δ)
+  (G: Γ.interp) (x: H.interp)
+  : transport_ctx (@InterpSubst.step H Γ Δ S) (x, G)
+  = S.transport_ctx G
+  := by sorry
+
 def Stlc.InterpSubst.transport_pop_lift {Γ Δ: Context} {H: Ty} (S: InterpSubst Γ Δ)
   (G: Γ.interp) (x: H.interp)
   : transport_ctx (@InterpSubst.lift H Γ Δ S).pop (x, G) 
   = S.transport_ctx G
   := by {
-    sorry
+    rw [pop_lift_step]
+    apply transport_step
   }
 
 def Stlc.InterpSubst.transport_lift {Γ Δ: Context} {H: Ty} (S: InterpSubst Γ Δ)
