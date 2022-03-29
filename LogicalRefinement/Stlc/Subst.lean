@@ -69,6 +69,11 @@ def Stlc.InterpSubst.transport_ctx {Γ Δ: Context} (S: InterpSubst Γ Δ)
      | [] => ()
      | A::Δ => (S HasVar.zero G, transport_ctx S.pop G)
 
+def Stlc.InterpSubst.transport_lift {Γ Δ: Context} {H: Ty} (S: InterpSubst Γ Δ)
+  (G: Γ.interp) (x: H.interp)
+  : transport_ctx (Stlc.InterpSubst.lift S) (x, G) = (x, S.transport_ctx G)
+  := by sorry
+
 def Stlc.Context.deriv.subst {Γ Δ: Context} {A} (D: Δ.deriv A) (S: InterpSubst Γ Δ)
   : Γ.deriv A
   := λG => D (S.transport_ctx G)
@@ -83,11 +88,8 @@ def Stlc.Context.deriv.subst_lift {Γ Δ: Context} {A B}
   (G: Γ.interp)
   : D.subst S.lift (x, G) = D (x, S.transport_ctx G)
   := by {
-    simp only [subst, InterpSubst.transport_ctx]
-    apply second_helper;
-    apply pair_helper;
-    rfl
-    sorry
+    simp only [subst]
+    rw [Stlc.InterpSubst.transport_lift]
   }
 
 def Stlc.HasType.subst_var {Γ Δ σ A n}
