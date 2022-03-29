@@ -533,6 +533,12 @@ def bind_val_helper (p: a = b) (p': c = d)
 def let_pair_helper (p: a = b) (p': c = d)
   : Ty.interp.let_pair a c = Ty.interp.let_pair b d
   := by simp [p, p']
+def case_helper:
+  a = a' -> b = b' -> c = c' -> Ty.interp.case a b c = Ty.interp.case a' b' c'
+  := by intros; simp [*]
+def natrec_helper:
+  a = a' -> b = b' -> c = c' -> Ty.interp.natrec_int a b c = Ty.interp.natrec_int a' b' c'
+  := by intros; simp [*]
 
 theorem Stlc.HasType.interp_wk {Γ Δ ρ a A}
   (H: HasType Δ a A)
@@ -541,6 +547,7 @@ theorem Stlc.HasType.interp_wk {Γ Δ ρ a A}
   (H.wk R).interp = H.interp.wk R
   := by {
     revert Γ ρ R;
+
     induction H with
     | var v => intros; apply Stlc.HasVar.interp_wk
     | lam s Is => 
@@ -548,7 +555,6 @@ theorem Stlc.HasType.interp_wk {Γ Δ ρ a A}
       funext G;
       simp only [interp, Context.deriv.wk]
       apply option_helper
-      funext x;
       rw [Is R.lift]
       rfl
     | app l r Il Ir =>
@@ -578,7 +584,6 @@ theorem Stlc.HasType.interp_wk {Γ Δ ρ a A}
       apply let_pair_helper
       rw [Ie R]
       rfl
-      funext x y;
       rw [Ie'] <;> try exact R.lift.lift
       rfl
     | inj0 e Ie => 
@@ -591,8 +596,28 @@ theorem Stlc.HasType.interp_wk {Γ Δ ρ a A}
       funext G;
       simp only [interp, eq_mp_helper', Ie R]
       rfl
-    | case d l r Id Il Ir => sorry
-    | natrec n z s In Iz Is => sorry
+    | case d l r Id Il Ir =>
+      intro Γ ρ R;
+      funext G;
+      simp only [interp, Context.deriv.wk]
+      apply case_helper
+      rw [Id R]
+      rfl
+      rw [Il R.lift]
+      rfl
+      rw [Ir R.lift]
+      rfl
+    | natrec n z s In Iz Is => 
+      intro Γ ρ R;
+      funext G;
+      simp only [interp, Context.deriv.wk]
+      apply natrec_helper
+      rw [In R]
+      rfl
+      rw [Iz R]
+      rfl
+      rw [Is R.lift]
+      rfl
     | _ => intros; rfl
   }
 
