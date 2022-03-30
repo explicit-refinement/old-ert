@@ -25,12 +25,17 @@ theorem HasType.prop_is_unit {Γ A}: (Γ ⊢ A: prop) -> A.stlc_ty = Ty.unit
 }
 
 def Annot.stlc_ty: Annot -> Ty
-| expr _ A => A.stlc_ty
-| sort _ => Ty.unit
+| expr type A => A.stlc_ty
+| _ => Ty.unit
 
 theorem Annot.prop_is_unit {Γ A s}: 
   (Γ ⊢ A: prop) -> (expr s A).stlc_ty = Ty.unit
-  := HasType.prop_is_unit
+  := by {
+    intro H;
+    cases s with
+    | type => exact H.prop_is_unit
+    | prop => rfl
+  }
 
 def Term.stlc: Term -> Stlc
 | var n => Stlc.var n
@@ -43,25 +48,25 @@ def Term.stlc: Term -> Stlc
 | unary (TermKind.inj i) e => Stlc.inj i e.stlc
 | cases TermKind.case P d l r => 
   Stlc.case P.stlc_ty d.stlc l.stlc r.stlc
-| abs TermKind.lam_pr φ x => x.stlc.lower0
+| abs TermKind.lam_pr φ x => x.stlc.let_prop
 | tri TermKind.app_pr P e φ => e.stlc
 | bin TermKind.elem e φ => e.stlc
 | let_bin TermKind.let_set P e e' =>
-  Stlc.let_in P.stlc_ty e.stlc e'.stlc.lower0
-| abs TermKind.lam_irrel A x => x.stlc.lower0
+  Stlc.let_in P.stlc_ty e.stlc e'.stlc.let_prop
+| abs TermKind.lam_irrel A x => x.stlc.let_prop
 | tri TermKind.app_irrel P l r => l.stlc
 | bin TermKind.repr l r => r.stlc
 | let_bin TermKind.let_repr P e e' => 
-  Stlc.let_in P.stlc_ty e.stlc e'.stlc.lower1
+  Stlc.let_in P.stlc_ty e.stlc e'.stlc.let_prop
 | const TermKind.zero => Stlc.zero
 | const TermKind.succ => Stlc.succ
 | unary TermKind.abort _ => Stlc.abort
-| natrec K n z s => Stlc.natrec n.stlc z.stlc s.stlc.lower1
+| natrec K n z s => Stlc.natrec K.stlc_ty n.stlc z.stlc (s.stlc.let_natrec K.stlc_ty)
 | _ => Stlc.abort
 
 def Hyp.stlc: Hyp -> Ty
-| Hyp.mk A (HypKind.val s) => A.stlc_ty
-| Hyp.mk A HypKind.gst => Ty.unit
+| Hyp.mk A (HypKind.val AnnotSort.type) => A.stlc_ty
+| _ => Ty.unit
 
 def Context.stlc: Context -> Stlc.Context
 | [] => []
@@ -112,10 +117,18 @@ theorem Term.stlc_ty_wk {A: Term}: ∀{ρ}, (A.wk ρ).stlc_ty = A.stlc_ty
 }
 
 theorem Annot.stlc_ty_subst {Γ A σ s k} (H: Γ ⊢ A: sort s):
-  (expr k (A.subst σ)).stlc_ty = (expr k A).stlc_ty := H.stlc_ty_subst
+  (expr k (A.subst σ)).stlc_ty = (expr k A).stlc_ty := by {
+    cases k with
+    | type => exact H.stlc_ty_subst
+    | prop => rfl
+  }
 
 theorem Annot.stlc_ty_wk {A k}: ∀{ρ},
-  (expr k (A.wk ρ)).stlc_ty = (expr k A).stlc_ty := Term.stlc_ty_wk
+  (expr k (A.wk ρ)).stlc_ty = (expr k A).stlc_ty := by {
+    cases k with
+    | type => exact Term.stlc_ty_wk
+    | prop => rfl
+  }
 
 theorem HasVar.stlc_val {Γ A s n}: 
   HasVar Γ n (HypKind.val s) A ->
@@ -128,8 +141,10 @@ theorem HasVar.stlc_val {Γ A s n}:
       cases HΓ with
       | zero S =>
         cases S;
-        simp only [Annot.stlc_ty, Context.stlc, Term.wk1]
-        rw [Term.stlc_ty_wk]
+        simp only [Context.stlc, Term.wk1]
+        rw [Annot.stlc_ty_wk]
+        cases s
+        constructor
         constructor
       | succ =>
         apply Stlc.HasVar.succ
@@ -191,10 +206,10 @@ theorem HasType.stlc {Γ a A} (H: Γ ⊢ a: A):
       cases HAB; assumption
 
     case lam_pr =>
-      apply Stlc.HasType.lower0;
+      apply Stlc.HasType.let_prop;
       assumption
     case lam_irrel =>
-      apply Stlc.HasType.lower0;
+      apply Stlc.HasType.let_prop;
       assumption
 
     all_goals (
@@ -207,11 +222,11 @@ theorem HasType.stlc {Γ a A} (H: Γ ⊢ a: A):
       first 
       | assumption
       | (
-        apply Stlc.HasType.lower0;
+        apply Stlc.HasType.let_prop;
         assumption
       )
       | (
-        apply Stlc.HasType.lower1;
+        apply Stlc.HasType.let_natrec;
         assumption
       ) 
       | (

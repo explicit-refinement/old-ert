@@ -111,7 +111,10 @@ inductive Stlc
   -- Natural numbers
   | zero
   | succ
-  | natrec (n: Stlc) (z: Stlc) (s: Stlc)
+  | natrec (A: Ty) (n: Stlc) (z: Stlc) (s: Stlc)
+
+def Stlc.let_prop (e: Stlc): Stlc := Stlc.let_in Ty.unit Stlc.nil e
+def Stlc.let_one (e: Stlc) (C: Ty): Stlc := Stlc.let_in C (var 1) e
 
 def Stlc.has_var: Stlc -> Nat -> Prop
 | var v, n => v = n
@@ -122,7 +125,7 @@ def Stlc.has_var: Stlc -> Nat -> Prop
 | let_pair P e e', n => e.has_var n ∨ e'.has_var (n + 2)
 | inj f e, n => e.has_var n
 | case P d l r, n => d.has_var n ∨ l.has_var (n + 1) ∨ r.has_var (n + 1)
-| natrec n z s, v => n.has_var v ∨ z.has_var v ∨ s.has_var (v + 1)
+| natrec A n z s, v => n.has_var v ∨ z.has_var v ∨ s.has_var (v + 1)
 | _, _ => False
 
 def Stlc.wk: Stlc -> Wk -> Stlc
@@ -134,10 +137,13 @@ def Stlc.wk: Stlc -> Wk -> Stlc
 | let_pair P e e', ρ => let_pair P (e.wk ρ) (e'.wk (ρ.liftn 2))
 | inj i e, ρ => inj i (e.wk ρ)
 | case P d l r, ρ => case P (d.wk ρ) (l.wk ρ.lift) (r.wk ρ.lift)
-| natrec n z s, ρ => natrec (n.wk ρ) (z.wk ρ) (s.wk ρ.lift)
+| natrec A n z s, ρ => natrec A (n.wk ρ) (z.wk ρ) (s.wk ρ.lift)
 | c, ρ => c
 
-def Stlc.wk1 (σ: Stlc): Stlc := σ.wk Wk.wk1
+def Stlc.wk1 (s: Stlc): Stlc := s.wk Wk.wk1
+def Stlc.wknth (s: Stlc) (n: Nat): Stlc := s.wk (Wk.wknth n)
+def Stlc.let_natrec (e: Stlc) (C: Ty): Stlc
+  := ((e.wknth 2).let_one C).let_prop
 
 def Stlc.Context := List Ty
 
@@ -184,7 +190,15 @@ inductive Stlc.HasType: Context -> Stlc -> Ty -> Prop
   HasType Γ n nats ->
   HasType Γ z C ->
   HasType (C::Γ) s C ->
-  HasType Γ (natrec n z s) C
+  HasType Γ (natrec C n z s) C
+
+def Stlc.HasType.let_prop: HasType (Ty.unit::Γ) e A -> HasType Γ e.let_prop A
+  := by {
+    intro H;
+    constructor
+    constructor
+    exact H
+  }
 
 def Stlc.HasType.has_var: HasType Γ (Stlc.var n) A -> HasVar Γ n A
   := by {
@@ -229,6 +243,15 @@ theorem Stlc.HasType.wk {Δ a A} (H: HasType Δ a A):
     exact R
   )
 }
+
+theorem Stlc.HasType.let_natrec
+  : HasType (C::Ty.unit::Γ) e A -> HasType (C::Γ) (e.let_natrec C) A
+  := by {
+    intro H;
+    repeat constructor
+    apply wk H;
+    repeat constructor
+  }
 
 def Stlc.Context.interp.wk {Γ Δ ρ} (G: Γ.interp) (R: WkCtx ρ Γ Δ): Δ.interp := 
   match ρ with
@@ -287,7 +310,7 @@ def Stlc.subst: Stlc -> Subst -> Stlc
 | let_pair P e e', σ => let_pair P (e.subst σ) (e'.subst (σ.liftn 2))
 | inj i e, σ => inj i (e.subst σ)
 | case P d l r, σ => case P (d.subst σ) (l.subst σ.lift) (r.subst σ.lift)
-| natrec n z s, σ => natrec (n.subst σ) (z.subst σ) (s.subst σ.lift)
+| natrec C n z s, σ => natrec C (n.subst σ) (z.subst σ) (s.subst σ.lift)
 | c, σ => c
 
 def Stlc.subst_var: (Stlc.var n).subst σ = σ n := rfl
@@ -485,7 +508,7 @@ def Stlc.HasType.interp {Γ a A} (H: HasType Γ a A): Γ.deriv A :=
       | _ => apply False.elim; cases H 
     | _ => apply False.elim; cases H 
   --TODO: report that; if the "by", "exact", and "have" are removed, this breaks, to Zulip/GitHub. Fascinating!
-  | Stlc.natrec n z s =>
+  | Stlc.natrec C n z s =>
     by
     have Hn: HasType Γ n nats
       := by cases H; assumption;
