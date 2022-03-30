@@ -36,6 +36,7 @@ theorem Term.subst_stlc_commute {σ a} (H: HasType Γ a A)
       ]
       repeat rw [HasType.stlc_ty_subst]
       repeat first | assumption | rfl | constructor <;> assumption
+      repeat sorry
     | lam_pr Hs HA Is IA => 
       intros;
       simp only [
@@ -45,6 +46,7 @@ theorem Term.subst_stlc_commute {σ a} (H: HasType Γ a A)
       ]
       repeat rw [HasType.stlc_ty_subst]
       repeat first | assumption | rfl | constructor <;> assumption
+      repeat sorry
     | lam_irrel Hs HA Is IA => 
       intros;
       simp only [
@@ -54,6 +56,7 @@ theorem Term.subst_stlc_commute {σ a} (H: HasType Γ a A)
       ]
       repeat rw [HasType.stlc_ty_subst]
       repeat first | assumption | rfl | constructor <;> assumption
+      repeat sorry
     | let_repr => 
       intros;
       simp only [
@@ -63,6 +66,7 @@ theorem Term.subst_stlc_commute {σ a} (H: HasType Γ a A)
       ]
       repeat rw [HasType.stlc_ty_subst]
       repeat first | assumption | rfl | constructor <;> assumption
+      repeat sorry
     | natrec => 
       intros;
       simp only [
@@ -72,6 +76,7 @@ theorem Term.subst_stlc_commute {σ a} (H: HasType Γ a A)
       ]
       repeat rw [HasType.stlc_ty_subst]
       repeat first | assumption | rfl | constructor <;> assumption
+      repeat sorry
     | _ => 
       intros;
       simp only [
