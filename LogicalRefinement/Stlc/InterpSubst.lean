@@ -27,13 +27,6 @@ theorem Term.subst_stlc_commute {σ a} (H: HasType Γ a A)
   := by {
     revert σ;
     induction H with
-    | let_pair He HA HB HC He' Ie IA IB IC Ie' =>
-      intros;
-      simp only [
-        stlc, Stlc.subst, HasType.stlc_ty_subst (by assumption), 
-        Subst.stlc_lift, Subst.liftn, Stlc.Subst.liftn,
-        *
-      ]
     | elem Hl Hr Il Ir => sorry
     | let_set => sorry
     | lam_pr Hs HA Is IA => sorry
