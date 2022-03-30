@@ -7,6 +7,10 @@ import LogicalRefinement.Stlc.Subst
 def Subst.stlc (σ: Subst): Stlc.Subst := 
   λv => (σ v).stlc
 
+def Subst.stlc_lift {σ: Subst}
+  : σ.lift.stlc = σ.stlc.lift
+  := sorry
+
 theorem SubstCtx.stlc {σ Γ Δ} (S: SubstCtx σ Γ Δ)
   : Stlc.SubstCtx σ.stlc Γ.stlc Δ.stlc
   := by {
@@ -23,7 +27,12 @@ theorem Term.subst_stlc_commute {σ a} (H: HasType Γ a A)
   := by {
     revert σ;
     induction H with
-    | lam => sorry
+    | lam Hs HA Is IA => 
+      intro σ;
+      simp only [stlc, Stlc.subst]
+      rw [Is]
+      rw [HA.stlc_ty_subst]
+      rw [Subst.stlc_lift]
     | app => sorry
     | pair => sorry
     | let_pair => sorry
