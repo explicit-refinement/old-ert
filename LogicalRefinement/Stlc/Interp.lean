@@ -212,6 +212,14 @@ theorem HasType.stlc {Γ a A} (H: Γ ⊢ a: A):
       apply Stlc.HasType.let_prop;
       assumption
 
+    case case => sorry
+
+    case let_repr => sorry
+  
+    case let_set => sorry
+
+    case natrec => sorry
+
     all_goals (
       constructor <;>
       simp only [
@@ -221,14 +229,6 @@ theorem HasType.stlc {Γ a A} (H: Γ ⊢ a: A):
       (repeat rw [Annot.stlc_ty_wk] at *) <;>
       first 
       | assumption
-      | (
-        apply Stlc.HasType.let_prop;
-        assumption
-      )
-      | (
-        apply Stlc.HasType.let_natrec;
-        assumption
-      ) 
       | (
         apply HasType.wk_sort
         assumption
