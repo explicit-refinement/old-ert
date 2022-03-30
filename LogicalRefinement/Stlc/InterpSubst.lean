@@ -27,15 +27,51 @@ theorem Term.subst_stlc_commute {σ a} (H: HasType Γ a A)
   := by {
     revert σ;
     induction H with
-    | elem Hl Hr Il Ir => sorry
-    | let_set => sorry
-    | lam_pr Hs HA Is IA => sorry
-    | app_pr HP Hl Hr IP Il Ir => sorry
-    | lam_irrel Hs HA Is IA => sorry
-    | app_irrel HP Hl Hr IP Il Ir  => sorry
-    | repr Hl Hr Il Ir => sorry
-    | let_repr => sorry
-    | natrec => sorry
+    | let_set => 
+      intros;
+      simp only [
+        stlc, Stlc.subst, 
+        Subst.stlc_lift, Subst.liftn, Stlc.Subst.liftn,
+        *
+      ]
+      repeat rw [HasType.stlc_ty_subst]
+      repeat first | assumption | rfl | constructor <;> assumption
+    | lam_pr Hs HA Is IA => 
+      intros;
+      simp only [
+        stlc, Stlc.subst, 
+        Subst.stlc_lift, Subst.liftn, Stlc.Subst.liftn,
+        *
+      ]
+      repeat rw [HasType.stlc_ty_subst]
+      repeat first | assumption | rfl | constructor <;> assumption
+    | lam_irrel Hs HA Is IA => 
+      intros;
+      simp only [
+        stlc, Stlc.subst, 
+        Subst.stlc_lift, Subst.liftn, Stlc.Subst.liftn,
+        *
+      ]
+      repeat rw [HasType.stlc_ty_subst]
+      repeat first | assumption | rfl | constructor <;> assumption
+    | let_repr => 
+      intros;
+      simp only [
+        stlc, Stlc.subst, 
+        Subst.stlc_lift, Subst.liftn, Stlc.Subst.liftn,
+        *
+      ]
+      repeat rw [HasType.stlc_ty_subst]
+      repeat first | assumption | rfl | constructor <;> assumption
+    | natrec => 
+      intros;
+      simp only [
+        stlc, Stlc.subst, 
+        Subst.stlc_lift, Subst.liftn, Stlc.Subst.liftn,
+        *
+      ]
+      repeat rw [HasType.stlc_ty_subst]
+      repeat first | assumption | rfl | constructor <;> assumption
     | _ => 
       intros;
       simp only [
