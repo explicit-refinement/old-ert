@@ -113,6 +113,18 @@ inductive Stlc
   | succ
   | natrec (n: Stlc) (z: Stlc) (s: Stlc)
 
+def Stlc.has_var: Stlc -> Nat -> Prop
+| var v, n => v = n
+| lam A s, n => s.has_var (n + 1)
+| app P l r, n => l.has_var n ∨ r.has_var n
+| let_in A e e', n => e.has_var n ∨ e'.has_var (n + 1)
+| pair l r, n => l.has_var n ∨ r.has_var n
+| let_pair P e e', n => e.has_var n ∨ e'.has_var (n + 2)
+| inj f e, n => e.has_var n
+| case P d l r, n => d.has_var n ∨ l.has_var (n + 1) ∨ r.has_var (n + 1)
+| natrec n z s, v => n.has_var v ∨ z.has_var v ∨ s.has_var (v + 1)
+| _, _ => False
+
 def Stlc.wk: Stlc -> Wk -> Stlc
 | var n, ρ => var (ρ.var n)
 | lam A s, ρ => lam A (s.wk ρ.lift)
