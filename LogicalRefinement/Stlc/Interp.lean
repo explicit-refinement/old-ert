@@ -200,5 +200,28 @@ theorem HasType.stlc {Γ a A}:
       cases s with
       | type => exact Stlc.HasType.var Hv.stlc
       | prop => exact Stlc.HasType.abort
-    | _ => sorry
+    | app => sorry
+    | lam => sorry
+    | pair => sorry
+    | let_pair => sorry
+    | inj_l => sorry
+    | inj_r => sorry
+    | case => sorry
+    | elem => sorry
+    | let_set => sorry
+    | lam_pr => sorry
+    | app_pr => sorry
+    | lam_irrel => sorry
+    | app_irrel => sorry
+    | repr => sorry
+    | let_repr => sorry
+    | natrec => sorry
+    | _ => 
+      simp only [
+        Term.alpha0, Term.subst0, Annot.subst0,
+        Annot.stlc_ty_subst, Annot.stlc_ty_wk,
+        HasType.stlc_ty_subst, Term.stlc_ty_wk,
+        term, proof
+      ] at *
+      constructor
   }
