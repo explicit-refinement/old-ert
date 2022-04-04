@@ -132,7 +132,33 @@ theorem Annot.stlc_ty_wk {A k}: ∀{ρ},
 
 theorem HasVar.stlc {Γ A n}: 
   HasVar Γ n (HypKind.val type) A ->
-  Stlc.HasVar Γ.stlc (Γ.stlc_ix n) A.stlc_ty := by sorry
+  Stlc.HasVar Γ.stlc (Γ.stlc_ix n) A.stlc_ty := by {
+    revert Γ A;
+    induction n with
+    | zero => 
+      intro Γ A Hv;
+      cases Hv with
+      | zero Hk =>
+        cases Hk;
+        simp only [Term.wk1, Term.stlc_ty_wk]
+        exact Stlc.HasVar.zero
+    | succ n I => 
+      intro Γ A Hv;
+      cases Γ with
+      | nil => cases Hv
+      | cons H Γ =>
+        cases Hv with
+        | succ Hv =>
+          simp only [Term.wk1, Term.stlc_ty_wk]
+          cases H with
+          | mk B k =>
+            cases k with
+            | val s =>
+              cases s with
+              | type => exact (I Hv).succ
+              | prop => exact (I Hv)
+            | gst => exact (I Hv)
+  }
 
 -- But why...
 set_option maxHeartbeats 1000000
