@@ -44,10 +44,12 @@ def Context.stlc: Context -> Stlc.Context
 
 def Sparsity := List Bool
 
+def Hyp.sparsity: Hyp -> Bool
+| Hyp.mk A k => k == HypKind.val type
+
 def Context.sparsity: Context -> Sparsity
 | [] => []
-| (Hyp.mk A (HypKind.val type))::Hs => true::(sparsity Hs)
-| H::Hs => false::(sparsity Hs)
+| H::Hs => H.sparsity::(sparsity Hs)
 
 def Sparsity.ix: Sparsity -> Nat -> Nat
 | _, 0 => 0
@@ -58,7 +60,10 @@ def Sparsity.ix: Sparsity -> Nat -> Nat
 def Context.stlc_ix (Γ: Context): Nat -> Nat := Γ.sparsity.ix
 
 def Term.stlc: Term -> Sparsity -> Stlc
-| var n, σ => Stlc.var (σ.ix n)
+| var n, σ => 
+  if σ.get? n = some true 
+  then Stlc.var (σ.ix n) 
+  else Stlc.abort
 | const TermKind.nil, _ => Stlc.nil
 | abs TermKind.lam A x, σ => Stlc.lam A.stlc_ty (x.stlc (true::σ))
 | tri TermKind.app P l r, σ => Stlc.app P.stlc_ty (l.stlc σ) (r.stlc σ)
@@ -160,8 +165,40 @@ theorem HasVar.stlc {Γ A n}:
             | gst => exact (I Hv)
   }
 
+theorem HasVar.sigma {Γ A n s}:
+  HasVar Γ n (HypKind.val s) A ->
+  Γ.sparsity.get? n = some (s == type)
+  := by {
+    revert Γ A s;
+    induction n with
+    | zero =>
+      intro Γ A s Hv;
+      cases Hv with
+      | zero Hk =>
+        cases Hk with
+        | refl =>
+          rename AnnotSort => s;
+          cases s <;> rfl
+    | succ n I =>
+      intro Γ A s Hv;
+      cases Γ <;> cases Hv
+      rw [<-I (by assumption)]
+      rfl
+  }
+
 -- But why...
 set_option maxHeartbeats 1000000
 
 theorem HasType.stlc {Γ a A}:
-  (Γ ⊢ a : A) -> Stlc.HasType Γ.stlc (a.stlc Γ.sparsity) A.stlc_ty := by sorry
+  (Γ ⊢ a : A) -> Stlc.HasType Γ.stlc (a.stlc Γ.sparsity) A.stlc_ty := by {
+    intro H;
+    induction H with
+    | var _ Hv => 
+      rename AnnotSort => s;
+      simp only [Term.stlc]
+      rw [Hv.sigma]
+      cases s with
+      | type => exact Stlc.HasType.var Hv.stlc
+      | prop => exact Stlc.HasType.abort
+    | _ => sorry
+  }

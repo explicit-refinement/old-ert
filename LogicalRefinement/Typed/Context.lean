@@ -9,10 +9,12 @@ open Term
 inductive AnnotSort
   | type
   | prop
+  deriving DecidableEq, BEq
 
 inductive TermSort
   | sort (s: AnnotSort)
   | expr (s: AnnotSort)
+  deriving DecidableEq, BEq
 
 inductive Annot
   | sort (s: AnnotSort)
@@ -82,6 +84,7 @@ def Annot.wk_id {A: Annot}: A.wk Wk.id = A := by {
 inductive HypKind
   | val (s: AnnotSort) -- Computational/Logical
   | gst -- Refinement
+  deriving DecidableEq, BEq
 
 inductive HypKind.is_sub: HypKind -> HypKind -> Prop
   | refl {k}: is_sub k k
