@@ -1,89 +1,89 @@
-import LogicalRefinement.Untyped
-import LogicalRefinement.Typed
-import LogicalRefinement.Stlc.Basic
-import LogicalRefinement.Stlc.Interp
-import LogicalRefinement.Stlc.Subst
+-- import LogicalRefinement.Untyped
+-- import LogicalRefinement.Typed
+-- import LogicalRefinement.Stlc.Basic
+-- import LogicalRefinement.Stlc.Interp
+-- import LogicalRefinement.Stlc.Subst
 
-def Subst.stlc (σ: Subst): Stlc.Subst := 
-  λv => (σ v).stlc
+-- def Subst.stlc (σ: Subst): Stlc.Subst := 
+--   λv => (σ v).stlc
 
-def Subst.stlc_lift {σ: Subst}
-  : σ.lift.stlc = σ.stlc.lift
-  := sorry
+-- def Subst.stlc_lift {σ: Subst}
+--   : σ.lift.stlc = σ.stlc.lift
+--   := sorry
 
-theorem SubstCtx.stlc {σ Γ Δ} (S: SubstCtx σ Γ Δ)
-  : Stlc.SubstCtx σ.stlc Γ.stlc Δ.stlc
-  := by {
-    intro n A Hv;
-    simp only [Subst.stlc]
-    sorry
-  }
+-- theorem SubstCtx.stlc {σ Γ Δ} (S: SubstCtx σ Γ Δ)
+--   : Stlc.SubstCtx σ.stlc Γ.stlc Δ.stlc
+--   := by {
+--     intro n A Hv;
+--     simp only [Subst.stlc]
+--     sorry
+--   }
 
--- But why...
-set_option maxHeartbeats 1000000
+-- -- But why...
+-- set_option maxHeartbeats 1000000
 
-theorem Term.subst_stlc_commute {σ a} (H: HasType Γ a A)
-  : (a.subst σ).stlc = a.stlc.subst σ.stlc
-  := by {
-    revert σ;
-    induction H with
-    | let_set => 
-      intros;
-      simp only [
-        stlc, Stlc.subst, 
-        Subst.stlc_lift, Subst.liftn, Stlc.Subst.liftn,
-        *
-      ]
-      repeat rw [HasType.stlc_ty_subst]
-      repeat first | assumption | rfl | constructor <;> assumption
-      repeat sorry
-    | lam_pr Hs HA Is IA => 
-      intros;
-      simp only [
-        stlc, Stlc.subst, 
-        Subst.stlc_lift, Subst.liftn, Stlc.Subst.liftn,
-        *
-      ]
-      repeat rw [HasType.stlc_ty_subst]
-      repeat first | assumption | rfl | constructor <;> assumption
-      repeat sorry
-    | lam_irrel Hs HA Is IA => 
-      intros;
-      simp only [
-        stlc, Stlc.subst, 
-        Subst.stlc_lift, Subst.liftn, Stlc.Subst.liftn,
-        *
-      ]
-      repeat rw [HasType.stlc_ty_subst]
-      repeat first | assumption | rfl | constructor <;> assumption
-      repeat sorry
-    | let_repr => 
-      intros;
-      simp only [
-        stlc, Stlc.subst, 
-        Subst.stlc_lift, Subst.liftn, Stlc.Subst.liftn,
-        *
-      ]
-      repeat rw [HasType.stlc_ty_subst]
-      repeat first | assumption | rfl | constructor <;> assumption
-      repeat sorry
-    | natrec => 
-      intros;
-      simp only [
-        stlc, Stlc.subst, 
-        Subst.stlc_lift, Subst.liftn, Stlc.Subst.liftn,
-        *
-      ]
-      repeat rw [HasType.stlc_ty_subst]
-      repeat first | assumption | rfl | constructor <;> assumption
-      repeat sorry
-    | _ => 
-      intros;
-      simp only [
-        stlc, Stlc.subst, 
-        Subst.stlc_lift, Subst.liftn, Stlc.Subst.liftn,
-        *
-      ]
-      repeat rw [HasType.stlc_ty_subst]
-      repeat first | assumption | rfl | constructor <;> assumption
-  }
+-- theorem Term.subst_stlc_commute {σ a} (H: HasType Γ a A)
+--   : (a.subst σ).stlc = a.stlc.subst σ.stlc
+--   := by {
+--     revert σ;
+--     induction H with
+--     | let_set => 
+--       intros;
+--       simp only [
+--         stlc, Stlc.subst, 
+--         Subst.stlc_lift, Subst.liftn, Stlc.Subst.liftn,
+--         *
+--       ]
+--       repeat rw [HasType.stlc_ty_subst]
+--       repeat first | assumption | rfl | constructor <;> assumption
+--       repeat sorry
+--     | lam_pr Hs HA Is IA => 
+--       intros;
+--       simp only [
+--         stlc, Stlc.subst, 
+--         Subst.stlc_lift, Subst.liftn, Stlc.Subst.liftn,
+--         *
+--       ]
+--       repeat rw [HasType.stlc_ty_subst]
+--       repeat first | assumption | rfl | constructor <;> assumption
+--       repeat sorry
+--     | lam_irrel Hs HA Is IA => 
+--       intros;
+--       simp only [
+--         stlc, Stlc.subst, 
+--         Subst.stlc_lift, Subst.liftn, Stlc.Subst.liftn,
+--         *
+--       ]
+--       repeat rw [HasType.stlc_ty_subst]
+--       repeat first | assumption | rfl | constructor <;> assumption
+--       repeat sorry
+--     | let_repr => 
+--       intros;
+--       simp only [
+--         stlc, Stlc.subst, 
+--         Subst.stlc_lift, Subst.liftn, Stlc.Subst.liftn,
+--         *
+--       ]
+--       repeat rw [HasType.stlc_ty_subst]
+--       repeat first | assumption | rfl | constructor <;> assumption
+--       repeat sorry
+--     | natrec => 
+--       intros;
+--       simp only [
+--         stlc, Stlc.subst, 
+--         Subst.stlc_lift, Subst.liftn, Stlc.Subst.liftn,
+--         *
+--       ]
+--       repeat rw [HasType.stlc_ty_subst]
+--       repeat first | assumption | rfl | constructor <;> assumption
+--       repeat sorry
+--     | _ => 
+--       intros;
+--       simp only [
+--         stlc, Stlc.subst, 
+--         Subst.stlc_lift, Subst.liftn, Stlc.Subst.liftn,
+--         *
+--       ]
+--       repeat rw [HasType.stlc_ty_subst]
+--       repeat first | assumption | rfl | constructor <;> assumption
+--   }

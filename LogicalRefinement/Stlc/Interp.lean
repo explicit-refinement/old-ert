@@ -37,52 +37,52 @@ theorem Annot.prop_is_unit {Γ A s}:
     | prop => rfl
   }
 
-def Term.stlc: Term -> Stlc
-| var n => Stlc.var n
-| const TermKind.nil => Stlc.nil
-| abs TermKind.lam A x => Stlc.lam A.stlc_ty x.stlc
-| tri TermKind.app P l r => Stlc.app P.stlc_ty l.stlc r.stlc
-| bin TermKind.pair l r => Stlc.pair l.stlc r.stlc
-| let_bin TermKind.let_pair P e e' => 
-  Stlc.let_pair P.stlc_ty e.stlc e'.stlc
-| unary (TermKind.inj i) e => Stlc.inj i e.stlc
-| cases TermKind.case P d l r => 
-  Stlc.case P.stlc_ty d.stlc l.stlc r.stlc
-| abs TermKind.lam_pr φ x => x.stlc.let_prop
-| tri TermKind.app_pr P e φ => e.stlc
-| bin TermKind.elem e φ => e.stlc
-| let_bin TermKind.let_set P e e' =>
-  Stlc.let_in P.stlc_ty e.stlc e'.stlc.let_prop
-| abs TermKind.lam_irrel A x => x.stlc.let_prop
-| tri TermKind.app_irrel P l r => l.stlc
-| bin TermKind.repr l r => r.stlc
-| let_bin TermKind.let_repr P e e' => 
-  Stlc.let_in P.stlc_ty e.stlc e'.stlc.let_prop
-| const TermKind.zero => Stlc.zero
-| const TermKind.succ => Stlc.succ
-| unary TermKind.abort _ => Stlc.abort
-| natrec K n z s => Stlc.natrec K.stlc_ty n.stlc z.stlc (s.stlc.let_natrec K.stlc_ty)
-| _ => Stlc.abort
-
-def Hyp.stlc: Hyp -> Ty
-| Hyp.mk A (HypKind.val AnnotSort.type) => A.stlc_ty
-| _ => Ty.unit
-
 def Context.stlc: Context -> Stlc.Context
-| [] => []
-| H::Hs => H.stlc::(stlc Hs)
-
-def Context.stlc_strict: Context -> Stlc.Context
 | [] => []
 | (Hyp.mk A (HypKind.val type))::Hs => A.stlc_ty::(stlc Hs)
 | H::Hs => stlc Hs
 
-def Context.stlc_subst: (Γ: Context) -> Stlc.Subst
-| [] => (λn => Stlc.var n)
-| (Hyp.mk A (HypKind.val type))::Hs => (stlc_subst Hs).lift
-| H::Hs => (λn => match n with
-                  | 0 => Stlc.abort
-                  | Nat.succ n => stlc_subst Hs n)
+def Sparsity := List Bool
+
+def Context.sparsity: Context -> Sparsity
+| [] => []
+| (Hyp.mk A (HypKind.val type))::Hs => true::(sparsity Hs)
+| H::Hs => false::(sparsity Hs)
+
+def Sparsity.ix: Sparsity -> Nat -> Nat
+| _, 0 => 0
+| [], n => n
+| true::Hs, Nat.succ n => (ix Hs n) + 1
+| false::Hs, Nat.succ n => ix Hs n
+
+def Context.stlc_ix (Γ: Context): Nat -> Nat := Γ.sparsity.ix
+
+def Term.stlc: Term -> Sparsity -> Stlc
+| var n, σ => Stlc.var (σ.ix n)
+| const TermKind.nil, _ => Stlc.nil
+| abs TermKind.lam A x, σ => Stlc.lam A.stlc_ty (x.stlc (true::σ))
+| tri TermKind.app P l r, σ => Stlc.app P.stlc_ty (l.stlc σ) (r.stlc σ)
+| bin TermKind.pair l r, σ => Stlc.pair (l.stlc σ) (r.stlc σ)
+| let_bin TermKind.let_pair P e e', σ => 
+  Stlc.let_pair P.stlc_ty (e.stlc σ) (e'.stlc (true::true::σ))
+| unary (TermKind.inj i) e, σ => Stlc.inj i (e.stlc σ)
+| cases TermKind.case P d l r, σ => 
+  Stlc.case P.stlc_ty (d.stlc σ) (l.stlc (true::σ)) (r.stlc (true::σ))
+| abs TermKind.lam_pr φ x, σ => x.stlc (false::σ)
+| tri TermKind.app_pr P e φ, σ => e.stlc σ
+| bin TermKind.elem e φ, σ => e.stlc σ
+| let_bin TermKind.let_set P e e', σ =>
+  Stlc.let_in P.stlc_ty (e.stlc σ) (e'.stlc (false::σ))
+| abs TermKind.lam_irrel A x, σ => x.stlc (false::σ)
+| tri TermKind.app_irrel P l r, σ => l.stlc σ
+| bin TermKind.repr l r, σ => r.stlc σ
+| let_bin TermKind.let_repr P e e', σ => 
+  Stlc.let_in P.stlc_ty (e.stlc σ) (e'.stlc (false::σ))
+| const TermKind.zero, σ => Stlc.zero
+| const TermKind.succ, σ => Stlc.succ
+| natrec K n z s, σ => Stlc.natrec K.stlc_ty (n.stlc σ) (z.stlc σ) (s.stlc (true::false::σ))
+| unary TermKind.abort _, σ => Stlc.abort
+| _, σ => Stlc.abort
 
 -- theorem Context.stlc_subst_ctx {Γ: Context}
 --   : Stlc.SubstCtx Γ.stlc_subst Γ.stlc_strict Γ.stlc
@@ -130,109 +130,12 @@ theorem Annot.stlc_ty_wk {A k}: ∀{ρ},
     | prop => rfl
   }
 
-theorem HasVar.stlc_val {Γ A s n}: 
-  HasVar Γ n (HypKind.val s) A ->
-  Stlc.HasVar Γ.stlc n (Annot.expr s A).stlc_ty := by {    
-    revert A s n;
-    induction Γ with
-    | nil => intro A s n H; cases H
-    | cons H Γ I =>
-      intro A s n HΓ;
-      cases HΓ with
-      | zero S =>
-        cases S;
-        simp only [Context.stlc, Term.wk1]
-        rw [Annot.stlc_ty_wk]
-        cases s
-        constructor
-        constructor
-      | succ =>
-        apply Stlc.HasVar.succ
-        simp only [Term.wk1]
-        rw [Annot.stlc_ty_wk]
-        apply I
-        assumption
-
-  }
+theorem HasVar.stlc {Γ A n}: 
+  HasVar Γ n (HypKind.val type) A ->
+  Stlc.HasVar Γ.stlc (Γ.stlc_ix n) A.stlc_ty := by sorry
 
 -- But why...
 set_option maxHeartbeats 1000000
 
-theorem HasType.stlc {Γ a A} (H: Γ ⊢ a: A):
-  Stlc.HasType Γ.stlc a.stlc A.stlc_ty
-  := by {
-    induction H <;> try exact Stlc.HasType.abort
-
-    case var Hv IA => exact Stlc.HasType.var Hv.stlc_val
-
-    --TODO: automate remaining cases with rename_i' or something like
-    case app HAB _ _ _ _ _ =>
-      simp only [Term.stlc, Term.stlc_ty, Term.subst0, term] at *
-      repeat rw [Annot.stlc_ty_subst] at *
-      constructor
-      assumption
-      assumption
-      cases HAB; assumption
-
-    case pair  HAB _ _ _ _ _ =>
-      simp only [Term.stlc, Term.stlc_ty, Term.subst0, term] at *
-      repeat rw [Annot.stlc_ty_subst] at *
-      constructor
-      assumption
-      assumption
-      cases HAB; assumption
-
-    case elem HAφ _ _ _ _ _ =>
-      simp only [Term.stlc, Term.stlc_ty, Term.subst0, term] at *
-      repeat rw [Annot.stlc_ty_subst] at *
-      assumption
-
-    case app_pr HφA _ _ _ _ _ =>
-      simp only [Term.stlc, Term.stlc_ty, Term.subst0, term]
-      repeat rw [Annot.stlc_ty_subst] at *
-      assumption
-      cases HφA; assumption
-
-    case app_irrel HAB _ _ _ _ _ =>
-      simp only [Term.stlc, Term.stlc_ty, Term.subst0, term]
-      repeat rw [Annot.stlc_ty_subst] at *
-      assumption
-      cases HAB; assumption
-
-    case repr HAB _ _ _ _ _ =>
-      simp only [Term.stlc, Term.stlc_ty, Term.subst0, term] at *
-      repeat rw [Annot.stlc_ty_subst] at *
-      assumption
-      cases HAB; assumption
-
-    case lam_pr =>
-      apply Stlc.HasType.let_prop;
-      assumption
-    case lam_irrel =>
-      apply Stlc.HasType.let_prop;
-      assumption
-
-    case case => sorry
-
-    case let_repr => sorry
-  
-    case let_set => sorry
-
-    case natrec => sorry
-
-    all_goals (
-      constructor <;>
-      simp only [
-        Term.subst0, Term.alpha0, term, proof, Term.wknth, Term.wk1
-      ] at * <;>
-      (repeat rw [Annot.stlc_ty_subst] at *) <;>
-      (repeat rw [Annot.stlc_ty_wk] at *) <;>
-      first 
-      | assumption
-      | (
-        apply HasType.wk_sort
-        assumption
-        repeat constructor
-      )
-    )
-  }
+theorem HasType.stlc {Γ a A}:
+  (Γ ⊢ a : A) -> Stlc.HasType Γ.stlc (a.stlc Γ.sparsity) A.stlc_ty := by sorry
