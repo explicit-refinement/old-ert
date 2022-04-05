@@ -261,13 +261,22 @@ theorem HasType.stlc {Γ a A}:
       assumption
       assumption
       assumption
-    | elem => sorry
+    | elem _ _ _ _ Il _ => exact Il
     | let_set => sorry
     | lam_pr => sorry
     | app_pr => sorry
     | lam_irrel => sorry
     | app_irrel => sorry
-    | repr => sorry
+    | repr HAB _ _ _ _ Ir => 
+      simp only [
+        Term.alpha0, Term.subst0, Annot.subst0,
+        Annot.stlc_ty_subst, Annot.stlc_ty_wk,
+        Term.stlc_ty_wk,
+        term, proof, Term.stlc, Term.stlc_ty
+      ] at *
+      repeat rw [Annot.stlc_ty_subst] at *
+      exact Ir
+      cases HAB <;> assumption
     | let_repr => sorry
     | natrec => sorry
     | _ => constructor <;> assumption
