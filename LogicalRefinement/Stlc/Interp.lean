@@ -228,7 +228,23 @@ theorem HasType.stlc {Γ a A}:
       repeat rw [HasType.stlc_ty_subst] at *
       exact Stlc.HasType.pair Il Ir
       cases HAB <;> assumption
-    | let_pair => sorry
+    | let_pair He HA HB HC He' Ie IA IB IC Ie' =>
+      simp only [
+        Term.alpha0, Term.subst0, Annot.subst0,
+        Annot.stlc_ty_subst, Annot.stlc_ty_wk,
+        Term.stlc_ty_wk, wknth,
+        term, proof, Term.stlc, Term.stlc_ty
+      ] at *
+      rw [Annot.stlc_ty_subst] at Ie'
+      rw [Annot.stlc_ty_wk] at Ie'
+      apply Stlc.HasType.let_pair
+      assumption
+      rw [Annot.stlc_ty_subst]
+      exact Ie'
+      exact HC
+      apply HasType.wk_sort
+      exact HC
+      repeat constructor
     | inj_l => sorry
     | inj_r => sorry
     | case => sorry
