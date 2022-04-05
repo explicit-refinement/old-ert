@@ -245,8 +245,6 @@ theorem HasType.stlc {Γ a A}:
       apply HasType.wk_sort
       exact HC
       repeat constructor
-    | inj_l => constructor; assumption
-    | inj_r => constructor; assumption
     | case => sorry
     | elem => sorry
     | let_set => sorry
@@ -257,5 +255,5 @@ theorem HasType.stlc {Γ a A}:
     | repr => sorry
     | let_repr => sorry
     | natrec => sorry
-    | _ => constructor
+    | _ => constructor <;> assumption
   }
