@@ -200,8 +200,24 @@ theorem HasType.stlc {Γ a A}:
       cases s with
       | type => exact Stlc.HasType.var Hv.stlc
       | prop => exact Stlc.HasType.abort
-    | app => sorry
-    | lam => sorry
+    | app HAB Hl Hr IAB Il Ir => 
+      simp only [
+        Term.alpha0, Term.subst0, Annot.subst0,
+        Annot.stlc_ty_subst, Annot.stlc_ty_wk,
+        Term.stlc_ty_wk,
+        term, proof, Term.stlc, Term.stlc_ty, Annot.stlc_ty
+      ] at *
+      repeat rw [HasType.stlc_ty_subst] at *
+      exact Stlc.HasType.app Il Ir
+      cases HAB <;> assumption
+    | lam Hs HA Is IA => 
+      simp only [
+        Term.alpha0, Term.subst0, Annot.subst0,
+        Annot.stlc_ty_subst, Annot.stlc_ty_wk,
+        Term.stlc_ty_wk,
+        term, proof, Term.stlc, Term.stlc_ty, Annot.stlc_ty
+      ] at *
+      exact Stlc.HasType.lam Is
     | pair => sorry
     | let_pair => sorry
     | inj_l => sorry
@@ -216,12 +232,5 @@ theorem HasType.stlc {Γ a A}:
     | repr => sorry
     | let_repr => sorry
     | natrec => sorry
-    | _ => 
-      simp only [
-        Term.alpha0, Term.subst0, Annot.subst0,
-        Annot.stlc_ty_subst, Annot.stlc_ty_wk,
-        HasType.stlc_ty_subst, Term.stlc_ty_wk,
-        term, proof
-      ] at *
-      constructor
+    | _ => constructor
   }
