@@ -217,7 +217,7 @@ theorem HasType.stlc {Γ a A}:
         Term.stlc_ty_wk,
         term, proof, Term.stlc, Term.stlc_ty, Annot.stlc_ty
       ] at *
-      exact Stlc.HasType.lam Is
+      constructor <;> assumption
     | pair HAB Hl Hr IAB Il Ir => 
       simp only [
         Term.alpha0, Term.subst0, Annot.subst0,
@@ -245,7 +245,22 @@ theorem HasType.stlc {Γ a A}:
       apply HasType.wk_sort
       exact HC
       repeat constructor
-    | case => sorry
+    | case He HA HB HC Hl Hr Ie IA IB IC Il Ir => 
+      simp only [
+        Term.alpha0, Term.subst0, Annot.subst0,
+        Annot.stlc_ty_subst, Annot.stlc_ty_wk,
+        Term.stlc_ty_wk,
+        term, proof, Term.stlc, Term.stlc_ty
+      ] at *
+      repeat rw [Annot.stlc_ty_subst] at *
+      repeat rw [Annot.stlc_ty_wk] at *
+      constructor
+      exact Ie
+      sorry --TODO: deal with kinds for cases...
+      sorry --TODO: deal with kinds for cases...
+      assumption
+      assumption
+      assumption
     | elem => sorry
     | let_set => sorry
     | lam_pr => sorry
