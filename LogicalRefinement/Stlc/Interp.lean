@@ -218,7 +218,16 @@ theorem HasType.stlc {Γ a A}:
         term, proof, Term.stlc, Term.stlc_ty, Annot.stlc_ty
       ] at *
       exact Stlc.HasType.lam Is
-    | pair => sorry
+    | pair HAB Hl Hr IAB Il Ir => 
+      simp only [
+        Term.alpha0, Term.subst0, Annot.subst0,
+        Annot.stlc_ty_subst, Annot.stlc_ty_wk,
+        Term.stlc_ty_wk,
+        term, proof, Term.stlc, Term.stlc_ty, Annot.stlc_ty
+      ] at *
+      repeat rw [HasType.stlc_ty_subst] at *
+      exact Stlc.HasType.pair Il Ir
+      cases HAB <;> assumption
     | let_pair => sorry
     | inj_l => sorry
     | inj_r => sorry
