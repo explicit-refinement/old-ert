@@ -142,8 +142,8 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType Γ A type ->
     HasType Γ B type ->
     HasType ((Hyp.mk (coprod A B) (HypKind.val type))::Γ) C k ->
-    HasType ((Hyp.mk A (HypKind.val type))::Γ) l (term (C.alpha0 (inj 0 (var 0)))) ->
-    HasType ((Hyp.mk B (HypKind.val type))::Γ) r (term (C.alpha0 (inj 1 (var 0)))) ->
+    HasType ((Hyp.mk A (HypKind.val type))::Γ) l (expr k (C.alpha0 (inj 0 (var 0)))) ->
+    HasType ((Hyp.mk B (HypKind.val type))::Γ) r (expr k (C.alpha0 (inj 1 (var 0)))) ->
     HasType Γ (case (coprod A B) e l r) (expr k (C.subst0 e))
   | elem {Γ: Context} {A φ l r: Term}:
     HasType Γ (set A φ) type ->

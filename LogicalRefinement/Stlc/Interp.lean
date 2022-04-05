@@ -256,8 +256,8 @@ theorem HasType.stlc {Γ a A}:
       repeat rw [Annot.stlc_ty_wk] at *
       constructor
       exact Ie
-      sorry --TODO: deal with kinds for cases...
-      sorry --TODO: deal with kinds for cases...
+      exact Il
+      exact Ir
       assumption
       assumption
       assumption

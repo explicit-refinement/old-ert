@@ -1,5 +1,6 @@
 import LogicalRefinement.Utils
 
+
 -- Term kinds
 --TODO: consider making higher order?
 inductive TermKind: List Nat -> Type
