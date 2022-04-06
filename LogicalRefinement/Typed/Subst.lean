@@ -135,7 +135,19 @@ theorem HasType.subst_sort {Γ Δ σ a k}
 
 theorem HasType.to_subst {Γ a s A} (H: HasType Γ a (expr s A)):
   SubstCtx a.to_subst Γ ((Hyp.mk A (HypKind.val s))::Γ) := by {
-    sorry
+    intro n A k Hv;
+    cases Hv with
+    | zero Hs => 
+      apply SubstVar.expr
+      rw [<-Term.subst0_def]
+      rw [Term.subst0_wk1]
+      cases Hs <;> exact H
+    | succ Hv => 
+      apply SubstVar.var
+      rfl
+      rw [<-Term.subst0_def]
+      rw [Term.subst0_wk1]
+      exact Hv
   }
 
 theorem HasType.subst0 {Γ e B t s A} 
