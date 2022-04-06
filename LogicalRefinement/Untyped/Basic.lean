@@ -1,5 +1,9 @@
 import LogicalRefinement.Utils
 
+inductive AnnotSort
+  | type
+  | prop
+  deriving DecidableEq, BEq
 
 -- Term kinds
 --TODO: consider making higher order?
@@ -109,7 +113,7 @@ inductive Term: Type
   | tri (k: TermKind [0, 0, 0]) (A: Term) (l: Term) (r: Term)
   -- TODO: no cases?
   | cases (k: TermKind [0, 0, 1, 1]) (K: Term) (d: Term) (l: Term) (r: Term)
-  | natrec (K: Term) (e: Term) (z: Term) (s: Term)
+  | natrec (k: AnnotSort) (K: Term) (e: Term) (z: Term) (s: Term)
 
 -- Types
 def Term.unit := const TermKind.unit
@@ -186,7 +190,7 @@ def Term.succ := const TermKind.succ
   | abs _ A t => Nat.max (fv A) (fv t - 1)
   | tri _ A l r => Nat.max (fv A) (Nat.max (fv l) (fv r))
   | cases _ K d l r => Nat.max (fv K) (Nat.max (fv d) (Nat.max (fv l - 1) (fv r - 1)))
-  | natrec K e z s => Nat.max (fv K - 1) (Nat.max (fv e) (Nat.max (fv z) (fv s - 2)))
+  | natrec k K e z s => Nat.max (fv K - 1) (Nat.max (fv e) (Nat.max (fv z) (fv s - 2)))
 
 @[simp] def Term.has_dep: Term -> Nat -> Prop
   | var v, i => v = i
@@ -199,7 +203,7 @@ def Term.succ := const TermKind.succ
   | tri _ A l r, i => has_dep A i ∨ has_dep l i ∨ has_dep r i
   | cases _ K d l r, i => 
     has_dep K i ∨ has_dep d i ∨ has_dep l (i + 1) ∨ has_dep r (i + 1)
-  | natrec K e z s, i =>
+  | natrec k K e z s, i =>
     has_dep K (i + 1) ∨ has_dep e i ∨ has_dep z i ∨ has_dep s (i + 2)
 
 theorem Term.has_dep_dimplies_fv (u: Term): {i: Nat} ->

@@ -149,8 +149,8 @@ def Term.subst: Term -> Subst -> Term
   | tri k A l r, σ => tri k (A.subst σ) (l.subst σ) (r.subst σ)
   | cases k K d l r, σ => 
     cases k (K.subst σ) (d.subst σ) (l.subst σ.lift) (r.subst σ.lift)
-  | natrec K e z s, σ =>
-    natrec (K.subst σ.lift) (e.subst σ) (z.subst σ) (s.subst (σ.liftn 2))
+  | natrec k K e z s, σ =>
+    natrec k (K.subst σ.lift) (e.subst σ) (z.subst σ) (s.subst (σ.liftn 2))
 
 -- TODO: automate
 theorem Subst.lift_var: {n v: Nat} -> {σ: Subst} -> 
@@ -231,7 +231,7 @@ theorem Term.liftn_wk {u: Term}: {σ: Subst} -> (n: Nat) ->
       rw [Subst.lift_liftn_merge]
       rw [Subst.lift_liftn_merge]
       rw [Il, Ir]
-    | natrec K e z s IK Ie Iz Is =>
+    | natrec k K e z s IK Ie Iz Is =>
       intros σ n
       simp only [wknth, wk, subst, Wk.liftn_wknth_merge]
       rw [Subst.liftn_merge]
@@ -396,7 +396,7 @@ theorem Term.subst_bounds:
       Id Hd Hσ, Il Hl (Subst.lift_subst Hσ), 
       Ir Hr (Subst.lift_subst Hσ)
       ⟩
-  | natrec K e z s IK Ie Iz Is =>
+  | natrec k K e z s IK Ie Iz Is =>
     intros σ n m;
     simp only [Term.fv, Nat.max_r_le_split, Nat.le_sub_is_le_add]
     intro ⟨HK, He, Hz, Hs⟩ Hσ

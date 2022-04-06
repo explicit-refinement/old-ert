@@ -6,11 +6,6 @@ open Term
 
 --TODO: flip sub, suffer
 
-inductive AnnotSort
-  | type
-  | prop
-  deriving DecidableEq, BEq
-
 inductive TermSort
   | sort (s: AnnotSort)
   | expr (s: AnnotSort)

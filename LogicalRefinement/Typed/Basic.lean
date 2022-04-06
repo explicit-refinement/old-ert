@@ -304,7 +304,7 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType ((Hyp.mk C (HypKind.val k))::(Hyp.mk nats HypKind.gst)::Γ) s
     --TODO: this is just C.wk1...
     (term ((C.wknth 1).alpha0 (var 1))) ->
-    HasType Γ (natrec C e z s) (expr k (C.subst0 e))
+    HasType Γ (natrec k C e z s) (expr k (C.subst0 e))
 
 notation Γ "⊢" a ":" A => HasType Γ a A
 notation Γ "⊢" a "∈" A => HasType Γ a (term A)

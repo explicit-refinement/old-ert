@@ -85,7 +85,11 @@ def Term.stlc: Term -> Sparsity -> Stlc
   Stlc.let_in P.stlc_ty (e.stlc σ) (e'.stlc (true::false::σ))
 | const TermKind.zero, σ => Stlc.zero
 | const TermKind.succ, σ => Stlc.succ
-| natrec K n z s, σ => Stlc.natrec K.stlc_ty (n.stlc σ) (z.stlc σ) (s.stlc (true::false::σ))
+| natrec k K n z s, σ => 
+  if k == type then
+    Stlc.natrec K.stlc_ty (n.stlc σ) (z.stlc σ) (s.stlc (true::false::σ))
+  else
+    Stlc.abort
 | unary TermKind.abort _, σ => Stlc.abort
 | _, σ => Stlc.abort
 
@@ -313,6 +317,24 @@ theorem HasType.stlc {Γ a A}:
       assumption
       repeat constructor
       assumption
-    | natrec => sorry
+    | natrec HC He Hz Hs IC Ie Iz Is => 
+      rename AnnotSort => k;
+      cases k with
+      | type =>
+        simp only [
+          Term.alpha0, Term.subst0, Annot.subst0,
+          Annot.stlc_ty_subst, Annot.stlc_ty_wk,
+          Term.stlc_ty_wk, wknth,
+          term, proof, Term.stlc, Term.stlc_ty
+        ] at *
+        repeat rw [Annot.stlc_ty_subst] at *
+        repeat rw [Annot.stlc_ty_wk] at *
+        exact Stlc.HasType.natrec Ie Iz Is
+        assumption
+        apply HasType.wk_sort
+        assumption
+        repeat constructor
+        assumption
+      | prop => exact Stlc.HasType.abort
     | _ => first | assumption | constructor <;> assumption
   }
