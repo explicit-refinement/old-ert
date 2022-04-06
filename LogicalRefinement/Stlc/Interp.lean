@@ -77,12 +77,12 @@ def Term.stlc: Term -> Sparsity -> Stlc
 | tri TermKind.app_pr P e φ, σ => e.stlc σ
 | bin TermKind.elem e φ, σ => e.stlc σ
 | let_bin TermKind.let_set P e e', σ =>
-  Stlc.let_in P.stlc_ty (e.stlc σ) (e'.stlc (false::σ))
+  Stlc.let_in P.stlc_ty (e.stlc σ) (e'.stlc (false::true::σ))
 | abs TermKind.lam_irrel A x, σ => x.stlc (false::σ)
 | tri TermKind.app_irrel P l r, σ => l.stlc σ
 | bin TermKind.repr l r, σ => r.stlc σ
 | let_bin TermKind.let_repr P e e', σ => 
-  Stlc.let_in P.stlc_ty (e.stlc σ) (e'.stlc (false::σ))
+  Stlc.let_in P.stlc_ty (e.stlc σ) (e'.stlc (true::false::σ))
 | const TermKind.zero, σ => Stlc.zero
 | const TermKind.succ, σ => Stlc.succ
 | natrec K n z s, σ => Stlc.natrec K.stlc_ty (n.stlc σ) (z.stlc σ) (s.stlc (true::false::σ))
@@ -253,7 +253,6 @@ theorem HasType.stlc {Γ a A}:
         term, proof, Term.stlc, Term.stlc_ty
       ] at *
       repeat rw [Annot.stlc_ty_subst] at *
-      repeat rw [Annot.stlc_ty_wk] at *
       constructor
       exact Ie
       exact Il
@@ -262,7 +261,22 @@ theorem HasType.stlc {Γ a A}:
       assumption
       assumption
     | elem _ _ _ _ Il _ => exact Il
-    | let_set => sorry
+    | let_set _ _ _ _ _ _ _ _ _ Ie' => 
+      simp only [
+        Term.alpha0, Term.subst0, Annot.subst0,
+        Annot.stlc_ty_subst, Annot.stlc_ty_wk,
+        Term.stlc_ty_wk, wknth,
+        term, proof, Term.stlc, Term.stlc_ty
+      ] at *
+      repeat rw [Annot.stlc_ty_subst] at *
+      repeat rw [Annot.stlc_ty_wk] at *
+      constructor
+      assumption
+      exact Ie'
+      apply HasType.wk_sort
+      assumption
+      repeat constructor
+      assumption
     | lam_pr => sorry
     | app_pr => sorry
     | lam_irrel => sorry
