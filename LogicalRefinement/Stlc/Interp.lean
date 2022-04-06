@@ -277,8 +277,16 @@ theorem HasType.stlc {Γ a A}:
       assumption
       repeat constructor
       assumption
-    | app_pr => sorry
-    | app_irrel => sorry
+    | app_pr HAB Hl Hr IAB Il Ir => 
+      simp only [term, Term.subst0]
+      rw [Annot.stlc_ty_subst]
+      exact Il
+      cases HAB <;> assumption
+    | app_irrel HAB Hl Hr IAB Il Ir => 
+      simp only [term, Term.subst0]
+      rw [Annot.stlc_ty_subst]
+      exact Il
+      cases HAB <;> assumption
     | repr HAB _ _ _ _ Ir => 
       simp only [
         Term.alpha0, Term.subst0, Annot.subst0,
