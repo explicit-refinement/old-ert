@@ -297,7 +297,22 @@ theorem HasType.stlc {Γ a A}:
       repeat rw [Annot.stlc_ty_subst] at *
       exact Ir
       cases HAB <;> assumption
-    | let_repr => sorry
+    | let_repr _ _ _ _ _ _ _ _ _ Ie' => 
+      simp only [
+        Term.alpha0, Term.subst0, Annot.subst0,
+        Annot.stlc_ty_subst, Annot.stlc_ty_wk,
+        Term.stlc_ty_wk, wknth,
+        term, proof, Term.stlc, Term.stlc_ty
+      ] at *
+      repeat rw [Annot.stlc_ty_subst] at *
+      repeat rw [Annot.stlc_ty_wk] at *
+      constructor
+      assumption
+      exact Ie'
+      apply HasType.wk_sort
+      assumption
+      repeat constructor
+      assumption
     | natrec => sorry
     | _ => first | assumption | constructor <;> assumption
   }
