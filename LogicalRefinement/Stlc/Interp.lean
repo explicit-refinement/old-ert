@@ -277,9 +277,7 @@ theorem HasType.stlc {Γ a A}:
       assumption
       repeat constructor
       assumption
-    | lam_pr => sorry
     | app_pr => sorry
-    | lam_irrel => sorry
     | app_irrel => sorry
     | repr HAB _ _ _ _ Ir => 
       simp only [
@@ -293,5 +291,5 @@ theorem HasType.stlc {Γ a A}:
       cases HAB <;> assumption
     | let_repr => sorry
     | natrec => sorry
-    | _ => constructor <;> assumption
+    | _ => first | assumption | constructor <;> assumption
   }
