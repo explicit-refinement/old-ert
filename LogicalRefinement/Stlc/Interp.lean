@@ -238,7 +238,7 @@ theorem HasType.stlc {Γ a A}:
         ] at *
         repeat rw [Annot.stlc_ty_subst] at *
         repeat rw [Annot.stlc_ty_wk] at *
-        constructor <;> assumption
+        first | assumption | (constructor <;> assumption)
         repeat first
         | assumption
         | (
