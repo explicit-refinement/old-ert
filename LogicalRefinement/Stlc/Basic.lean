@@ -1,3 +1,6 @@
+prelude
+import LogicalRefinement.Stlc.Sparsity
+
 import LogicalRefinement.Wk
 import LogicalRefinement.Tactics
 
