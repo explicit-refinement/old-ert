@@ -51,11 +51,37 @@ def Context.sparsity: Context -> Sparsity
 | [] => []
 | H::Hs => H.sparsity::(sparsity Hs)
 
+@[simp]
 def Sparsity.ix: Sparsity -> Nat -> Nat
 | _, 0 => 0
 | [], n => n
 | true::Hs, Nat.succ n => (ix Hs n) + 1
 | false::Hs, Nat.succ n => ix Hs n
+
+@[simp]
+def Sparsity.ix_inv: Sparsity -> Nat -> Nat
+| true::Hs, Nat.succ n => (ix_inv Hs n) + 1
+| false::Hs, n => (ix_inv Hs n) + 1
+| _, n => n
+
+def Sparsity.ix_inv_valid (Γ: Sparsity) {n: Nat}:
+  Γ.get? n = some true -> Γ.ix_inv (Γ.ix n) = n
+  := by {
+    revert n;
+    induction Γ with
+    | nil => intro n H; contradiction
+    | cons H Γ I =>
+      intro n;
+      cases n with
+      | zero => 
+        intro Hn;
+        cases H with
+        | true => rfl
+        | false => simp [List.get?] at Hn
+      | succ n =>
+        intro Hn;
+        cases H <;> simp [ix, ix_inv, I Hn] 
+  }
 
 def Context.stlc_ix (Γ: Context): Nat -> Nat := Γ.sparsity.ix
 

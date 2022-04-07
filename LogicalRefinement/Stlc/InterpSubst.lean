@@ -1,23 +1,34 @@
--- import LogicalRefinement.Untyped
--- import LogicalRefinement.Typed
--- import LogicalRefinement.Stlc.Basic
--- import LogicalRefinement.Stlc.Interp
--- import LogicalRefinement.Stlc.Subst
+import LogicalRefinement.Untyped
+import LogicalRefinement.Typed
+import LogicalRefinement.Stlc.Basic
+import LogicalRefinement.Stlc.Interp
+import LogicalRefinement.Stlc.Subst
 
--- def Subst.stlc (σ: Subst): Stlc.Subst := 
---   λv => (σ v).stlc
+def Subst.stlc (σ: Subst) (Γ: Sparsity): Stlc.Subst := 
+  λv => (σ (Γ.ix_inv v)).stlc Γ
 
--- def Subst.stlc_lift {σ: Subst}
---   : σ.lift.stlc = σ.stlc.lift
---   := sorry
+def Subst.stlc_lift_true {σ: Subst} {Γ: Sparsity}
+  : σ.lift.stlc (true::Γ) = (σ.stlc Γ).lift
+  := by {
+    funext v;
+    cases v with
+    | zero => rfl
+    | succ v => 
+      simp only [stlc, Stlc.Subst.lift, Sparsity.ix_inv, lift_succ]
+      sorry
+  }
 
--- theorem SubstCtx.stlc {σ Γ Δ} (S: SubstCtx σ Γ Δ)
---   : Stlc.SubstCtx σ.stlc Γ.stlc Δ.stlc
---   := by {
---     intro n A Hv;
---     simp only [Subst.stlc]
---     sorry
---   }
+def Subst.stlc_lift_false {σ: Subst} {Γ: Sparsity}
+  : σ.lift.stlc (false::Γ) = σ.stlc Γ
+  := sorry
+
+theorem SubstCtx.stlc {σ Γ Δ} (S: SubstCtx σ Γ Δ)
+  : Stlc.SubstCtx (σ.stlc Γ.sparsity) Γ.stlc Δ.stlc
+  := by {
+    intro n A Hv;
+    simp only [Subst.stlc]
+    sorry
+  }
 
 -- -- But why...
 -- set_option maxHeartbeats 1000000
