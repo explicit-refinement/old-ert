@@ -214,14 +214,6 @@ theorem HasType.stlc {Γ a A}:
       repeat rw [HasType.stlc_ty_subst] at *
       exact Stlc.HasType.app Il Ir
       cases HAB <;> assumption
-    | lam Hs HA Is IA => 
-      simp only [
-        Term.alpha0, Term.subst0, Annot.subst0,
-        Annot.stlc_ty_subst, Annot.stlc_ty_wk,
-        Term.stlc_ty_wk,
-        term, proof, Term.stlc, Term.stlc_ty, Annot.stlc_ty
-      ] at *
-      constructor <;> assumption
     | pair HAB Hl Hr IAB Il Ir => 
       simp only [
         Term.alpha0, Term.subst0, Annot.subst0,
@@ -232,55 +224,6 @@ theorem HasType.stlc {Γ a A}:
       repeat rw [HasType.stlc_ty_subst] at *
       exact Stlc.HasType.pair Il Ir
       cases HAB <;> assumption
-    | let_pair He HA HB HC He' Ie IA IB IC Ie' =>
-      simp only [
-        Term.alpha0, Term.subst0, Annot.subst0,
-        Annot.stlc_ty_subst, Annot.stlc_ty_wk,
-        Term.stlc_ty_wk, wknth,
-        term, proof, Term.stlc, Term.stlc_ty
-      ] at *
-      rw [Annot.stlc_ty_subst] at Ie'
-      rw [Annot.stlc_ty_wk] at Ie'
-      apply Stlc.HasType.let_pair
-      assumption
-      rw [Annot.stlc_ty_subst]
-      exact Ie'
-      exact HC
-      apply HasType.wk_sort
-      exact HC
-      repeat constructor
-    | case He HA HB HC Hl Hr Ie IA IB IC Il Ir => 
-      simp only [
-        Term.alpha0, Term.subst0, Annot.subst0,
-        Annot.stlc_ty_subst, Annot.stlc_ty_wk,
-        Term.stlc_ty_wk,
-        term, proof, Term.stlc, Term.stlc_ty
-      ] at *
-      repeat rw [Annot.stlc_ty_subst] at *
-      constructor
-      exact Ie
-      exact Il
-      exact Ir
-      assumption
-      assumption
-      assumption
-    | elem _ _ _ _ Il _ => exact Il
-    | let_set _ _ _ _ _ _ _ _ _ Ie' => 
-      simp only [
-        Term.alpha0, Term.subst0, Annot.subst0,
-        Annot.stlc_ty_subst, Annot.stlc_ty_wk,
-        Term.stlc_ty_wk, wknth,
-        term, proof, Term.stlc, Term.stlc_ty
-      ] at *
-      repeat rw [Annot.stlc_ty_subst] at *
-      repeat rw [Annot.stlc_ty_wk] at *
-      constructor
-      assumption
-      exact Ie'
-      apply HasType.wk_sort
-      assumption
-      repeat constructor
-      assumption
     | app_pr HAB Hl Hr IAB Il Ir => 
       simp only [term, Term.subst0]
       rw [Annot.stlc_ty_subst]
@@ -301,22 +244,6 @@ theorem HasType.stlc {Γ a A}:
       repeat rw [Annot.stlc_ty_subst] at *
       exact Ir
       cases HAB <;> assumption
-    | let_repr _ _ _ _ _ _ _ _ _ Ie' => 
-      simp only [
-        Term.alpha0, Term.subst0, Annot.subst0,
-        Annot.stlc_ty_subst, Annot.stlc_ty_wk,
-        Term.stlc_ty_wk, wknth,
-        term, proof, Term.stlc, Term.stlc_ty
-      ] at *
-      repeat rw [Annot.stlc_ty_subst] at *
-      repeat rw [Annot.stlc_ty_wk] at *
-      constructor
-      assumption
-      exact Ie'
-      apply HasType.wk_sort
-      assumption
-      repeat constructor
-      assumption
     | natrec HC He Hz Hs IC Ie Iz Is => 
       rename AnnotSort => k;
       cases k with
@@ -329,12 +256,36 @@ theorem HasType.stlc {Γ a A}:
         ] at *
         repeat rw [Annot.stlc_ty_subst] at *
         repeat rw [Annot.stlc_ty_wk] at *
-        exact Stlc.HasType.natrec Ie Iz Is
-        assumption
-        apply HasType.wk_sort
-        assumption
-        repeat constructor
-        assumption
+        constructor <;> assumption
+        repeat first
+        | assumption
+        | (
+          apply HasType.wk_sort
+          assumption
+          repeat constructor
+          assumption
+        )
       | prop => exact Stlc.HasType.abort
-    | _ => first | assumption | constructor <;> assumption
+    | _ =>
+      first
+      | assumption
+      | (
+        simp only [
+          Term.alpha0, Term.subst0, Annot.subst0,
+          Annot.stlc_ty_subst, Annot.stlc_ty_wk,
+          Term.stlc_ty_wk, wknth,
+          term, proof, Term.stlc, Term.stlc_ty
+        ] at *
+        repeat rw [Annot.stlc_ty_subst] at *
+        repeat rw [Annot.stlc_ty_wk] at *
+        constructor <;> assumption
+        repeat first
+        | assumption
+        | (
+          apply HasType.wk_sort
+          assumption
+          repeat constructor
+          assumption
+        )
+      )
   }
