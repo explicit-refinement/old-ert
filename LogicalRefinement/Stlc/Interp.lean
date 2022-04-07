@@ -204,46 +204,6 @@ theorem HasType.stlc {Γ a A}:
       cases s with
       | type => exact Stlc.HasType.var Hv.stlc
       | prop => exact Stlc.HasType.abort
-    | app HAB Hl Hr IAB Il Ir => 
-      simp only [
-        Term.alpha0, Term.subst0, Annot.subst0,
-        Annot.stlc_ty_subst, Annot.stlc_ty_wk,
-        Term.stlc_ty_wk,
-        term, proof, Term.stlc, Term.stlc_ty, Annot.stlc_ty
-      ] at *
-      repeat rw [HasType.stlc_ty_subst] at *
-      exact Stlc.HasType.app Il Ir
-      cases HAB <;> assumption
-    | pair HAB Hl Hr IAB Il Ir => 
-      simp only [
-        Term.alpha0, Term.subst0, Annot.subst0,
-        Annot.stlc_ty_subst, Annot.stlc_ty_wk,
-        Term.stlc_ty_wk,
-        term, proof, Term.stlc, Term.stlc_ty, Annot.stlc_ty
-      ] at *
-      repeat rw [HasType.stlc_ty_subst] at *
-      exact Stlc.HasType.pair Il Ir
-      cases HAB <;> assumption
-    | app_pr HAB Hl Hr IAB Il Ir => 
-      simp only [term, Term.subst0]
-      rw [Annot.stlc_ty_subst]
-      exact Il
-      cases HAB <;> assumption
-    | app_irrel HAB Hl Hr IAB Il Ir => 
-      simp only [term, Term.subst0]
-      rw [Annot.stlc_ty_subst]
-      exact Il
-      cases HAB <;> assumption
-    | repr HAB _ _ _ _ Ir => 
-      simp only [
-        Term.alpha0, Term.subst0, Annot.subst0,
-        Annot.stlc_ty_subst, Annot.stlc_ty_wk,
-        Term.stlc_ty_wk,
-        term, proof, Term.stlc, Term.stlc_ty
-      ] at *
-      repeat rw [Annot.stlc_ty_subst] at *
-      exact Ir
-      cases HAB <;> assumption
     | natrec HC He Hz Hs IC Ie Iz Is => 
       rename AnnotSort => k;
       cases k with
@@ -286,6 +246,10 @@ theorem HasType.stlc {Γ a A}:
           assumption
           repeat constructor
           assumption
+        )
+        | (
+        rename (HasType _ (Term.abs _ _ _) _) => Habs
+        cases Habs <;> assumption
         )
       )
   }
