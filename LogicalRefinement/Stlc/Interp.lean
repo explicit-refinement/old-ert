@@ -51,11 +51,11 @@ def Context.sparsity: Context -> Sparsity
 
 def Context.stlc_ix (Γ: Context): Nat -> Nat := Γ.sparsity.ix
 
+def Sparsity.stlc (σ: Sparsity) (n: Nat): Stlc
+  := if σ.dep n then Stlc.var (σ.ix n) else Stlc.abort
+
 def Term.stlc: Term -> Sparsity -> Stlc
-| var n, σ => 
-  if σ.dep n
-  then Stlc.var (σ.ix n) 
-  else Stlc.abort
+| var n, σ => σ.stlc n
 | const TermKind.nil, _ => Stlc.nil
 | abs TermKind.lam A x, σ => Stlc.lam A.stlc_ty (x.stlc (true::σ))
 | tri TermKind.app P l r, σ => Stlc.app P.stlc_ty (l.stlc σ) (r.stlc σ)
@@ -85,9 +85,24 @@ def Term.stlc: Term -> Sparsity -> Stlc
 | unary TermKind.abort _, σ => Stlc.abort
 | _, σ => Stlc.abort
 
+def Term.stlc_var: (var v).stlc σ = σ.stlc v := rfl
+
 -- theorem Context.stlc_subst_ctx {Γ: Context}
 --   : Stlc.SubstCtx Γ.stlc_subst Γ.stlc_strict Γ.stlc
 --   := by sorry
+
+theorem Term.stlc_wknth_false {t: Term} {Γ: Sparsity} {n: Nat}
+: (t.wknth n).stlc (Γ.wknth n false) = t.stlc Γ
+:= by {
+  revert Γ n;
+  induction t with
+  | var v => 
+    intro Γ n;
+    simp only [wknth, wk]
+    repeat rw [stlc_var]
+    simp only [Sparsity.stlc, Sparsity.wknth_ix, Sparsity.wknth_dep]
+  | _ => sorry
+}
 
 theorem HasType.stlc_ty_subst {Γ A σ s} (H: Γ ⊢ A: sort s):
   (A.subst σ).stlc_ty = A.stlc_ty := by {
@@ -200,7 +215,7 @@ theorem HasType.stlc {Γ a A}:
     induction H with
     | var _ Hv => 
       rename AnnotSort => s;
-      simp only [Term.stlc]
+      simp only [Term.stlc, Sparsity.stlc]
       rw [Hv.sigma]
       cases s with
       | type => exact Stlc.HasType.var Hv.stlc
@@ -253,15 +268,4 @@ theorem HasType.stlc {Γ a A}:
         cases Habs <;> assumption
         )
       )
-  }
-
-  theorem Term.stlc_wknth_false {t: Term} {Γ: Sparsity} {n: Nat}
-  : (t.wknth n).stlc (Γ.wknth n false) = t.stlc Γ
-  := by {
-    revert Γ n;
-    induction t with
-    | var v => 
-      simp only [stlc, wknth]
-      sorry
-    | _ => sorry
   }
