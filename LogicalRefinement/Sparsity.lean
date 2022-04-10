@@ -1,5 +1,6 @@
-def Sparsity := List Bool
+import LogicalRefinement.Wk
 
+def Sparsity := List Bool
 
 @[simp]
 def Sparsity.dep: Sparsity -> Nat -> Bool
@@ -24,6 +25,11 @@ def Sparsity.wknth: Sparsity -> Nat -> Bool -> Sparsity
 | H::Γ, Nat.succ n, b => H::(wknth Γ n b)
 | [], Nat.succ n, b => true::(wknth [] n b)
 | Γ, 0, b => b::Γ
+
+def Sparsity.wk1_char {b: Bool} (Γ: Sparsity)
+  : Γ.wknth 0 b = (b::Γ)
+  := by simp only [wknth]
+
 
 @[simp]
 def Sparsity.ix: Sparsity -> Nat -> Nat
@@ -54,4 +60,21 @@ def Sparsity.ix_inv_valid (Γ: Sparsity) {n: Nat}:
       | succ n =>
         intro Hn;
         cases H <;> simp [ix, ix_inv, I Hn] 
+  }
+
+def Sparsity.wknth_dep {Γ: Sparsity} {n b v}
+  : (Γ.wknth n b).dep ((Wk.wknth n).var v) = Γ.dep v
+  := by {
+    rw [Wk.wknth_var]
+    revert b v Γ;
+    induction n with
+    | zero => 
+      intro Γ b v;
+      rw [Sparsity.wk1_char]
+      rfl
+    | succ n I =>
+      intro Γ b v;
+      cases v with
+      | zero => cases Γ <;> rfl
+      | succ v => cases Γ <;> simp [I]
   }

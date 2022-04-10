@@ -260,6 +260,8 @@ theorem HasType.stlc {Γ a A}:
   := by {
     revert Γ n;
     induction t with
-    | var v => sorry
+    | var v => 
+      simp only [stlc, wknth]
+      sorry
     | _ => sorry
   }

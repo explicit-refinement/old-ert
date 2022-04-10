@@ -1,5 +1,5 @@
 prelude
-import LogicalRefinement.Stlc.Sparsity
+import LogicalRefinement.Sparsity
 
 import LogicalRefinement.Wk
 import LogicalRefinement.Tactics

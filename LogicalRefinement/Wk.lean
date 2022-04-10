@@ -15,6 +15,11 @@ inductive Wk: Type 0 where
 
 @[simp] def Wk.wknth (n: Nat): Wk := wk1.liftn n
 
+def wknth_var: Nat -> Nat -> Nat
+| 0, v => Nat.succ v
+| Nat.succ n, Nat.succ v => Nat.succ (wknth_var n v)
+| Nat.succ n, 0 => 0
+
 @[simp]
 theorem Wk.lift_liftn_merge {ρ: Wk} {n: Nat}: 
   (ρ.liftn n).lift = ρ.liftn (n + 1) := rfl
@@ -227,6 +232,21 @@ def Wk.wknth_wkn_equiv: equiv (comp (wknth n) (wkn n)) (wkn (n + 1)) := by {
     rw [I v]
     simp
 }
+
+def Wk.wknth_var {n v}: (Wk.wknth n).var v = wknth_var n v
+  := by {
+    revert v;
+    induction n with
+    | zero => intro v; rfl
+    | succ n I =>
+      intro v;
+      cases v with
+      | zero => rfl
+      | succ v =>
+        simp only [wknth, var, _root_.wknth_var]
+        rw [<-I]
+        rfl
+  }
 
 @[simp] 
 theorem Wk.var_comp: (ρ σ: Wk) -> (n: Nat) ->
