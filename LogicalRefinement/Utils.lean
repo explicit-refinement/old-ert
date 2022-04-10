@@ -183,7 +183,7 @@ def Nat.zero_le_true: (0 ≤ n) = True :=
 def Nat.le_sub_is_le_add: {l n m: Nat} -> (n - l ≤ m) = (n ≤ m + l) := by {
   intros l.
   induction l with
-  | zero => rfl
+  | zero => intros; rfl
   | succ l I => intros n. cases n with
     | zero => intros m.
       rw [Nat.zero_sub]. 

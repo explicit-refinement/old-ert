@@ -102,3 +102,7 @@ def Sparsity.wknth_ix {Γ: Sparsity} {n v}
       -- Lean really needs to learn how to ignore arguments...
       | cons H Γ => cases H <;> simp [I]
 }
+
+def Sparsity.wknth_merge {Γ: Sparsity} {n b H}
+  : H::(Γ.wknth n b) = wknth (H::Γ) (Nat.succ n) b
+  := rfl

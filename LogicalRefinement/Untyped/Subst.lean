@@ -294,6 +294,7 @@ def Subst.comp (σ ρ: Subst): Subst
   u.subst ρ = u.wk ρ := by {
   intro u;
   induction u <;> {
+    intros;
     simp only [
       Term.subst, 
       Wk.to_subst_lift, Wk.to_subst_liftn, 

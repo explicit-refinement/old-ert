@@ -91,18 +91,7 @@ def Term.stlc_var: (var v).stlc σ = σ.stlc v := rfl
 --   : Stlc.SubstCtx Γ.stlc_subst Γ.stlc_strict Γ.stlc
 --   := by sorry
 
-theorem Term.stlc_wknth_false {t: Term} {Γ: Sparsity} {n: Nat}
-: (t.wknth n).stlc (Γ.wknth n false) = t.stlc Γ
-:= by {
-  revert Γ n;
-  induction t with
-  | var v => 
-    intro Γ n;
-    simp only [wknth, wk]
-    repeat rw [stlc_var]
-    simp only [Sparsity.stlc, Sparsity.wknth_ix, Sparsity.wknth_dep]
-  | _ => sorry
-}
+set_option maxHeartbeats 10000000
 
 theorem HasType.stlc_ty_subst {Γ A σ s} (H: Γ ⊢ A: sort s):
   (A.subst σ).stlc_ty = A.stlc_ty := by {
@@ -132,6 +121,39 @@ theorem Term.stlc_ty_wk {A: Term}: ∀{ρ}, (A.wk ρ).stlc_ty = A.stlc_ty
     simp only [Term.stlc_ty, Term.wk, *]
 }
 
+theorem Term.stlc_ty_wknth {A: Term}: (A.wknth n).stlc_ty = A.stlc_ty 
+:= by {
+  simp only [wknth]
+  apply Term.stlc_ty_wk
+}
+
+theorem Term.stlc_wknth_false {t: Term} {Γ: Sparsity} {n: Nat}
+: (t.wknth n).stlc (Γ.wknth n false) = t.stlc Γ
+:= by {
+  revert Γ n;
+  induction t with
+  | var v => 
+    intro Γ n;
+    simp only [wknth, wk]
+    repeat rw [stlc_var]
+    simp only [Sparsity.stlc, Sparsity.wknth_ix, Sparsity.wknth_dep]
+  | _ => 
+    intro Γ n;
+    simp only [wknth, wk]
+    repeat rw [Wk.lift_wknth_merge]
+    repeat rw [Wk.liftn_wknth_merge]
+    repeat rw [<-wknth_def] 
+    try (rename TermKind _ => k; cases k);
+    try (rename AnnotSort => s; cases s);
+    all_goals try rfl;
+    all_goals (
+      simp only [stlc] 
+      simp only [Sparsity.wknth_merge]
+      simp only [*]
+      repeat rw [Term.stlc_ty_wknth]
+    )
+}
+
 theorem Annot.stlc_ty_subst {Γ A σ s k} (H: Γ ⊢ A: sort s):
   (expr k (A.subst σ)).stlc_ty = (expr k A).stlc_ty := by {
     cases k with
@@ -143,7 +165,7 @@ theorem Annot.stlc_ty_wk {A k}: ∀{ρ},
   (expr k (A.wk ρ)).stlc_ty = (expr k A).stlc_ty := by {
     cases k with
     | type => exact Term.stlc_ty_wk
-    | prop => rfl
+    | prop => intros; rfl
   }
 
 theorem HasVar.stlc {Γ A n}: 
