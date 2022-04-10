@@ -78,3 +78,27 @@ def Sparsity.wknth_dep {Γ: Sparsity} {n b v}
       | zero => cases Γ <;> rfl
       | succ v => cases Γ <;> simp [I]
   }
+  
+def Sparsity.wknth_ix {Γ: Sparsity} {n v}
+: (Γ.wknth n false).ix ((Wk.wknth n).var v) = Γ.ix v
+:= by {
+  rw [Wk.wknth_var]
+  revert v Γ;
+  induction n with
+  | zero => 
+    intro Γ v;
+    rw [Sparsity.wk1_char]
+    rfl
+  | succ n I =>
+    intro Γ v;
+    cases v with
+    | zero =>
+      cases Γ with
+      | nil => rfl
+      | cons H Γ => cases H <;> rfl
+    | succ v =>
+      cases Γ with
+      | nil => simp [I]
+      -- Lean really needs to learn how to ignore arguments...
+      | cons H Γ => cases H <;> simp [I]
+}
