@@ -17,158 +17,27 @@ theorem HasType.downgrade_helper {Δ Γ: Context} {a A s}
   := by {
     intro H;
     induction H generalizing s Γ with
-    | pi HA HB IA IB => 
-      intro HΓΔ Hs;
-      rw [<-Hs]
-      constructor
-      apply IA
-      assumption
-      rfl
-      apply IB
-      constructor
-      assumption
-      constructor
-      constructor
-      rfl
-    | sigma HA HB IA IB => 
-      intro HΓΔ Hs;
-      rw [<-Hs]
-      constructor
-      apply IA
-      assumption
-      rfl
-      apply IB
-      constructor
-      assumption
-      constructor
-      constructor
-      rfl
-    | coprod HA HB IA IB => 
-      intro HΓΔ Hs;
-      rw [<-Hs]
-      constructor
-      apply IA
-      assumption
-      rfl
-      apply IB
-      assumption
-      rfl
-    | set HA HB IA IB => 
-      intro HΓΔ Hs;
-      rw [<-Hs]
-      constructor
-      apply IA
-      assumption
-      rfl
-      apply IB
-      constructor
-      assumption
-      constructor
-      constructor
-      rfl
-    | assume HA HB IA IB =>
-      intro HΓΔ Hs;
-      rw [<-Hs]
-      constructor
-      apply IA
-      assumption
-      rfl
-      apply IB
-      constructor
-      assumption
-      constructor
-      constructor
-      rfl
-    | intersect HA HB IA IB => 
-      intro HΓΔ Hs;
-      rw [<-Hs]
-      constructor
-      apply IA
-      assumption
-      rfl
-      apply IB
-      constructor
-      assumption
-      constructor
-      constructor
-      rfl
-    | union HA HB IA IB => 
-      intro HΓΔ Hs;
-      rw [<-Hs]
-      constructor
-      apply IA
-      assumption
-      rfl
-      apply IB
-      constructor
-      assumption
-      constructor
-      constructor
-      rfl
-    | dand HA HB IA IB => 
-      intro HΓΔ Hs;
-      rw [<-Hs]
-      constructor
-      apply IA
-      assumption
-      rfl
-      apply IB
-      constructor
-      assumption
-      constructor
-      constructor
-      rfl
-    | or HA HB IA IB => 
-      intro HΓΔ Hs;
-      rw [<-Hs]
-      constructor
-      apply IA
-      assumption
-      rfl
-      apply IB
-      assumption
-      rfl
-    | dimplies HA HB IA IB => 
-      intro HΓΔ Hs;
-      rw [<-Hs]
-      constructor
-      apply IA
-      assumption
-      rfl
-      apply IB
-      constructor
-      assumption
-      constructor
-      constructor
-      rfl
-    | forall_ HA HB IA IB => 
-      intro HΓΔ Hs;
-      rw [<-Hs]
-      constructor
-      apply IA
-      assumption
-      rfl
-      apply IB
-      constructor
-      assumption
-      constructor
-      constructor
-      rfl
-    | exists_ HA HB IA IB => 
-      intro HΓΔ Hs;
-      rw [<-Hs]
-      constructor
-      apply IA
-      assumption
-      rfl
-      apply IB
-      constructor
-      assumption
-      constructor
-      constructor
-      rfl
     | eq => sorry
-    | _ => intro HΓΔ Hs; first | contradiction | (repeat rw [<-Hs]; constructor)
+    | _ => 
+      intro HΓΔ Hs; 
+      first | contradiction | (
+        rw [<-Hs]
+        rename_i' HA HB IA IB;
+        constructor <;> (
+          first 
+          | (
+            apply IA
+            assumption
+            rfl)
+          | (
+            apply IB
+            repeat constructor
+            try assumption
+            repeat constructor
+            try rfl
+          )
+        )
+      )
   }
 
 theorem HasType.downgrade {Γ: Context} {A s} (H: Γ.upgrade ⊢ A: sort s): Γ ⊢ A: sort s
