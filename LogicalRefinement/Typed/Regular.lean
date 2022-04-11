@@ -45,19 +45,19 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
   case app A B l r HP Hl Hr Is IP IA =>
     apply subst_sort
     cases HP <;> assumption
-    intro n A Hv;
-    exact Hr.to_subst
+    intro n A k Hv;
+    exact Hr.to_subst Hv
 
   case app_pr A B l r HP Hl Hr Is IP IA =>
     apply subst_sort
     cases HP <;> assumption
-    intro n A Hv;
-    sorry
+    intro n A k Hv;
+    exact Hr.to_subst Hv
     
   case app_irrel A B l r HP Hl Hr Is IP IA =>
     apply subst_sort
     cases HP <;> assumption
-    intro n A Hv;
+    intro n A k Hv;
     sorry
 
   repeat sorry

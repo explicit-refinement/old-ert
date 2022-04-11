@@ -164,7 +164,7 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType Γ (lam_pr φ s) (term (assume φ A))
   | app_pr {Γ: Context} {φ A l r: Term}:
     HasType Γ (assume φ A) type ->
-    HasType Γ l (term (assume φ A)) -> HasType Γ.upgrade r (proof φ) ->
+    HasType Γ l (term (assume φ A)) -> HasType Γ r (proof φ) ->
     HasType Γ (app_pr (assume φ A) l r) (term (A.subst0 r))
   | lam_irrel {Γ: Context} {A s B: Term}:
     HasType Γ A type ->
