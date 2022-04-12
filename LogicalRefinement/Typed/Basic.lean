@@ -241,7 +241,7 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType Γ (forall_ A φ) prop ->
     HasType Γ l (proof (forall_ A φ)) -> 
     HasType Γ.upgrade r (term A) ->
-    HasType Γ (inst (forall_ A φ) l r) (proof (φ.subst0 l))
+    HasType Γ (inst (forall_ A φ) l r) (proof (φ.subst0 r))
   | wit {Γ: Context} {A φ l r: Term}:
     HasType Γ (exists_ A φ) prop ->
     HasType Γ l (term A) -> HasType Γ.upgrade r (proof (φ.subst0 l)) ->
@@ -258,7 +258,7 @@ inductive HasType: Context -> Term -> Annot -> Prop
 
   -- Theory of equality
   | refl {Γ: Context} {A a: Term}:
-    HasType Γ a (term A) -> HasType Γ (refl a) (proof (eq A a a))
+    HasType Γ.upgrade a (term A) -> HasType Γ (refl a) (proof (eq A a a))
   | sym {Γ: Context} {A: Term}:
     HasType Γ A type 
     -> HasType Γ (sym A) (proof (sym_ty A))
