@@ -70,16 +70,16 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
   repeat sorry
 }
 
--- theorem HasType.term_regular (p: HasType Γ a (term A)): HasType Γ A type 
---   := by {
---     let H := regular p;
---     cases H with
---     | expr H => exact H
---   }
+theorem HasType.term_regular (p: HasType Γ a (term A)): HasType Γ A type 
+  := by {
+    let H := regular p;
+    cases H with
+    | expr H => exact H
+  }
 
--- theorem HasType.proof_regular (p: HasType Γ a (proof A)): HasType Γ A prop 
---   := by {
---     let H := regular p;
---     cases H with
---     | expr H => exact H
---   }
+theorem HasType.proof_regular (p: HasType Γ a (proof A)): HasType Γ A prop 
+  := by {
+    let H := regular p;
+    cases H with
+    | expr H => exact H
+  }
