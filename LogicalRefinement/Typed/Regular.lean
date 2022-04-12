@@ -123,16 +123,23 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
 
   case succ => repeat constructor
 
-  case natrec => sorry
+  case natrec HC Hn Hz Hs IC In Iz Is => 
+    constructor
+    apply HasType.subst0_sort
+    apply HC.sub
+    constructor
+    apply Context.is_sub.refl
+    constructor
+    constructor
+    assumption
 
   all_goals (
     constructor; 
     first 
     | assumption 
     | (
-      apply subst_sort
+      apply subst0_sort
       assumption
-      apply HasType.to_subst
       assumption
     )
     | (constructor <;> (
