@@ -6,6 +6,7 @@ import LogicalRefinement.Typed.Context
 import LogicalRefinement.Typed.Basic
 import LogicalRefinement.Typed.Wk
 import LogicalRefinement.Typed.Subst
+import LogicalRefinement.Typed.Downgrade
 open Term
 open Annot
 open AnnotSort
@@ -45,20 +46,26 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
   case app A B l r HP Hl Hr Is IP IA =>
     apply subst_sort
     cases HP <;> assumption
-    intro n A k Hv;
-    exact Hr.to_subst Hv
+    intro n A k;
+    exact Hr.to_subst
 
   case app_pr A B l r HP Hl Hr Is IP IA =>
     apply subst_sort
     cases HP <;> assumption
-    intro n A k Hv;
-    exact Hr.to_subst Hv
+    intro n A k;
+    exact Hr.to_subst
+    
     
   case app_irrel A B l r HP Hl Hr Is IP IA =>
+    apply HasType.downgrade
     apply subst_sort
     cases HP <;> assumption
     intro n A k Hv;
-    sorry
+    apply Hr.to_subst
+    apply Hv.sub
+    constructor
+    apply Context.is_sub.upgrade
+    repeat constructor
 
   repeat sorry
 }
