@@ -37,12 +37,6 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
     intro n A k;
     exact Hr.to_subst
 
-  case let_pair => sorry
-
-  case case => sorry
-
-  case let_set => sorry
-
   case app_pr A B l r HP Hl Hr Is IP IA =>
     constructor
     apply subst_sort
@@ -50,7 +44,16 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
     intro n A k;
     exact Hr.to_subst
 
-  case lam_irrel => sorry
+  case lam_irrel _ _ _ IB => 
+    constructor
+    constructor
+    assumption
+    cases IB
+    apply HasType.sub
+    assumption
+    constructor
+    exact Context.is_sub.refl
+    repeat constructor
     
   case app_irrel A B l r HP Hl Hr Is IP IA =>
     constructor
@@ -64,15 +67,7 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
     apply Context.is_sub.upgrade
     repeat constructor
 
-  case let_repr => sorry
-
-  case abort => sorry
-
   case dconj => sorry
-
-  case let_conj => sorry
-
-  case case_pr => sorry
 
   case mp => sorry
 
@@ -80,13 +75,43 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
 
   case let_wit => sorry
 
-  case refl => sorry
+  case refl Ha IA =>  
+    cases IA;
+    constructor
+    constructor
+    assumption
+    apply HasType.upgrade
+    assumption
+    apply HasType.upgrade
+    assumption
 
-  case sym => sorry
+  case sym HA IA => 
+    cases IA;
+    constructor
+    apply HasType.sym_ty
+    assumption
 
-  case trans => sorry
+  case trans HA IA => 
+    cases IA;
+    constructor
+    apply HasType.trans_ty
+    assumption
 
-  case cong => sorry
+  case cong HP _ _ _ _ Ip => 
+    constructor
+    constructor
+    apply HasType.downgrade
+    apply HasType.subst0_sort
+    exact HP.upgrade
+    cases Ip with
+    | expr Ip => cases Ip; assumption
+    apply HasType.downgrade
+    apply HasType.wk_sort
+    apply HasType.subst0_sort
+    exact HP.upgrade
+    cases Ip with
+    | expr Ip => cases Ip; assumption
+    repeat constructor
 
   case beta => sorry
 
@@ -96,7 +121,7 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
 
   case prir => sorry
 
-  case succ => sorry
+  case succ => repeat constructor
 
   case natrec => sorry
 
@@ -104,6 +129,12 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
     constructor; 
     first 
     | assumption 
+    | (
+      apply subst_sort
+      assumption
+      apply HasType.to_subst
+      assumption
+    )
     | (constructor <;> (
         first 
         | assumption 

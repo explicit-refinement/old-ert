@@ -194,6 +194,7 @@ inductive HasType: Context -> Term -> Annot -> Prop
   | nil {Γ}: HasType Γ triv (proof top)
   | abort {Γ: Context} {A: Term} {p: Term} {s: AnnotSort}:
     HasType Γ p (proof bot) ->
+    HasType Γ A (sort s) ->
     HasType Γ (abort p) (expr s A)
   | dconj {Γ: Context} {A B l r: Term}:
     HasType Γ (dand A B) prop ->
