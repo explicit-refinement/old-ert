@@ -67,7 +67,13 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
     apply Context.is_sub.upgrade
     repeat constructor
 
-  case dconj => sorry
+  case dconj HD _ _ _ IA IB => 
+    constructor
+    constructor
+    cases IA
+    assumption
+    cases HD
+    assumption
 
   case mp => sorry
 

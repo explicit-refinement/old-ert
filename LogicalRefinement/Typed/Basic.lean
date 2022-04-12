@@ -199,7 +199,7 @@ inductive HasType: Context -> Term -> Annot -> Prop
   | dconj {Γ: Context} {A B l r: Term}:
     HasType Γ (dand A B) prop ->
     HasType Γ l (proof A) -> HasType Γ r (proof (B.subst0 l)) ->
-    HasType Γ (dconj l r) (term (dand A B))
+    HasType Γ (dconj l r) (proof (dand A B))
   | let_conj {Γ: Context} {A B C e e': Term}:
     HasType Γ e (proof (dand A B)) ->
     HasType Γ A prop ->
