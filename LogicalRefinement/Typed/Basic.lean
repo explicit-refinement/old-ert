@@ -231,8 +231,8 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType Γ (imp φ s) (proof (dimplies φ ψ))
   | mp {Γ: Context} {φ ψ l r: Term}:
     HasType Γ (dimplies φ ψ) prop ->
-    HasType Γ l (term (dimplies φ ψ)) -> HasType Γ.upgrade r (proof φ) ->
-    HasType Γ (mp (dimplies φ ψ) l r) (proof (ψ.subst0 l))
+    HasType Γ l (proof (dimplies φ ψ)) -> HasType Γ.upgrade r (proof φ) ->
+    HasType Γ (mp (dimplies φ ψ) l r) (proof (ψ.subst0 r))
   | general {Γ: Context} {A s φ: Term}:
     HasType Γ A type ->
     HasType ((Hyp.mk A (HypKind.val type))::Γ) s (proof φ) ->

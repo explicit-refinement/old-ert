@@ -75,7 +75,14 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
     cases HD
     assumption
 
-  case mp => sorry
+  case mp HM Hl Hr _ _ _ =>
+    cases HM with
+    | dimplies Hφ Hψ =>
+      constructor
+      apply HasType.downgrade
+      apply HasType.subst0_sort
+      exact Hψ.upgrade
+      assumption
 
   case inst => sorry
 
