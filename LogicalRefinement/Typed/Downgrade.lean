@@ -16,19 +16,22 @@ theorem HasType.downgrade_helper {Δ Γ: Context} {a A s}
   : (Δ ⊢ a: A) -> (Γ.is_sub Δ) -> (A = sort s) -> Γ ⊢ a: sort s
   := by {
     intro H;
-    induction H generalizing s Γ with
-    | eq => sorry
-    | _ => 
+    induction H generalizing s Γ;
+    case eq HA Hl Hr IA Il Ir => 
+      intro HΓΔ Hs;
+      rw [<-Hs]
+      rw [<-HΓΔ.upgrade_eq] at Hl
+      rw [<-HΓΔ.upgrade_eq] at Hr
+      exact HasType.eq (IA HΓΔ rfl) Hl Hr
+    
+    all_goals (
       intro HΓΔ Hs; 
       first | contradiction | (
         rw [<-Hs]
         rename_i' HA HB IA IB;
         constructor <;> (
           first 
-          | (
-            apply IA
-            assumption
-            rfl)
+          | exact IA HΓΔ rfl
           | (
             apply IB
             repeat constructor
@@ -38,6 +41,7 @@ theorem HasType.downgrade_helper {Δ Γ: Context} {a A s}
           )
         )
       )
+    )
   }
 
 theorem HasType.downgrade {Γ: Context} {A s} (H: Γ.upgrade ⊢ A: sort s): Γ ⊢ A: sort s

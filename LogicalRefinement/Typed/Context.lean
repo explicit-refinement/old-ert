@@ -240,13 +240,15 @@ theorem Hyp.is_sub.upgrade {H: Hyp}: H.is_sub H.upgrade := by {
   exact HypKind.is_sub.upgrade
 }
 
-theorem Hyp.is_sub.upgrade_bin {H H': Hyp}: H.is_sub H' -> H.upgrade.is_sub H'.upgrade := by {
-  intro HH;
-  cases HH with
-  | refl_ty Hk =>
-    cases Hk with
-    | refl => constructor; apply HypKind.is_sub.upgrade_bin; constructor
-    | gst => constructor; constructor
+theorem Hyp.is_sub.upgrade_eq {H H': Hyp} (HH: H.is_sub H')
+  : H.upgrade = H'.upgrade
+  := by cases HH with
+        | refl_ty k => cases k <;> rfl
+
+theorem Hyp.is_sub.upgrade_bin {H H': Hyp} (HH: H.is_sub H')
+  : H.upgrade.is_sub H'.upgrade := by {
+    rw [HH.upgrade_eq]
+    exact Hyp.is_sub.refl
 }
 
 def Hyp.val (A: Term) (s: AnnotSort) := Hyp.mk A (HypKind.val s)
@@ -294,18 +296,17 @@ theorem Context.is_sub.upgrade {Γ: Context}: Γ.is_sub Γ.upgrade := by {
   | cons => exact cons (by assumption) Hyp.is_sub.upgrade
 }
 
-theorem Context.is_sub.upgrade_bin: {Γ Δ: Context} -> Γ.is_sub Δ -> Γ.upgrade.is_sub Δ.upgrade := by {
-  intro Γ;
-  induction Γ with
-  | nil => intro Δ H; cases H; exact nil
-  | cons H Γ I =>
-    intro Δ H;
-    cases H;
-    constructor
-    apply I
-    assumption
-    apply Hyp.is_sub.upgrade_bin
-    assumption
+theorem Context.is_sub.upgrade_eq {Γ Δ: Context}: Γ.is_sub Δ -> Γ.upgrade = Δ.upgrade := by {
+  intro HΓΔ;
+  induction HΓΔ with
+  | nil => rfl
+  | cons HΓΔ HH I => simp only [Context.upgrade, HH.upgrade_eq, I]
+}
+
+theorem Context.is_sub.upgrade_bin {Γ Δ: Context} (H: Γ.is_sub Δ)
+  : Γ.upgrade.is_sub Δ.upgrade := by {
+    rw [H.upgrade_eq]
+    exact Context.is_sub.refl
 }
 
 --TODO: move to Term.Basic?
