@@ -30,33 +30,30 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
   -- Types and propositions are trivially regular
   all_goals try exact Annot.regular.sort
 
-  all_goals (
-    constructor; 
-    first 
-    | assumption 
-    | (constructor <;> (
-        first 
-        | assumption 
-        | ( apply Annot.regular_expr; assumption )
-        | skip
-      ))
-    | skip
-  )
-
   case app A B l r HP Hl Hr Is IP IA =>
+    constructor
     apply subst_sort
     cases HP <;> assumption
     intro n A k;
     exact Hr.to_subst
+
+  case let_pair => sorry
+
+  case case => sorry
+
+  case let_set => sorry
 
   case app_pr A B l r HP Hl Hr Is IP IA =>
+    constructor
     apply subst_sort
     cases HP <;> assumption
     intro n A k;
     exact Hr.to_subst
-    
+
+  case lam_irrel => sorry
     
   case app_irrel A B l r HP Hl Hr Is IP IA =>
+    constructor
     apply HasType.downgrade
     apply subst_sort
     cases HP <;> assumption
@@ -67,7 +64,52 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
     apply Context.is_sub.upgrade
     repeat constructor
 
-  repeat sorry
+  case let_repr => sorry
+
+  case abort => sorry
+
+  case dconj => sorry
+
+  case let_conj => sorry
+
+  case case_pr => sorry
+
+  case mp => sorry
+
+  case inst => sorry
+
+  case let_wit => sorry
+
+  case refl => sorry
+
+  case sym => sorry
+
+  case trans => sorry
+
+  case cong => sorry
+
+  case beta => sorry
+
+  case eta => sorry
+
+  case irir => sorry
+
+  case prir => sorry
+
+  case succ => sorry
+
+  case natrec => sorry
+
+  all_goals (
+    constructor; 
+    first 
+    | assumption 
+    | (constructor <;> (
+        first 
+        | assumption 
+        | ( apply Annot.regular_expr; assumption )
+      ))
+  )
 }
 
 theorem HasType.term_regular (p: HasType Γ a (term A)): HasType Γ A type 
