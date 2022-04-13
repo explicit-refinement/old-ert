@@ -92,8 +92,6 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
     | forall_ HA Hφ => exact Hφ.upgrade
     assumption
 
-  case let_wit => sorry
-
   case refl Ha IA =>  
     cases IA;
     constructor

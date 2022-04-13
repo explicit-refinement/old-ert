@@ -247,7 +247,7 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType Γ l (term A) -> HasType Γ.upgrade r (proof (φ.subst0 l)) ->
     HasType Γ (wit l r) (proof (exists_ A φ))
   | let_wit {Γ: Context} {A φ C e e': Term}:
-    HasType Γ e (term (exists_ A φ)) ->
+    HasType Γ e (proof (exists_ A φ)) ->
     HasType Γ A type ->
     HasType ((Hyp.mk A HypKind.gst)::Γ) φ prop ->
     HasType ((Hyp.mk (exists_ A φ) (HypKind.val prop))::Γ) C prop ->
