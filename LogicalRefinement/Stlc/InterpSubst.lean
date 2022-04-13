@@ -7,18 +7,18 @@ import LogicalRefinement.Stlc.Subst
 def Subst.stlc (σ: Subst) (Γ: Sparsity): Stlc.Subst := 
   λv => (σ (Γ.ix_inv v)).stlc Γ
 
-def Subst.stlc_lift_true {σ: Subst} {Γ: Sparsity}
+theorem Subst.stlc_lift_true {σ: Subst} {Γ: Sparsity}
   : σ.lift.stlc (true::Γ) = (σ.stlc Γ).lift
   := by {
     funext v;
     cases v with
     | zero => rfl
     | succ v => 
-      simp only [stlc, Stlc.Subst.lift, Sparsity.ix_inv, lift_succ]
+      simp only [stlc, Stlc.Subst.lift, Sparsity.ix_inv, lift_succ, Subst.wk1]
       sorry
   }
 
-def Subst.stlc_lift_false {σ: Subst} {Γ: Sparsity}
+theorem Subst.stlc_lift_false {σ: Subst} {Γ: Sparsity}
   : σ.lift.stlc (false::Γ) = σ.stlc Γ
   := sorry
 
