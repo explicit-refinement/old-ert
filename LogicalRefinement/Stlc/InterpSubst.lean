@@ -7,6 +7,9 @@ import LogicalRefinement.Stlc.Subst
 def Subst.stlc (σ: Subst) (Γ: Sparsity): Stlc.Subst := 
   λv => (σ (Γ.ix_inv v)).stlc Γ
 
+theorem Term.stlc_wk1_true {u: Term}: u.wk1.stlc (true::Γ) = (u.stlc Γ).wk1
+  := by sorry
+
 theorem Subst.stlc_lift_true {σ: Subst} {Γ: Sparsity}
   : σ.lift.stlc (true::Γ) = (σ.stlc Γ).lift
   := by {
@@ -15,7 +18,7 @@ theorem Subst.stlc_lift_true {σ: Subst} {Γ: Sparsity}
     | zero => rfl
     | succ v => 
       simp only [stlc, Stlc.Subst.lift, Sparsity.ix_inv, lift_succ, Subst.wk1]
-      sorry
+      exact Term.stlc_wk1_true
   }
 
 theorem Subst.stlc_lift_false {σ: Subst} {Γ: Sparsity}
