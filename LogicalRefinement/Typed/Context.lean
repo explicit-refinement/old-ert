@@ -476,7 +476,7 @@ def Term.irir_ex_eq_wk:
     rfl
   }
 
-def Term.prir_ex (A B f x) := app_pr (const_arrow A B) f x
+def Term.prir_ex (A B f x) := app_pr (assume_wf A B) f x
 
 def Term.prir_ex_subst: 
   (prir_ex A B f x).subst σ 

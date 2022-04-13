@@ -292,7 +292,7 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType Γ.upgrade x (proof φ) ->
     HasType Γ.upgrade y (proof φ) ->
     HasType Γ (irir f x y) 
-    (proof (eq B (prir_ex φ A f x) (prir_ex φ A f y)))
+    (proof (eq A (prir_ex φ A f x) (prir_ex φ A f y)))
 
   -- Natural numbers
   | nats {Γ}: HasType Γ nats type
