@@ -131,7 +131,22 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
     | expr Ip => cases Ip; assumption
     repeat constructor
 
-  case beta => sorry
+  case beta Hs HA Ht Is IA It => 
+    cases Is with
+    | expr HB =>
+      constructor
+      apply HasType.downgrade
+      constructor
+      exact HB.upgrade.subst0_sort Ht
+      constructor
+      constructor
+      exact HA.upgrade.upgrade
+      exact HB.upgrade.upgrade
+      constructor
+      exact Hs.upgrade.upgrade
+      exact HA.upgrade.upgrade
+      exact Ht.upgrade
+      exact Hs.upgrade.upgrade.subst0 Ht.upgrade
 
   case eta => sorry
 
