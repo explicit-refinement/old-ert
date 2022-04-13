@@ -276,6 +276,16 @@ def Subst.comp (σ ρ: Subst): Subst
   comp (liftn ρ l) (liftn σ l) = liftn (comp ρ σ) l 
   := by induction l <;> simp [*]
 
+@[simp] theorem Subst.lift_id_equiv: Subst.id.lift = Subst.id
+  := by funext v; cases v <;> rfl
+
+@[simp] theorem Term.subst_id (u: Term): u.subst Subst.id = u
+  := by {
+    induction u 
+    <;> simp only [*, Subst.lift_id_equiv, Subst.liftn, subst] 
+    <;> rfl
+  }
+
 @[simp] theorem Term.subst_composes (u: Term):
   (σ ρ: Subst) -> (u.subst ρ).subst σ = u.subst (σ.comp ρ)
   := by {
@@ -968,3 +978,20 @@ theorem Term.let_bin_ty_alpha_wk_conj {C: Term} {ρ: Wk}:
   ((C.wk ρ.lift).wknth 1).alpha0 (dconj (var 1) (var 0)) =
   ((C.wknth 1).alpha0 (dconj (var 1) (var 0))).wk (ρ.liftn 2) 
   := let_bin_ty_alpha_wk
+
+theorem Subst.subst00_wknth_id
+  : (Term.var 0).to_subst.comp (Wk.wknth 1) = Subst.id
+  := by {
+    funext v;
+    cases v <;> rfl
+  }
+
+theorem Term.subst00_wknth (u: Term)
+  : (u.wknth 1).subst0 (Term.var 0) = u
+  := by {
+    simp only [subst0, wknth]
+    rw [<-Subst.subst_wk_compat]
+    rw [Term.subst_composes]
+    rw [Subst.subst00_wknth_id]
+    rw [Term.subst_id]
+  }

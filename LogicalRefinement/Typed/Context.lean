@@ -401,13 +401,16 @@ def Annot.trans_ty_wk {A ρ}: (proof (trans_ty A)).wk ρ = proof (trans_ty (A.wk
   by simp only [proof, Annot.wk, Term.trans_ty_wk]
 
 def Term.eta_ex (A B f: Term) := 
-  lam A (app (pi A.wk1 B.wk1) f.wk1 (var 0))
+  lam A (app (pi A.wk1 (B.wknth 1)) f.wk1 (var 0))
 
 def Term.eta_ex_subst {A B f: Term} {σ}: 
   (eta_ex A B f).subst σ 
   = eta_ex (A.subst σ) (B.subst σ.lift) (f.subst σ)
   := by {
     simp only [subst, Subst.lift_wk];
+    have H: σ.lift.lift = σ.liftn 2 := by rfl
+    rw [H]
+    rw [B.liftn_wk 1]
     rfl
   }
 

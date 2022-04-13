@@ -148,7 +148,37 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
       exact Ht.upgrade
       exact Hs.upgrade.upgrade.subst0 Ht.upgrade
 
-  case eta => sorry
+  case eta Γ A B f Hf HA If IA => 
+    cases If with
+    | expr Hf =>
+      cases Hf with
+      | pi HA' HB =>
+        simp only [eta_ex]
+        constructor
+        apply HasType.downgrade
+        constructor
+        constructor
+        exact HA'
+        exact HB
+        constructor
+        conv =>
+          arg 3
+          rw [<-B.subst00_wknth]
+        apply HasType.app
+        constructor
+        exact HA'.upgrade.wk1_sort
+        apply HB.wk_sort
+        constructor
+        constructor
+        rw [Context.upgrade_idem]
+        constructor
+        exact Hf.upgrade.wk1
+        constructor
+        exact HA'.upgrade.wk1_sort
+        constructor
+        constructor
+        exact HA'.upgrade
+        exact Hf.upgrade
 
   case irir => sorry
 
