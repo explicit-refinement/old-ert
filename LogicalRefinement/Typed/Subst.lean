@@ -164,7 +164,27 @@ theorem HasType.subst0_sort {Γ e s' t s A}
 
 theorem HasType.sym_ty (H: Γ ⊢ A: type): Γ ⊢ A.sym_ty: prop
   := by {
-    sorry
+    constructor
+    assumption
+    constructor
+    exact H.wk1_sort;
+    constructor
+    constructor
+    apply H.wk1_sort.wk_sort;
+    repeat constructor
+    exact H.upgrade.wk1_sort.wk1_sort;
+    repeat constructor
+    exact H.upgrade.wk1_sort.wk1_sort;
+    constructor
+    constructor
+    simp only [Term.subst, Wk.var, Subst.lift, Subst.wk1]
+    constructor
+    exact H.wk1_sort.wk1_sort.wk1_sort;
+    constructor
+    exact H.upgrade.wk1_sort.wk1_sort.wk1_sort;
+    repeat constructor
+    exact H.upgrade.wk1_sort.wk1_sort.wk1_sort;
+    repeat constructor
   }
   
 theorem HasType.trans_ty (H: Γ ⊢ A: type): Γ ⊢ A.trans_ty: prop
