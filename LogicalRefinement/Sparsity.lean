@@ -43,7 +43,14 @@ def Sparsity.ix_inv: Sparsity -> Nat -> Nat
 | false::Hs, n => (ix_inv Hs n) + 1
 | _, n => n
 
-def Sparsity.ix_inv_valid (Γ: Sparsity) {n: Nat}:
+@[simp]
+theorem Sparsity.ix_zero (Γ: Sparsity)
+  : Γ.ix 0 = 0
+  := by cases Γ with
+        | nil => rfl
+        | cons H T => cases H <;> rfl
+
+theorem Sparsity.ix_inv_valid (Γ: Sparsity) {n: Nat}:
   Γ.dep n = true -> Γ.ix_inv (Γ.ix n) = n
   := by {
     revert n;
@@ -79,7 +86,7 @@ def Sparsity.wknth_dep {Γ: Sparsity} {n b v}
       | succ v => cases Γ <;> simp [I]
   }
   
-def Sparsity.wknth_ix {Γ: Sparsity} {n v}
+def Sparsity.wknth_ix_false {Γ: Sparsity} {n v}
 : (Γ.wknth n false).ix ((Wk.wknth n).var v) = Γ.ix v
 := by {
   rw [Wk.wknth_var]
@@ -96,6 +103,37 @@ def Sparsity.wknth_ix {Γ: Sparsity} {n v}
       cases Γ with
       | nil => rfl
       | cons H Γ => cases H <;> rfl
+    | succ v =>
+      cases Γ with
+      | nil => simp [I]
+      -- Lean really needs to learn how to ignore arguments...
+      | cons H Γ => cases H <;> simp [I]
+}
+
+def Sparsity.wknth_ix_true {Γ: Sparsity} {n v}
+: (Γ.wknth n true).ix ((Wk.wknth n).var v) 
+= (Wk.wknth (Γ.ix n)).var (Γ.ix v)
+:= by {
+  rw [Wk.wknth_var]
+  revert v Γ;
+  induction n with
+  | zero => 
+    intro Γ v;
+    rw [Sparsity.wk1_char, Γ.ix_zero]
+    rfl
+  | succ n I =>
+    intro Γ v;
+    cases v with
+    | zero =>
+      cases Γ with
+      | nil => rfl
+      | cons H Γ => 
+        simp only [wknth]
+        rw [ix_zero, Wk.wknth_var]
+        simp only [wknth_var, ix_zero]
+        cases H with
+        | false => sorry
+        | true => rfl
     | succ v =>
       cases Γ with
       | nil => simp [I]
