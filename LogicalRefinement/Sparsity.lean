@@ -288,7 +288,13 @@ theorem Sparsity.wknth_ix_true' {Γ: Sparsity} {n v}
       apply ix_monotonic
       apply Nat.le_of_lt
       assumption
-      sorry
+      intro H
+      have H': Γ.ix (v + 1) ≤ Γ.ix n := by 
+        apply ix_monotonic
+        assumption
+      rw [ix_dep_pos] at H'
+      exact Nat.ne_of_lt H' H
+      assumption
     . rw [wknth_var_char]
       simp only [wknth_var']
       rw [if_neg]
