@@ -172,7 +172,7 @@ def Sparsity.wknth_ix_false {Γ: Sparsity} {n v}
       | cons H Γ => cases H <;> simp [I]
 }
 
-def Sparsity.wknth_ix_true' {Γ: Sparsity} {n v}
+theorem Sparsity.wknth_ix_true {Γ: Sparsity} {n v}
 : (Γ.wknth n true).ix ((Wk.wknth n).var v) 
 = if v < n then Γ.ix v else (Γ.ix v) + 1
 := by {
@@ -237,7 +237,52 @@ def Sparsity.wknth_ix_true' {Γ: Sparsity} {n v}
           . rfl
 }
 
-def Sparsity.wknth_merge {Γ: Sparsity} {n b H}
+theorem Sparsity.wknth_true'
+  : (Sparsity.wknth [] n true).ix v = Sparsity.ix [] v
+  := by {
+    induction n generalizing v with
+    | zero => cases v <;> rfl
+    | succ n I =>
+      cases v with
+      | zero => rfl
+      | succ v => simp only [ix, I]
+  }
+
+@[simp]
+theorem Sparsity.wknth_nil
+  : Sparsity.ix [] v = v
+  := by rfl
+
+@[simp]
+theorem Sparsity.wknth_true
+  : (Sparsity.wknth [] n true).ix v = v
+  := by rw [wknth_true']; exact wknth_nil
+
+theorem Sparsity.wknth_ix_true' {Γ: Sparsity} {n v}
+  : Γ.dep v = true -> 
+  (Γ.wknth n true).ix ((Wk.wknth n).var v) 
+  = wknth_var (Γ.ix n) (Γ.ix v)
+  := by {
+    intro H;
+    rw [wknth_ix_true]
+    split;
+    . rw [wknth_var_char]
+      simp only [wknth_var']
+      rw [if_pos]
+      apply Nat.lt_of_le_and_ne
+      apply ix_monotonic
+      apply Nat.le_of_lt
+      assumption
+      sorry
+    . rw [wknth_var_char]
+      simp only [wknth_var']
+      rw [if_neg]
+      simp only [Nat.not_lt_eq] at *
+      apply ix_monotonic
+      assumption
+  }
+
+theorem Sparsity.wknth_merge {Γ: Sparsity} {n b H}
   : H::(Γ.wknth n b) = wknth (H::Γ) (Nat.succ n) b
   := rfl
 
@@ -262,40 +307,4 @@ theorem WkSprs.trans_dep
       cases v with
       | zero => rfl
       | succ v => exact I
-  }
-
-inductive TWkSprs: Wk -> Wk -> Sparsity -> Sparsity -> Prop
-  | id: TWkSprs Wk.id Wk.id Γ Γ
-  | step: TWkSprs ρ σ Γ Δ 
-    -> TWkSprs (Wk.step ρ) (Wk.step σ) (true::Γ) Δ
-  | lift_t: TWkSprs ρ σ Γ Δ 
-    -> TWkSprs (Wk.lift ρ) (Wk.lift σ) (true::Γ) (true::Δ)
-  | lift_f: TWkSprs ρ σ Γ Δ 
-    -> TWkSprs (Wk.lift ρ) σ (false::Γ) (false::Δ)
-  
-theorem TWkSprs.trans_ix
-  : TWkSprs ρ σ Γ Δ -> Γ.ix (ρ.var v) = σ.var (Δ.ix v)
-  := by {
-    intro H;
-    revert v;
-    induction H with
-    | id => intro; rfl
-    | step H I =>
-      intro
-      simp only [Sparsity.ix, Nat.add]
-      rw [I]
-      rfl
-    | lift_t H I =>
-      intro v;
-      cases v with
-      | zero => rfl
-      | succ v => simp only [Sparsity.ix, Nat.add, Wk.var]
-                  rw [I]
-    | lift_f H I =>
-      intro v;
-      cases v with
-      | zero => 
-        simp only [Sparsity.ix_zero, Sparsity.ix]
-      | succ v => simp only [Sparsity.ix, Nat.add]
-                  rw [I]
   }
