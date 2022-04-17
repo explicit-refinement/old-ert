@@ -20,6 +20,32 @@ def wknth_var: Nat -> Nat -> Nat
 | Nat.succ n, Nat.succ v => Nat.succ (wknth_var n v)
 | Nat.succ n, 0 => 0
 
+def wknth_var' (n v: Nat): Nat :=
+  if v < n then v else v + 1
+
+theorem wknth_var_char: wknth_var = wknth_var' := by {
+  funext n;
+  induction n with
+  | zero => rfl
+  | succ n I =>
+    funext m;
+    cases m with
+    | zero =>
+      simp only [wknth_var, wknth_var']
+      rw [if_pos n.zero_lt_succ]
+    | succ m =>
+      simp only [wknth_var, wknth_var', I]
+      split <;> split
+      . rfl
+      . have _: m + 1 < n + 1 
+          := by apply Nat.succ_lt_succ; assumption; 
+        contradiction
+      . have _: m < n
+          := by apply Nat.lt_of_succ_lt_succ; assumption;
+        contradiction
+      . rfl
+}
+
 @[simp]
 theorem Wk.lift_liftn_merge {ρ: Wk} {n: Nat}: 
   (ρ.liftn n).lift = ρ.liftn (n + 1) := rfl
