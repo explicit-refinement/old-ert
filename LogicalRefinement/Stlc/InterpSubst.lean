@@ -14,14 +14,17 @@ theorem Subst.stlc_lift_true {σ: Subst} {Γ: Sparsity}
     funext v;
     cases v with
     | zero => rfl
-    | succ v => 
-      simp only [stlc, Stlc.Subst.lift, Sparsity.ix_inv, lift_succ, Subst.wk1]
-      exact Term.stlc_wk1_true
+    | succ v => exact Term.stlc_wk1_true
   }
 
 theorem Subst.stlc_lift_false {σ: Subst} {Γ: Sparsity}
   : σ.lift.stlc (false::Γ) = σ.stlc Γ
-  := sorry
+  := by {
+    funext v;
+    cases v with
+    | zero => exact Term.stlc_wk1_false
+    | succ v => exact Term.stlc_wk1_false
+  }
 
 theorem SubstCtx.stlc {σ Γ Δ} (S: SubstCtx σ Γ Δ)
   : Stlc.SubstCtx (σ.stlc Γ.sparsity) Γ.stlc Δ.stlc
