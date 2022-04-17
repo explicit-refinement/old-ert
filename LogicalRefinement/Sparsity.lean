@@ -30,7 +30,6 @@ def Sparsity.wk1_char {b: Bool} (Γ: Sparsity)
   : Γ.wknth 0 b = (b::Γ)
   := by simp only [wknth]
 
-
 @[simp]
 def Sparsity.ix: Sparsity -> Nat -> Nat
 | true::Hs, Nat.succ n => (ix Hs n) + 1
@@ -112,33 +111,67 @@ def Sparsity.wknth_ix_false {Γ: Sparsity} {n v}
 
 def Sparsity.wknth_ix_true {Γ: Sparsity} {n v}
 : (Γ.wknth n true).ix ((Wk.wknth n).var v) 
-= (Wk.wknth (Γ.ix n)).var (Γ.ix v)
+= if v < n then Γ.ix v else (Γ.ix v) + 1
 := by {
   rw [Wk.wknth_var]
   revert v Γ;
+  --TODO: shorten...
   induction n with
   | zero => 
     intro Γ v;
-    rw [Sparsity.wk1_char, Γ.ix_zero]
+    rw [Sparsity.wk1_char]
     rfl
   | succ n I =>
     intro Γ v;
     cases v with
     | zero =>
-      cases Γ with
-      | nil => rfl
-      | cons H Γ => 
-        simp only [wknth]
-        rw [ix_zero, Wk.wknth_var]
-        simp only [wknth_var, ix_zero]
-        cases H with
-        | false => sorry
-        | true => rfl
+      split
+      . cases Γ with
+        | nil => rfl
+        | cons H Γ => 
+          simp only [wknth]
+          rw [ix_zero]
+          simp only [wknth_var, ix_zero]
+      . have _: 0 < Nat.succ n := n.zero_lt_succ;
+        contradiction
     | succ v =>
       cases Γ with
-      | nil => simp [I]
-      -- Lean really needs to learn how to ignore arguments...
-      | cons H Γ => cases H <;> simp [I]
+      | nil => 
+        simp only [wknth_var, ix, I]
+        split <;> split
+        . rfl
+        . have _: Nat.succ v < Nat.succ n := 
+            by apply Nat.succ_lt_succ; assumption;
+          contradiction
+        . have _: v < n := 
+            by apply Nat.lt_of_succ_lt_succ; assumption;
+          contradiction
+        . rfl
+      | cons H Γ => 
+        simp only [wknth_var]
+        cases H with
+        | true => 
+          simp only [ix, I]
+          split <;> split
+          . rfl
+          . have _: Nat.succ v < Nat.succ n := 
+              by apply Nat.succ_lt_succ; assumption;
+            contradiction
+          . have _: v < n := 
+              by apply Nat.lt_of_succ_lt_succ; assumption;
+            contradiction
+          . rfl
+        | false => 
+          simp only [ix, I]
+          split <;> split
+          . rfl
+          . have _: Nat.succ v < Nat.succ n := 
+              by apply Nat.succ_lt_succ; assumption;
+            contradiction
+          . have _: v < n := 
+              by apply Nat.lt_of_succ_lt_succ; assumption;
+            contradiction
+          . rfl
 }
 
 def Sparsity.wknth_merge {Γ: Sparsity} {n b H}
