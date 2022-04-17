@@ -172,7 +172,7 @@ def Sparsity.wknth_ix_false {Γ: Sparsity} {n v}
       | cons H Γ => cases H <;> simp [I]
 }
 
-def Sparsity.wknth_ix_true {Γ: Sparsity} {n v}
+def Sparsity.wknth_ix_true' {Γ: Sparsity} {n v}
 : (Γ.wknth n true).ix ((Wk.wknth n).var v) 
 = if v < n then Γ.ix v else (Γ.ix v) + 1
 := by {
@@ -236,6 +236,16 @@ def Sparsity.wknth_ix_true {Γ: Sparsity} {n v}
             contradiction
           . rfl
 }
+def Sparsity.wknth_ix_true {Γ: Sparsity} {n v}
+  : (Γ.wknth n true).ix ((Wk.wknth n).var v) 
+  = wknth_var (Γ.ix n) (Γ.ix v)
+  := by {
+    rw [wknth_var_char]
+    simp only [wknth_var']
+    split;
+    . sorry
+    . sorry
+  }
 
 def Sparsity.wknth_merge {Γ: Sparsity} {n b H}
   : H::(Γ.wknth n b) = wknth (H::Γ) (Nat.succ n) b
