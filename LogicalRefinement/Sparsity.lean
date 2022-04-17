@@ -68,6 +68,19 @@ theorem Sparsity.ix_inv_valid (Γ: Sparsity) {n: Nat}:
         cases H <;> simp [ix, ix_inv, I Hn] 
   }
 
+theorem Sparsity.ix_inv_subvalid (Γ: Sparsity) {n: Nat}
+  : Γ.ix_inv (Γ.ix n) ≥ n
+  := by {
+    revert n;
+    induction Γ with
+    | nil => simp
+    | cons H Γ I => 
+      intro n;
+      cases n with
+      | zero => cases H <;> simp
+      | succ n => cases H <;> exact Nat.succ_le_succ I
+  }
+
 def Sparsity.wknth_dep {Γ: Sparsity} {n b v}
   : (Γ.wknth n b).dep ((Wk.wknth n).var v) = Γ.dep v
   := by {
@@ -173,6 +186,11 @@ def Sparsity.wknth_ix_true {Γ: Sparsity} {n v}
             contradiction
           . rfl
 }
+
+def Sparsity.wknth_ix_true' {Γ: Sparsity} {n v}
+  : (Γ.wknth n true).ix ((Wk.wknth n).var v) 
+  = wknth_var (Γ.ix_inv n) (Γ.ix v)
+  := sorry
 
 def Sparsity.wknth_merge {Γ: Sparsity} {n b H}
   : H::(Γ.wknth n b) = wknth (H::Γ) (Nat.succ n) b

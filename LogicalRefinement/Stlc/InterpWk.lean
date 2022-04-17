@@ -32,31 +32,3 @@ theorem Term.stlc_wknth_false {t: Term} {Γ: Sparsity} {n: Nat}
       repeat rw [Term.stlc_ty_wknth]
     )
 }
-
-theorem Term.stlc_wknth_true {t: Term} {Γ: Sparsity} {n: Nat}
-: (t.wknth n).stlc (Γ.wknth n true) = (t.stlc Γ).wknth n
-:= by {
-  revert Γ n;
-  induction t;
-  case var v => 
-    intro Γ n;
-    simp only [wknth, wk]
-    repeat rw [stlc_var]
-    simp only [Sparsity.stlc, Sparsity.wknth_dep]
-    split
-    simp only [Stlc.wknth, Stlc.wk]
-    sorry
-    rfl
-    
-  all_goals (intro Γ n; simp only [wknth, wk, Stlc.wknth, Stlc.wk])
-
-  case natrec =>
-    simp only [stlc]
-    split
-    simp only [Sparsity.wknth_merge, Wk.liftn_wknth_merge, Wk.lift_wknth_merge]
-    simp only [<-wknth_def, *]
-    sorry
-    rfl
-
-  stop skip
-}
