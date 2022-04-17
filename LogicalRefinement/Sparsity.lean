@@ -236,17 +236,30 @@ def Sparsity.wknth_ix_true' {Γ: Sparsity} {n v}
             contradiction
           . rfl
 }
-def Sparsity.wknth_ix_true {Γ: Sparsity} {n v}
-  : (Γ.wknth n true).ix ((Wk.wknth n).var v) 
-  = wknth_var (Γ.ix n) (Γ.ix v)
-  := by {
-    rw [wknth_var_char]
-    simp only [wknth_var']
-    split;
-    . sorry
-    . sorry
-  }
 
 def Sparsity.wknth_merge {Γ: Sparsity} {n b H}
   : H::(Γ.wknth n b) = wknth (H::Γ) (Nat.succ n) b
   := rfl
+
+inductive WkSprs: Wk -> Sparsity -> Sparsity -> Prop
+  | id: WkSprs Wk.id Γ Γ
+  | step: WkSprs ρ Γ Δ -> WkSprs (Wk.step ρ) (b::Γ) Δ
+  | lift: WkSprs ρ Γ Δ -> WkSprs (Wk.lift ρ) (b::Γ) (b::Δ)
+
+theorem WkSprs.trans_dep
+  : WkSprs ρ Γ Δ -> Γ.dep (ρ.var v) = Δ.dep v
+  := by {
+    intro H;
+    revert v;
+    induction H with
+    | id => intro; rfl
+    | step H I =>
+      intro
+      rw [<-I]
+      rfl
+    | lift H I =>
+      intro v;
+      cases v with
+      | zero => rfl
+      | succ v => exact I
+  }
