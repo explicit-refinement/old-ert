@@ -69,7 +69,7 @@ theorem Sparsity.ix_inv_valid (Γ: Sparsity) {n: Nat}:
   }
 
 theorem Sparsity.ix_inv_subvalid (Γ: Sparsity) {n: Nat}
-  : Γ.ix_inv (Γ.ix n) ≥ n
+  : n ≤ Γ.ix_inv (Γ.ix n)
   := by {
     revert n;
     induction Γ with
@@ -79,6 +79,35 @@ theorem Sparsity.ix_inv_subvalid (Γ: Sparsity) {n: Nat}
       cases n with
       | zero => cases H <;> simp
       | succ n => cases H <;> exact Nat.succ_le_succ I
+  }
+
+theorem Sparsity.ix_inv_monotonic (Γ: Sparsity) {n m: Nat}
+  : n ≤ m -> Γ.ix_inv n ≤ Γ.ix_inv m
+  := by {
+    revert n m;
+    induction Γ with
+    | nil => intros; assumption
+    | cons H Γ I =>
+      intro n m Hnm;
+      cases n with
+      | zero =>
+        cases m with
+        | zero => simp
+        | succ m => cases H with
+                    | true => apply Nat.zero_le
+                    | false =>
+                      apply Nat.succ_le_succ
+                      apply I
+                      apply Nat.zero_le
+      | succ n => 
+        cases m with
+        | zero => cases Hnm
+        | succ m => 
+          cases H with
+          | true =>
+            exact Nat.succ_le_succ (I (Nat.le_of_succ_le_succ Hnm))
+          | false =>
+            exact Nat.succ_le_succ (I Hnm)
   }
 
 def Sparsity.wknth_dep {Γ: Sparsity} {n b v}
