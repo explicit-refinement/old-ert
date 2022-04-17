@@ -72,3 +72,14 @@ theorem Term.stlc_wknth_true {t: Term} {Γ: Sparsity} {n: Nat}
       try rfl
     )
 }
+
+theorem Term.stlc_wk1_true {u: Term}: u.wk1.stlc (true::Γ) = (u.stlc Γ).wk1
+  := by {
+    have H := @Term.stlc_wknth_true u Γ 0;
+    rw [Sparsity.ix_zero] at H
+    simp only [wk1, Stlc.wk1]
+    simp only [
+      wknth, Stlc.wknth, Wk.wknth, Wk.liftn, Sparsity.wknth
+    ] at H
+    exact H
+  }

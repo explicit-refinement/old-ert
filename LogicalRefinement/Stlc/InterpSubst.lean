@@ -8,9 +8,6 @@ import LogicalRefinement.Stlc.Subst
 def Subst.stlc (σ: Subst) (Γ: Sparsity): Stlc.Subst := 
   λv => (σ (Γ.ix_inv v)).stlc Γ
 
-theorem Term.stlc_wk1_true {u: Term}: u.wk1.stlc (true::Γ) = (u.stlc Γ).wk1
-  := by sorry
-
 theorem Subst.stlc_lift_true {σ: Subst} {Γ: Sparsity}
   : σ.lift.stlc (true::Γ) = (σ.stlc Γ).lift
   := by {
