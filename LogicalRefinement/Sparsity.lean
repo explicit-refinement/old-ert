@@ -49,6 +49,27 @@ theorem Sparsity.ix_zero (Γ: Sparsity)
         | nil => rfl
         | cons H T => cases H <;> rfl
 
+theorem Sparsity.ix_monotonic (Γ: Sparsity)
+  : ∀{n m}, n ≤ m -> Γ.ix n ≤ Γ.ix m
+  := by {
+    induction Γ with
+    | nil => intros; simp; assumption
+    | cons H Γ I =>
+      intro n m Hnm
+      cases m with
+      | zero => 
+        cases Hnm
+        apply Nat.le_refl
+      | succ m =>
+        cases n with
+        | zero => rw [ix_zero]; apply Nat.zero_le
+        | succ n =>
+          have I' := I (Nat.le_of_succ_le_succ Hnm);
+          cases H with
+          | true => exact Nat.succ_le_succ I'
+          | false => exact I'
+  }
+
 theorem Sparsity.ix_inv_valid (Γ: Sparsity) {n: Nat}:
   Γ.dep n = true -> Γ.ix_inv (Γ.ix n) = n
   := by {
@@ -215,11 +236,6 @@ def Sparsity.wknth_ix_true {Γ: Sparsity} {n v}
             contradiction
           . rfl
 }
-
-def Sparsity.wknth_ix_true' {Γ: Sparsity} {n v}
-  : (Γ.wknth n true).ix ((Wk.wknth n).var v) 
-  = wknth_var (Γ.ix_inv n) (Γ.ix v)
-  := sorry
 
 def Sparsity.wknth_merge {Γ: Sparsity} {n b H}
   : H::(Γ.wknth n b) = wknth (H::Γ) (Nat.succ n) b
