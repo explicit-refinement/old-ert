@@ -31,13 +31,8 @@ def Ty.interp_val_char {A: Ty} {M}
 
 def Ty.eager {A: Ty} {M: Type -> Type} [Monad M]: A.interp_val_in M -> A.interp_in M := pure
 
---TODO: why is this not already defined? Is there a Maybe somewhere?
-instance myOptionMonad: Monad Option where
-  pure := some
-  bind := λx f => match x with | none => none | some x => f x 
-
-def Ty.interp (A: Ty): Type := A.interp_in Option
-def Ty.interp_val (A: Ty): Type := A.interp_val_in Option
+def Ty.interp (A: Ty): Type := A.interp_in OptionM
+def Ty.interp_val (A: Ty): Type := A.interp_val_in OptionM
 
 def Ty.abort (A: Ty): A.interp := by cases A <;> exact none
 
