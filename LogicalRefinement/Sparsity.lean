@@ -263,3 +263,39 @@ theorem WkSprs.trans_dep
       | zero => rfl
       | succ v => exact I
   }
+
+inductive TWkSprs: Wk -> Wk -> Sparsity -> Sparsity -> Prop
+  | id: TWkSprs Wk.id Wk.id Γ Γ
+  | step: TWkSprs ρ σ Γ Δ 
+    -> TWkSprs (Wk.step ρ) (Wk.step σ) (true::Γ) Δ
+  | lift_t: TWkSprs ρ σ Γ Δ 
+    -> TWkSprs (Wk.lift ρ) (Wk.lift σ) (true::Γ) (true::Δ)
+  | lift_f: TWkSprs ρ σ Γ Δ 
+    -> TWkSprs (Wk.lift ρ) σ (false::Γ) (false::Δ)
+  
+theorem TWkSprs.trans_ix
+  : TWkSprs ρ σ Γ Δ -> Γ.ix (ρ.var v) = σ.var (Δ.ix v)
+  := by {
+    intro H;
+    revert v;
+    induction H with
+    | id => intro; rfl
+    | step H I =>
+      intro
+      simp only [Sparsity.ix, Nat.add]
+      rw [I]
+      rfl
+    | lift_t H I =>
+      intro v;
+      cases v with
+      | zero => rfl
+      | succ v => simp only [Sparsity.ix, Nat.add, Wk.var]
+                  rw [I]
+    | lift_f H I =>
+      intro v;
+      cases v with
+      | zero => 
+        simp only [Sparsity.ix_zero, Sparsity.ix]
+      | succ v => simp only [Sparsity.ix, Nat.add]
+                  rw [I]
+  }
