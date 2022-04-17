@@ -31,6 +31,12 @@ theorem SubstCtx.stlc {σ Γ Δ} (S: SubstCtx σ Γ Δ)
   := by {
     intro n A Hv;
     simp only [Subst.stlc]
+    have ⟨A', Hv', HA'⟩: ∃A', 
+      (HasVar Δ (Δ.sparsity.ix_inv n) (HypKind.val AnnotSort.type) A') 
+      ∧ ((Annot.expr AnnotSort.type A').stlc_ty = A) 
+      := sorry;
+    rw [<-HA']
+    apply HasType.stlc;
     sorry
   }
 
