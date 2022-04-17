@@ -24,12 +24,13 @@ theorem Term.stlc_wknth_false {t: Term} {Γ: Sparsity} {n: Nat}
     repeat rw [<-wknth_def] 
     try (rename TermKind _ => k; cases k);
     try (rename AnnotSort => s; cases s);
-    all_goals try rfl;
+    all_goals try rfl;    
     all_goals (
       simp only [stlc] 
       simp only [Sparsity.wknth_merge]
       simp only [*]
       repeat rw [Term.stlc_ty_wknth]
+      try rfl
     )
 }
 
@@ -54,5 +55,20 @@ theorem Term.stlc_wknth_true {t: Term} {Γ: Sparsity} {n: Nat}
     . rw [if_neg]
       rfl
       sorry
-  | _ => sorry
+  | _ => 
+    intro Γ n;
+    simp only [wknth, wk]
+    repeat rw [Wk.lift_wknth_merge]
+    repeat rw [Wk.liftn_wknth_merge]
+    repeat rw [<-wknth_def] 
+    try (rename TermKind _ => k; cases k);
+    try (rename AnnotSort => s; cases s);
+    all_goals try rfl;    
+    all_goals (
+      simp only [stlc] 
+      simp only [Sparsity.wknth_merge]
+      simp only [*]
+      repeat rw [Term.stlc_ty_wknth]
+      try rfl
+    )
 }
