@@ -34,8 +34,6 @@ theorem Term.stlc_wknth_false {t: Term} {Γ: Sparsity} {n: Nat}
     )
 }
 
-theorem buffer: True := by simp
-
 theorem Term.stlc_wknth_true {t: Term} {Γ: Sparsity} {n: Nat}
 : (t.wknth n).stlc (Γ.wknth n true) = (t.stlc Γ).wknth (Γ.ix n)
 := by {
@@ -47,14 +45,16 @@ theorem Term.stlc_wknth_true {t: Term} {Γ: Sparsity} {n: Nat}
     repeat rw [stlc_var]
     simp only [Sparsity.stlc]
     split
-    . rw [Sparsity.wknth_ix_true']
-      rw [if_pos]
+    . have H: Γ.dep v = true := by
+        rw [<-Sparsity.wknth_dep]
+        assumption
+      rw [Sparsity.wknth_ix_true' H]
+      rw [if_pos H]
       simp only [Stlc.wknth, Stlc.wk, Wk.wknth_var]
-      sorry
-      sorry
     . rw [if_neg]
       rfl
-      sorry
+      simp only [Sparsity.wknth_dep] at *
+      assumption
   | _ => 
     intro Γ n;
     simp only [wknth, wk]
