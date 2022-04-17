@@ -102,6 +102,21 @@ theorem Sparsity.ix_inv_subvalid (Γ: Sparsity) {n: Nat}
       | succ n => cases H <;> exact Nat.succ_le_succ I
   }
 
+theorem Sparsity.ix_dep_pos (Γ: Sparsity) {n: Nat}
+  : Γ.dep n = true -> Γ.ix (n + 1) = (Γ.ix n) + 1
+  := by {
+    induction Γ generalizing n with
+    | nil => intros; rfl
+    | cons b Γ I =>
+      intro H;
+      cases n with
+      | zero =>
+        cases b with
+        | true => simp only [ix_zero, ix]
+        | false => contradiction
+      | succ n => cases b <;> simp only [ix, I H]
+  }
+
 theorem Sparsity.ix_inv_monotonic (Γ: Sparsity) {n m: Nat}
   : n ≤ m -> Γ.ix_inv n ≤ Γ.ix_inv m
   := by {
