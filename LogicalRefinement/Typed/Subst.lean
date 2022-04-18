@@ -216,3 +216,10 @@ theorem HasType.trans_ty (H: Γ ⊢ A: type): Γ ⊢ A.trans_ty: prop
     exact H.upgrade.wk1_sort.wk1_sort.wk1_sort.wk1_sort.wk1_sort;
     repeat constructor
   }
+
+theorem SubstCtx.subst_var 
+  (S: SubstCtx σ Γ Δ) 
+  (HA: Δ ⊢ A: sort s) 
+  (HΔ: HasVar Δ n (HypKind.val s) A)
+  : Γ ⊢ σ n: expr s (A.subst σ)
+  := (HasType.var HA HΔ).subst S

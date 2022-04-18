@@ -5,11 +5,11 @@ import LogicalRefinement.Stlc.Interp
 import LogicalRefinement.Stlc.InterpWk
 import LogicalRefinement.Stlc.Subst
 
-def Subst.stlc (σ: Subst) (Γ: Sparsity): Stlc.Subst := 
-  λv => (σ (Γ.ix_inv v)).stlc Γ
+def Subst.stlc (σ: Subst) (Γ: Sparsity) (Δ: Sparsity): Stlc.Subst := 
+  λv => (σ (Δ.ix_inv v)).stlc Γ
 
-theorem Subst.stlc_lift_true {σ: Subst} {Γ: Sparsity}
-  : σ.lift.stlc (true::Γ) = (σ.stlc Γ).lift
+theorem Subst.stlc_lift_true {σ: Subst} {Γ Δ: Sparsity}
+  : σ.lift.stlc (true::Γ) (true::Δ) = (σ.stlc Γ Δ).lift
   := by {
     funext v;
     cases v with
@@ -18,7 +18,7 @@ theorem Subst.stlc_lift_true {σ: Subst} {Γ: Sparsity}
   }
 
 theorem Subst.stlc_lift_false {σ: Subst} {Γ: Sparsity}
-  : σ.lift.stlc (false::Γ) = σ.stlc Γ
+  : σ.lift.stlc (false::Γ) (false::Δ) = σ.stlc Γ Δ
   := by {
     funext v;
     cases v with
@@ -27,17 +27,20 @@ theorem Subst.stlc_lift_false {σ: Subst} {Γ: Sparsity}
   }
 
 theorem SubstCtx.stlc {σ Γ Δ} (S: SubstCtx σ Γ Δ)
-  : Stlc.SubstCtx (σ.stlc Γ.sparsity) Γ.stlc Δ.stlc
+  : Stlc.SubstCtx (σ.stlc Γ.sparsity Δ.sparsity) Γ.stlc Δ.stlc
   := by {
     intro n A Hv;
     simp only [Subst.stlc]
-    have ⟨A', Hv', HA'⟩: ∃A', 
+    have ⟨A', Hv', HA', HΔA'⟩: ∃A', 
       (HasVar Δ (Δ.sparsity.ix_inv n) (HypKind.val AnnotSort.type) A') 
-      ∧ ((Annot.expr AnnotSort.type A').stlc_ty = A) 
-      := sorry;
+      ∧ ((Annot.expr AnnotSort.type (A'.subst σ)).stlc_ty = A) 
+      ∧ (Δ ⊢ A': AnnotSort.type)
+      := by {
+        sorry
+      };
     rw [<-HA']
     apply HasType.stlc;
-    sorry
+    exact S.subst_var HΔA' Hv'
   }
 
 -- -- But why...
