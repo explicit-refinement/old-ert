@@ -142,3 +142,18 @@ theorem IsCtx.var_valid {Γ} (H: IsCtx Γ)
       apply Hv
       cases H <;> assumption
   }
+
+--TODO: requires strengthening lemma, basically
+-- theorem IsCtx.from_var_valid {Γ} 
+--   (H: ∀A n k, HasVar Γ n k A -> Γ ⊢ A: k.annot)
+--   : IsCtx Γ
+--   := by {
+--     induction Γ with
+--     | nil => constructor
+--     | cons Hy Γ I => 
+--       cases Hy with | mk B k =>
+--       cases k with
+--       | val s => sorry
+--       | gst => 
+--         constructor
+--   }
