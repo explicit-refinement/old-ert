@@ -36,7 +36,17 @@ theorem SubstCtx.stlc {σ Γ Δ} (S: SubstCtx σ Γ Δ)
       ∧ ((Annot.expr AnnotSort.type (A'.subst σ)).stlc_ty = A) 
       ∧ (Δ ⊢ A': AnnotSort.type)
       := by {
-        sorry
+        induction Δ generalizing n A with
+        | nil => cases Hv
+        | cons H Δ I =>
+          cases H with
+          | mk A k => 
+            cases k with
+            | val s =>
+              cases s with
+              | type => sorry
+              | prop => sorry
+            | gst => sorry
       };
     rw [<-HA']
     apply HasType.stlc;
