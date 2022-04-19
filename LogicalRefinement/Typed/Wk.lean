@@ -71,7 +71,7 @@ theorem HasVar.wk:
         assumption
   } 
 
-def HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
+theorem HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
   {ρ: Wk} -> {Γ: Context} -> WkCtx ρ Γ Δ ->
   (Γ ⊢ (a.wk ρ): (A.wk ρ)) := by {
     induction HΔ;
@@ -115,13 +115,30 @@ def HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
     )
   }
 
-def HasType.wk_sort {Δ a s}: 
+theorem HasType.wk_sort {Δ a s}: 
   (Δ ⊢ a: sort s) ->
   {ρ: Wk} -> {Γ: Context} -> WkCtx ρ Γ Δ ->
   (Γ ⊢ (a.wk ρ): sort s) := wk
 
-def HasType.wk1 {H} (Ha: Γ ⊢ a: A): (H::Γ) ⊢ a.wk1: A.wk1 
+theorem HasType.wk1 {H} (Ha: Γ ⊢ a: A): (H::Γ) ⊢ a.wk1: A.wk1 
 := wk Ha WkCtx.wk1
 
-def HasType.wk1_sort {H} (Ha: Γ ⊢ a: sort s): (H::Γ) ⊢ a.wk1: sort s 
+theorem HasType.wk1_sort {H} (Ha: Γ ⊢ a: sort s): (H::Γ) ⊢ a.wk1: sort s 
 := wk Ha WkCtx.wk1
+
+theorem IsCtx.var_valid {Γ} (H: IsCtx Γ)
+  : HasVar Γ n k A -> Γ ⊢ A: k.annot
+  := by {
+    intro Hv;
+    induction Hv with
+    | zero => 
+      cases H <;>
+      apply HasType.wk1_sort <;>
+      rename HypKind.is_sub _ _ => Hsub <;>
+      cases Hsub <;>
+      assumption
+    | succ Hk Hv => 
+      apply HasType.wk1_sort
+      apply Hv
+      cases H <;> assumption
+  }
