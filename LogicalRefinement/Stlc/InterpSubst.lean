@@ -58,7 +58,10 @@ theorem Term.subst_stlc_commute {Γ Δ σ a}
       --TODO: ix_inv ix is original, again since var is term
       sorry
     | const k => cases k <;> rfl
-    | unary k t => sorry
+    | unary k t => 
+      cases k with
+      | inj => sorry
+      | _ => rfl
     | let_bin k e e' => sorry
     | bin k l r => sorry
     | abs k X t => sorry
