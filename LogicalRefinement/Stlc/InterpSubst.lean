@@ -5,6 +5,7 @@ import LogicalRefinement.Stlc.Interp
 import LogicalRefinement.Stlc.InterpWk
 import LogicalRefinement.Stlc.InterpInv
 import LogicalRefinement.Stlc.Subst
+open Annot
 open AnnotSort
 
 def Subst.stlc (σ: Subst) (Γ: Sparsity) (Δ: Sparsity): Stlc.Subst := 
@@ -38,6 +39,32 @@ theorem SubstCtx.stlc {σ Γ Δ} (S: SubstCtx σ Γ Δ) (HΔ: IsCtx Δ)
     rw [<-Annot.stlc_ty_subst HΔA']
     apply HasType.stlc;
     exact S.subst_var HΔA' Hv'
+  }
+
+-- TODO: this can probably be simplified to a sparsity-respecting 
+-- condition on terms. Would clean things up a little, but for now
+-- probably not worth the effort.
+theorem Term.subst_stlc_commute {Γ Δ σ a} 
+  (H: HasType Δ a (term A)) 
+  (S: SubstCtx σ Γ Δ)
+  : (a.subst σ).stlc Γ.sparsity 
+  = (a.stlc Δ.sparsity).subst (σ.stlc Γ.sparsity Δ.sparsity)
+  := by {
+    induction a generalizing σ Γ Δ with
+    | var v => 
+      rw [Term.stlc_var]
+      simp only [subst, Subst.stlc, Stlc.subst]
+      --TODO: Sparsity.stlc is var since var is term
+      --TODO: ix_inv ix is original, again since var is term
+      sorry
+    | const k => sorry
+    | unary k t => sorry
+    | let_bin k e e' => sorry
+    | bin k l r => sorry
+    | abs k X t => sorry
+    | tri k X l r => sorry
+    | cases k K d l r => sorry
+    | natrec k K e z s => sorry
   }
 
 -- -- But why...
