@@ -32,11 +32,13 @@ theorem SubstCtx.stlc {σ Γ Δ} (S: SubstCtx σ Γ Δ) (HΔ: IsCtx Δ)
   := by {
     intro n A Hv;
     simp only [Subst.stlc]
+    --TODO: factor out as auxiliary lemma
     have ⟨A', Hv', HA', HΔA'⟩: ∃A', 
       (HasVar Δ (Δ.sparsity.ix_inv n) (HypKind.val type) A') 
-      ∧ ((Annot.expr AnnotSort.type (A'.subst σ)).stlc_ty = A) 
+      ∧ ((Annot.expr AnnotSort.type A').stlc_ty = A) 
       ∧ (Δ ⊢ A': AnnotSort.type)
       := by {
+        clear S;
         induction Δ generalizing n A with
         | nil => cases Hv
         | cons H Δ I =>
@@ -54,21 +56,20 @@ theorem SubstCtx.stlc {σ Γ Δ} (S: SubstCtx σ Γ Δ) (HΔ: IsCtx Δ)
                   cases Hv with
                   | zero => 
                     exists H.wk1;
-                    apply And.intro
-                    . exact HasVar.zero (by constructor)
-                    . apply And.intro
-                      . simp only [Annot.stlc_ty]
-                        rw [HasType.stlc_ty_subst]
-                        rw [Term.stlc_ty_wk1]
-                        exact HH'
-                      . exact HH'
-                  | succ Hv => sorry
+                    exact ⟨HasVar.zero (by constructor), Term.stlc_ty_wk1, HH'⟩
+                  | succ Hv => 
+                    have ⟨A', Hv', HA', HΔA'⟩ := I HΔ Hv;
+                    exists A'.wk1;
+                    simp only [Annot.stlc_ty]
+                    rw [Term.stlc_ty_wk1]
+                    exact ⟨Hv'.succ, HA', HΔA'.wk1_sort⟩
                 }
                 rfl
               | prop => sorry
             | gst => sorry
       };
     rw [<-HA']
+    rw [<-Annot.stlc_ty_subst HΔA']
     apply HasType.stlc;
     exact S.subst_var HΔA' Hv'
   }
