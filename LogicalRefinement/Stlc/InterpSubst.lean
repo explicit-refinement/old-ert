@@ -4,6 +4,7 @@ import LogicalRefinement.Stlc.Basic
 import LogicalRefinement.Stlc.Interp
 import LogicalRefinement.Stlc.InterpWk
 import LogicalRefinement.Stlc.Subst
+open AnnotSort
 
 def Subst.stlc (σ: Subst) (Γ: Sparsity) (Δ: Sparsity): Stlc.Subst := 
   λv => (σ (Δ.ix_inv v)).stlc Γ
@@ -32,7 +33,7 @@ theorem SubstCtx.stlc {σ Γ Δ} (S: SubstCtx σ Γ Δ) (HΔ: IsCtx Δ)
     intro n A Hv;
     simp only [Subst.stlc]
     have ⟨A', Hv', HA', HΔA'⟩: ∃A', 
-      (HasVar Δ (Δ.sparsity.ix_inv n) (HypKind.val AnnotSort.type) A') 
+      (HasVar Δ (Δ.sparsity.ix_inv n) (HypKind.val type) A') 
       ∧ ((Annot.expr AnnotSort.type (A'.subst σ)).stlc_ty = A) 
       ∧ (Δ ⊢ A': AnnotSort.type)
       := by {
@@ -46,6 +47,9 @@ theorem SubstCtx.stlc {σ Γ Δ} (S: SubstCtx σ Γ Δ) (HΔ: IsCtx Δ)
               cases s with
               | type => 
                 rw [Context.sparsity_true]
+                have ⟨HH, HΔ⟩: (Δ ⊢ H: type) ∧ (IsCtx Δ) := 
+                  by cases HΔ; apply And.intro <;> assumption
+                have HH': ((Hyp.val H type)::Δ) ⊢ H.wk1: type := HH.wk1_sort;
                 {
                   cases Hv with
                   | zero => 
@@ -56,13 +60,8 @@ theorem SubstCtx.stlc {σ Γ Δ} (S: SubstCtx σ Γ Δ) (HΔ: IsCtx Δ)
                       . simp only [Annot.stlc_ty]
                         rw [HasType.stlc_ty_subst]
                         rw [Term.stlc_ty_wk1]
-                        apply HasType.wk1_sort
-                        exact Hyp.unit
-                        cases HΔ; 
-                        assumption
-                      . apply HasType.wk1_sort
-                        cases HΔ;
-                        assumption
+                        exact HH'
+                      . exact HH'
                   | succ Hv => sorry
                 }
                 rfl

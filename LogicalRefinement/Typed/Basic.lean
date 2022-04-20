@@ -429,7 +429,7 @@ theorem HasType.sub (p: Γ ⊢ a: A): ∀{Δ}, Γ.is_sub Δ -> Δ ⊢ a: A := by
 theorem HasType.upgrade (p: Γ ⊢ a: A): Γ.upgrade ⊢ a: A 
   := HasType.sub p Context.is_sub.upgrade
 
-inductive IsCtx: Context -> Type
+inductive IsCtx: Context -> Prop
   | nil: IsCtx []
   | cons_val {Γ A s}: 
     IsCtx Γ -> (Γ ⊢ A: sort s) 
