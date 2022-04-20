@@ -3,6 +3,7 @@ import LogicalRefinement.Typed
 import LogicalRefinement.Stlc.Basic
 import LogicalRefinement.Stlc.Interp
 import LogicalRefinement.Stlc.InterpWk
+import LogicalRefinement.Stlc.InterpInv
 import LogicalRefinement.Stlc.Subst
 open AnnotSort
 
@@ -33,61 +34,7 @@ theorem SubstCtx.stlc {σ Γ Δ} (S: SubstCtx σ Γ Δ) (HΔ: IsCtx Δ)
     intro n A Hv;
     simp only [Subst.stlc]
     --TODO: factor out as auxiliary lemma
-    have ⟨A', Hv', HA', HΔA'⟩: ∃A', 
-      (HasVar Δ (Δ.sparsity.ix_inv n) (HypKind.val type) A') 
-      ∧ ((Annot.expr AnnotSort.type A').stlc_ty = A) 
-      ∧ (Δ ⊢ A': AnnotSort.type)
-      := by {
-        clear S;
-        induction Δ generalizing n A with
-        | nil => cases Hv
-        | cons H Δ I =>
-          cases H with
-          | mk H k => 
-            have ⟨HH, HΔ'⟩: (Δ ⊢ H: k.annot) ∧ (IsCtx Δ) := 
-              by cases HΔ <;> apply And.intro <;> assumption;
-            have HH': ((Hyp.mk H k)::Δ) ⊢ H.wk1: k.annot := HH.wk1_sort;
-            cases k with
-            | val s =>
-              cases s with
-              | type => 
-                rw [Context.sparsity_true]
-                {
-                  cases Hv with
-                  | zero => 
-                    exists H.wk1;
-                    exact ⟨HasVar.zero (by constructor), Term.stlc_ty_wk1, HH'⟩
-                  | succ Hv => 
-                    have ⟨A', Hv', HA', HΔA'⟩ := I HΔ' Hv;
-                    exists A'.wk1;
-                    simp only [Annot.stlc_ty]
-                    rw [Term.stlc_ty_wk1]
-                    exact ⟨Hv'.succ, HA', HΔA'.wk1_sort⟩
-                }
-                rfl
-              | prop => 
-                rw [Context.sparsity_false]
-                simp only [Sparsity.ix_inv]
-                {
-                  have ⟨A', Hv', HA', HΔA'⟩ := I HΔ' Hv;
-                  exists A'.wk1;
-                  simp only [Annot.stlc_ty]
-                  rw [Term.stlc_ty_wk1]
-                  exact ⟨Hv'.succ, HA', HΔA'.wk1_sort⟩
-                }
-                simp only [Hyp.kind]
-            | gst => 
-              rw [Context.sparsity_false]
-              simp only [Sparsity.ix_inv]
-              {
-                  have ⟨A', Hv', HA', HΔA'⟩ := I HΔ' Hv;
-                  exists A'.wk1;
-                  simp only [Annot.stlc_ty]
-                  rw [Term.stlc_ty_wk1]
-                  exact ⟨Hv'.succ, HA', HΔA'.wk1_sort⟩
-              }
-              simp only [Hyp.kind]
-      };
+    have ⟨A', Hv', HA', HΔA'⟩ := Hv.interp_inv HΔ;
     rw [<-HA']
     rw [<-Annot.stlc_ty_subst HΔA']
     apply HasType.stlc;
