@@ -57,7 +57,7 @@ theorem Term.subst_stlc_commute {Γ Δ σ a}
       --TODO: Sparsity.stlc is var since var is term
       --TODO: ix_inv ix is original, again since var is term
       sorry
-    | const k => sorry
+    | const k => cases k <;> rfl
     | unary k t => sorry
     | let_bin k e e' => sorry
     | bin k l r => sorry
