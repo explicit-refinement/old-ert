@@ -60,7 +60,9 @@ theorem SubstCtx.stlc {σ Γ Δ} (S: SubstCtx σ Γ Δ) (HΔ: IsCtx Δ)
                         exact Hyp.unit
                         cases HΔ; 
                         assumption
-                      . sorry
+                      . apply HasType.wk1_sort
+                        cases HΔ;
+                        assumption
                   | succ Hv => sorry
                 }
                 rfl
