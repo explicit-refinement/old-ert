@@ -26,7 +26,7 @@ theorem Subst.stlc_lift_false {σ: Subst} {Γ: Sparsity}
     | succ v => exact Term.stlc_wk1_false
   }
 
-theorem SubstCtx.stlc {σ Γ Δ} (S: SubstCtx σ Γ Δ)
+theorem SubstCtx.stlc {σ Γ Δ} (S: SubstCtx σ Γ Δ) (HΔ: IsCtx Δ)
   : Stlc.SubstCtx (σ.stlc Γ.sparsity Δ.sparsity) Γ.stlc Δ.stlc
   := by {
     intro n A Hv;
@@ -58,9 +58,8 @@ theorem SubstCtx.stlc {σ Γ Δ} (S: SubstCtx σ Γ Δ)
                         rw [Term.stlc_ty_wk1]
                         apply HasType.wk1_sort
                         exact Hyp.unit
-                        sorry -- Use IsCtx Γ!
-                        sorry -- See above!
-                        sorry -- See above?
+                        cases HΔ; 
+                        assumption
                       . sorry
                   | succ Hv => sorry
                 }
