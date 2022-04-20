@@ -33,7 +33,6 @@ theorem SubstCtx.stlc {σ Γ Δ} (S: SubstCtx σ Γ Δ) (HΔ: IsCtx Δ)
   := by {
     intro n A Hv;
     simp only [Subst.stlc]
-    --TODO: factor out as auxiliary lemma
     have ⟨A', Hv', HA', HΔA'⟩ := Hv.interp_inv HΔ;
     rw [<-HA']
     rw [<-Annot.stlc_ty_subst HΔA']
