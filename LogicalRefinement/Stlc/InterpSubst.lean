@@ -44,29 +44,44 @@ theorem SubstCtx.stlc {σ Γ Δ} (S: SubstCtx σ Γ Δ) (HΔ: IsCtx Δ)
         | cons H Δ I =>
           cases H with
           | mk H k => 
+            have ⟨HH, HΔ'⟩: (Δ ⊢ H: k.annot) ∧ (IsCtx Δ) := 
+              by cases HΔ <;> apply And.intro <;> assumption;
+            have HH': ((Hyp.mk H k)::Δ) ⊢ H.wk1: k.annot := HH.wk1_sort;
             cases k with
             | val s =>
               cases s with
               | type => 
                 rw [Context.sparsity_true]
-                have ⟨HH, HΔ⟩: (Δ ⊢ H: type) ∧ (IsCtx Δ) := 
-                  by cases HΔ; apply And.intro <;> assumption
-                have HH': ((Hyp.val H type)::Δ) ⊢ H.wk1: type := HH.wk1_sort;
                 {
                   cases Hv with
                   | zero => 
                     exists H.wk1;
                     exact ⟨HasVar.zero (by constructor), Term.stlc_ty_wk1, HH'⟩
                   | succ Hv => 
-                    have ⟨A', Hv', HA', HΔA'⟩ := I HΔ Hv;
+                    have ⟨A', Hv', HA', HΔA'⟩ := I HΔ' Hv;
                     exists A'.wk1;
                     simp only [Annot.stlc_ty]
                     rw [Term.stlc_ty_wk1]
                     exact ⟨Hv'.succ, HA', HΔA'.wk1_sort⟩
                 }
                 rfl
-              | prop => sorry
-            | gst => sorry
+              | prop => 
+                rw [Context.sparsity_false]
+                simp only [Sparsity.ix_inv]
+                {
+                have ⟨A', Hv', HA', HΔA'⟩ := I HΔ' Hv;
+                sorry
+                }
+                simp only [Hyp.kind]
+            | gst => 
+              --TODO: somehow re-use prop case?
+              rw [Context.sparsity_false]
+              simp only [Sparsity.ix_inv]
+              {
+              have ⟨A', Hv', HA', HΔA'⟩ := I HΔ' Hv;
+              sorry
+              }
+              simp only [Hyp.kind]
       };
     rw [<-HA']
     rw [<-Annot.stlc_ty_subst HΔA']
