@@ -69,17 +69,22 @@ theorem SubstCtx.stlc {σ Γ Δ} (S: SubstCtx σ Γ Δ) (HΔ: IsCtx Δ)
                 rw [Context.sparsity_false]
                 simp only [Sparsity.ix_inv]
                 {
-                have ⟨A', Hv', HA', HΔA'⟩ := I HΔ' Hv;
-                sorry
+                  have ⟨A', Hv', HA', HΔA'⟩ := I HΔ' Hv;
+                  exists A'.wk1;
+                  simp only [Annot.stlc_ty]
+                  rw [Term.stlc_ty_wk1]
+                  exact ⟨Hv'.succ, HA', HΔA'.wk1_sort⟩
                 }
                 simp only [Hyp.kind]
             | gst => 
-              --TODO: somehow re-use prop case?
               rw [Context.sparsity_false]
               simp only [Sparsity.ix_inv]
               {
-              have ⟨A', Hv', HA', HΔA'⟩ := I HΔ' Hv;
-              sorry
+                  have ⟨A', Hv', HA', HΔA'⟩ := I HΔ' Hv;
+                  exists A'.wk1;
+                  simp only [Annot.stlc_ty]
+                  rw [Term.stlc_ty_wk1]
+                  exact ⟨Hv'.succ, HA', HΔA'.wk1_sort⟩
               }
               simp only [Hyp.kind]
       };
