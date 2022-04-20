@@ -513,3 +513,5 @@ def Term.prir_ex_eq_wk:
     simp only [<-Term.prir_ex_wk]
     rfl
   }
+
+def Hyp.unit: Hyp := Hyp.mk Term.unit (HypKind.val type)

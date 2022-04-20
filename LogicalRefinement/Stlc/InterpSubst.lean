@@ -40,11 +40,31 @@ theorem SubstCtx.stlc {σ Γ Δ} (S: SubstCtx σ Γ Δ)
         | nil => cases Hv
         | cons H Δ I =>
           cases H with
-          | mk A k => 
+          | mk H k => 
             cases k with
             | val s =>
               cases s with
-              | type => sorry
+              | type => 
+                rw [Context.sparsity_true]
+                {
+                  cases Hv with
+                  | zero => 
+                    exists H.wk1;
+                    apply And.intro
+                    . exact HasVar.zero (by constructor)
+                    . apply And.intro
+                      . simp only [Annot.stlc_ty]
+                        rw [HasType.stlc_ty_subst]
+                        rw [Term.stlc_ty_wk1]
+                        apply HasType.wk1_sort
+                        exact Hyp.unit
+                        sorry -- Use IsCtx Γ!
+                        sorry -- See above!
+                        sorry -- See above?
+                      . sorry
+                  | succ Hv => sorry
+                }
+                rfl
               | prop => sorry
             | gst => sorry
       };

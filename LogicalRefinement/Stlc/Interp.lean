@@ -42,12 +42,31 @@ def Context.stlc: Context -> Stlc.Context
 | (Hyp.mk A (HypKind.val type))::Hs => A.stlc_ty::(stlc Hs)
 | H::Hs => stlc Hs
 
-def Hyp.sparsity: Hyp -> Bool
-| Hyp.mk A k => k == HypKind.val type
+def Hyp.sparsity (H: Hyp): Bool := H.kind == HypKind.val type
 
 def Context.sparsity: Context -> Sparsity
 | [] => []
 | H::Hs => H.sparsity::(sparsity Hs)
+
+theorem Context.sparsity_true {Γ: Context}
+  : H.kind = HypKind.val type -> sparsity (H::Γ) = true::Γ.sparsity
+  := by {
+    intro H;
+    simp [sparsity, Hyp.sparsity, H]
+    rfl
+  }
+
+theorem Context.sparsity_false {Γ: Context}
+  : H.kind ≠ HypKind.val type -> sparsity (H::Γ) = false::Γ.sparsity
+  := by {
+    cases H with
+    | mk A k =>
+      intro H;
+      simp [sparsity, Hyp.sparsity]
+      cases k with
+      | val s => cases s with | type => contradiction | prop => rfl
+      | gst => rfl
+  }
 
 def Context.stlc_ix (Γ: Context): Nat -> Nat := Γ.sparsity.ix
 
@@ -124,6 +143,12 @@ theorem Term.stlc_ty_wk {A: Term}: ∀{ρ}, (A.wk ρ).stlc_ty = A.stlc_ty
 theorem Term.stlc_ty_wknth {A: Term}: (A.wknth n).stlc_ty = A.stlc_ty 
 := by {
   simp only [wknth]
+  apply Term.stlc_ty_wk
+}
+
+theorem Term.stlc_ty_wk1 {A: Term}: (A.wk1).stlc_ty = A.stlc_ty 
+:= by {
+  simp only [wk1]
   apply Term.stlc_ty_wk
 }
 
