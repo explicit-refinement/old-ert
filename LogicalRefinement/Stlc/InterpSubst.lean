@@ -63,17 +63,21 @@ theorem Term.subst_stlc_commute {Γ Δ σ a}
     | unary k t I => 
       cases k with
       | inj => 
+        stop
         have ⟨B, HB⟩: ∃B, Δ ⊢ t: term B 
           := by cases H <;> exact ⟨_, by assumption⟩;
-        simp only [stlc, Stlc.subst]
-        rw [I HB S]
+        simp only [stlc, Stlc.subst, I HB S]
       | _ => rfl
     | let_bin k e e' => sorry
     | bin k l r => sorry
     | abs k X t => sorry
     | tri k X l r => sorry
     | cases k K d l r => sorry
-    | natrec k K e z s => sorry
+    | natrec k K e z s => 
+      cases H with
+      | natrec HC He Hz Hs => 
+        simp only [stlc, Stlc.subst]
+        sorry
   }
 
 -- theorem Term.subst_stlc_commute {σ a} (H: HasType Γ a A)
