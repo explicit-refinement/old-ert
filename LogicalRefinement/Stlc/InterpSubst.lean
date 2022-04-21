@@ -44,13 +44,15 @@ theorem SubstCtx.stlc {σ Γ Δ} (S: SubstCtx σ Γ Δ) (HΔ: IsCtx Δ)
 -- TODO: this can probably be simplified to a sparsity-respecting 
 -- condition on terms. Would clean things up a little, but for now
 -- probably not worth the effort.
+set_option maxHeartbeats 1000000
+
 theorem Term.subst_stlc_commute {Γ Δ σ a} 
-  (H: HasType Δ a (term A)) 
+  (H: Δ ⊢ a: term A) 
   (S: SubstCtx σ Γ Δ)
   : (a.subst σ).stlc Γ.sparsity 
   = (a.stlc Δ.sparsity).subst (σ.stlc Γ.sparsity Δ.sparsity)
   := by {
-    induction a generalizing σ Γ Δ with
+    induction a generalizing σ Γ Δ A with
     | var v => 
       rw [Term.stlc_var]
       simp only [subst, Subst.stlc, Stlc.subst]
@@ -58,9 +60,13 @@ theorem Term.subst_stlc_commute {Γ Δ σ a}
       --TODO: ix_inv ix is original, again since var is term
       sorry
     | const k => cases k <;> rfl
-    | unary k t => 
+    | unary k t I => 
       cases k with
-      | inj => sorry
+      | inj => 
+        have ⟨B, HB⟩: ∃B, Δ ⊢ t: term B 
+          := by cases H <;> exact ⟨_, by assumption⟩;
+        simp only [stlc, Stlc.subst]
+        rw [I HB S]
       | _ => rfl
     | let_bin k e e' => sorry
     | bin k l r => sorry
@@ -69,9 +75,6 @@ theorem Term.subst_stlc_commute {Γ Δ σ a}
     | cases k K d l r => sorry
     | natrec k K e z s => sorry
   }
-
--- -- But why...
--- set_option maxHeartbeats 1000000
 
 -- theorem Term.subst_stlc_commute {σ a} (H: HasType Γ a A)
 --   : (a.subst σ).stlc = a.stlc.subst σ.stlc
