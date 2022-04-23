@@ -54,6 +54,7 @@ theorem Term.subst_stlc_commute {Γ Δ σ a}
   := by {
     induction a generalizing σ Γ Δ A;
     case var v => 
+      stop
       rw [Term.stlc_var]
       simp only [subst, Subst.stlc, Stlc.subst]
       --TODO: Sparsity.stlc is var since var is term
@@ -61,9 +62,9 @@ theorem Term.subst_stlc_commute {Γ Δ σ a}
       sorry
     case const k => cases k <;> rfl
     case unary k t I => 
+      stop
       cases k with
       | inj => 
-      stop
         have ⟨B, HB⟩: ∃B, Δ ⊢ t: term B 
           := by cases H <;> exact ⟨_, by assumption⟩;
         simp only [stlc, Stlc.subst, I HB S]
@@ -74,19 +75,36 @@ theorem Term.subst_stlc_commute {Γ Δ σ a}
     case tri k X l r => sorry
     case cases k K d l r => sorry
     case natrec k K e z s IK Ie Iz Is => 
+      have Is': ∀ A Γ Δ G D σ, 
+        (Δ ⊢ s: term A) -> 
+        SubstCtx σ Γ Δ ->
+        G = Γ.sparsity ->
+        D = Δ.sparsity ->
+        stlc (subst s σ) G =
+        Stlc.subst (stlc s D) (Subst.stlc σ G D) := by {
+          intro A Γ Δ G D σ HΔ S HG HD;
+          rw [HG];
+          rw [HD];
+          apply Is <;> assumption
+        };
       cases H;
       case natrec He Hz HK Hs => 
+        conv =>
+          congr
+          . reduce
+            congr
+            . rw [HK.stlc_ty_subst]
+            . rw [Ie He S]
+            . rw [Iz Hz S]
+            . {
+                reduce
+                  rw [Is']
+              }
+          . skip
+        stop
         simp only [stlc, Stlc.subst]
         save
         rw [if_pos True.intro]
-        conv =>
-          lhs
-          congr
-          skip -- K is left invariant by sigma.lift since it's a type
-          rw [Ie He S]
-          rw [Iz Hz S]
-          skip -- Need to lift s...
-        sorry
   }
 
 -- theorem Term.subst_stlc_commute {σ a} (H: HasType Γ a A)
