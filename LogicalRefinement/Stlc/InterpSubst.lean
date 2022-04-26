@@ -91,10 +91,30 @@ theorem Term.subst_stlc_commute {Γ Δ σ a}
       cases H with
       | let_pair =>
         dsimp only [stlc, Stlc.subst]
+        conv =>
+          lhs
+          congr
+          . skip
+          . skip
+          . skip
         sorry
       | let_set =>
+        dsimp only [stlc, Stlc.subst]
+        conv =>
+          lhs
+          congr
+          . skip
+          . skip
+          . skip
         sorry
       | let_repr =>
+        dsimp only [stlc, Stlc.subst]
+        conv =>
+          lhs
+          congr
+          . skip
+          . skip
+          . skip
         sorry
     case bin k l r => 
       cases H with
