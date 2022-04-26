@@ -106,16 +106,27 @@ theorem Term.subst_stlc_commute {Γ Δ σ a}
       | lam => sorry
       | lam_pr => sorry
       | lam_irrel => sorry
-    case tri k X l r => 
+    case tri k X l r IX Il Ir => 
       cases H with
-      | app => sorry
-      | app_pr => sorry
-      | app_irrel => sorry
+      | app HA Hl Hr => 
+        dsimp only [stlc, Stlc.subst]
+        conv =>
+          lhs
+          congr
+          . skip
+          . rw [Il Hl S]
+          . rw [Ir Hr S]
+        sorry
+      | app_pr HA Hl Hr => 
+        dsimp only [stlc, Stlc.subst]
+        rw [Il Hl S]
+      | app_irrel HA Hl Hr => 
+        dsimp only [stlc, Stlc.subst]
+        rw [Il Hl S]
     case cases k C d l r IC Id Il Ir => 
       cases H with
       | case Hd HA HB HC Hl Hr => 
         rename_i A B C;
-        have HAB := HasType.coprod HA HB
         have SA 
           : SubstCtx σ.lift ((Hyp.val A type)::Γ) ((Hyp.val A type)::Δ)
           := sorry;
@@ -126,7 +137,7 @@ theorem Term.subst_stlc_commute {Γ Δ σ a}
         conv =>
           lhs
           congr
-          . rw [HAB.stlc_ty_subst]
+          . rw [(HasType.coprod HA HB).stlc_ty_subst]
           . rw [Id Hd S]
           . rw [loosen Il Hl SA (true::Γ.sparsity) (true::Δ.sparsity)]
             rhs
