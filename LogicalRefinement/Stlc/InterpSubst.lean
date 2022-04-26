@@ -33,7 +33,7 @@ theorem SubstCtx.stlc {σ Γ Δ} (S: SubstCtx σ Γ Δ) (HΔ: IsCtx Δ)
   : Stlc.SubstCtx (σ.stlc Γ.sparsity Δ.sparsity) Γ.stlc Δ.stlc
   := by {
     intro n A Hv;
-    simp only [Subst.stlc]
+    dsimp only [Subst.stlc]
     have ⟨A', Hv', HA', HΔA'⟩ := Hv.interp_inv HΔ;
     rw [<-HA']
     rw [<-Annot.stlc_ty_subst HΔA']
@@ -54,20 +54,19 @@ theorem Term.subst_stlc_commute {Γ Δ σ a}
   := by {
     induction a generalizing σ Γ Δ A;
     case var v => 
-      stop
       rw [Term.stlc_var]
-      simp only [subst, Subst.stlc, Stlc.subst]
+      dsimp only [subst, Subst.stlc, Stlc.subst]
       --TODO: Sparsity.stlc is var since var is term
       --TODO: ix_inv ix is original, again since var is term
       sorry
     case const k => cases k <;> rfl
     case unary k t I => 
-      stop
       cases k with
       | inj => 
         have ⟨B, HB⟩: ∃B, Δ ⊢ t: term B 
           := by cases H <;> exact ⟨_, by assumption⟩;
-        simp only [stlc, Stlc.subst, I HB S]
+        dsimp only [stlc, Stlc.subst]
+        rw [I HB S]
       | _ => rfl
     case let_bin k e e' => sorry
     case bin k l r => sorry
@@ -75,36 +74,9 @@ theorem Term.subst_stlc_commute {Γ Δ σ a}
     case tri k X l r => sorry
     case cases k K d l r => sorry
     case natrec k K e z s IK Ie Iz Is => 
-      have Is': ∀ A Γ Δ G D σ, 
-        (Δ ⊢ s: term A) -> 
-        SubstCtx σ Γ Δ ->
-        G = Γ.sparsity ->
-        D = Δ.sparsity ->
-        stlc (subst s σ) G =
-        Stlc.subst (stlc s D) (Subst.stlc σ G D) := by {
-          intro A Γ Δ G D σ HΔ S HG HD;
-          rw [HG];
-          rw [HD];
-          apply Is <;> assumption
-        };
-      cases H;
-      case natrec He Hz HK Hs => 
-        conv =>
-          congr
-          . reduce
-            congr
-            . rw [HK.stlc_ty_subst]
-            . rw [Ie He S]
-            . rw [Iz Hz S]
-            . {
-                reduce
-                  rw [Is']
-              }
-          . skip
-        stop
-        simp only [stlc, Stlc.subst]
-        save
-        rw [if_pos True.intro]
+      dsimp only [subst, stlc]
+      cases H with
+      | natrec HK He Hz Hs => sorry
   }
 
 -- theorem Term.subst_stlc_commute {σ a} (H: HasType Γ a A)

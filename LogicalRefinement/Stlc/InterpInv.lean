@@ -29,36 +29,41 @@ theorem Stlc.HasVar.interp_inv {Γ n A}
             {
               cases Hv with
               | zero => 
-                exists H.wk1;
-                exact ⟨by repeat constructor, Term.stlc_ty_wk1, HH'⟩
+                exact ⟨H.wk1, by repeat constructor, Term.stlc_ty_wk1, HH'⟩
               | succ Hv => 
                 have ⟨A', Hv', HA', HΓA'⟩ := I Hv HΓ';
-                exists A'.wk1;
-                simp only [Annot.stlc_ty]
-                rw [Term.stlc_ty_wk1]
-                exact ⟨Hv'.succ, HA', HΓA'.wk1_sort⟩
+                exact ⟨
+                  A'.wk1, 
+                  Hv'.succ, 
+                  by dsimp only [Annot.stlc_ty]; rw [Term.stlc_ty_wk1]; exact HA', 
+                  HΓA'.wk1_sort
+                  ⟩
             }
             rfl
           | prop => 
             rw [Context.sparsity_false]
-            simp only [Sparsity.ix_inv]
+            dsimp only [Sparsity.ix_inv]
             {
               have ⟨A', Hv', HA', HΓA'⟩ := I Hv HΓ';
-              exists A'.wk1;
-              simp only [Annot.stlc_ty]
-              rw [Term.stlc_ty_wk1]
-              exact ⟨Hv'.succ, HA', HΓA'.wk1_sort⟩
+              exact ⟨
+                A'.wk1, 
+                Hv'.succ, 
+                by dsimp only [Annot.stlc_ty]; rw [Term.stlc_ty_wk1]; exact HA', 
+                HΓA'.wk1_sort
+                ⟩
             }
             simp only [Hyp.kind]
         | gst => 
           rw [Context.sparsity_false]
-          simp only [Sparsity.ix_inv]
+          dsimp only [Sparsity.ix_inv]
           {
               have ⟨A', Hv', HA', HΓA'⟩ := I Hv HΓ';
-              exists A'.wk1;
-              simp only [Annot.stlc_ty]
-              rw [Term.stlc_ty_wk1]
-              exact ⟨Hv'.succ, HA', HΓA'.wk1_sort⟩
+              exact ⟨
+                A'.wk1, 
+                Hv'.succ, 
+                by dsimp only [Annot.stlc_ty]; rw [Term.stlc_ty_wk1]; exact HA', 
+                HΓA'.wk1_sort
+                ⟩
           }
           simp only [Hyp.kind]
   }
