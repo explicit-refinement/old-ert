@@ -222,3 +222,14 @@ theorem SubstCtx.subst_var
   (HΔ: HasVar Δ n (HypKind.val s) A)
   : Γ ⊢ σ n: expr s (A.subst σ)
   := (HasType.var HA HΔ).subst S
+
+theorem SubstCtx.lift_delta {σ Γ Δ A k}
+  (S: SubstCtx σ Γ Δ)
+  (HA: Δ ⊢ A: sort k.annot):
+  SubstCtx σ.lift ((Hyp.mk (A.subst σ) k)::Γ) ((Hyp.mk A k)::Δ)
+  := by {
+    --  Again, the strange "exact" bug...
+    apply S.lift_primitive;
+    constructor
+    exact HA.subst S
+  }
