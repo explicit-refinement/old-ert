@@ -52,6 +52,24 @@ theorem Term.subst_stlc_commute {Γ Δ σ a}
   : (a.subst σ).stlc Γ.sparsity 
   = (a.stlc Δ.sparsity).subst (σ.stlc Γ.sparsity Δ.sparsity)
   := by {
+    have loosen: ∀{l}, (
+      ∀ {A Γ Δ σ},
+      (Δ ⊢ l: term A) ->
+      SubstCtx σ Γ Δ ->
+      (l.subst σ).stlc Γ.sparsity =
+      (l.stlc Δ.sparsity).subst (σ.stlc Γ.sparsity Δ.sparsity)
+    ) -> ∀ {A Γ Δ σ},
+      (Δ ⊢ l: term A) ->
+      SubstCtx σ Γ Δ ->
+      ∀SΓ SΔ,
+      SΓ = Γ.sparsity ->
+      SΔ = Δ.sparsity ->
+      (l.subst σ).stlc SΓ =
+      (l.stlc SΔ).subst (σ.stlc SΓ SΔ) := by {
+        intros l Il A Γ Δ σ HΔ S SΓ SΔ HSΓ HSΔ;
+        rw [HSΓ, HSΔ];
+        exact Il HΔ S
+      }
     induction a generalizing σ Γ Δ A;
     case var v => 
       rw [Term.stlc_var]
@@ -109,18 +127,6 @@ theorem Term.subst_stlc_commute {Γ Δ σ a}
     case natrec k K e z s IK Ie Iz Is => 
       cases H with
       | natrec HK He Hz Hs => 
-        have Is': ∀ {A Γ Δ σ},
-          (Δ ⊢ s: term A) ->
-          SubstCtx σ Γ Δ ->
-          ∀SΓ SΔ,
-          SΓ = Γ.sparsity ->
-          SΔ = Δ.sparsity ->
-          (s.subst σ).stlc SΓ =
-          (s.stlc SΔ).subst (σ.stlc SΓ SΔ) := by {
-            intros A Γ Δ σ HΔ S SΓ SΔ HSΓ HSΔ;
-            rw [HSΓ, HSΔ];
-            exact Is HΔ S
-          }
         let Γ' := (Hyp.gst nats)::Γ;
         let Δ' := (Hyp.gst nats)::Δ;
         have S': SubstCtx σ.lift Γ' Δ'
@@ -132,7 +138,7 @@ theorem Term.subst_stlc_commute {Γ Δ σ a}
         have S'': SubstCtx σ.lift.lift Γ'' Δ''
           := S'.lift_primitive (by constructor) (by exact HK.subst S');
         have Is'' := 
-          Is' Hs S'' 
+          loosen Is Hs S'' 
           (true::false::Γ.sparsity) (true::false::Δ.sparsity) 
           rfl rfl;
         dsimp only [subst, stlc, Stlc.subst, Subst.liftn]
