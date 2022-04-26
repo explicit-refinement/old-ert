@@ -136,14 +136,14 @@ theorem Term.subst_stlc_commute {Γ Δ σ a}
       | repr HP Hl Hr => 
         dsimp only [stlc, Stlc.subst]
         rw [Ir Hr S]
-    case abs k X t => 
+    case abs k A t IA It => 
       cases H with
-      | lam => 
+      | lam Ht HA => 
         dsimp only [stlc, Stlc.subst]
         conv =>
           lhs
           congr
-          . skip
+          . rw [HA.stlc_ty_subst]
           . skip
         sorry
       | lam_pr => 
