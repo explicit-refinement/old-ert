@@ -125,8 +125,8 @@ theorem Term.subst_stlc_commute {Γ Δ σ a}
         let Δ' := (Hyp.gst nats)::Δ;
         have S': SubstCtx σ.lift Γ' Δ'
           := S.lift_primitive (by constructor) (by constructor)
-        let Γ'' := (Hyp.mk (K.subst σ.lift) (HypKind.val type))::Γ';
-        let Δ'' := (Hyp.mk K (HypKind.val type))::Δ';
+        let Γ'' := (Hyp.val (K.subst σ.lift) type)::Γ';
+        let Δ'' := (Hyp.val K type)::Δ';
         -- BUG?: why is it that if the `by exact` is removed for argument 2, 
         -- there's an error? (2022-04-26, 16:34)
         have S'': SubstCtx σ.lift.lift Γ'' Δ''
