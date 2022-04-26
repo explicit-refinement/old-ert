@@ -68,7 +68,15 @@ theorem Term.subst_stlc_commute {Γ Δ σ a}
         dsimp only [stlc, Stlc.subst]
         rw [I HB S]
       | _ => rfl
-    case let_bin k e e' => sorry
+    case let_bin k e C e' Ie IC Ie' => 
+      cases k with
+      | let_pair =>
+        sorry
+      | let_set =>
+        sorry
+      | let_repr =>
+        sorry
+      | _ => rfl
     case bin k l r => sorry
     case abs k X t => sorry
     case tri k X l r => sorry
