@@ -181,11 +181,11 @@ theorem Term.subst_stlc_commute {Γ Δ σ a}
       | case Hd HA HB HC Hl Hr => 
         rename_i A B C;
         have SA 
-          : SubstCtx σ.lift ((Hyp.val A type)::Γ) ((Hyp.val A type)::Δ)
-          := sorry;
+          : SubstCtx σ.lift ((Hyp.val (A.subst σ) type)::Γ) ((Hyp.val A type)::Δ)
+          := S.lift_delta (by exact HA)
         have SB 
-          : SubstCtx σ.lift ((Hyp.val B type)::Γ) ((Hyp.val B type)::Δ)
-          := sorry;
+          : SubstCtx σ.lift ((Hyp.val (B.subst σ) type)::Γ) ((Hyp.val B type)::Δ)
+          := S.lift_delta (by exact HB);
         dsimp only [stlc, Stlc.subst]
         conv =>
           lhs
