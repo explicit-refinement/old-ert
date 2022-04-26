@@ -150,13 +150,12 @@ theorem Term.subst_stlc_commute {Γ Δ σ a}
           . rw [HA.stlc_ty_subst]
           . skip
         sorry
-      | lam_pr Hφ Ht => 
-        dsimp only [stlc, Stlc.subst]
-        sorry
-      | lam_irrel HA Ht => 
+      | _ => 
+        rename _ ⊢ t: _ => Ht;
+        rename _ ⊢ A': _ => HA;
         dsimp only [stlc, Stlc.subst]
         rw [
-          loosen It Ht (SA HypKind.gst) 
+          loosen It Ht (SA _) 
           (false::Γ.sparsity) (false::Δ.sparsity)
           rfl rfl
         ]
