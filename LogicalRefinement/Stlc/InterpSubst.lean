@@ -72,11 +72,16 @@ theorem Term.subst_stlc_commute {Γ Δ σ a}
       }
     induction a generalizing σ Γ Δ A;
     case var v => 
-      rw [Term.stlc_var]
-      dsimp only [subst, Subst.stlc]
-      --TODO: Sparsity.stlc is var since var is term
-      --TODO: ix_inv ix is original, again since var is term
-      sorry
+      cases H with
+      | var HA Hv => 
+        --TODO: factor out as lemma
+        rw [Term.stlc_var]
+        dsimp only [subst, Subst.stlc, Sparsity.stlc]
+        simp only [Hv.sigma, if_pos True.intro]
+        dsimp only [Stlc.subst]
+        rw [Sparsity.ix_inv_valid]
+        rw [Hv.sigma]
+        rfl
     case const k => cases k <;> rfl
     case unary k t I => 
       --TODO: change to cases h?
