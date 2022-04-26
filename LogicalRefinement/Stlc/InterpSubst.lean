@@ -61,6 +61,7 @@ theorem Term.subst_stlc_commute {Γ Δ σ a}
       sorry
     case const k => cases k <;> rfl
     case unary k t I => 
+      --TODO: change to cases h?
       cases k with
       | inj => 
         have ⟨B, HB⟩: ∃B, Δ ⊢ t: term B 
@@ -68,15 +69,15 @@ theorem Term.subst_stlc_commute {Γ Δ σ a}
         dsimp only [stlc, Stlc.subst]
         rw [I HB S]
       | _ => rfl
-    case let_bin k e C e' Ie IC Ie' => 
-      cases k with
+    case let_bin k C e e' IC Ie Ie' => 
+      cases H with
       | let_pair =>
+        dsimp only [stlc, Stlc.subst]
         sorry
       | let_set =>
         sorry
       | let_repr =>
         sorry
-      | _ => rfl
     case bin k l r => sorry
     case abs k X t => sorry
     case tri k X l r => sorry
