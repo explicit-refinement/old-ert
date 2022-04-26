@@ -233,3 +233,10 @@ theorem SubstCtx.lift_delta {σ Γ Δ A k}
     constructor
     exact HA.subst S
   }
+
+theorem SubstCtx.lift_delta' {σ Γ Δ A}
+  (S: SubstCtx σ Γ Δ)
+  (k: HypKind)
+  (HA: Δ ⊢ A: sort k.annot):
+  SubstCtx σ.lift ((Hyp.mk (A.subst σ) k)::Γ) ((Hyp.mk A k)::Δ)
+  := S.lift_delta HA
