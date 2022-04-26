@@ -108,19 +108,18 @@ theorem Term.subst_stlc_commute {Γ Δ σ a}
       | lam_irrel => sorry
     case tri k X l r IX Il Ir => 
       cases H with
-      | app HA Hl Hr => 
+      | app HAB Hl Hr => 
         dsimp only [stlc, Stlc.subst]
         conv =>
           lhs
           congr
-          . skip
+          . rw [HAB.stlc_ty_subst]
           . rw [Il Hl S]
           . rw [Ir Hr S]
-        sorry
-      | app_pr HA Hl Hr => 
+      | app_pr HAB Hl Hr => 
         dsimp only [stlc, Stlc.subst]
         rw [Il Hl S]
-      | app_irrel HA Hl Hr => 
+      | app_irrel HAB Hl Hr => 
         dsimp only [stlc, Stlc.subst]
         rw [Il Hl S]
     case cases k C d l r IC Id Il Ir => 
