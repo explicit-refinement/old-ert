@@ -136,7 +136,11 @@ theorem Term.subst_stlc_commute {Γ Δ σ a}
       | repr HP Hl Hr => 
         dsimp only [stlc, Stlc.subst]
         rw [Ir Hr S]
-    case abs k A t IA It => 
+    -- TODO: potential bug: when A shadows A', there's an error
+    -- (2022-04-26, 23:15)
+    case abs k A' t IA It => 
+      have SA: ∀k, SubstCtx σ.lift ((Hyp.mk A' k)::Γ) ((Hyp.mk A' k)::Δ)
+        := sorry
       cases H with
       | lam Ht HA => 
         dsimp only [stlc, Stlc.subst]
@@ -146,12 +150,17 @@ theorem Term.subst_stlc_commute {Γ Δ σ a}
           . rw [HA.stlc_ty_subst]
           . skip
         sorry
-      | lam_pr => 
+      | lam_pr Hφ Ht => 
         dsimp only [stlc, Stlc.subst]
         sorry
-      | lam_irrel => 
+      | lam_irrel HA Ht => 
         dsimp only [stlc, Stlc.subst]
-        sorry
+        rw [
+          loosen It Ht (SA HypKind.gst) 
+          (false::Γ.sparsity) (false::Δ.sparsity)
+          rfl rfl
+        ]
+        rw [Subst.stlc_lift_false]
     case tri k X l r IX Il Ir => 
       cases H with
       | app HAB Hl Hr => 
