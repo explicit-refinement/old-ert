@@ -114,16 +114,26 @@ theorem Term.subst_stlc_commute {Γ Δ σ a}
     case cases k C d l r IC Id Il Ir => 
       cases H with
       | case Hd HA HB HC Hl Hr => 
+        rename_i A B C;
         have HAB := HasType.coprod HA HB
+        have SA 
+          : SubstCtx σ.lift ((Hyp.val A type)::Γ) ((Hyp.val A type)::Δ)
+          := sorry;
+        have SB 
+          : SubstCtx σ.lift ((Hyp.val B type)::Γ) ((Hyp.val B type)::Δ)
+          := sorry;
         dsimp only [stlc, Stlc.subst]
         conv =>
           lhs
           congr
           . rw [HAB.stlc_ty_subst]
           . rw [Id Hd S]
-          . skip
-          . skip
-        sorry
+          . rw [loosen Il Hl SA (true::Γ.sparsity) (true::Δ.sparsity)]
+            rhs
+            rw [Subst.stlc_lift_true]
+          . rw [loosen Ir Hr SB (true::Γ.sparsity) (true::Δ.sparsity)]
+            rhs
+            rw [Subst.stlc_lift_true]
     case natrec k K e z s IK Ie Iz Is => 
       cases H with
       | natrec HK He Hz Hs => 
@@ -139,8 +149,7 @@ theorem Term.subst_stlc_commute {Γ Δ σ a}
           := S'.lift_primitive (by constructor) (by exact HK.subst S');
         have Is'' := 
           loosen Is Hs S'' 
-          (true::false::Γ.sparsity) (true::false::Δ.sparsity) 
-          rfl rfl;
+          (true::false::Γ.sparsity) (true::false::Δ.sparsity);
         dsimp only [subst, stlc, Stlc.subst, Subst.liftn]
         simp only [if_pos True.intro]
         conv =>
