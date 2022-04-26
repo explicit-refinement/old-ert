@@ -117,7 +117,7 @@ theorem HasType.stlc_ty_subst {Γ A σ s} (H: Γ ⊢ A: sort s):
   revert H s σ Γ;
   induction A <;> intro Γ σ s H <;> cases H <;> try rfl
   all_goals (
-    simp only [Term.stlc_ty, Term.subst]
+    dsimp only [Term.stlc_ty, Term.subst]
     rename_i' I0 I1 I2 I3
     try rw [I0]
     try rw [I1]
@@ -235,7 +235,8 @@ theorem HasType.stlc {Γ a A}:
     induction H with
     | var _ Hv => 
       rename AnnotSort => s;
-      simp only [Term.stlc, Sparsity.stlc]
+      rw [Term.stlc_var]
+      dsimp only [Sparsity.stlc]
       rw [Hv.sigma]
       cases s with
       | type => exact Stlc.HasType.var Hv.stlc
@@ -244,11 +245,14 @@ theorem HasType.stlc {Γ a A}:
       rename AnnotSort => k;
       cases k with
       | type =>
+        dsimp only [
+          Term.stlc, Term.stlc_ty
+        ] at *;
         simp only [
           Term.alpha0, Term.subst0, Annot.subst0,
           Annot.stlc_ty_subst, Annot.stlc_ty_wk,
           Term.stlc_ty_wk, wknth,
-          term, proof, Term.stlc, Term.stlc_ty
+          term, proof
         ] at *
         repeat rw [Annot.stlc_ty_subst] at *
         repeat rw [Annot.stlc_ty_wk] at *
@@ -266,11 +270,12 @@ theorem HasType.stlc {Γ a A}:
       first
       | assumption
       | (
+        dsimp only [Term.stlc, Term.stlc_ty] at *
         simp only [
           Term.alpha0, Term.subst0, Annot.subst0,
           Annot.stlc_ty_subst, Annot.stlc_ty_wk,
           Term.stlc_ty_wk, wknth,
-          term, proof, Term.stlc, Term.stlc_ty
+          term, proof
         ] at *
         repeat rw [Annot.stlc_ty_subst] at *
         repeat rw [Annot.stlc_ty_wk] at *
