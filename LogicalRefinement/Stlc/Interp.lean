@@ -134,10 +134,12 @@ theorem Term.stlc_ty_wk {A: Term}: ∀{ρ}, (A.wk ρ).stlc_ty = A.stlc_ty
 
   case bin k l r Il Ir =>
     cases k <;>
-    simp only [Term.stlc_ty, Term.wk, *]
+    dsimp only [Term.stlc_ty, Term.wk] <;>
+    simp only [*]
   case abs k l r Il Ir =>
     cases k <;>
-    simp only [Term.stlc_ty, Term.wk, *]
+    dsimp only [Term.stlc_ty, Term.wk] <;>
+    simp only [*]
 }
 
 theorem Term.stlc_ty_wknth {A: Term}: (A.wknth n).stlc_ty = A.stlc_ty 
