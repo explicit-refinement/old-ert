@@ -118,14 +118,36 @@ theorem Term.subst_stlc_commute {Γ Δ σ a}
         sorry
     case bin k l r => 
       cases H with
-      | pair => sorry
-      | elem => sorry
-      | repr => sorry
+      | pair => 
+        dsimp only [stlc, Stlc.subst]
+        conv =>
+          lhs
+          congr
+          . skip
+          . skip
+        sorry
+      | elem => 
+        dsimp only [stlc, Stlc.subst]
+        sorry
+      | repr => 
+        dsimp only [stlc, Stlc.subst]
+        sorry
     case abs k X t => 
       cases H with
-      | lam => sorry
-      | lam_pr => sorry
-      | lam_irrel => sorry
+      | lam => 
+        dsimp only [stlc, Stlc.subst]
+        conv =>
+          lhs
+          congr
+          . skip
+          . skip
+        sorry
+      | lam_pr => 
+        dsimp only [stlc, Stlc.subst]
+        sorry
+      | lam_irrel => 
+        dsimp only [stlc, Stlc.subst]
+        sorry
     case tri k X l r IX Il Ir => 
       cases H with
       | app HAB Hl Hr => 
