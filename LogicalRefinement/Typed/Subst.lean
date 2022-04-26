@@ -91,10 +91,9 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
       cases S H with
       | expr E => exact E
       | var Hv HΓ =>
-        simp only [Term.subst]
+        dsimp only [Term.subst]
         rw [Hv]
         exact HasType.var (I S) HΓ
-
 
     all_goals (
       intro σ Γ S;

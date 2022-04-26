@@ -55,7 +55,7 @@ theorem Term.subst_stlc_commute {Γ Δ σ a}
     induction a generalizing σ Γ Δ A;
     case var v => 
       rw [Term.stlc_var]
-      dsimp only [subst, Subst.stlc, Stlc.subst]
+      dsimp only [subst, Subst.stlc]
       --TODO: Sparsity.stlc is var since var is term
       --TODO: ix_inv ix is original, again since var is term
       sorry
@@ -74,9 +74,46 @@ theorem Term.subst_stlc_commute {Γ Δ σ a}
     case tri k X l r => sorry
     case cases k K d l r => sorry
     case natrec k K e z s IK Ie Iz Is => 
-      dsimp only [subst, stlc]
       cases H with
-      | natrec HK He Hz Hs => sorry
+      | natrec HK He Hz Hs => 
+        have Is': ∀ {A Γ Δ σ},
+          (Δ ⊢ s: term A) ->
+          SubstCtx σ Γ Δ ->
+          ∀SΓ SΔ,
+          SΓ = Γ.sparsity ->
+          SΔ = Δ.sparsity ->
+          (s.subst σ).stlc SΓ =
+          (s.stlc SΔ).subst (σ.stlc SΓ SΔ) := by {
+            intros A Γ Δ σ HΔ S SΓ SΔ HSΓ HSΔ;
+            rw [HSΓ, HSΔ];
+            exact Is HΔ S
+          }
+        let Γ' := (Hyp.gst nats)::Γ;
+        let Δ' := (Hyp.gst nats)::Δ;
+        have S': SubstCtx σ.lift Γ' Δ'
+          := S.lift_primitive (by constructor) (by constructor)
+        let Γ'' := (Hyp.mk (K.subst σ.lift) (HypKind.val type))::Γ';
+        let Δ'' := (Hyp.mk K (HypKind.val type))::Δ';
+        -- BUG?: why is it that if the `by exact` is removed for argument 2, 
+        -- there's an error? (2022-04-26, 16:34)
+        have S'': SubstCtx σ.lift.lift Γ'' Δ''
+          := S'.lift_primitive (by constructor) (by exact HK.subst S');
+        have Is'' := 
+          Is' Hs S'' 
+          (true::false::Γ.sparsity) (true::false::Δ.sparsity) 
+          rfl rfl;
+        dsimp only [subst, stlc, Stlc.subst, Subst.liftn]
+        simp only [if_pos True.intro]
+        conv =>
+          lhs
+          congr
+          . rw [HK.stlc_ty_subst]
+          . rw [Ie He S]
+          . rw [Iz Hz S]
+          . rw [Is'']
+            rhs
+            rw [Subst.stlc_lift_true]
+            rw [Subst.stlc_lift_false]
   }
 
 -- theorem Term.subst_stlc_commute {σ a} (H: HasType Γ a A)

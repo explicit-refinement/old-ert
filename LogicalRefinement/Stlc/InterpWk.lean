@@ -13,12 +13,12 @@ theorem Term.stlc_wknth_false {t: Term} {Γ: Sparsity} {n: Nat}
   induction t with
   | var v => 
     intro Γ n;
-    simp only [wknth, wk]
+    dsimp only [wknth, wk]
     repeat rw [stlc_var]
     simp only [Sparsity.stlc, Sparsity.wknth_ix_false, Sparsity.wknth_dep]
   | _ => 
     intro Γ n;
-    simp only [wknth, wk]
+    dsimp only [wknth, wk]
     repeat rw [Wk.lift_wknth_merge]
     repeat rw [Wk.liftn_wknth_merge]
     repeat rw [<-wknth_def] 
@@ -26,7 +26,7 @@ theorem Term.stlc_wknth_false {t: Term} {Γ: Sparsity} {n: Nat}
     try (rename AnnotSort => s; cases s);
     all_goals try rfl;    
     all_goals (
-      simp only [stlc] 
+      dsimp only [stlc] 
       simp only [Sparsity.wknth_merge]
       simp only [*]
       repeat rw [Term.stlc_ty_wknth]
@@ -41,7 +41,7 @@ theorem Term.stlc_wknth_true {t: Term} {Γ: Sparsity} {n: Nat}
   induction t with
   | var v => 
     intro Γ n;
-    simp only [wknth, wk]
+    dsimp only [wknth, wk]
     repeat rw [stlc_var]
     simp only [Sparsity.stlc]
     split
@@ -57,7 +57,7 @@ theorem Term.stlc_wknth_true {t: Term} {Γ: Sparsity} {n: Nat}
       assumption
   | _ => 
     intro Γ n;
-    simp only [wknth, wk]
+    dsimp only [wknth, wk]
     repeat rw [Wk.lift_wknth_merge]
     repeat rw [Wk.liftn_wknth_merge]
     repeat rw [<-wknth_def] 
@@ -65,7 +65,7 @@ theorem Term.stlc_wknth_true {t: Term} {Γ: Sparsity} {n: Nat}
     try (rename AnnotSort => s; cases s);
     all_goals try rfl;    
     all_goals (
-      simp only [stlc] 
+      dsimp only [stlc] 
       simp only [Sparsity.wknth_merge]
       simp only [*]
       repeat rw [Term.stlc_ty_wknth]
