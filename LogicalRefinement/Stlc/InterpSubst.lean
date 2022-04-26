@@ -204,13 +204,16 @@ theorem Term.subst_stlc_commute {Γ Δ σ a}
         let Γ' := (Hyp.gst nats)::Γ;
         let Δ' := (Hyp.gst nats)::Δ;
         have S': SubstCtx σ.lift Γ' Δ'
-          := S.lift_primitive (by constructor) (by constructor)
+          := S.lift_delta (by constructor)
         let Γ'' := (Hyp.val (K.subst σ.lift) type)::Γ';
         let Δ'' := (Hyp.val K type)::Δ';
         -- BUG?: why is it that if the `by exact` is removed for argument 2, 
-        -- there's an error? (2022-04-26, 16:34)
+        -- there's an error? (2022-04-25, 16:34)
+        --
+        -- Note on (2022-04-26, 23:46): same thing with `lift_delta`;
+        -- think it has to do with unification...
         have S'': SubstCtx σ.lift.lift Γ'' Δ''
-          := S'.lift_primitive (by constructor) (by exact HK.subst S');
+          := S'.lift_delta (by exact HK);
         have Is'' := 
           loosen Is Hs S'' 
           (true::false::Γ.sparsity) (true::false::Δ.sparsity);
