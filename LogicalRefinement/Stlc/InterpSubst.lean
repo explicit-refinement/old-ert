@@ -93,9 +93,18 @@ theorem Term.subst_stlc_commute {Γ Δ σ a}
       | app => sorry
       | app_pr => sorry
       | app_irrel => sorry
-    case cases k K d l r => 
+    case cases k C d l r IC Id Il Ir => 
       cases H with
-      | case => sorry
+      | case Hd HA HB HC Hl Hr => 
+        dsimp only [stlc, Stlc.subst]
+        conv =>
+          lhs
+          congr
+          . skip -- Hopefully this is just definitional...
+          . skip
+          . skip
+          . skip
+        sorry
     case natrec k K e z s IK Ie Iz Is => 
       cases H with
       | natrec HK He Hz Hs => 
