@@ -96,12 +96,13 @@ theorem Term.subst_stlc_commute {Γ Δ σ a}
     case cases k C d l r IC Id Il Ir => 
       cases H with
       | case Hd HA HB HC Hl Hr => 
+        have HAB := HasType.coprod HA HB
         dsimp only [stlc, Stlc.subst]
         conv =>
           lhs
           congr
-          . skip -- Hopefully this is just definitional...
-          . skip
+          . rw [HAB.stlc_ty_subst]
+          . rw [Id Hd S]
           . skip
           . skip
         sorry
