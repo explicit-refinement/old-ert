@@ -116,22 +116,21 @@ theorem Term.subst_stlc_commute {Γ Δ σ a}
           . skip
           . skip
         sorry
-    case bin k l r => 
+    case bin k l r Il Ir => 
       cases H with
-      | pair => 
+      | pair HP Hl Hr => 
         dsimp only [stlc, Stlc.subst]
         conv =>
           lhs
           congr
-          . skip
-          . skip
-        sorry
-      | elem => 
+          . rw [Il Hl S]
+          . rw [Ir Hr S]
+      | elem HP Hl Hr => 
         dsimp only [stlc, Stlc.subst]
-        sorry
-      | repr => 
+        rw [Il Hl S]
+      | repr HP Hl Hr => 
         dsimp only [stlc, Stlc.subst]
-        sorry
+        rw [Ir Hr S]
     case abs k X t => 
       cases H with
       | lam => 
