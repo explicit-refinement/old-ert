@@ -78,10 +78,24 @@ theorem Term.subst_stlc_commute {Γ Δ σ a}
         sorry
       | let_repr =>
         sorry
-    case bin k l r => sorry
-    case abs k X t => sorry
-    case tri k X l r => sorry
-    case cases k K d l r => sorry
+    case bin k l r => 
+      cases H with
+      | pair => sorry
+      | elem => sorry
+      | repr => sorry
+    case abs k X t => 
+      cases H with
+      | lam => sorry
+      | lam_pr => sorry
+      | lam_irrel => sorry
+    case tri k X l r => 
+      cases H with
+      | app => sorry
+      | app_pr => sorry
+      | app_irrel => sorry
+    case cases k K d l r => 
+      cases H with
+      | case => sorry
     case natrec k K e z s IK Ie Iz Is => 
       cases H with
       | natrec HK He Hz Hs => 
