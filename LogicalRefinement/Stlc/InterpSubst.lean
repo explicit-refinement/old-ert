@@ -116,7 +116,7 @@ theorem Term.subst_stlc_commute {Γ Δ σ a}
           . rw [Ie'']
             rw [Subst.stlc_lift_true]
             rw [Subst.stlc_lift_true]
-      | let_set =>
+      | let_set He HA HB HC He' =>
         dsimp only [stlc, Stlc.subst]
         conv =>
           lhs
@@ -125,7 +125,7 @@ theorem Term.subst_stlc_commute {Γ Δ σ a}
           . skip
           . skip
         sorry
-      | let_repr =>
+      | let_repr He HA HB HC He' =>
         dsimp only [stlc, Stlc.subst]
         conv =>
           lhs
