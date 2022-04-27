@@ -139,8 +139,9 @@ theorem Term.subst_stlc_commute {Γ Δ σ a}
     -- TODO: potential bug: when A shadows A', there's an error
     -- (2022-04-26, 23:15)
     case abs k A' t IA It => 
-      have SA: ∀k, SubstCtx σ.lift ((Hyp.mk A' k)::Γ) ((Hyp.mk A' k)::Δ)
-        := sorry
+      have SA: ∀k, (Δ ⊢ A': k.annot) -> 
+        SubstCtx σ.lift ((Hyp.mk (A'.subst σ) k)::Γ) ((Hyp.mk A' k)::Δ)
+        := λk HA => S.lift_delta HA
       cases H with
       | lam Ht HA => 
         dsimp only [stlc, Stlc.subst]
@@ -155,7 +156,7 @@ theorem Term.subst_stlc_commute {Γ Δ σ a}
         rename _ ⊢ A': _ => HA;
         dsimp only [stlc, Stlc.subst]
         rw [
-          loosen It Ht (SA _) 
+          loosen It Ht (SA _ (by exact HA)) 
           (false::Γ.sparsity) (false::Δ.sparsity)
           rfl rfl
         ]
