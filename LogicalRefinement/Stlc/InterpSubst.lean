@@ -94,15 +94,28 @@ theorem Term.subst_stlc_commute {Γ Δ σ a}
       | _ => rfl
     case let_bin k C e e' IC Ie Ie' => 
       cases H with
-      | let_pair =>
-        dsimp only [stlc, Stlc.subst]
+      | let_pair He HA HB HC He' =>
+        rename_i A B C;
+        let Γ' := (Hyp.val (A.subst σ) type)::Γ;
+        let Δ' := (Hyp.val A type)::Δ;
+        have S': SubstCtx σ.lift Γ' Δ'
+          := S.lift_delta (by exact HA)
+        let Γ'' := (Hyp.val (B.subst σ.lift) type)::Γ';
+        let Δ'' := (Hyp.val B type)::Δ';
+        have S'': SubstCtx σ.lift.lift Γ'' Δ''
+          := S'.lift_delta (by exact HB);
+        have Ie'' := 
+          loosen Ie' He' S'' 
+          (true::true::Γ.sparsity) (true::true::Δ.sparsity);
+        dsimp only [stlc, Stlc.subst, Subst.liftn]
         conv =>
           lhs
           congr
-          . skip
-          . skip
-          . skip
-        sorry
+          . rw [(HasType.sigma HA HB).stlc_ty_subst]
+          . rw [Ie He S]
+          . rw [Ie'']
+            rw [Subst.stlc_lift_true]
+            rw [Subst.stlc_lift_true]
       | let_set =>
         dsimp only [stlc, Stlc.subst]
         conv =>
