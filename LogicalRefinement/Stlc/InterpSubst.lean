@@ -138,15 +138,36 @@ theorem Term.subst_stlc_commute {Γ Δ σ a}
           . rw [Ie'']
             rw [Subst.stlc_lift_false]
             rw [Subst.stlc_lift_true]
-      | let_repr He HA HB HC He' =>
-        dsimp only [stlc, Stlc.subst]
+      | let_repr He HA HB HC He' =>        
+        rename_i A B C;
+        let Γ' := (Hyp.gst (A.subst σ))::Γ;
+        let Δ' := (Hyp.gst A)::Δ;
+        have S': SubstCtx σ.lift Γ' Δ'
+          := S.lift_delta (by exact HA)
+        let Γ'' := (Hyp.val (B.subst σ.lift) type)::Γ';
+        let Δ'' := (Hyp.val B type)::Δ';
+        have S'': SubstCtx σ.lift.lift Γ'' Δ''
+          := S'.lift_delta (by exact HB);
+        have Ie'' := 
+          loosen Ie' He' S'' 
+          (true::false::Γ.sparsity) (true::false::Δ.sparsity);
+        have HB': ((Hyp.val A type)::Δ) ⊢ B: type
+          := by {
+            apply HB.sub;
+            constructor
+            exact Context.is_sub.refl;
+            constructor
+            constructor
+          }
+        dsimp only [stlc, Stlc.subst, Subst.liftn]
         conv =>
           lhs
           congr
-          . skip
-          . skip
-          . skip
-        sorry
+          . rw [(HasType.union HA HB').stlc_ty_subst]
+          . rw [Ie He S]
+          . rw [Ie'']
+            rw [Subst.stlc_lift_true]
+            rw [Subst.stlc_lift_false]
     case bin k l r Il Ir => 
       cases H with
       | pair HP Hl Hr => 
