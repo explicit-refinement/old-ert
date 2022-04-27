@@ -149,8 +149,13 @@ theorem Term.subst_stlc_commute {Γ Δ σ a}
           lhs
           congr
           . rw [HA.stlc_ty_subst]
-          . skip
-        sorry
+          . rw [
+              loosen It Ht (SA _ (by exact HA)) 
+              (true::Γ.sparsity) (true::Δ.sparsity)
+              rfl rfl
+            ]
+            rhs
+            rw [Subst.stlc_lift_true]
       | _ => 
         rename _ ⊢ t: _ => Ht;
         rename _ ⊢ A': _ => HA;
