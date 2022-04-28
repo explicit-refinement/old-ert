@@ -3,7 +3,7 @@ import LogicalRefinement.Wk
 def Sparsity := List Bool
 
 @[simp]
-def Sparsity.inv: Sparsity -> Sparsity
+def Sparsity.anti: Sparsity -> Sparsity
 | [] => []
 | b::Γ => (¬b)::Γ
 
