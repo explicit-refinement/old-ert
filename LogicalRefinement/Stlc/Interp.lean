@@ -42,6 +42,11 @@ def Context.stlc: Context -> Stlc.Context
 | (Hyp.mk A (HypKind.val type))::Hs => A.stlc_ty::(stlc Hs)
 | H::Hs => stlc Hs
 
+def Context.ghosts: Context -> Stlc.Context
+| [] => []
+| (Hyp.mk A (HypKind.val type))::Hs => (ghosts Hs)
+| (Hyp.mk A _)::Hs => A.stlc_ty::(ghosts Hs)
+
 def Hyp.sparsity (H: Hyp): Bool := H.kind == HypKind.val type
 
 def Context.sparsity: Context -> Sparsity
@@ -100,9 +105,9 @@ def Term.stlc: Term -> Sparsity -> Stlc
   if k == type then
     Stlc.natrec K.stlc_ty (n.stlc σ) (z.stlc σ) (s.stlc (true::false::σ))
   else
-    Stlc.abort
+    Stlc.nil
 | unary TermKind.abort _, σ => Stlc.abort
-| _, σ => Stlc.abort
+| _, σ => Stlc.nil
 
 def Term.stlc_var: (var v).stlc σ = σ.stlc v := rfl
 
@@ -267,7 +272,7 @@ theorem HasType.stlc {Γ a A}:
           repeat constructor
           assumption
         )
-      | prop => exact Stlc.HasType.abort
+      | prop => exact Stlc.HasType.nil
     | _ =>
       first
       | assumption
