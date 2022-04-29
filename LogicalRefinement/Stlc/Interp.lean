@@ -37,6 +37,14 @@ theorem Annot.prop_is_bot {Γ A s}:
     | prop => rfl
   }
 
+theorem Annot.sort_case {Γ A s} (H: Γ ⊢ A: sort s): 
+  (expr s A).stlc_ty = A.stlc_ty
+  := by {
+    cases s with
+    | type => simp only [stlc_ty]
+    | prop => rw [Annot.prop_is_bot H, HasType.prop_is_bot H]
+  }
+
 def Context.stlc: Context -> Stlc.Context
 | [] => []
 | (Hyp.mk A (HypKind.val type))::Hs => A.stlc_ty::(stlc Hs)
