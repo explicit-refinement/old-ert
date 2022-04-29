@@ -83,4 +83,9 @@ def Context.denote: (Γ: Context) -> Γ.upgrade.stlc.interp -> Prop
 
 theorem HasType.denote (H: Γ ⊢ a: A) (G: Γ.upgrade.stlc.interp)
   : A.denote Γ G (H.stlc.interp G.downgrade)
-  := sorry
+  := by {
+    induction H with
+    | var HA Hv IA => 
+      sorry
+    | _ => sorry
+  }
