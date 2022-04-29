@@ -44,14 +44,20 @@ def Context.stlc: Context -> Stlc.Context
 
 def Context.ghosts: Context -> Stlc.Context
 | [] => []
-| (Hyp.mk A (HypKind.val type))::Hs => (ghosts Hs)
-| (Hyp.mk A _)::Hs => A.stlc_ty::(ghosts Hs)
+| (Hyp.mk A HypKind.gst)::Hs => A.stlc_ty::(ghosts Hs)
+| (Hyp.mk A _)::Hs => (ghosts Hs)
 
 def Hyp.sparsity (H: Hyp): Bool := H.kind == HypKind.val type
 
 def Context.sparsity: Context -> Sparsity
 | [] => []
 | H::Hs => H.sparsity::(sparsity Hs)
+
+def Context.downgrade_sparsity: Context -> Sparsity
+| [] => []
+| (Hyp.mk A (HypKind.val type))::Γ => true::(downgrade_sparsity Γ)
+| (Hyp.mk A (HypKind.val prop))::Γ => downgrade_sparsity Γ
+| (Hyp.mk A HypKind.gst)::Γ => false::(downgrade_sparsity Γ)
 
 theorem Context.sparsity_true {Γ: Context}
   : H.kind = HypKind.val type -> sparsity (H::Γ) = true::Γ.sparsity
