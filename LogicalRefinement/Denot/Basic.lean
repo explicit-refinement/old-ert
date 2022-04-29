@@ -14,9 +14,9 @@ def Term.denote_ty (A: Term) (Γ: Context)
     | some () => True
     | none => False
   | abs TermKind.pi A B => 
-    match a with
-    | some a => sorry
-    | none => False
+    ∀x: A.stlc_ty.interp,
+      A.denote_ty Γ G x ->
+      B.denote_ty ((Hyp.val A type)::Γ) (x, G) (a.app x)
   | abs TermKind.sigma _ _ => sorry
   | abs TermKind.assume _ _ => sorry
   | abs TermKind.set _ _ => sorry
@@ -24,8 +24,12 @@ def Term.denote_ty (A: Term) (Γ: Context)
   | abs TermKind.union _ _ => sorry
   | const TermKind.top => True
   | const TermKind.bot => False
-  | abs TermKind.dimplies _ _ => sorry
-  | abs TermKind.dand _ _ => sorry
+  | abs TermKind.dimplies A B => 
+    --TODO: think about this...
+    (A.denote_ty Γ G none) -> (B.denote_ty Γ G none)
+  | abs TermKind.dand A B =>
+    --TODO: think about this...
+    (A.denote_ty Γ G none) ∧ (B.denote_ty Γ G none)
   | bin TermKind.or A B => 
     (A.denote_ty Γ G none) ∨ (B.denote_ty Γ G none)
   | abs TermKind.forall_ _ _ => sorry
