@@ -17,7 +17,13 @@ def Term.denote_ty (A: Term) (Γ: Context)
     ∀x: A.stlc_ty.interp,
       A.denote_ty Γ G x ->
       B.denote_ty ((Hyp.val A type)::Γ) (x, G) (a.app x)
-  | abs TermKind.sigma _ _ => sorry
+  | abs TermKind.sigma A B => 
+    match a with
+    | some (a, b) => 
+      let a := Ty.eager a;
+      let b := Ty.eager b;
+      (A.denote_ty Γ G a) ∧ (B.denote_ty ((Hyp.val A type)::Γ) (a, G) b)
+    | none => sorry
   | abs TermKind.assume _ _ => sorry
   | abs TermKind.set _ _ => sorry
   | abs TermKind.intersect _ _ => sorry
