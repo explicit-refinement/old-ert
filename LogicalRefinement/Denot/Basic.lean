@@ -64,6 +64,25 @@ def Term.denote_ty (A: Term) (Γ: Context)
     | none => False
   | _ => False
 
+theorem Term.stlc_wk1
+  {A: Term}
+  (a: A.stlc_ty.interp)
+  : A.wk1.stlc_ty.interp
+  := by {
+    dsimp only [wk1]
+    rw [Term.stlc_ty_wk]
+    exact a
+  }
+
+theorem Term.denote_wk1_ty
+  (A: Term) 
+  (Γ: Context) 
+  (G: Γ.upgrade.stlc.interp) 
+  (a: A.stlc_ty.interp)
+  (H: A.denote_ty Γ G a) 
+  : A.wk1.denote_ty ((Hyp.val B type)::Γ) (x, G) (stlc_wk1 a)
+  := sorry
+
 def Annot.denote (A: Annot) (Γ: Context)
   (G: Γ.upgrade.stlc.interp)
   (a: A.stlc_ty.interp): Prop
