@@ -23,7 +23,7 @@ def Term.denote_ty (A: Term) (Γ: Context)
       let a := Ty.eager a;
       let b := Ty.eager b;
       (A.denote_ty Γ G a) ∧ (B.denote_ty ((Hyp.val A type)::Γ) (a, G) b)
-    | none => sorry
+    | none => False
   | abs TermKind.assume _ _ => sorry
   | abs TermKind.set _ _ => sorry
   | abs TermKind.intersect _ _ => sorry
