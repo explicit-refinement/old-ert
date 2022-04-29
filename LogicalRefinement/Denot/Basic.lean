@@ -80,8 +80,12 @@ theorem Term.denote_wk1_ty
   (G: Γ.upgrade.stlc.interp) 
   (a: A.stlc_ty.interp)
   (H: A.denote_ty Γ G a) 
-  : A.wk1.denote_ty ((Hyp.val B type)::Γ) (x, G) (stlc_wk1 a)
-  := sorry
+  : ∀B x, A.wk1.denote_ty ((Hyp.val B type)::Γ) (x, G) (stlc_wk1 a)
+  := by {
+    induction A with
+    | var _ => cases H
+    | _ => sorry
+  }
 
 def Annot.denote (A: Annot) (Γ: Context)
   (G: Γ.upgrade.stlc.interp)
