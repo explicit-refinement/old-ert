@@ -74,17 +74,43 @@ theorem Term.stlc_wk1
     exact a
   }
 
+theorem Term.stlc_wk1_inv
+  {A: Term}
+  (a: A.wk1.stlc_ty.interp)
+  : A.stlc_ty.interp
+  := by {
+    dsimp only [wk1] at a
+    rw [Term.stlc_ty_wk] at a
+    exact a
+  }
+
+--TODO: general weakening theorem...
 theorem Term.denote_wk1_ty
   (A: Term) 
   (Γ: Context) 
   (G: Γ.upgrade.stlc.interp) 
   (a: A.stlc_ty.interp)
   (H: A.denote_ty Γ G a) 
-  : ∀B x, A.wk1.denote_ty ((Hyp.val B type)::Γ) (x, G) (stlc_wk1 a)
+  : A.wk1.denote_ty ((Hyp.val B type)::Γ) (x, G) (stlc_wk1 a)
   := by {
-    induction A with
-    | var _ => cases H
-    | _ => sorry
+    induction A generalizing B x with
+    | const k => 
+      cases k with
+      | unit => 
+        cases a with
+        | none => cases H
+        | some v => 
+          cases v
+          dsimp [denote_ty]
+          unfold stlc_wk1
+          simp [Eq.mpr]
+      | top => sorry
+      | nats => sorry
+      | _ => cases H
+    | bin => sorry
+    | abs => sorry
+    | tri => sorry
+    | _ =>  cases H
   }
 
 def Annot.denote (A: Annot) (Γ: Context)
