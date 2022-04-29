@@ -72,6 +72,32 @@ def Annot.denote (A: Annot) (Γ: Context)
   | expr type A => A.denote_ty Γ G a
   | expr prop A => A.denote_ty Γ G none
 
+def Annot.denote_regular (A: Annot) (Γ: Context) (H: A.regular Γ)
+  (G: Γ.upgrade.stlc.interp)
+  (a: A.stlc_ty.interp): Prop
+  := match A with
+     | sort s => True
+     | expr s A => by {
+       apply A.denote_ty Γ G;
+       rw [<-Annot.sort_case (by cases H <;> assumption)]
+       exact a
+     }
+
+theorem Annot.denote_regular_eq (A: Annot) (Γ: Context) (H: A.regular Γ)
+  : A.denote_regular Γ H = A.denote Γ
+  := by {
+    funext G a;
+    cases A with
+    | sort => rfl
+    | expr s A =>
+      cases s with
+      | type => rfl
+      | prop => 
+        simp only [denote_regular, denote]
+        have H: ∀a': A.stlc_ty.interp, a' = none := sorry;
+        rw [<-H]
+  }
+
 def Context.denote: (Γ: Context) -> Γ.upgrade.stlc.interp -> Prop
 | [], () => True
 | (Hyp.mk A (HypKind.val type))::Γ, (a, G) => 
@@ -86,6 +112,7 @@ theorem HasType.denote (H: Γ ⊢ a: A) (G: Γ.upgrade.stlc.interp)
   := by {
     induction H with
     | var HA Hv IA => 
+      rename AnnotSort => s
       sorry
     | _ => sorry
   }
