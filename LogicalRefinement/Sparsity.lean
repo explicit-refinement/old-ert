@@ -2,6 +2,12 @@ import LogicalRefinement.Wk
 
 def Sparsity := List Bool
 
+def Sparsity.thin: Sparsity -> List A -> List A
+| [], l => l
+| _, [] => []
+| true::Γ, x::l => x::(thin Γ l)
+| false::Γ, x::l => thin Γ l
+
 @[simp]
 def Sparsity.anti: Sparsity -> Sparsity
 | [] => []
