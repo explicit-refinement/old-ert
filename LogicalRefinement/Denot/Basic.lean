@@ -88,13 +88,13 @@ theorem Term.denote_wk1_ty
     | bin k A B Il Ir => 
       cases k with
       | or => 
-        dsimp only [denote_ty]
-        cases H with
-        | inl H => sorry
-        | inr H => sorry
+        cases a with
+        | none => sorry
+        | some a => cases a
       | coprod =>
-        dsimp only [denote_ty]
-        sorry
+        cases a with
+        | none => cases H
+        | some a => sorry 
       | _ => cases H
     | abs => sorry
     | tri => sorry
