@@ -24,6 +24,13 @@ def Term.denote_ty (A: Term) (Γ: Context)
       let b := Ty.eager b;
       A.denote_ty Γ G a ∧ B.denote_ty ((Hyp.val A type)::Γ) (a, G) b
     | none => False
+  | bin TermKind.coprod A B =>
+    match a with
+    | some (Sum.inl a) => 
+      A.denote_ty Γ G (Ty.eager a)
+    | some (Sum.inr b) => 
+      B.denote_ty Γ G (Ty.eager b)
+    | none => False
   | abs TermKind.assume φ A => 
     (φ.denote_ty Γ G none) -> (A.denote_ty Γ G a)
   | abs TermKind.set A φ => 
@@ -78,19 +85,16 @@ theorem Term.denote_wk1_ty
   := by {
     induction A generalizing B x with
     | const k => cases k <;> exact H
-    | bin k l r Il Ir => 
+    | bin k A B Il Ir => 
       cases k with
       | or => 
         dsimp only [denote_ty]
         cases H with
-        | inl H => 
-          apply Or.inl
-          have Il' := @Il B x none H;
-          dsimp only [wk1] at Il';
-          rw [<-transport_none]
-          --apply Il'
-          sorry
+        | inl H => sorry
         | inr H => sorry
+      | coprod =>
+        dsimp only [denote_ty]
+        sorry
       | _ => cases H
     | abs => sorry
     | tri => sorry
