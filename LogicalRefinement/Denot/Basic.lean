@@ -64,6 +64,9 @@ def Term.denote_ty (A: Term) (Γ: Context)
     | none => False
   | _ => False
 
+theorem transport_none (p: A = B): p ▸ (@none A) = (@none B)
+  := by cases p <;> rfl
+
 --TODO: general weakening theorem...
 theorem Term.denote_wk1_ty
   (A: Term) 
@@ -82,6 +85,10 @@ theorem Term.denote_wk1_ty
         cases H with
         | inl H => 
           apply Or.inl
+          have Il' := @Il B x none H;
+          dsimp only [wk1] at Il';
+          rw [<-transport_none]
+          --apply Il'
           sorry
         | inr H => sorry
       | _ => cases H
