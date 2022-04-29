@@ -9,8 +9,14 @@ def Term.denote_ty (A: Term) (Γ: Context)
   (G: Γ.upgrade.stlc.interp)
   (a: A.stlc_ty.interp): Prop
   := match A with
-  | const TermKind.unit => True
-  | abs TermKind.pi _ _ => sorry
+  | const TermKind.unit => 
+    match a with
+    | some () => True
+    | none => False
+  | abs TermKind.pi A B => 
+    match a with
+    | some a => sorry
+    | none => False
   | abs TermKind.sigma _ _ => sorry
   | abs TermKind.assume _ _ => sorry
   | abs TermKind.set _ _ => sorry
@@ -28,5 +34,8 @@ def Term.denote_ty (A: Term) (Γ: Context)
     (px: Γ.upgrade ⊢ x: term A) -> 
     (py: Γ.upgrade ⊢ y: term A) ->
     (px.stlc.interp G) = (py.stlc.interp G)
-  | const TermKind.nats => True
+  | const TermKind.nats => 
+    match a with
+    | some _ => True
+    | none => False
   | _ => False
