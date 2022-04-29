@@ -94,7 +94,17 @@ theorem Annot.denote_regular_eq (A: Annot) (Γ: Context) (H: A.regular Γ)
       | type => rfl
       | prop => 
         simp only [denote_regular, denote]
-        have H: ∀a': A.stlc_ty.interp, a' = none := sorry;
+        have H: ∀a': A.stlc_ty.interp, a' = none 
+          := by {
+            cases H with
+            | expr H => 
+              intro a';
+              cases a' with
+              | none => rfl
+              | some a' => 
+                rw [H.prop_is_bot] at a'
+                cases a'
+          };
         rw [<-H]
   }
 
