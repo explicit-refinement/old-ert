@@ -34,7 +34,6 @@ inductive TermKind: List Nat -> Type
   | forall_: TermKind [0, 1]
   --TODO: consider merging with (sigma, type, prop) == (sigma, ghost, prop)
   | exists_: TermKind [0, 1]
-  | eq: TermKind [0, 0, 0]
 
   -- Terms
   | nil: TermKind []
@@ -80,6 +79,7 @@ inductive TermKind: List Nat -> Type
   | let_wit: TermKind [0, 0, 2]
 
   -- Theory of equality
+  | eq: TermKind [0, 0, 0]
   | refl: TermKind [0]
   | sym: TermKind [0]
   | trans: TermKind [0]
@@ -95,10 +95,7 @@ inductive TermKind: List Nat -> Type
   | nats: TermKind []
   | zero: TermKind []
   | succ: TermKind []
-  --TODO: add natrec here
-  | natrec_zero: TermKind [0, 0, 1, 2]
-  | natrec_succ: TermKind [0, 0, 1, 2]
-
+  
 inductive Term: Type
   | var (v: Nat)
 
