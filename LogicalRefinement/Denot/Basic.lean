@@ -75,7 +75,16 @@ theorem Term.denote_wk1_ty
   := by {
     induction A generalizing B x with
     | const k => cases k <;> exact H
-    | bin => sorry
+    | bin k l r Il Ir => 
+      cases k with
+      | or => 
+        dsimp only [denote_ty]
+        cases H with
+        | inl H => 
+          apply Or.inl
+          sorry
+        | inr H => sorry
+      | _ => cases H
     | abs => sorry
     | tri => sorry
     | _ =>  cases H
