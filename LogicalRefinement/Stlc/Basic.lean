@@ -145,9 +145,24 @@ def Stlc.let_natrec (e: Stlc) (C: Ty): Stlc
 
 def Stlc.Context := List Ty
 
+@[simp]
+def Stlc.Context.thin (Γ: Context) (Δ: Sparsity): Context := Δ.thin Γ
+
 def Stlc.Context.interp: Context -> Type
 | [] => Unit
 | A::As => Prod A.interp (interp As)
+
+def Stlc.Context.interp.thin: {Γ: Context} -> Γ.interp -> (Δ: Sparsity) -> (Γ.thin Δ).interp
+| [], (), S => by {
+  simp
+  exact ()
+}
+| Γ, G, [] => by {
+  simp
+  exact G
+}
+| A::Γ, (x, G), true::Δ => (x, G.thin Δ)
+| A::Γ, (x, G), false::Δ => G.thin Δ
 
 inductive Stlc.HasVar: Context -> Nat -> Ty -> Prop
 | zero {Γ A}: HasVar (A::Γ) 0 A
