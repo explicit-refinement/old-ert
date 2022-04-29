@@ -16,9 +16,9 @@ def Term.stlc_ty: Term -> Ty
 | abs TermKind.intersect A B => B.stlc_ty
 | abs TermKind.union A B => B.stlc_ty
 | const TermKind.nats => Ty.nats
-| _ => Ty.unit
+| _ => Ty.bot
 
-theorem HasType.prop_is_unit {Γ A}: (Γ ⊢ A: prop) -> A.stlc_ty = Ty.unit
+theorem HasType.prop_is_bot {Γ A}: (Γ ⊢ A: prop) -> A.stlc_ty = Ty.bot
 := by {
   intro H;
   cases H <;> rfl
@@ -26,14 +26,14 @@ theorem HasType.prop_is_unit {Γ A}: (Γ ⊢ A: prop) -> A.stlc_ty = Ty.unit
 
 def Annot.stlc_ty: Annot -> Ty
 | expr type A => A.stlc_ty
-| _ => Ty.unit
+| _ => Ty.bot
 
-theorem Annot.prop_is_unit {Γ A s}: 
-  (Γ ⊢ A: prop) -> (expr s A).stlc_ty = Ty.unit
+theorem Annot.prop_is_bot {Γ A s}: 
+  (Γ ⊢ A: prop) -> (expr s A).stlc_ty = Ty.bot
   := by {
     intro H;
     cases s with
-    | type => exact H.prop_is_unit
+    | type => exact H.prop_is_bot
     | prop => rfl
   }
 
@@ -137,9 +137,9 @@ def Term.stlc: Term -> Sparsity -> Stlc
   if k == type then
     Stlc.natrec K.stlc_ty (n.stlc σ) (z.stlc σ) (s.stlc (true::false::σ))
   else
-    Stlc.nil
+    Stlc.abort
 | unary TermKind.abort _, σ => Stlc.abort
-| _, σ => Stlc.nil
+| _, σ => Stlc.abort
 
 def Term.stlc_var: (var v).stlc σ = σ.stlc v := rfl
 
@@ -304,7 +304,7 @@ theorem HasType.stlc {Γ a A}:
           repeat constructor
           assumption
         )
-      | prop => exact Stlc.HasType.nil
+      | prop => exact Stlc.HasType.abort
     | _ =>
       first
       | assumption
