@@ -64,6 +64,14 @@ def Term.denote_ty (A: Term) (Γ: Context)
     | none => False
   | _ => False
 
+def Annot.denote (A: Annot) (Γ: Context)
+  (G: Γ.upgrade.stlc.interp)
+  (a: A.stlc_ty.interp): Prop
+  := match A with
+  | sort s => True
+  | expr type A => A.denote_ty Γ G a
+  | expr prop A => A.denote_ty Γ G none
+
 def Context.denote: (Γ: Context) -> Γ.upgrade.stlc.interp -> Prop
 | [], () => True
 | (Hyp.mk A (HypKind.val type))::Γ, (a, G) => 
