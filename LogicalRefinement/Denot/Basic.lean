@@ -108,6 +108,9 @@ theorem Annot.denote_regular_eq (A: Annot) (Γ: Context) (H: A.regular Γ)
         rw [<-H]
   }
 
+-- NOTE: I don't think wk1 is necessary here, due to the fact that
+-- A.wk1.stlc_ty = A.stlc_ty, and also that a is not passed to itself...
+-- or something like that...
 def Context.denote: (Γ: Context) -> Γ.upgrade.stlc.interp -> Prop
 | [], () => True
 | (Hyp.mk A (HypKind.val type))::Γ, (a, G) => 
@@ -123,7 +126,22 @@ theorem HasVar.denote_annot
   (G: Γ.upgrade.stlc.interp)
   (HΓ: Γ.denote G)
   : (expr s A).denote Γ G ((HasType.var HA Hv).stlc.interp G.downgrade)
-  := sorry
+  := by {
+    induction Γ generalizing s n A with
+    | nil => cases Hv
+    | cons H Γ I =>   
+      cases H with
+      | mk A k =>
+        cases k with
+        | val s => 
+          match s with
+          | type => sorry
+          | prop => sorry
+        | gst => 
+          cases Hv with
+          | zero Hk => cases Hk
+          | succ Hv => sorry
+  }
 
 theorem HasType.denote
   (H: Γ ⊢ a: A) 
