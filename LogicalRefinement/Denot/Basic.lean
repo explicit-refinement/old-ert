@@ -74,17 +74,7 @@ theorem Term.denote_wk1_ty
   : A.wk1.denote_ty ((Hyp.val B type)::Γ) (x, G) (A.stlc_ty_wk1 ▸ a)
   := by {
     induction A generalizing B x with
-    | const k => 
-      cases k with
-      | unit => 
-        cases a with
-        | none => cases H
-        | some v => 
-          cases v
-          dsimp [denote_ty]
-      | top => sorry
-      | nats => sorry
-      | _ => cases H
+    | const k => cases k <;> exact H
     | bin => sorry
     | abs => sorry
     | tri => sorry
