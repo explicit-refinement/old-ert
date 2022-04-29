@@ -117,12 +117,21 @@ def Context.denote: (Γ: Context) -> Γ.upgrade.stlc.interp -> Prop
 | (Hyp.mk A HypKind.gst)::Γ, (a, G) =>
   A.denote_ty Γ G a ∧ denote Γ G
 
-theorem HasType.denote (H: Γ ⊢ a: A) (G: Γ.upgrade.stlc.interp)
+theorem HasVar.denote_annot
+  (Hv: HasVar Γ n (HypKind.val s) A)
+  (HA: Γ ⊢ A: sort s)
+  (G: Γ.upgrade.stlc.interp)
+  (HΓ: Γ.denote G)
+  : (expr s A).denote Γ G ((HasType.var HA Hv).stlc.interp G.downgrade)
+  := sorry
+
+theorem HasType.denote
+  (H: Γ ⊢ a: A) 
+  (G: Γ.upgrade.stlc.interp)
+  (HΓ: Γ.denote G)
   : A.denote Γ G (H.stlc.interp G.downgrade)
   := by {
     induction H with
-    | var HA Hv IA => 
-      rename AnnotSort => s
-      sorry
+    | var HA Hv IA => exact Hv.denote_annot HA G HΓ
     | _ => sorry
   }
