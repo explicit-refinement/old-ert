@@ -80,3 +80,7 @@ def Context.denote: (Γ: Context) -> Γ.upgrade.stlc.interp -> Prop
   φ.denote_ty Γ G none ∧ denote Γ G
 | (Hyp.mk A HypKind.gst)::Γ, (a, G) =>
   A.denote_ty Γ G a ∧ denote Γ G
+
+theorem HasType.denote (H: Γ ⊢ a: A) (G: Γ.upgrade.stlc.interp)
+  : A.denote Γ G (H.stlc.interp G.downgrade)
+  := sorry

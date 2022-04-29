@@ -78,13 +78,14 @@ theorem Context.downgrade_sparsity_downgrade (Γ: Context)
         | gst => exact I
   }
 
-def Context.downgrade_stlc (Γ: Context) (G: Γ.upgrade.stlc.interp)
+def Stlc.Context.interp.downgrade 
+  {Γ: _root_.Context} (G: Γ.upgrade.stlc.interp)
   : Γ.stlc.interp
   := by {
     rw [<-Context.downgrade_sparsity_downgrade]
     apply G.thin
   }
-
+  
 theorem Context.sparsity_true {Γ: Context}
   : H.kind = HypKind.val type -> sparsity (H::Γ) = true::Γ.sparsity
   := by {
