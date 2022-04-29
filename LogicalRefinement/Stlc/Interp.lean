@@ -173,9 +173,9 @@ theorem HasType.stlc_ty_subst {Γ A σ s} (H: Γ ⊢ A: sort s):
   )
 }
 
-theorem Term.stlc_ty_wk {A: Term}: ∀{ρ}, (A.wk ρ).stlc_ty = A.stlc_ty 
+theorem Term.stlc_ty_wk (A: Term) (ρ: Wk): (A.wk ρ).stlc_ty = A.stlc_ty 
 := by {
-  induction A <;> intro ρ <;> 
+  induction A generalizing ρ <;> 
   simp only [Term.stlc_ty, Term.wk]
 
   case bin k l r Il Ir =>
@@ -194,7 +194,7 @@ theorem Term.stlc_ty_wknth {A: Term}: (A.wknth n).stlc_ty = A.stlc_ty
   apply Term.stlc_ty_wk
 }
 
-theorem Term.stlc_ty_wk1 {A: Term}: (A.wk1).stlc_ty = A.stlc_ty 
+theorem Term.stlc_ty_wk1 (A: Term): (A.wk1).stlc_ty = A.stlc_ty 
 := by {
   simp only [wk1]
   apply Term.stlc_ty_wk
@@ -210,7 +210,7 @@ theorem Annot.stlc_ty_subst {Γ A σ s k} (H: Γ ⊢ A: sort s):
 theorem Annot.stlc_ty_wk {A k}: ∀{ρ},
   (expr k (A.wk ρ)).stlc_ty = (expr k A).stlc_ty := by {
     cases k with
-    | type => exact Term.stlc_ty_wk
+    | type => apply Term.stlc_ty_wk
     | prop => intros; rfl
   }
 

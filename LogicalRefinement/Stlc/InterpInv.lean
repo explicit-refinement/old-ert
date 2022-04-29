@@ -29,13 +29,20 @@ theorem Stlc.HasVar.interp_inv {Γ n A}
             {
               cases Hv with
               | zero => 
-                exact ⟨H.wk1, by repeat constructor, Term.stlc_ty_wk1, HH'⟩
+                exact ⟨
+                  H.wk1, 
+                  by repeat constructor, 
+                  by apply Term.stlc_ty_wk1, 
+                  HH'
+                  ⟩
               | succ Hv => 
                 have ⟨A', Hv', HA', HΓA'⟩ := I Hv HΓ';
                 exact ⟨
                   A'.wk1, 
                   Hv'.succ, 
-                  by dsimp only [Annot.stlc_ty]; rw [Term.stlc_ty_wk1]; exact HA', 
+                  by 
+                    dsimp only [Annot.stlc_ty]; rw [Term.stlc_ty_wk1]; 
+                    exact HA', 
                   HΓA'.wk1_sort
                   ⟩
             }
