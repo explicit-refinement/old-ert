@@ -122,10 +122,10 @@ def Context.denote: (Γ: Context) -> Γ.upgrade.stlc.interp -> Prop
 
 theorem HasVar.denote_annot
   (Hv: HasVar Γ n (HypKind.val s) A)
-  (HA: Γ ⊢ A: sort s)
+  (HΓ: IsCtx Γ)
   (G: Γ.upgrade.stlc.interp)
-  (HΓ: Γ.denote G)
-  : (expr s A).denote Γ G ((HasType.var HA Hv).stlc.interp G.downgrade)
+  (HG: Γ.denote G)
+  : (expr s A).denote Γ G ((HΓ.var Hv).stlc.interp G.downgrade)
   := by {
     induction Γ generalizing s n A with
     | nil => cases Hv
@@ -134,22 +134,36 @@ theorem HasVar.denote_annot
       | mk A k =>
         cases k with
         | val s => 
-          match s with
+          cases s with
           | type => sorry
           | prop => sorry
         | gst => 
           cases Hv with
           | zero Hk => cases Hk
-          | succ Hv => sorry
+          | succ Hv => 
+            cases HΓ with
+            | cons_gst HΓ => 
+              let (x, G) := G;
+              have I' := I Hv HΓ G;
+              cases s with
+              | type => 
+                simp only [denote]
+                --TODO: denotational weakening
+                sorry
+              | prop => 
+                simp only [denote]
+                --TODO: denotational weakening
+                sorry
   }
 
 theorem HasType.denote
-  (H: Γ ⊢ a: A) 
+  (H: Γ ⊢ a: A)
+  (HΓ: IsCtx Γ)
   (G: Γ.upgrade.stlc.interp)
-  (HΓ: Γ.denote G)
+  (HG: Γ.denote G)
   : A.denote Γ G (H.stlc.interp G.downgrade)
   := by {
     induction H with
-    | var HA Hv IA => exact Hv.denote_annot HA G HΓ
+    | var HA Hv IA => exact Hv.denote_annot HΓ G HG
     | _ => sorry
   }

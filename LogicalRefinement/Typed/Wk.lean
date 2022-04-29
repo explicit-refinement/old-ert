@@ -142,6 +142,10 @@ theorem IsCtx.var_valid {Γ} (H: IsCtx Γ)
       apply Hv
       cases H <;> assumption
   }
+  
+theorem IsCtx.var {Γ} (H: IsCtx Γ) (Hv: HasVar Γ n (HypKind.val s) A)
+  : Γ ⊢ var n: expr s A
+  := HasType.var (H.var_valid Hv) Hv
 
 --TODO: requires strengthening lemma, basically
 -- theorem IsCtx.from_var_valid {Γ} 
