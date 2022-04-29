@@ -59,6 +59,25 @@ def Context.downgrade_sparsity: Context -> Sparsity
 | (Hyp.mk A (HypKind.val prop))::Γ => downgrade_sparsity Γ
 | (Hyp.mk A HypKind.gst)::Γ => false::(downgrade_sparsity Γ)
 
+@[simp]
+theorem Context.downgrade_sparsity_downgrade (Γ: Context)
+  : Γ.upgrade.stlc.thin Γ.downgrade_sparsity = Γ.stlc
+  := by {
+    induction Γ with
+    | nil => simp [downgrade_sparsity]
+    | cons H Γ I => 
+      cases H with
+      | mk A k =>
+        cases k with
+        | val s => cases s with 
+          | type => 
+            simp [Sparsity.thin] at *
+            rw [I]
+            rfl
+          | prop => exact I
+        | gst => exact I
+  }
+
 theorem Context.sparsity_true {Γ: Context}
   : H.kind = HypKind.val type -> sparsity (H::Γ) = true::Γ.sparsity
   := by {
