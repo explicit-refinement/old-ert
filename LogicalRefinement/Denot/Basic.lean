@@ -32,7 +32,10 @@ def Term.denote_ty (A: Term) (Γ: Context)
     ∀x: A.stlc_ty.interp,
       A.denote_ty Γ G x ->
       B.denote_ty ((Hyp.gst A)::Γ) (x, G) a
-  | abs TermKind.union _ _ => sorry
+  | abs TermKind.union A B => 
+    ∃x: A.stlc_ty.interp,
+      A.denote_ty Γ G x ->
+      B.denote_ty ((Hyp.gst A)::Γ) (x, G) a
   | const TermKind.top => True
   | const TermKind.bot => False
   | abs TermKind.dimplies A B => 
@@ -43,8 +46,14 @@ def Term.denote_ty (A: Term) (Γ: Context)
     (A.denote_ty Γ G none) ∧ (B.denote_ty Γ G none)
   | bin TermKind.or A B => 
     (A.denote_ty Γ G none) ∨ (B.denote_ty Γ G none)
-  | abs TermKind.forall_ _ _ => sorry
-  | abs TermKind.exists_ _ _ => sorry
+  | abs TermKind.forall_ A φ => 
+    ∀x: A.stlc_ty.interp,
+      A.denote_ty Γ G x ->
+      φ.denote_ty ((Hyp.val A type)::Γ) (x, G) none
+  | abs TermKind.exists_ A φ => 
+    ∃x: A.stlc_ty.interp,
+      A.denote_ty Γ G x ->
+      φ.denote_ty ((Hyp.gst A)::Γ) (x, G) none
   | tri TermKind.eq A x y => 
     (px: Γ.upgrade ⊢ x: term A) -> 
     (py: Γ.upgrade ⊢ y: term A) ->
