@@ -24,9 +24,14 @@ def Term.denote_ty (A: Term) (Γ: Context)
       let b := Ty.eager b;
       (A.denote_ty Γ G a) ∧ (B.denote_ty ((Hyp.val A type)::Γ) (a, G) b)
     | none => False
-  | abs TermKind.assume _ _ => sorry
-  | abs TermKind.set _ _ => sorry
-  | abs TermKind.intersect _ _ => sorry
+  | abs TermKind.assume φ A => 
+    (φ.denote_ty Γ G none) -> (A.denote_ty Γ G a)
+  | abs TermKind.set A φ => 
+    (A.denote_ty Γ G a) ∧ (φ.denote_ty ((Hyp.val A type)::Γ) (a, G) none)
+  | abs TermKind.intersect A B => 
+    ∀x: A.stlc_ty.interp,
+      A.denote_ty Γ G x ->
+      B.denote_ty ((Hyp.gst A)::Γ) (x, G) a
   | abs TermKind.union _ _ => sorry
   | const TermKind.top => True
   | const TermKind.bot => False
