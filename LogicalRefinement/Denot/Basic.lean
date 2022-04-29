@@ -20,7 +20,8 @@ def Term.denote_ty (A: Term) (Γ: Context)
   | const TermKind.bot => False
   | abs TermKind.dimplies _ _ => sorry
   | abs TermKind.dand _ _ => sorry
-  | bin TermKind.or _ _ => sorry
+  | bin TermKind.or A B => 
+    (A.denote_ty Γ G none) ∨ (B.denote_ty Γ G none)
   | abs TermKind.forall_ _ _ => sorry
   | abs TermKind.exists_ _ _ => sorry
   | tri TermKind.eq A x y => 
