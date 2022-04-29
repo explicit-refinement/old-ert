@@ -22,12 +22,12 @@ def Term.denote_ty (A: Term) (Γ: Context)
     | some (a, b) => 
       let a := Ty.eager a;
       let b := Ty.eager b;
-      (A.denote_ty Γ G a) ∧ (B.denote_ty ((Hyp.val A type)::Γ) (a, G) b)
+      A.denote_ty Γ G a ∧ B.denote_ty ((Hyp.val A type)::Γ) (a, G) b
     | none => False
   | abs TermKind.assume φ A => 
     (φ.denote_ty Γ G none) -> (A.denote_ty Γ G a)
   | abs TermKind.set A φ => 
-    (A.denote_ty Γ G a) ∧ (φ.denote_ty ((Hyp.val A type)::Γ) (a, G) none)
+    A.denote_ty Γ G a ∧ φ.denote_ty ((Hyp.val A type)::Γ) (a, G) none
   | abs TermKind.intersect A B => 
     ∀x: A.stlc_ty.interp,
       A.denote_ty Γ G x ->
@@ -43,9 +43,9 @@ def Term.denote_ty (A: Term) (Γ: Context)
     (A.denote_ty Γ G none) -> (B.denote_ty Γ G none)
   | abs TermKind.dand A B =>
     --TODO: think about this...
-    (A.denote_ty Γ G none) ∧ (B.denote_ty Γ G none)
+    A.denote_ty Γ G none ∧ B.denote_ty Γ G none
   | bin TermKind.or A B => 
-    (A.denote_ty Γ G none) ∨ (B.denote_ty Γ G none)
+    A.denote_ty Γ G none ∨ B.denote_ty Γ G none
   | abs TermKind.forall_ A φ => 
     ∀x: A.stlc_ty.interp,
       A.denote_ty Γ G x ->
@@ -57,9 +57,18 @@ def Term.denote_ty (A: Term) (Γ: Context)
   | tri TermKind.eq A x y => 
     (px: Γ.upgrade ⊢ x: term A) -> 
     (py: Γ.upgrade ⊢ y: term A) ->
-    (px.stlc.interp G) = (py.stlc.interp G)
+    px.stlc.interp G = py.stlc.interp G
   | const TermKind.nats => 
     match a with
     | some _ => True
     | none => False
   | _ => False
+
+def Context.denote: (Γ: Context) -> Γ.upgrade.stlc.interp -> Prop
+| [], () => True
+| (Hyp.mk A (HypKind.val type))::Γ, (a, G) => 
+  A.denote_ty Γ G a ∧ denote Γ G
+| (Hyp.mk φ (HypKind.val prop))::Γ, G =>
+  φ.denote_ty Γ G none ∧ denote Γ G
+| (Hyp.mk A HypKind.gst)::Γ, (a, G) =>
+  A.denote_ty Γ G a ∧ denote Γ G
