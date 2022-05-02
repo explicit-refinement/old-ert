@@ -91,6 +91,16 @@ theorem interp_eq_inl (q: A.stlc_ty = A.wk1.stlc_ty)
     sorry
   }
 
+theorem interp_eq_inr (q: B.stlc_ty = B.wk1.stlc_ty)
+  : @Eq.rec Ty 
+    (Term.stlc_ty (Term.bin TermKind.coprod A B)) 
+    (fun x h => Ty.interp_val x) 
+    (Sum.inr b) 
+    (Term.stlc_ty (Term.wk1 (Term.bin TermKind.coprod A B))) 
+    p = Sum.inr (q ▸ b) := by {
+    sorry
+  }
+
 --TODO: general weakening theorem...
 theorem Term.denote_wk1_ty
   (A: Term) 
@@ -130,7 +140,14 @@ theorem Term.denote_wk1_ty
             rw [interp_eq_inl]
             dsimp only [denote_ty]
             apply Il'
-          | inr b => sorry
+          | inr b => 
+            have Ir' := @Ir B x _ H;
+            rw [interp_eq_some]
+            dsimp only [Ty.eager, pure, OptionT.pure, OptionT.mk] at Ir'
+            rw [interp_eq_some] at Ir'
+            rw [interp_eq_inr]
+            dsimp only [denote_ty]
+            apply Ir'
       | _ => cases H
     | abs => sorry
     | tri => sorry
