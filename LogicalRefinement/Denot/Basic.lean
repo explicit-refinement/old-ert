@@ -151,7 +151,10 @@ theorem Term.denote_wk1_ty
       | _ => cases H
     | abs k A B IA IB => 
       cases k with
-      | pi => sorry
+      | pi => 
+        cases a with
+        | none => sorry
+        | some a => sorry
       | sigma => sorry
       | assume => sorry
       | set => sorry
