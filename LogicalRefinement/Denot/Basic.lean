@@ -314,7 +314,6 @@ theorem HasType.denote
     | irir => sorry
     | prir => sorry
     | succ => 
-      dsimp only [Annot.denote, Term.denote_ty]
       intro x H;
       cases x with
       | none => cases H
