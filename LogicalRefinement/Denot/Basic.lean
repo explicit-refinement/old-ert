@@ -313,7 +313,12 @@ theorem HasType.denote
     | eta => sorry
     | irir => sorry
     | prir => sorry
-    | succ => sorry
+    | succ => 
+      dsimp only [Annot.denote, Term.denote_ty]
+      intro x H;
+      cases x with
+      | none => cases H
+      | some x => exact True.intro
     | natrec => sorry
     | _ => exact True.intro
   }
