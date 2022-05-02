@@ -107,11 +107,13 @@ theorem Term.denote_wk1_ty
   (Γ: Context) 
   (G: Γ.upgrade.stlc.interp) 
   (a: A.stlc_ty.interp)
+  (a': A.wk1.stlc_ty.interp)
+  (Ha: a' = A.stlc_ty_wk1 ▸ a)
   (H: A.denote_ty Γ G a) 
-  : A.wk1.denote_ty ((Hyp.val B type)::Γ) (x, G) (A.stlc_ty_wk1 ▸ a)
+  : A.wk1.denote_ty ((Hyp.val B type)::Γ) (x, G) a'
   := by {
     induction A generalizing B x with
-    | const k => cases k <;> exact H
+    | const k => cases k <;> rw [Ha] <;> exact H
     | bin k A B IA IB => 
       cases k with
       | or => 
@@ -119,35 +121,19 @@ theorem Term.denote_wk1_ty
         | none => 
           cases H with
           | inl H => 
-            have IA' := @IA B x none H;
-            rw [interp_eq_none] at IA'
-            exact Or.inl IA'
+            apply Or.inl (IA _ _ _ H)
+            rw [interp_eq_none]
           | inr H => 
-            have IB' := @IB B x none H;
-            rw [interp_eq_none] at IB'
-            exact Or.inr IB'
+            apply Or.inr (IB _ _ _ H)
+            rw [interp_eq_none]
         | some a => cases a
       | coprod =>
         cases a with
         | none => cases H
         | some a =>
           cases a with
-          | inl a => 
-            have IA' := @IA B x _ H;
-            rw [interp_eq_some]
-            dsimp only [Ty.eager, pure, OptionT.pure, OptionT.mk] at IA'
-            rw [interp_eq_some] at IA'
-            rw [interp_eq_inl]
-            dsimp only [denote_ty]
-            apply IA'
-          | inr b => 
-            have IB' := @IB B x _ H;
-            rw [interp_eq_some]
-            dsimp only [Ty.eager, pure, OptionT.pure, OptionT.mk] at IB'
-            rw [interp_eq_some] at IB'
-            rw [interp_eq_inr]
-            dsimp only [denote_ty]
-            apply IB'
+          | inl a => sorry
+          | inr b => sorry
       | _ => cases H
     | abs k A B IA IB => 
       cases k with
