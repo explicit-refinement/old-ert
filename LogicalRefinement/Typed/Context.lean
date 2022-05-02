@@ -193,19 +193,19 @@ theorem HypKind.upgrade_regular {s} {h: HypKind} (p: h.regular s):
 structure Hyp := (ty: Term) (kind: HypKind)
 
 @[simp]
-def Hyp.wk (H: Hyp) (ρ: Wk) := Hyp.mk (H.ty.wk ρ) H.kind
+abbrev Hyp.wk (H: Hyp) (ρ: Wk) := Hyp.mk (H.ty.wk ρ) H.kind
 
 @[simp]
 def Hyp.wk_def {A k ρ}: (Hyp.mk A k).wk ρ = Hyp.mk (A.wk ρ) k := rfl
 
 @[simp]
-def Hyp.wkn (H: Hyp) (n: Nat) := Hyp.mk (H.ty.wkn n) H.kind
+abbrev Hyp.wkn (H: Hyp) (n: Nat) := Hyp.mk (H.ty.wkn n) H.kind
 
 @[simp]
-def Hyp.subst (H: Hyp) (σ: Subst) := Hyp.mk (H.ty.subst σ) H.kind
+abbrev Hyp.subst (H: Hyp) (σ: Subst) := Hyp.mk (H.ty.subst σ) H.kind
 
 @[simp]
-def Hyp.annot (H: Hyp): Annot := Annot.expr H.kind.annot H.ty
+abbrev Hyp.annot (H: Hyp): Annot := Annot.expr H.kind.annot H.ty
 
 theorem Hyp.wk_components:
   Hyp.wk (Hyp.mk A h) ρ = Hyp.mk (A.wk ρ) h := rfl
@@ -214,7 +214,7 @@ theorem Hyp.subst_components:
   Hyp.subst (Hyp.mk A h) σ = Hyp.mk (A.subst σ) h := rfl
 
 @[simp]
-def Hyp.upgrade (H: Hyp) := Hyp.mk H.ty H.kind.upgrade
+abbrev Hyp.upgrade (H: Hyp) := Hyp.mk H.ty H.kind.upgrade
 
 @[simp]
 theorem Hyp.upgrade_idem: upgrade (upgrade h) = upgrade h := by {
@@ -251,8 +251,8 @@ theorem Hyp.is_sub.upgrade_bin {H H': Hyp} (HH: H.is_sub H')
     exact Hyp.is_sub.refl
 }
 
-def Hyp.val (A: Term) (s: AnnotSort) := Hyp.mk A (HypKind.val s)
-def Hyp.gst (A: Term) := Hyp.mk A HypKind.gst
+abbrev Hyp.val (A: Term) (s: AnnotSort) := Hyp.mk A (HypKind.val s)
+abbrev Hyp.gst (A: Term) := Hyp.mk A HypKind.gst
 
 def Context := List Hyp
 
@@ -310,39 +310,42 @@ theorem Context.is_sub.upgrade_bin {Γ Δ: Context} (H: Γ.is_sub Δ)
 }
 
 --TODO: move to Term.Basic?
-def Term.arrow (A B: Term) := pi A (wk1 B)
-def Term.implies (φ ψ: Term) := dimplies φ ψ.wk1
-def Term.and (φ ψ: Term) := dand φ ψ.wk1
-def Term.const_arrow (A B: Term) := intersect A (wk1 B)
-def Term.assume_wf (φ A: Term) := assume φ (A.wk1)
+abbrev Term.arrow (A B: Term) := pi A (wk1 B)
+abbrev Term.implies (φ ψ: Term) := dimplies φ ψ.wk1
+abbrev Term.and (φ ψ: Term) := dand φ ψ.wk1
+abbrev Term.const_arrow (A B: Term) := intersect A (wk1 B)
+abbrev Term.assume_wf (φ A: Term) := assume φ (A.wk1)
 
 @[simp]
-def Term.arrow_wk: (arrow A B).wk ρ = arrow (A.wk ρ) (B.wk ρ) := by simp [arrow, pi]
+theorem Term.arrow_wk: (arrow A B).wk ρ = arrow (A.wk ρ) (B.wk ρ) 
+  := by simp [arrow, pi]
 @[simp]
-def Term.implies_wk: (implies φ ψ).wk ρ = implies (φ.wk ρ) (ψ.wk ρ) := by simp [implies, dimplies]
+theorem Term.implies_wk: (implies φ ψ).wk ρ = implies (φ.wk ρ) (ψ.wk ρ) 
+  := by simp [implies, dimplies]
 @[simp]
-def Term.const_arrow_wk: (const_arrow A B).wk ρ = const_arrow (A.wk ρ) (B.wk ρ) 
+theorem Term.const_arrow_wk: (const_arrow A B).wk ρ = const_arrow (A.wk ρ) (B.wk ρ) 
   := by simp [const_arrow, intersect]
 @[simp]
-def Term.assume_wf_wk: (assume_wf φ A).wk ρ = assume_wf (φ.wk ρ) (A.wk ρ) 
+theorem Term.assume_wf_wk: (assume_wf φ A).wk ρ = assume_wf (φ.wk ρ) (A.wk ρ) 
   := by simp [assume_wf, assume]
 @[simp]
-def Term.and_wk: (and φ ψ).wk ρ = and (φ.wk ρ) (ψ.wk ρ) := by simp [and, dand]
+theorem Term.and_wk: (and φ ψ).wk ρ = and (φ.wk ρ) (ψ.wk ρ) 
+  := by simp [and, dand]
 
 @[simp]
-def Term.arrow_subst: (arrow A B).subst σ = arrow (A.subst σ) (B.subst σ) 
+theorem Term.arrow_subst: (arrow A B).subst σ = arrow (A.subst σ) (B.subst σ) 
   := by simp only [arrow, pi, subst, Subst.lift_wk]
 @[simp]
-def Term.const_arrow_subst: (const_arrow A B).subst σ = const_arrow (A.subst σ) (B.subst σ) 
+theorem Term.const_arrow_subst: (const_arrow A B).subst σ = const_arrow (A.subst σ) (B.subst σ) 
   := by simp only [const_arrow, intersect, subst, Subst.lift_wk]
 @[simp]
-def Term.implies_subst: (implies φ ψ).subst σ = implies (φ.subst σ) (ψ.subst σ) 
+theorem Term.implies_subst: (implies φ ψ).subst σ = implies (φ.subst σ) (ψ.subst σ) 
   := by simp only [implies, dimplies, subst, Subst.lift_wk]
 @[simp]
-def Term.assume_wf_subst: (assume_wf φ A).subst σ = assume_wf (φ.subst σ) (A.subst σ) 
+theorem Term.assume_wf_subst: (assume_wf φ A).subst σ = assume_wf (φ.subst σ) (A.subst σ) 
   := by simp only [assume_wf, assume, subst, Subst.lift_wk]
 @[simp]
-def Term.and_subst: (and φ ψ).subst σ = and (φ.subst σ) (ψ.subst σ)
+theorem Term.and_subst: (and φ ψ).subst σ = and (φ.subst σ) (ψ.subst σ)
   := by simp only [and, dand, subst, Subst.lift_wk]
 
 
@@ -356,14 +359,14 @@ def constAnnot: TermKind [] -> Annot
   | TermKind.succ => term (arrow nats nats)
   | TermKind.triv => proof top
 
-def Term.sym_ty_tmp: Term :=
+abbrev Term.sym_ty_tmp: Term :=
   forall_ (var 0) (
     forall_ (var 1) (
       implies (eq (var 2) (var 1) (var 0)) (eq (var 2) (var 0) (var 1))
     )
   )
 
-def Term.trans_ty_tmp: Term :=
+abbrev Term.trans_ty_tmp: Term :=
   forall_ (var 0) (
     forall_ (var 1) (
       forall_ (var 2) (
@@ -374,36 +377,38 @@ def Term.trans_ty_tmp: Term :=
     )
   )
 
-def Term.sym_ty_tmp_fv: sym_ty_tmp.fv = 1 := rfl
-def Term.trans_ty_tmp_fv: trans_ty_tmp.fv = 1 := rfl
+@[simp]
+theorem Term.sym_ty_tmp_fv: sym_ty_tmp.fv = 1 := rfl
+@[simp]
+theorem Term.trans_ty_tmp_fv: trans_ty_tmp.fv = 1 := rfl
 
 def Term.sym_ty (A: Term): Term := sym_ty_tmp.subst0 A
 def Term.trans_ty (A: Term): Term := trans_ty_tmp.subst0 A
 
-def Term.sym_ty_subst {A σ}: (sym_ty A).subst σ = (sym_ty (A.subst σ)) :=
+theorem Term.sym_ty_subst {A σ}: (sym_ty A).subst σ = (sym_ty (A.subst σ)) :=
   tmp_fill (by simp)
-def Term.trans_ty_subst {A σ}: (trans_ty A).subst σ = (trans_ty (A.subst σ)) :=
+theorem Term.trans_ty_subst {A σ}: (trans_ty A).subst σ = (trans_ty (A.subst σ)) :=
   tmp_fill (by simp)
 
-def Annot.sym_ty_subst {A σ}: (proof (sym_ty A)).subst σ = proof (sym_ty (A.subst σ)) :=
+theorem Annot.sym_ty_subst {A σ}: (proof (sym_ty A)).subst σ = proof (sym_ty (A.subst σ)) :=
   by simp only [proof, Annot.subst, Term.sym_ty_subst]
-def Annot.trans_ty_subst {A σ}: (proof (trans_ty A)).subst σ = proof (trans_ty (A.subst σ)) :=
+theorem Annot.trans_ty_subst {A σ}: (proof (trans_ty A)).subst σ = proof (trans_ty (A.subst σ)) :=
   by simp only [proof, Annot.subst, Term.trans_ty_subst]
 
-def Term.sym_ty_wk {A ρ}: (sym_ty A).wk ρ = (sym_ty (A.wk ρ)) :=
+theorem Term.sym_ty_wk {A ρ}: (sym_ty A).wk ρ = (sym_ty (A.wk ρ)) :=
   tmp_fill_wk (by simp)
-def Term.trans_ty_wk {A ρ}: (trans_ty A).wk ρ = (trans_ty (A.wk ρ)) :=
+theorem Term.trans_ty_wk {A ρ}: (trans_ty A).wk ρ = (trans_ty (A.wk ρ)) :=
   tmp_fill_wk (by simp)
 
-def Annot.sym_ty_wk {A ρ}: (proof (sym_ty A)).wk ρ = proof (sym_ty (A.wk ρ)) :=
+theorem Annot.sym_ty_wk {A ρ}: (proof (sym_ty A)).wk ρ = proof (sym_ty (A.wk ρ)) :=
   by simp only [proof, Annot.wk, Term.sym_ty_wk]
-def Annot.trans_ty_wk {A ρ}: (proof (trans_ty A)).wk ρ = proof (trans_ty (A.wk ρ)) :=
+theorem Annot.trans_ty_wk {A ρ}: (proof (trans_ty A)).wk ρ = proof (trans_ty (A.wk ρ)) :=
   by simp only [proof, Annot.wk, Term.trans_ty_wk]
 
-def Term.eta_ex (A B f: Term) := 
+abbrev Term.eta_ex (A B f: Term) := 
   lam A (app (pi A.wk1 (B.wknth 1)) f.wk1 (var 0))
 
-def Term.eta_ex_subst {A B f: Term} {σ}: 
+theorem Term.eta_ex_subst {A B f: Term} {σ}: 
   (eta_ex A B f).subst σ 
   = eta_ex (A.subst σ) (B.subst σ.lift) (f.subst σ)
   := by {
@@ -414,14 +419,14 @@ def Term.eta_ex_subst {A B f: Term} {σ}:
     rfl
   }
 
-def Term.eta_ex_wk {A B f: Term} {ρ}: 
+theorem Term.eta_ex_wk {A B f: Term} {ρ}: 
   (eta_ex A B f).wk ρ 
   = eta_ex (A.wk ρ) (B.wk ρ.lift) (f.wk ρ) := by {
   simp only [<-Subst.subst_wk_compat, <-Wk.to_subst_lift]
   exact eta_ex_subst
 }
 
-def Term.eta_ex_eq_subst {P A B f r: Term} {σ}: 
+theorem Term.eta_ex_eq_subst {P A B f r: Term} {σ}: 
   (eq P (eta_ex A B f) r).subst σ 
   = eq (P.subst σ) 
   (eta_ex (A.subst σ) (B.subst σ.lift) (f.subst σ)) (r.subst σ)
@@ -430,7 +435,7 @@ def Term.eta_ex_eq_subst {P A B f r: Term} {σ}:
     rfl
   }
 
-def Term.eta_ex_eq_wk {P A B f r: Term} {ρ}:
+theorem Term.eta_ex_eq_wk {P A B f r: Term} {ρ}:
   (eq P (eta_ex A B f) r).wk ρ 
   = eq (P.wk ρ) (eta_ex (A.wk ρ) (B.wk ρ.lift) (f.wk ρ)) (r.wk ρ) 
   := by {
@@ -440,7 +445,7 @@ def Term.eta_ex_eq_wk {P A B f r: Term} {ρ}:
 
 def Term.irir_ex (A B f x) := app_irrel (const_arrow A B) f x
 
-def Term.irir_ex_subst: 
+theorem Term.irir_ex_subst: 
   (irir_ex A B f x).subst σ 
   = irir_ex (A.subst σ) (B.subst σ) (f.subst σ) (x.subst σ)
   := by {
@@ -448,7 +453,7 @@ def Term.irir_ex_subst:
     rfl
   }
 
-def Term.irir_ex_wk: 
+theorem Term.irir_ex_wk: 
   (irir_ex A B f x).wk ρ 
   = irir_ex (A.wk ρ) (B.wk ρ) (f.wk ρ) (x.wk ρ)
   := by {
@@ -456,7 +461,7 @@ def Term.irir_ex_wk:
     exact irir_ex_subst
   }
 
-def Term.irir_ex_eq_subst: 
+theorem Term.irir_ex_eq_subst: 
   (eq P (irir_ex A B f x) (irir_ex A B f y)).subst σ 
   = eq (P.subst σ) 
   (irir_ex (A.subst σ) (B.subst σ) (f.subst σ) (x.subst σ))
@@ -466,7 +471,7 @@ def Term.irir_ex_eq_subst:
     rfl
   }
 
-def Term.irir_ex_eq_wk: 
+theorem Term.irir_ex_eq_wk: 
   (eq P (irir_ex A B f x) (irir_ex A B f y)).wk ρ 
   = eq (P.wk ρ) 
   (irir_ex (A.wk ρ) (B.wk ρ) (f.wk ρ) (x.wk ρ))
@@ -478,7 +483,7 @@ def Term.irir_ex_eq_wk:
 
 def Term.prir_ex (A B f x) := app_pr (assume_wf A B) f x
 
-def Term.prir_ex_subst: 
+theorem Term.prir_ex_subst: 
   (prir_ex A B f x).subst σ 
   = prir_ex (A.subst σ) (B.subst σ) (f.subst σ) (x.subst σ)
   := by {
@@ -486,7 +491,7 @@ def Term.prir_ex_subst:
     rfl
   }
 
-def Term.prir_ex_wk: 
+theorem Term.prir_ex_wk: 
   (prir_ex A B f x).wk ρ 
   = prir_ex (A.wk ρ) (B.wk ρ) (f.wk ρ) (x.wk ρ)
   := by {
@@ -494,7 +499,7 @@ def Term.prir_ex_wk:
     exact prir_ex_subst
   }
 
-def Term.prir_ex_eq_subst: 
+theorem Term.prir_ex_eq_subst: 
   (eq P (prir_ex A B f x) (prir_ex A B f y)).subst σ 
   = eq (P.subst σ) 
   (prir_ex (A.subst σ) (B.subst σ) (f.subst σ) (x.subst σ))
@@ -504,7 +509,7 @@ def Term.prir_ex_eq_subst:
     rfl
   }
 
-def Term.prir_ex_eq_wk: 
+theorem Term.prir_ex_eq_wk: 
   (eq P (prir_ex A B f x) (prir_ex A B f y)).wk ρ 
   = eq (P.wk ρ) 
   (prir_ex (A.wk ρ) (B.wk ρ) (f.wk ρ) (x.wk ρ))
@@ -514,4 +519,4 @@ def Term.prir_ex_eq_wk:
     rfl
   }
 
-def Hyp.unit: Hyp := Hyp.mk Term.unit (HypKind.val type)
+abbrev Hyp.unit: Hyp := Hyp.mk Term.unit (HypKind.val type)
