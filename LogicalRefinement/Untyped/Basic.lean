@@ -113,70 +113,70 @@ inductive Term: Type
   | natrec (k: AnnotSort) (K: Term) (e: Term) (z: Term) (s: Term)
 
 -- Types
-def Term.unit := const TermKind.unit
-def Term.nats := const TermKind.nats
-def Term.pi := abs TermKind.pi
-def Term.sigma := abs TermKind.sigma
-def Term.coprod := bin TermKind.coprod
-def Term.set := abs TermKind.set
-def Term.assume := abs TermKind.assume
-def Term.intersect := abs TermKind.intersect
-def Term.union := abs TermKind.union
+abbrev Term.unit := const TermKind.unit
+abbrev Term.nats := const TermKind.nats
+abbrev Term.pi := abs TermKind.pi
+abbrev Term.sigma := abs TermKind.sigma
+abbrev Term.coprod := bin TermKind.coprod
+abbrev Term.set := abs TermKind.set
+abbrev Term.assume := abs TermKind.assume
+abbrev Term.intersect := abs TermKind.intersect
+abbrev Term.union := abs TermKind.union
 
 -- Propositions
-def Term.top := const TermKind.top
-def Term.bot := const TermKind.bot
-def Term.dand := abs TermKind.dand
-def Term.or := bin TermKind.or
-def Term.dimplies := abs TermKind.dimplies
-def Term.forall_ := abs TermKind.forall_
-def Term.exists_ := abs TermKind.exists_
-def Term.eq := tri TermKind.eq
+abbrev Term.top := const TermKind.top
+abbrev Term.bot := const TermKind.bot
+abbrev Term.dand := abs TermKind.dand
+abbrev Term.or := bin TermKind.or
+abbrev Term.dimplies := abs TermKind.dimplies
+abbrev Term.forall_ := abs TermKind.forall_
+abbrev Term.exists_ := abs TermKind.exists_
+abbrev Term.eq := tri TermKind.eq
 
 -- Terms
-def Term.nil := const TermKind.nil
-def Term.lam := abs TermKind.lam
-def Term.app := tri TermKind.app
-def Term.pair := bin TermKind.pair
-def Term.let_pair := let_bin TermKind.let_pair
-def Term.inj := λb => unary (TermKind.inj b)
-def Term.case := cases TermKind.case
-def Term.elem := bin TermKind.elem
-def Term.let_set := let_bin TermKind.let_set
-def Term.lam_pr := abs TermKind.lam_pr
-def Term.app_pr := tri TermKind.app_pr
-def Term.lam_irrel := abs TermKind.lam_irrel
-def Term.app_irrel := tri TermKind.app_irrel
-def Term.repr := bin TermKind.repr
-def Term.let_repr := let_bin TermKind.let_repr
+abbrev Term.nil := const TermKind.nil
+abbrev Term.lam := abs TermKind.lam
+abbrev Term.app := tri TermKind.app
+abbrev Term.pair := bin TermKind.pair
+abbrev Term.let_pair := let_bin TermKind.let_pair
+abbrev Term.inj := λb => unary (TermKind.inj b)
+abbrev Term.case := cases TermKind.case
+abbrev Term.elem := bin TermKind.elem
+abbrev Term.let_set := let_bin TermKind.let_set
+abbrev Term.lam_pr := abs TermKind.lam_pr
+abbrev Term.app_pr := tri TermKind.app_pr
+abbrev Term.lam_irrel := abs TermKind.lam_irrel
+abbrev Term.app_irrel := tri TermKind.app_irrel
+abbrev Term.repr := bin TermKind.repr
+abbrev Term.let_repr := let_bin TermKind.let_repr
 
 -- Proofs
-def Term.triv := const TermKind.triv
-def Term.abort := unary TermKind.abort
-def Term.dconj := bin TermKind.dconj
-def Term.let_conj := let_bin TermKind.let_conj
-def Term.disj := λb => unary (TermKind.disj b)
-def Term.case_pr := cases TermKind.case_pr
-def Term.imp := abs TermKind.imp
-def Term.mp := tri TermKind.mp
-def Term.general := abs TermKind.general
-def Term.inst := tri TermKind.inst
-def Term.wit := bin TermKind.wit
-def Term.let_wit := let_bin TermKind.let_wit
+abbrev Term.triv := const TermKind.triv
+abbrev Term.abort := unary TermKind.abort
+abbrev Term.dconj := bin TermKind.dconj
+abbrev Term.let_conj := let_bin TermKind.let_conj
+abbrev Term.disj := λb => unary (TermKind.disj b)
+abbrev Term.case_pr := cases TermKind.case_pr
+abbrev Term.imp := abs TermKind.imp
+abbrev Term.mp := tri TermKind.mp
+abbrev Term.general := abs TermKind.general
+abbrev Term.inst := tri TermKind.inst
+abbrev Term.wit := bin TermKind.wit
+abbrev Term.let_wit := let_bin TermKind.let_wit
 
 -- Theory of equality
-def Term.refl := unary TermKind.refl
-def Term.sym := unary TermKind.sym
-def Term.trans := unary TermKind.trans
-def Term.cong := abs TermKind.cong
-def Term.beta := abs TermKind.beta
-def Term.eta := bin TermKind.eta
-def Term.irir := tri TermKind.irir
-def Term.prir := tri TermKind.prir
+abbrev Term.refl := unary TermKind.refl
+abbrev Term.sym := unary TermKind.sym
+abbrev Term.trans := unary TermKind.trans
+abbrev Term.cong := abs TermKind.cong
+abbrev Term.beta := abs TermKind.beta
+abbrev Term.eta := bin TermKind.eta
+abbrev Term.irir := tri TermKind.irir
+abbrev Term.prir := tri TermKind.prir
 
 -- Natural numbers
-def Term.zero := const TermKind.zero
-def Term.succ := const TermKind.succ
+abbrev Term.zero := const TermKind.zero
+abbrev Term.succ := const TermKind.succ
 
 @[simp] def Term.fv: Term -> Nat
   | var v => Nat.succ v
