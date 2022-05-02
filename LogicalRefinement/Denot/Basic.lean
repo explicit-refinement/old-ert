@@ -26,10 +26,10 @@ def Term.denote_ty (A: Term) (Γ: Context)
     | none => False
   | bin TermKind.coprod A B =>
     match a with
-    | some (Sum.inl a) => 
-      A.denote_ty Γ G (Ty.eager a)
-    | some (Sum.inr b) => 
-      B.denote_ty Γ G (Ty.eager b)
+    | some a => 
+      match a with
+      | Sum.inl a => A.denote_ty Γ G (Ty.eager a)
+      | Sum.inr b => B.denote_ty Γ G (Ty.eager b)
     | none => False
   | abs TermKind.assume φ A => 
     (φ.denote_ty Γ G none) -> (A.denote_ty Γ G a)
@@ -76,6 +76,23 @@ theorem interp_eq_none
     cases p <;> rfl
   }
 
+theorem interp_eq_some
+  : @Eq.rec Ty a (λx _ => Ty.interp x) (some v) x p = (some (p ▸ v)) := by {
+    cases p <;> rfl
+  }
+
+set_option pp.explicit true
+
+theorem interp_eq_inl (q: A.stlc_ty = A.wk1.stlc_ty)
+  : @Eq.rec Ty 
+    (Term.stlc_ty (Term.bin TermKind.coprod A B)) 
+    (fun x h => Ty.interp_val x) 
+    (Sum.inl a) 
+    (Term.stlc_ty (Term.wk1 (Term.bin TermKind.coprod A B))) 
+    p = Sum.inl (q ▸ a) := by {
+    sorry
+  }
+
 --TODO: general weakening theorem...
 theorem Term.denote_wk1_ty
   (A: Term) 
@@ -105,7 +122,16 @@ theorem Term.denote_wk1_ty
       | coprod =>
         cases a with
         | none => cases H
-        | some a => sorry 
+        | some a =>
+          cases a with
+          | inl a => 
+            have Il' := @Il B x _ H;
+            rw [interp_eq_some]
+            rw [interp_eq_inl]
+            dsimp only [denote_ty]
+            sorry
+            sorry
+          | inr b => sorry
       | _ => cases H
     | abs => sorry
     | tri => sorry
