@@ -71,8 +71,10 @@ def Term.denote_ty (A: Term) (Γ: Context)
     | none => False
   | _ => False
 
-theorem transport_none (p: A = B): p ▸ (@none A) = (@none B)
-  := by cases p <;> rfl
+theorem interp_eq_none
+  : @Eq.rec Ty a (λx _ => Ty.interp x) none x p = none := by {
+    cases p <;> rfl
+  }
 
 --TODO: general weakening theorem...
 theorem Term.denote_wk1_ty
@@ -89,7 +91,13 @@ theorem Term.denote_wk1_ty
       cases k with
       | or => 
         cases a with
-        | none => sorry
+        | none => 
+          cases H with
+          | inl H => 
+            have Il' := @Il B x none H;
+            rw [interp_eq_none] at Il'
+            exact Or.inl Il'
+          | inr H => sorry
         | some a => cases a
       | coprod =>
         cases a with
