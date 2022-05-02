@@ -264,7 +264,7 @@ theorem HasVar.denote_annot
                 rw [interp_eq_none]
   }
 
-set_option pp.explicit true
+--set_option pp.explicit true
 
 theorem HasType.denote
   (H: Γ ⊢ a: A)
@@ -275,7 +275,7 @@ theorem HasType.denote
   := by {
     induction H with
     | var HA Hv IA => exact Hv.denote_annot HΓ G HG
-    | lam => sorry
+    | lam Hs HA Is IA => sorry
     | app => sorry
     | pair => sorry
     | let_pair => sorry
