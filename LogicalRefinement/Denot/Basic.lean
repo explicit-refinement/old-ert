@@ -97,7 +97,10 @@ theorem Term.denote_wk1_ty
             have Il' := @Il B x none H;
             rw [interp_eq_none] at Il'
             exact Or.inl Il'
-          | inr H => sorry
+          | inr H => 
+            have Ir' := @Ir B x none H;
+            rw [interp_eq_none] at Ir'
+            exact Or.inr Ir'
         | some a => cases a
       | coprod =>
         cases a with
