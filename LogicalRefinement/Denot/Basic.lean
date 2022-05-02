@@ -112,20 +112,20 @@ theorem Term.denote_wk1_ty
   := by {
     induction A generalizing B x with
     | const k => cases k <;> exact H
-    | bin k A B Il Ir => 
+    | bin k A B IA IB => 
       cases k with
       | or => 
         cases a with
         | none => 
           cases H with
           | inl H => 
-            have Il' := @Il B x none H;
-            rw [interp_eq_none] at Il'
-            exact Or.inl Il'
+            have IA' := @IA B x none H;
+            rw [interp_eq_none] at IA'
+            exact Or.inl IA'
           | inr H => 
-            have Ir' := @Ir B x none H;
-            rw [interp_eq_none] at Ir'
-            exact Or.inr Ir'
+            have IB' := @IB B x none H;
+            rw [interp_eq_none] at IB'
+            exact Or.inr IB'
         | some a => cases a
       | coprod =>
         cases a with
@@ -133,24 +133,39 @@ theorem Term.denote_wk1_ty
         | some a =>
           cases a with
           | inl a => 
-            have Il' := @Il B x _ H;
+            have IA' := @IA B x _ H;
             rw [interp_eq_some]
-            dsimp only [Ty.eager, pure, OptionT.pure, OptionT.mk] at Il'
-            rw [interp_eq_some] at Il'
+            dsimp only [Ty.eager, pure, OptionT.pure, OptionT.mk] at IA'
+            rw [interp_eq_some] at IA'
             rw [interp_eq_inl]
             dsimp only [denote_ty]
-            apply Il'
+            apply IA'
           | inr b => 
-            have Ir' := @Ir B x _ H;
+            have IB' := @IB B x _ H;
             rw [interp_eq_some]
-            dsimp only [Ty.eager, pure, OptionT.pure, OptionT.mk] at Ir'
-            rw [interp_eq_some] at Ir'
+            dsimp only [Ty.eager, pure, OptionT.pure, OptionT.mk] at IB'
+            rw [interp_eq_some] at IB'
             rw [interp_eq_inr]
             dsimp only [denote_ty]
-            apply Ir'
+            apply IB'
       | _ => cases H
-    | abs => sorry
-    | tri => sorry
+    | abs k A B IA IB => 
+      cases k with
+      | pi => sorry
+      | sigma => sorry
+      | assume => sorry
+      | set => sorry
+      | intersect => sorry
+      | union => sorry
+      | dimplies => sorry
+      | dand => sorry
+      | forall_ => sorry
+      | exists_ => sorry
+      | _ => cases H
+    | tri k A l r IA Il Ir => 
+      cases k with
+      | eq => sorry
+      | _ => cases H
     | _ =>  cases H
   }
 
