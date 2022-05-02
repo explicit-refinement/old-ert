@@ -102,6 +102,17 @@ theorem interp_eq_inr (q: B.stlc_ty = B.wk1.stlc_ty)
   }
 
 --TODO: general weakening theorem...
+theorem Term.denote_wk1_gst
+  (A: Term) 
+  (Γ: Context) 
+  (G: Γ.upgrade.stlc.interp) 
+  (a: A.stlc_ty.interp)
+  (a': A.wk1.stlc_ty.interp)
+  (Ha: a' = A.stlc_ty_wk1 ▸ a)
+  (H: A.denote_ty Γ G a) 
+  : A.wk1.denote_ty ((Hyp.gst B)::Γ) (x, G) a'
+  := by sorry
+
 theorem Term.denote_wk1_ty
   (A: Term) 
   (Γ: Context) 
@@ -111,52 +122,52 @@ theorem Term.denote_wk1_ty
   (Ha: a' = A.stlc_ty_wk1 ▸ a)
   (H: A.denote_ty Γ G a) 
   : A.wk1.denote_ty ((Hyp.val B type)::Γ) (x, G) a'
-  := by {
-    induction A generalizing B x with
-    | const k => cases k <;> rw [Ha] <;> exact H
-    | bin k A B IA IB => 
-      cases k with
-      | or => 
-        cases a with
-        | none => 
-          cases H with
-          | inl H => 
-            apply Or.inl (IA _ _ _ H)
-            rw [interp_eq_none]
-          | inr H => 
-            apply Or.inr (IB _ _ _ H)
-            rw [interp_eq_none]
-        | some a => cases a
-      | coprod =>
-        cases a with
-        | none => cases H
-        | some a =>
-          cases a with
-          | inl a => sorry
-          | inr b => sorry
-      | _ => cases H
-    | abs k A B IA IB => 
-      cases k with
-      | pi => 
-        cases a with
-        | none => sorry
-        | some a => sorry
-      | sigma => sorry
-      | assume => sorry
-      | set => sorry
-      | intersect => sorry
-      | union => sorry
-      | dimplies => sorry
-      | dand => sorry
-      | forall_ => sorry
-      | exists_ => sorry
-      | _ => cases H
-    | tri k A l r IA Il Ir => 
-      cases k with
-      | eq => sorry
-      | _ => cases H
-    | _ =>  cases H
-  }
+  := by sorry
+  --   induction A generalizing B x with
+  --   | const k => cases k <;> rw [Ha] <;> exact H
+  --   | bin k A B IA IB => 
+  --     cases k with
+  --     | or => 
+  --       cases a with
+  --       | none => 
+  --         cases H with
+  --         | inl H => 
+  --           apply Or.inl (IA _ _ _ H)
+  --           rw [interp_eq_none]
+  --         | inr H => 
+  --           apply Or.inr (IB _ _ _ H)
+  --           rw [interp_eq_none]
+  --       | some a => cases a
+  --     | coprod =>
+  --       cases a with
+  --       | none => cases H
+  --       | some a =>
+  --         cases a with
+  --         | inl a => sorry
+  --         | inr b => sorry
+  --     | _ => cases H
+  --   | abs k A B IA IB => 
+  --     cases k with
+  --     | pi => 
+  --       cases a with
+  --       | none => sorry
+  --       | some a => sorry
+  --     | sigma => sorry
+  --     | assume => sorry
+  --     | set => sorry
+  --     | intersect => sorry
+  --     | union => sorry
+  --     | dimplies => sorry
+  --     | dand => sorry
+  --     | forall_ => sorry
+  --     | exists_ => sorry
+  --     | _ => cases H
+  --   | tri k A l r IA Il Ir => 
+  --     cases k with
+  --     | eq => sorry
+  --     | _ => cases H
+  --   | _ =>  cases H
+  -- }
 
 def Annot.denote (A: Annot) (Γ: Context)
   (G: Γ.upgrade.stlc.interp)
@@ -238,16 +249,18 @@ theorem HasVar.denote_annot
             cases HΓ with
             | cons_gst HΓ => 
               let (x, G) := G;
+              have ⟨Hx, HG⟩ := HG;
               have I' := I Hv HΓ G;
               cases s with
               | type => 
                 simp only [denote]
-                --TODO: denotational weakening
+                apply Term.denote_wk1_gst _ _ _ _ _ _ (I' HG)
+                --Hm?
                 sorry
               | prop => 
                 simp only [denote]
-                --TODO: denotational weakening
-                sorry
+                apply Term.denote_wk1_gst _ _ _ _ _ _ (I' HG)
+                rw [interp_eq_none]
   }
 
 theorem HasType.denote
