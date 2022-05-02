@@ -15,10 +15,10 @@ inductive Annot
   | sort (s: AnnotSort)
   | expr (s: AnnotSort) (A: Term)
 
-def Annot.term := expr AnnotSort.type
-def Annot.proof := expr AnnotSort.prop
-def TermSort.term := expr AnnotSort.type
-def TermSort.proof := expr AnnotSort.prop
+abbrev Annot.term := expr AnnotSort.type
+abbrev Annot.proof := expr AnnotSort.prop
+abbrev TermSort.term := expr AnnotSort.type
+abbrev TermSort.proof := expr AnnotSort.prop
 
 def Annot.term_sort: Annot -> TermSort
   | sort s => TermSort.sort s
@@ -43,36 +43,34 @@ def Annot.wk: Annot -> Wk -> Annot
   | sort s, _ => sort s
   | expr s A, ρ => expr s (A.wk ρ)
 
+abbrev Annot.wk1 (A: Annot): Annot := A.wk Wk.wk1
 @[simp]
-def Annot.wk1 (A: Annot): Annot := A.wk Wk.wk1
-
-def Annot.wk1_expr_def {A}: (expr s A).wk1 = (expr s A.wk1) := rfl
-
-def Annot.wk1_sort_const {s}:
-    (sort s).wk1 = sort s := rfl
+theorem Annot.wk1_expr_def {A}: (expr s A).wk1 = (expr s A.wk1) := rfl
+@[simp]
+theorem Annot.wk1_sort_const {s}: (sort s).wk1 = sort s := rfl
 
 @[simp]
 def Annot.subst: Annot -> Subst -> Annot
   | sort s, _ => sort s
   | expr s A, σ => expr s (A.subst σ)
 
-@[simp] def Annot.subst0 (A: Annot) (e: Term) := A.subst e.to_subst
-
-def Annot.subst_sort_const {s σ}:
+abbrev Annot.subst0 (A: Annot) (e: Term) := A.subst e.to_subst
+@[simp]
+theorem Annot.subst_sort_const {s σ}:
     (sort s).subst σ = sort s := rfl
 
 @[simp]
-def Annot.wk_composes: {A: Annot} -> (A.wk ρ).wk σ = A.wk (σ.comp ρ)
+theorem Annot.wk_composes: {A: Annot} -> (A.wk ρ).wk σ = A.wk (σ.comp ρ)
   | sort _ => rfl
   | expr _ _ => by simp
 
 @[simp]
-def Annot.wk_wk1: {A: Annot} -> (A.wk Wk.wk1) = A.wk1
+theorem Annot.wk_wk1: {A: Annot} -> (A.wk Wk.wk1) = A.wk1
   | sort _ => rfl
   | expr _ _ => rfl
 
 @[simp]
-def Annot.wk_id {A: Annot}: A.wk Wk.id = A := by {
+theorem Annot.wk_id {A: Annot}: A.wk Wk.id = A := by {
   cases A; repeat simp
 }
 
