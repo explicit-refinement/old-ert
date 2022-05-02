@@ -85,6 +85,8 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType Γ (union A B) type
   
   -- Propositions
+  | top {Γ}: HasType Γ top prop
+  | bot {Γ}: HasType Γ bot prop
   | dand {Γ: Context} {φ ψ: Term}:
     HasType Γ φ prop -> 
     HasType ((Hyp.mk φ (HypKind.val prop))::Γ) ψ prop ->
@@ -110,6 +112,7 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType Γ (eq A l r) prop
 
   -- Basic term formers
+  | nil {Γ}: HasType Γ nil (term unit)
   | lam {Γ: Context} {A s B: Term}:
     HasType ((Hyp.mk A (HypKind.val type))::Γ) s (term B) ->
     HasType Γ A type ->
@@ -189,9 +192,7 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType Γ (let_repr (union A B) e e') (expr k (C.subst0 e))
 
   -- Basic proof formers
-  | top {Γ}: HasType Γ top prop
-  | bot {Γ}: HasType Γ bot prop
-  | nil {Γ}: HasType Γ triv (proof top)
+  | triv {Γ}: HasType Γ triv (proof top)
   | abort {Γ: Context} {A: Term} {p: Term} {s: AnnotSort}:
     HasType Γ p (proof bot) ->
     HasType Γ A (sort s) ->

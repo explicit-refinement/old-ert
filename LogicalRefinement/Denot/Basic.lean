@@ -102,6 +102,7 @@ theorem interp_eq_inr (q: B.stlc_ty = B.wk1.stlc_ty)
   }
 
 --TODO: general weakening theorem...
+
 theorem Term.denote_wk1_gst
   (A: Term) 
   (Γ: Context) 
@@ -263,6 +264,8 @@ theorem HasVar.denote_annot
                 rw [interp_eq_none]
   }
 
+set_option pp.explicit true
+
 theorem HasType.denote
   (H: Γ ⊢ a: A)
   (HΓ: IsCtx Γ)
@@ -272,5 +275,45 @@ theorem HasType.denote
   := by {
     induction H with
     | var HA Hv IA => exact Hv.denote_annot HΓ G HG
-    | _ => sorry
+    | lam => sorry
+    | app => sorry
+    | pair => sorry
+    | let_pair => sorry
+    | inj_l => sorry
+    | inj_r => sorry
+    | case => sorry
+    | elem => sorry
+    | let_set => sorry
+    | lam_pr => sorry
+    | app_pr => sorry
+    | lam_irrel => sorry
+    | app_irrel => sorry
+    | repr => sorry
+    | let_repr => sorry
+    | top => sorry
+    | bot => sorry
+    | nil => sorry
+    | abort => sorry
+    | dconj => sorry
+    | let_conj => sorry
+    | disj_l => sorry
+    | disj_r => sorry
+    | case_pr => sorry
+    | imp => sorry
+    | mp => sorry
+    | general => sorry
+    | inst => sorry
+    | wit => sorry
+    | let_wit => sorry
+    | refl => sorry
+    | sym => sorry
+    | trans => sorry
+    | cong => sorry
+    | beta => sorry
+    | eta => sorry
+    | irir => sorry
+    | prir => sorry
+    | succ => sorry
+    | natrec => sorry
+    | _ => exact True.intro
   }
