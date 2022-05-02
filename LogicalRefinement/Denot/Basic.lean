@@ -81,8 +81,6 @@ theorem interp_eq_some
     cases p <;> rfl
   }
 
-set_option pp.explicit true
-
 theorem interp_eq_inl (q: A.stlc_ty = A.wk1.stlc_ty)
   : @Eq.rec Ty 
     (Term.stlc_ty (Term.bin TermKind.coprod A B)) 
@@ -127,10 +125,11 @@ theorem Term.denote_wk1_ty
           | inl a => 
             have Il' := @Il B x _ H;
             rw [interp_eq_some]
+            dsimp only [Ty.eager, pure, OptionT.pure, OptionT.mk] at Il'
+            rw [interp_eq_some] at Il'
             rw [interp_eq_inl]
             dsimp only [denote_ty]
-            sorry
-            sorry
+            apply Il'
           | inr b => sorry
       | _ => cases H
     | abs => sorry
