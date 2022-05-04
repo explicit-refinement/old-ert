@@ -440,3 +440,6 @@ inductive IsCtx: Context -> Prop
     IsCtx ((Hyp.mk A HypKind.gst)::Γ)
 
 def IsHyp (Γ: Context) (H: Hyp): Prop := Γ ⊢ H.ty: sort H.kind.annot
+
+theorem HasType.to_var {s A n} (H: Γ ⊢ Term.var n: expr s A):
+  HasVar Γ n (HypKind.val s) A := by cases H <;> assumption

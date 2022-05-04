@@ -101,74 +101,43 @@ theorem interp_eq_inr (q: B.stlc_ty = B.wk1.stlc_ty)
     sorry
   }
 
---TODO: general weakening theorem...
-
-theorem Term.denote_wk1_gst
-  (A: Term) 
-  (Γ: Context) 
-  (G: Γ.upgrade.stlc.interp) 
-  (a: A.stlc_ty.interp)
-  (a': A.wk1.stlc_ty.interp)
-  (Ha: a' = A.stlc_ty_wk1 ▸ a)
-  (H: A.denote_ty Γ G a) 
-  : A.wk1.denote_ty ((Hyp.gst B)::Γ) (x, G) a'
-  := by sorry
-
 theorem Term.denote_wk1_ty
   (A: Term) 
-  (Γ: Context) 
+  (B: Term)
+  (Γ: Context)
+  (x: B.stlc_ty.interp) 
   (G: Γ.upgrade.stlc.interp) 
   (a: A.stlc_ty.interp)
   (a': A.wk1.stlc_ty.interp)
-  (Ha: a' = A.stlc_ty_wk1 ▸ a)
+  (Haa': a' = A.stlc_ty_wk1 ▸ a)
   (H: A.denote_ty Γ G a) 
   : A.wk1.denote_ty ((Hyp.val B type)::Γ) (x, G) a'
-  := by sorry
-  --   induction A generalizing B x with
-  --   | const k => cases k <;> rw [Ha] <;> exact H
-  --   | bin k A B IA IB => 
-  --     cases k with
-  --     | or => 
-  --       cases a with
-  --       | none => 
-  --         cases H with
-  --         | inl H => 
-  --           apply Or.inl (IA _ _ _ H)
-  --           rw [interp_eq_none]
-  --         | inr H => 
-  --           apply Or.inr (IB _ _ _ H)
-  --           rw [interp_eq_none]
-  --       | some a => cases a
-  --     | coprod =>
-  --       cases a with
-  --       | none => cases H
-  --       | some a =>
-  --         cases a with
-  --         | inl a => sorry
-  --         | inr b => sorry
-  --     | _ => cases H
-  --   | abs k A B IA IB => 
-  --     cases k with
-  --     | pi => 
-  --       cases a with
-  --       | none => sorry
-  --       | some a => sorry
-  --     | sigma => sorry
-  --     | assume => sorry
-  --     | set => sorry
-  --     | intersect => sorry
-  --     | union => sorry
-  --     | dimplies => sorry
-  --     | dand => sorry
-  --     | forall_ => sorry
-  --     | exists_ => sorry
-  --     | _ => cases H
-  --   | tri k A l r IA Il Ir => 
-  --     cases k with
-  --     | eq => sorry
-  --     | _ => cases H
-  --   | _ =>  cases H
-  -- }
+  := sorry
+  
+theorem Term.denote_wk1_prop
+  (A: Term) 
+  (φ: Term)
+  (Γ: Context)
+  (G: Γ.upgrade.stlc.interp) 
+  (a: A.stlc_ty.interp)
+  (a': A.wk1.stlc_ty.interp)
+  (Haa': a' = A.stlc_ty_wk1 ▸ a)
+  (H: A.denote_ty Γ G a) 
+  : A.wk1.denote_ty ((Hyp.val φ prop)::Γ) G a'
+  := sorry
+  
+theorem Term.denote_wk1_gst
+  (A: Term) 
+  (B: Term)
+  (Γ: Context) 
+  (x: B.stlc_ty.interp)
+  (G: Γ.upgrade.stlc.interp) 
+  (a: A.stlc_ty.interp)
+  (a': A.wk1.stlc_ty.interp)
+  (Haa': a' = A.stlc_ty_wk1 ▸ a)
+  (H: A.denote_ty Γ G a) 
+  : A.wk1.denote_ty ((Hyp.gst B)::Γ) (x, G) a'
+  := sorry
 
 def Annot.denote (A: Annot) (Γ: Context)
   (G: Γ.upgrade.stlc.interp)
@@ -226,6 +195,10 @@ def Context.denote: (Γ: Context) -> Γ.upgrade.stlc.interp -> Prop
 | (Hyp.mk A HypKind.gst)::Γ, (a, G) =>
   A.denote_ty Γ G a ∧ denote Γ G
 
+theorem HasType.stlc_interp_var {A: Term} (H: Γ ⊢ Term.var n: term A):
+  H.stlc.interp = H.to_var.stlc.interp
+  := sorry
+
 theorem HasVar.denote_annot
   (Hv: HasVar Γ n (HypKind.val s) A)
   (HΓ: IsCtx Γ)
@@ -251,20 +224,22 @@ theorem HasVar.denote_annot
             | cons_gst HΓ => 
               let (x, G) := G;
               have ⟨Hx, HG⟩ := HG;
-              have I' := I Hv HΓ G;
+              have I' := I Hv HΓ G HG;
               cases s with
               | type => 
                 simp only [denote]
-                apply Term.denote_wk1_gst _ _ _ _ _ _ (I' HG)
-                --Hm?
+                apply Term.denote_wk1_gst _ _ Γ x G _ _ _ I'
+                rw [HasType.stlc_interp_var]
+                rw [HasType.stlc_interp_var]
+                sorry
+                sorry
                 sorry
               | prop => 
                 simp only [denote]
-                apply Term.denote_wk1_gst _ _ _ _ _ _ (I' HG)
-                rw [interp_eq_none]
+                exact 
+                  Term.denote_wk1_gst _ _ Γ x G 
+                    none none (by rw [interp_eq_none]) I';
   }
-
---set_option pp.explicit true
 
 theorem HasType.denote
   (H: Γ ⊢ a: A)
