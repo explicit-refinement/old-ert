@@ -195,10 +195,6 @@ def Context.denote: (Γ: Context) -> Γ.upgrade.stlc.interp -> Prop
 | (Hyp.mk A HypKind.gst)::Γ, (a, G) =>
   A.denote_ty Γ G a ∧ denote Γ G
 
-theorem HasType.stlc_interp_var {A: Term} (H: Γ ⊢ Term.var n: term A):
-  H.stlc.interp = H.to_var.stlc.interp
-  := sorry
-
 theorem HasVar.denote_annot
   (Hv: HasVar Γ n (HypKind.val s) A)
   (HΓ: IsCtx Γ)

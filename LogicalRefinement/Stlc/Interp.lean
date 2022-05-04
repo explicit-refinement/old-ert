@@ -116,7 +116,7 @@ theorem Context.sparsity_false {Γ: Context}
 
 def Context.stlc_ix (Γ: Context): Nat -> Nat := Γ.sparsity.ix
 
-def Sparsity.stlc (σ: Sparsity) (n: Nat): Stlc
+abbrev Sparsity.stlc (σ: Sparsity) (n: Nat): Stlc
   := if σ.dep n then Stlc.var (σ.ix n) else Stlc.abort
 
 def Term.stlc: Term -> Sparsity -> Stlc

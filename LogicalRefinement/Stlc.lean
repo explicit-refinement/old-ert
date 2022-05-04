@@ -5,3 +5,4 @@ import LogicalRefinement.Stlc.InterpInv
 import LogicalRefinement.Stlc.InterpSubst
 import LogicalRefinement.Stlc.InterpWk
 import LogicalRefinement.Stlc.Subst
+import LogicalRefinement.Stlc.Utils
