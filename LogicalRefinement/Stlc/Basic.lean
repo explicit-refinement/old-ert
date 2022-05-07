@@ -31,8 +31,8 @@ def Ty.interp_val_char {A: Ty} {M}
 
 def Ty.eager {A: Ty} {M: Type -> Type} [Monad M]: A.interp_val_in M -> A.interp_in M := pure
 
-def Ty.interp (A: Ty): Type := A.interp_in OptionM
-def Ty.interp_val (A: Ty): Type := A.interp_val_in OptionM
+def Ty.interp (A: Ty): Type := A.interp_in Option
+def Ty.interp_val (A: Ty): Type := A.interp_val_in Option
 
 def Ty.abort (A: Ty): A.interp := by cases A <;> exact none
 
@@ -297,6 +297,15 @@ def Stlc.Context.interp.wk {Γ Δ ρ} (G: Γ.interp) (R: WkCtx ρ Γ Δ): Δ.int
             exact (x, G.wk R')
     }
 
+def Stlc.Context.interp.wk_id {Γ} {H: WkCtx Wk.id Γ Γ} (G: Γ.interp):
+  G.wk H = G
+  := by {
+    cases H;
+    unfold wk
+    simp
+    rfl
+  }
+
 def Stlc.Subst := Nat -> Stlc
 
 def Stlc.to_subst (s: Stlc): Subst
@@ -550,7 +559,11 @@ theorem Stlc.HasVar.interp_wk {Γ Δ ρ n A}
   := by {
     revert n A H;
     induction R with
-    | id => intros; rfl
+    | id => 
+      intros; 
+      funext G;
+      simp [Context.deriv.wk, Context.interp.wk_id]
+      rfl
     | step R I =>
       intro n A H;
       funext G; cases G;
@@ -632,7 +645,9 @@ theorem Stlc.HasType.interp_wk1 {Γ a} {A B: Ty}
   (H.wk (B.to_wk)).interp (x, G) = H.interp G
   := by {
     rw [interp_wk H B.to_wk]
-    rfl
+    simp only [
+      Context.deriv.wk, Context.interp.wk, Context.interp.wk_id
+    ]
   }
 
 def Stlc.Context.deriv.step {Γ: Context} {A} (D: Γ.deriv A) (B: Ty)
