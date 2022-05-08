@@ -228,7 +228,8 @@ theorem HasVar.denote_annot
                   dsimp only [Sparsity.stlc]
                   split
                   . rfl
-                  . sorry
+                  . have s := Hv.sigma_ty;
+                    contradiction
                   rw [Term.stlc_ty_wk1]
                   constructor
                   exact Hv.stlc
@@ -236,7 +237,8 @@ theorem HasVar.denote_annot
                   dsimp only [Sparsity.stlc]
                   split
                   . rfl
-                  . sorry
+                  . have s := Hv.sigma_ty;
+                    contradiction
                   rw [Term.stlc_ty_wk1]
                   rfl
                   rw [Term.stlc_ty_wk1]

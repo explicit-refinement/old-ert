@@ -313,6 +313,24 @@ theorem HasVar.sigma {Γ A n s}:
     exact H.sigma_get?
   }
 
+theorem HasVar.sigma_ty {Γ A n}:
+  HasVar Γ n (HypKind.val type) A ->
+  Γ.sparsity.dep n = true
+  := by {
+    intro H;
+    rw [H.sigma]
+    rfl
+  }
+
+theorem HasVar.sigma_prop {Γ A n}:
+  HasVar Γ n (HypKind.val prop) A ->
+  Γ.sparsity.dep n = false
+  := by {
+    intro H;
+    rw [H.sigma]
+    rfl
+  }
+
 -- But why...
 set_option maxHeartbeats 1000000
 
