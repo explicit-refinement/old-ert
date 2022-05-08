@@ -257,7 +257,9 @@ theorem HasVar.denote_annot
             cases Hv with
             | zero Hk => 
               cases Hk;
-              sorry
+              simp only [denote, Context.stlc]
+              apply Term.denote_wk1_prop _ _ Γ G _ _ _ Hx
+              rw [interp_eq_none]
             | succ Hv => 
               cases HΓ with
               | cons_val HΓ =>
