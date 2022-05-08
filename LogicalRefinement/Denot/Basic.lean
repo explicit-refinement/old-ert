@@ -338,9 +338,11 @@ theorem HasType.denote
       intro x Hx
       dsimp only [
         Annot.stlc_ty, term, Term.stlc_ty, Term.stlc, 
-        Stlc.HasType.interp
+        Stlc.HasType.interp, Ty.interp.app
       ]
-      sorry
+      cases x with
+      | some x => sorry
+      | none => sorry --TODO: contradiction
     | app => sorry
     | pair => sorry
     | let_pair => sorry
