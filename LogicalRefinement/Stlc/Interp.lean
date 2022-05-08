@@ -103,6 +103,13 @@ def Stlc.Context.interp.downgrade
     rw [<-Context.downgrade_sparsity_downgrade]
     apply G.thin
   }
+
+@[simp]
+theorem Stlc.Context.interp.downgrade_gst
+  {A: Term} {Γ: _root_.Context} 
+  (x: A.stlc_ty.interp) (G: Γ.upgrade.stlc.interp)
+  : @downgrade ((Hyp.gst A)::Γ) (x, G) = G.downgrade
+  := rfl
   
 theorem Context.sparsity_true {Γ: Context}
   : H.kind = HypKind.val type -> sparsity (H::Γ) = true::Γ.sparsity

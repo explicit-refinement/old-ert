@@ -185,6 +185,8 @@ def Context.denote: (Γ: Context) -> Γ.upgrade.stlc.interp -> Prop
 | (Hyp.mk A HypKind.gst)::Γ, (a, G) =>
   A.denote_ty Γ G a ∧ denote Γ G
 
+--set_option pp.explicit true
+
 theorem HasVar.denote_annot
   (Hv: HasVar Γ n (HypKind.val s) A)
   (HΓ: IsCtx Γ)
@@ -217,14 +219,11 @@ theorem HasVar.denote_annot
                 apply Term.denote_wk1_gst _ _ Γ x G _ _ _ I'
                 rw [monorecursor]
                 rw [Stlc.HasType.interp_transport_mono]
-                sorry
+                rw [Stlc.Context.interp.downgrade_gst]
                 sorry
                 sorry
                 rw [Term.stlc_ty_wk1]
                 rfl
-                rw [Term.stlc_ty_wk1]
-                rfl
-                sorry
               | prop => 
                 simp only [denote]
                 exact 
