@@ -241,11 +241,22 @@ theorem HasVar.denote_annot
                     Term.denote_wk1_ty _ _ Γ x G 
                       none none (by rw [interp_eq_none]) I';
           | prop => 
+            have ⟨Hx, HG⟩ := HG;
             cases Hv with
             | zero Hk => 
               cases Hk;
               sorry
-            | succ Hv => sorry
+            | succ Hv => 
+              cases HΓ with
+              | cons_val HΓ =>
+                have I' := I Hv HΓ G HG;
+                cases s with
+                | type => sorry
+                | prop => 
+                  simp only [denote]
+                  exact 
+                    Term.denote_wk1_prop _ _ Γ G 
+                      none none (by rw [interp_eq_none]) I';
         | gst => 
           cases Hv with
           | zero Hk => cases Hk
