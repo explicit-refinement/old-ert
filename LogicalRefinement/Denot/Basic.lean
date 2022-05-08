@@ -380,7 +380,6 @@ theorem HasType.denote
     | var HA Hv IA => exact Hv.denote_annot HΓ G HG
     | lam Hs HA Is IA => 
       stop
-      dsimp only [Annot.denote, Term.denote_ty]
       intro x Hx
       cases x with
       | some x => 
@@ -453,15 +452,24 @@ theorem HasType.denote
     | inst => sorry
     | wit => sorry
     | let_wit => sorry
-    | refl => 
-      dsimp only [
-        Annot.stlc_ty, term, Term.stlc_ty, Term.stlc, 
-        Stlc.HasType.interp, Ty.abort, Annot.denote,
+    | refl => intro _ _; rfl
+    | sym => 
+      intro x Hx y Hy Heq Hl Hr;
+      dsimp [Term.subst, Subst.lift, Subst.wk1, Term.denote_ty] at Heq
+      dsimp [
+        Stlc.HasType.interp, 
+        Stlc.HasVar.interp, 
+        Context.stlc, 
+        Context.upgrade,
+        Hyp.val,
+        Subst.lift,
+        Subst.wk1,
+        Term.stlc,
+        Term.wk,
+        Term.subst,
         Term.denote_ty
       ]
-      intro Ha Ha';
-      rfl
-    | sym => sorry
+      sorry
     | trans => sorry
     | cong => sorry
     | beta => sorry
