@@ -220,8 +220,9 @@ theorem HasVar.denote_annot
                 rw [monorecursor]
                 rw [Stlc.HasType.interp_transport_mono]
                 rw [Stlc.Context.interp.downgrade_gst]
-                sorry
-                sorry
+                rfl
+                rw [Term.stlc_ty_wk1]
+                rfl
                 rw [Term.stlc_ty_wk1]
                 rfl
               | prop => 
