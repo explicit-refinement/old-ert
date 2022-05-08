@@ -77,6 +77,20 @@ def Term.denote_ty (A: Term) (Γ: Context)
     | none => False
   | _ => False
 
+theorem Term.denote_ty_transport {A: Term} {a: A.stlc_ty.interp}
+  (HA: A = A')
+  (HΓ: Γ = Γ')
+  (HG: G = HΓ ▸ G')
+  (Ha: a' = HA ▸ a)
+  : A.denote_ty Γ G a -> A'.denote_ty Γ' G' a'
+  := by {
+    cases HA;
+    cases HΓ;
+    cases HG;
+    cases Ha;
+    exact id
+  }
+
 theorem HasType.denote_ty_non_null:
   (Γ ⊢ A: type) ->
   ¬(A.denote_ty Δ G none)
