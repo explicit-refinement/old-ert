@@ -453,7 +453,14 @@ theorem HasType.denote
     | inst => sorry
     | wit => sorry
     | let_wit => sorry
-    | refl => sorry
+    | refl => 
+      dsimp only [
+        Annot.stlc_ty, term, Term.stlc_ty, Term.stlc, 
+        Stlc.HasType.interp, Ty.abort, Annot.denote,
+        Term.denote_ty
+      ]
+      intro Ha Ha';
+      rfl
     | sym => sorry
     | trans => sorry
     | cong => sorry
