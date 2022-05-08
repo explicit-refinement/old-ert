@@ -211,9 +211,14 @@ theorem HasVar.denote_annot
               simp only [denote, Context.stlc]
               apply Term.denote_wk1_ty _ _ Γ x G _ _ _ Hx
               rw [Stlc.Context.interp.downgrade_ty]
-              rw [monorecursor]
-              sorry
-              rw [A.stlc_ty_wk1]
+              rw [Stlc.HasType.interp_var]
+              dsimp only [Stlc.HasVar.interp, Sparsity.ix]
+              simp only [Eq.mp, Eq.mpr]
+              conv =>
+                rhs
+                rw [monorecursor]
+                skip
+                rw [<-A.stlc_ty_wk1]
             | succ Hv => 
               cases HΓ with
               | cons_val HΓ =>
