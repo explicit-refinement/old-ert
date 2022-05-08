@@ -398,6 +398,7 @@ theorem HasType.denote
         exact ⟨Hx, HG⟩
       | none => exact False.elim (HA.denote_ty_non_null Hx)
     | @app Γ A B l r HAB Hl Hr IA Il Ir => 
+      stop
       dsimp only [Annot.denote]
         dsimp only [
           Annot.stlc_ty, term, Term.stlc_ty, Term.stlc, 
@@ -420,6 +421,7 @@ theorem HasType.denote
           | some ri => 
             simp only []
             dsimp only [Annot.denote, Term.denote_ty] at Il'
+            --TODO: I guess this needs substitution...
             sorry
           | none =>
             have HA: Γ ⊢ A: type := by cases HAB; assumption;
@@ -439,9 +441,6 @@ theorem HasType.denote
     | app_irrel => sorry
     | repr => sorry
     | let_repr => sorry
-    | top => sorry
-    | bot => sorry
-    | nil => sorry
     | abort => sorry
     | dconj => sorry
     | let_conj => sorry
