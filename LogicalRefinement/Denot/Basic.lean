@@ -14,9 +14,12 @@ def Term.denote_ty (A: Term) (Γ: Context)
     | some () => True
     | none => False
   | abs TermKind.pi A B => 
-    ∀x: A.stlc_ty.interp,
-      A.denote_ty Γ G x ->
-      B.denote_ty ((Hyp.val A type)::Γ) (x, G) (a.app x)
+    match a with
+    | some a =>
+      ∀x: A.stlc_ty.interp,
+        A.denote_ty Γ G x ->
+        B.denote_ty ((Hyp.val A type)::Γ) (x, G) (x.bind_val a)
+    | none => False
   | abs TermKind.sigma A B => 
     match a with
     | some (a, b) => 
@@ -32,14 +35,17 @@ def Term.denote_ty (A: Term) (Γ: Context)
       | Sum.inr b => B.denote_ty Γ G (Ty.eager b)
     | none => False
   | abs TermKind.assume φ A => 
-    (φ.denote_ty Γ G none) -> (A.denote_ty Γ G a)
+    a ≠ none ∧
+    ((φ.denote_ty Γ G none) -> (A.denote_ty Γ G a))
   | abs TermKind.set A φ => 
     A.denote_ty Γ G a ∧ φ.denote_ty ((Hyp.val A type)::Γ) (a, G) none
   | abs TermKind.intersect A B => 
+    a ≠ none ∧
     ∀x: A.stlc_ty.interp,
       A.denote_ty Γ G x ->
       B.denote_ty ((Hyp.gst A)::Γ) (x, G) a
   | abs TermKind.union A B => 
+    a ≠ none ∧
     ∃x: A.stlc_ty.interp,
       A.denote_ty Γ G x ->
       B.denote_ty ((Hyp.gst A)::Γ) (x, G) a
@@ -73,21 +79,25 @@ def Term.denote_ty (A: Term) (Γ: Context)
 
 theorem denote_ty_non_null:
   (Γ ⊢ A: type) ->
-  ¬(A.denote_ty Γ G none)
+  ¬(A.denote_ty Δ G none)
   := by {
     generalize HS: sort type = S;
     intro HA;
-    induction HA with
-    | unit => sorry
-    | pi => sorry
-    | sigma => sorry
-    | coprod => sorry
-    | set => sorry
-    | assume => sorry
-    | intersect => sorry
-    | union => sorry
-    | nats => sorry
-    | _ => cases HS
+    induction HA generalizing Δ with
+    | set _ _ IA Iφ => 
+      dsimp only [Term.denote_ty]
+      intro ⟨HA, Hφ⟩;
+      exact IA rfl HA
+    | assume _ _ Iφ IA => 
+      intro ⟨H, _⟩;
+      exact H rfl
+    | intersect => 
+      intro ⟨H, _⟩;
+      exact H rfl
+    | union => 
+      intro ⟨H, _⟩;
+      exact H rfl
+    | _ => cases HS <;> intro H <;> cases H
   }
 
 theorem interp_eq_none

@@ -37,7 +37,7 @@ theorem Ty.interp_val_char {A: Ty}
   : A.interp = Option A.interp_val
   := rfl
 
-def Ty.abort (A: Ty): A.interp := by cases A <;> exact none
+def Ty.abort (A: Ty): A.interp := none
 
 @[simp]
 def Ty.interp.bind_val {A B: Ty} 
