@@ -71,6 +71,25 @@ def Term.denote_ty (A: Term) (Γ: Context)
     | none => False
   | _ => False
 
+theorem denote_ty_non_null:
+  (Γ ⊢ A: type) ->
+  ¬(A.denote_ty Γ G none)
+  := by {
+    generalize HS: sort type = S;
+    intro HA;
+    induction HA with
+    | unit => sorry
+    | pi => sorry
+    | sigma => sorry
+    | coprod => sorry
+    | set => sorry
+    | assume => sorry
+    | intersect => sorry
+    | union => sorry
+    | nats => sorry
+    | _ => cases HS
+  }
+
 theorem interp_eq_none
   : @Eq.rec Ty a (λx _ => Ty.interp x) none x p = none := by {
     cases p <;> rfl
@@ -338,6 +357,7 @@ theorem HasType.denote
       intro x Hx
       cases x with
       | some x => 
+        --TODO: make this a simp attribute mmkay...
         dsimp only [
           Annot.stlc_ty, term, Term.stlc_ty, Term.stlc, 
           Stlc.HasType.interp, 
