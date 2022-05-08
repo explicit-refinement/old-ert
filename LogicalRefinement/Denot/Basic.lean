@@ -77,7 +77,7 @@ def Term.denote_ty (A: Term) (Γ: Context)
     | none => False
   | _ => False
 
-theorem denote_ty_non_null:
+theorem HasType.denote_ty_non_null:
   (Γ ⊢ A: type) ->
   ¬(A.denote_ty Δ G none)
   := by {
@@ -379,7 +379,7 @@ theorem HasType.denote
         exact HΓ
         exact HA
         exact ⟨Hx, HG⟩
-      | none => sorry --TODO: contradiction
+      | none => exact False.elim (HA.denote_ty_non_null Hx)
     | app => sorry
     | pair => sorry
     | let_pair => sorry
