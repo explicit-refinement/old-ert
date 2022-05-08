@@ -202,8 +202,18 @@ theorem HasVar.denote_annot
         cases k with
         | val s => 
           cases s with
-          | type => sorry
-          | prop => sorry
+          | type => 
+            cases Hv with
+            | zero Hk => 
+              cases Hk;
+              sorry
+            | succ Hv => sorry
+          | prop => 
+            cases Hv with
+            | zero Hk => 
+              cases Hk;
+              sorry
+            | succ Hv => sorry
         | gst => 
           cases Hv with
           | zero Hk => cases Hk
