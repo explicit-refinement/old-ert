@@ -670,3 +670,39 @@ theorem Stlc.HasType.interp_transport
     cases Hab;
     cases HA <;> cases HB <;> rfl 
   }
+  
+theorem Stlc.HasType.interp_transport_inner
+  {A B: Ty}
+  {a b: Stlc}
+  (HA: HasType Γ a A)
+  (HB: HasType Γ b B)
+  (Hab: a = b)
+  (HAB: A = B)
+  (G: Γ.interp)
+  : HAB ▸ HA.interp G = HB.interp G
+  := by {
+    cases HAB;
+    simp only [Eq.rec]
+    cases Hab;
+    cases HA <;> cases HB <;> rfl 
+  }
+
+theorem Stlc.HasType.interp_transport_mono
+  {A B: Ty}
+  {a b: Stlc}
+  (HA: HasType Γ a A)
+  (HB: HasType Γ b B)
+  (Hab: a = b)
+  (HAB: A = B)
+  (H)
+  (G: Γ.interp)
+  : @Eq.rec 
+    Type 
+    A.interp (λA p => A) (HA.interp G) 
+    B.interp H = HB.interp G
+  := by {
+    cases Hab;
+    cases HAB;
+    cases H;
+    cases HA <;> cases HB <;> rfl 
+  }

@@ -99,8 +99,7 @@ theorem Term.denote_wk1_ty
   (G: Γ.upgrade.stlc.interp) 
   (a: A.stlc_ty.interp)
   (a': A.wk1.stlc_ty.interp)
-  (HA: A.wk1.stlc_ty = A.stlc_ty)
-  (Haa': a' = HA ▸ a)
+  (Haa': a' = A.stlc_ty_wk1 ▸ a)
   (H: A.denote_ty Γ G a) 
   : A.wk1.denote_ty ((Hyp.val B type)::Γ) (x, G) a'
   := sorry
@@ -112,8 +111,7 @@ theorem Term.denote_wk1_prop
   (G: Γ.upgrade.stlc.interp) 
   (a: A.stlc_ty.interp)
   (a': A.wk1.stlc_ty.interp)
-  (HA: A.wk1.stlc_ty = A.stlc_ty)
-  (Haa': a' = HA ▸ a)
+  (Haa': a' = A.stlc_ty_wk1 ▸ a)
   (H: A.denote_ty Γ G a) 
   : A.wk1.denote_ty ((Hyp.val φ prop)::Γ) G a'
   := sorry
@@ -126,8 +124,7 @@ theorem Term.denote_wk1_gst
   (G: Γ.upgrade.stlc.interp) 
   (a: A.stlc_ty.interp)
   (a': A.wk1.stlc_ty.interp)
-  (HA: A.wk1.stlc_ty = A.stlc_ty)
-  (Haa': a' = HA ▸ a)
+  (Haa': a' = A.stlc_ty_wk1 ▸ a)
   (H: A.denote_ty Γ G a) 
   : A.wk1.denote_ty ((Hyp.gst B)::Γ) (x, G) a'
   := sorry
@@ -217,17 +214,22 @@ theorem HasVar.denote_annot
               cases s with
               | type => 
                 simp only [denote, Context.stlc]
-                apply Term.denote_wk1_gst _ _ Γ x G _ _ _ _ I'
+                apply Term.denote_wk1_gst _ _ Γ x G _ _ _ I'
+                rw [monorecursor]
+                rw [Stlc.HasType.interp_transport_mono]
                 sorry
+                sorry
+                sorry
+                rw [Term.stlc_ty_wk1]
+                rfl
+                rw [Term.stlc_ty_wk1]
+                rfl
                 sorry
               | prop => 
                 simp only [denote]
                 exact 
                   Term.denote_wk1_gst _ _ Γ x G 
-                    none none 
-                    (Term.stlc_ty_wk1 _) 
-                    (by rw [interp_eq_none]) 
-                    I';
+                    none none (by rw [interp_eq_none]) I';
   }
 
 theorem HasType.denote
