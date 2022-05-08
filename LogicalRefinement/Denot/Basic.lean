@@ -474,8 +474,8 @@ theorem HasType.denote
     | cong => sorry
     | beta => sorry
     | eta => sorry
-    | irir => sorry
-    | prir => sorry
+    | irir => intro Hx Hy; rfl
+    | prir => intro Hx Hy; rfl
     | succ => 
       intro x H;
       cases x with
