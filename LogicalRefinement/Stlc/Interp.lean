@@ -71,6 +71,15 @@ theorem Context.sparsity_gst
   : sparsity ((Hyp.gst A)::Γ) = false::(sparsity Γ)
   := rfl
 
+@[simp]
+theorem Context.sparsity_ty
+  : sparsity ((Hyp.val A type)::Γ) = true::(sparsity Γ)
+  := rfl
+@[simp]
+theorem Context.sparsity_prop
+  : sparsity ((Hyp.val A prop)::Γ) = false::(sparsity Γ)
+  := rfl
+
 def Context.downgrade_sparsity: Context -> Sparsity
 | [] => []
 | (Hyp.mk A (HypKind.val type))::Γ => true::(downgrade_sparsity Γ)
@@ -110,6 +119,19 @@ theorem Stlc.Context.interp.downgrade_gst
   (x: A.stlc_ty.interp) (G: Γ.upgrade.stlc.interp)
   : @downgrade ((Hyp.gst A)::Γ) (x, G) = G.downgrade
   := rfl
+
+@[simp]
+theorem Stlc.Context.interp.downgrade_prop
+  {A: Term} {Γ: _root_.Context} (G: Γ.upgrade.stlc.interp)
+  : @downgrade ((Hyp.val A prop)::Γ) G = G.downgrade
+  := rfl
+
+@[simp]
+theorem Stlc.Context.interp.downgrade_ty
+  {A: Term} {Γ: _root_.Context} 
+  (x: A.stlc_ty.interp) (G: Γ.upgrade.stlc.interp)
+  : @downgrade ((Hyp.val A type)::Γ) (x, G) = (x, G.downgrade)
+  := sorry
   
 theorem Context.sparsity_true {Γ: Context}
   : H.kind = HypKind.val type -> sparsity (H::Γ) = true::Γ.sparsity

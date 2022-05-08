@@ -203,11 +203,43 @@ theorem HasVar.denote_annot
         | val s => 
           cases s with
           | type => 
+            let (x, G) := G;
+            have ⟨Hx, HG⟩ := HG;
             cases Hv with
             | zero Hk => 
               cases Hk;
+              simp only [denote, Context.stlc]
               sorry
-            | succ Hv => sorry
+            | succ Hv => 
+              cases HΓ with
+              | cons_val HΓ =>
+                have I' := I Hv HΓ G HG;
+                cases s with
+                | type =>
+                  simp only [denote, Context.stlc]
+                  apply Term.denote_wk1_ty _ _ Γ x G _ _ _ I'
+                  rw [monorecursor]
+                  rename Nat => n;
+                  rw [Stlc.HasType.interp_transport_mono]
+                  rw [Stlc.Context.interp.downgrade_ty]
+                  rw [Stlc.HasType.var_interp_wk1]
+                  rfl
+                  rw [Term.stlc_var]
+                  dsimp only [Sparsity.stlc]
+                  split
+                  . rfl
+                  . sorry
+                  sorry
+                  sorry
+                  rw [Term.stlc_ty_wk1]
+                  rfl
+                  rw [Term.stlc_ty_wk1]
+                  rfl
+                | prop => 
+                  simp only [denote]
+                  exact 
+                    Term.denote_wk1_ty _ _ Γ x G 
+                      none none (by rw [interp_eq_none]) I';
           | prop => 
             cases Hv with
             | zero Hk => 
