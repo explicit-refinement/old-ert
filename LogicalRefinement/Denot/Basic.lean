@@ -77,7 +77,9 @@ def Term.denote_ty (A: Term) (Γ: Context)
     | none => False
   | _ => False
 
-theorem Term.denote_ty_transport {A: Term} {a: A.stlc_ty.interp}
+theorem Term.denote_ty_transport 
+  {A: Term} {Γ G} {a: A.stlc_ty.interp}
+  {A' Γ' G' a'}
   (HA: A = A')
   (HΓ: Γ = Γ')
   (HG: G = HΓ ▸ G')
@@ -377,6 +379,7 @@ theorem HasType.denote
     induction H with
     | var HA Hv IA => exact Hv.denote_annot HΓ G HG
     | lam Hs HA Is IA => 
+      stop
       dsimp only [Annot.denote, Term.denote_ty]
       intro x Hx
       cases x with
@@ -399,7 +402,7 @@ theorem HasType.denote
         dsimp only [
           Annot.stlc_ty, term, Term.stlc_ty, Term.stlc, 
           Stlc.HasType.interp, 
-          Ty.interp.app, Ty.interp.bind_val
+          Ty.interp.app
         ]
         generalize Hlg:
           Stlc.HasType.interp
@@ -416,6 +419,7 @@ theorem HasType.denote
           cases ri with
           | some ri => 
             simp only []
+            dsimp only [Annot.denote, Term.denote_ty] at Il'
             sorry
           | none =>
             have HA: Γ ⊢ A: type := by cases HAB; assumption;
