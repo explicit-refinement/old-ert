@@ -655,3 +655,18 @@ theorem Stlc.HasType.interp_wk1 {Γ a} {A B: Ty}
 def Stlc.Context.deriv.step {Γ: Context} {A} (D: Γ.deriv A) (B: Ty)
   : Context.deriv (B::Γ) A
   := λ(x, G) => D G
+
+theorem Stlc.HasType.interp_transport
+  {A B: Ty}
+  {a b: Stlc}
+  (HA: HasType Γ a A)
+  (HB: HasType Γ b B)
+  (Hab: a = b)
+  (HAB: A = B)
+  : HA.interp = HAB ▸ HB.interp
+  := by {
+    cases HAB;
+    simp only [Eq.rec]
+    cases Hab;
+    cases HA <;> cases HB <;> rfl 
+  }
