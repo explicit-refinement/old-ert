@@ -380,7 +380,7 @@ theorem HasType.denote
         exact HA
         exact ⟨Hx, HG⟩
       | none => exact False.elim (HA.denote_ty_non_null Hx)
-    | @app Γ A B l r HAB Hl Hr Il Ir => 
+    | @app Γ A B l r HAB Hl Hr IA Il Ir => 
       dsimp only [Annot.denote]
         dsimp only [
           Annot.stlc_ty, term, Term.stlc_ty, Term.stlc, 
@@ -390,19 +390,24 @@ theorem HasType.denote
         generalize Hlg:
           Stlc.HasType.interp
           (_ : _⊧Term.stlc l _:_)
-          (Stlc.Context.interp.downgrade G) = Il;
+          (Stlc.Context.interp.downgrade G) = li;
+        have Il' := Hlg ▸ (Il HΓ G HG);
         generalize Hrg:
           Stlc.HasType.interp
           (_ : _⊧Term.stlc r _:_)
-          (Stlc.Context.interp.downgrade G) = Ir;
-        cases Il with
-        | some Il => 
-          cases Ir with
-          | some Ir => 
+          (Stlc.Context.interp.downgrade G) = ri;
+        have Ir' := Hrg ▸ (Ir HΓ G HG);
+        cases li with
+        | some li => 
+          cases ri with
+          | some ri => 
             simp only []
             sorry
-          | none => sorry -- contradiction
-        | none => sorry -- contradiction
+          | none =>
+            have HA: Γ ⊢ A: type := by cases HAB; assumption;
+            exact False.elim (HA.denote_ty_non_null Ir')
+        | none =>
+          exact False.elim (HAB.denote_ty_non_null Il')
     | pair => sorry
     | let_pair => sorry
     | inj_l => sorry
