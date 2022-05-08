@@ -205,6 +205,8 @@ inductive Stlc.HasType: Context -> Stlc -> Ty -> Prop
   HasType (C::Γ) s C ->
   HasType Γ (natrec C n z s) C
 
+notation Γ "⊧" x ":" A => Stlc.HasType Γ x A
+
 def Stlc.HasType.let_prop: HasType (Ty.unit::Γ) e A -> HasType Γ e.let_prop A
   := by {
     intro H;

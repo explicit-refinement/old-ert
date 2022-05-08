@@ -81,24 +81,14 @@ theorem interp_eq_some
     cases p <;> rfl
   }
 
-theorem interp_eq_inl (q: A.stlc_ty = A.wk1.stlc_ty)
-  : @Eq.rec Ty 
-    (Term.stlc_ty (Term.bin TermKind.coprod A B)) 
-    (fun x h => Ty.interp_val x) 
-    (Sum.inl a) 
-    (Term.stlc_ty (Term.wk1 (Term.bin TermKind.coprod A B))) 
-    p = Sum.inl (q ▸ a) := by {
-    sorry
-  }
-
-theorem interp_eq_inr (q: B.stlc_ty = B.wk1.stlc_ty)
-  : @Eq.rec Ty 
-    (Term.stlc_ty (Term.bin TermKind.coprod A B)) 
-    (fun x h => Ty.interp_val x) 
-    (Sum.inr b) 
-    (Term.stlc_ty (Term.wk1 (Term.bin TermKind.coprod A B))) 
-    p = Sum.inr (q ▸ b) := by {
-    sorry
+theorem monorecursor
+  : 
+  @Eq.rec A x F D y p =
+  @Eq.rec (Type) (F x rfl) (λA p => A) D (F y p) p'  
+  := by {
+    cases p;
+    cases p';
+    simp
   }
 
 theorem Term.denote_wk1_ty
@@ -109,7 +99,8 @@ theorem Term.denote_wk1_ty
   (G: Γ.upgrade.stlc.interp) 
   (a: A.stlc_ty.interp)
   (a': A.wk1.stlc_ty.interp)
-  (Haa': a' = A.stlc_ty_wk1 ▸ a)
+  (HA: A.wk1.stlc_ty = A.stlc_ty)
+  (Haa': a' = HA ▸ a)
   (H: A.denote_ty Γ G a) 
   : A.wk1.denote_ty ((Hyp.val B type)::Γ) (x, G) a'
   := sorry
@@ -121,7 +112,8 @@ theorem Term.denote_wk1_prop
   (G: Γ.upgrade.stlc.interp) 
   (a: A.stlc_ty.interp)
   (a': A.wk1.stlc_ty.interp)
-  (Haa': a' = A.stlc_ty_wk1 ▸ a)
+  (HA: A.wk1.stlc_ty = A.stlc_ty)
+  (Haa': a' = HA ▸ a)
   (H: A.denote_ty Γ G a) 
   : A.wk1.denote_ty ((Hyp.val φ prop)::Γ) G a'
   := sorry
@@ -134,7 +126,8 @@ theorem Term.denote_wk1_gst
   (G: Γ.upgrade.stlc.interp) 
   (a: A.stlc_ty.interp)
   (a': A.wk1.stlc_ty.interp)
-  (Haa': a' = A.stlc_ty_wk1 ▸ a)
+  (HA: A.wk1.stlc_ty = A.stlc_ty)
+  (Haa': a' = HA ▸ a)
   (H: A.denote_ty Γ G a) 
   : A.wk1.denote_ty ((Hyp.gst B)::Γ) (x, G) a'
   := sorry
@@ -223,18 +216,18 @@ theorem HasVar.denote_annot
               have I' := I Hv HΓ G HG;
               cases s with
               | type => 
-                simp only [denote]
-                apply Term.denote_wk1_gst _ _ Γ x G _ _ _ I'
-                rw [HasType.stlc_interp_var]
-                rw [HasType.stlc_interp_var]
-                sorry
+                simp only [denote, Context.stlc]
+                apply Term.denote_wk1_gst _ _ Γ x G _ _ _ _ I'
                 sorry
                 sorry
               | prop => 
                 simp only [denote]
                 exact 
                   Term.denote_wk1_gst _ _ Γ x G 
-                    none none (by rw [interp_eq_none]) I';
+                    none none 
+                    (Term.stlc_ty_wk1 _) 
+                    (by rw [interp_eq_none]) 
+                    I';
   }
 
 theorem HasType.denote
