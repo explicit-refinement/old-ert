@@ -663,7 +663,7 @@ theorem Stlc.HasType.interp_transport
   (HB: HasType Γ b B)
   (Hab: a = b)
   (HAB: A = B)
-  : HA.interp = HAB ▸ HB.interp
+  : HAB ▸ HA.interp = HB.interp
   := by {
     cases HAB;
     simp only [Eq.rec]
