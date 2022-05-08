@@ -209,7 +209,11 @@ theorem HasVar.denote_annot
             | zero Hk => 
               cases Hk;
               simp only [denote, Context.stlc]
+              apply Term.denote_wk1_ty _ _ Γ x G _ _ _ Hx
+              rw [Stlc.Context.interp.downgrade_ty]
+              rw [monorecursor]
               sorry
+              rw [A.stlc_ty_wk1]
             | succ Hv => 
               cases HΓ with
               | cons_val HΓ =>
