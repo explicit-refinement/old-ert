@@ -229,8 +229,14 @@ theorem HasVar.denote_annot
                   split
                   . rfl
                   . sorry
-                  sorry
-                  sorry
+                  rw [Term.stlc_ty_wk1]
+                  constructor
+                  exact Hv.stlc
+                  rw [Term.stlc_var]
+                  dsimp only [Sparsity.stlc]
+                  split
+                  . rfl
+                  . sorry
                   rw [Term.stlc_ty_wk1]
                   rfl
                   rw [Term.stlc_ty_wk1]
