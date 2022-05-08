@@ -333,7 +333,14 @@ theorem HasType.denote
   := by {
     induction H with
     | var HA Hv IA => exact Hv.denote_annot HΓ G HG
-    | lam Hs HA Is IA => sorry
+    | lam Hs HA Is IA => 
+      dsimp only [Annot.denote, Term.denote_ty]
+      intro x Hx
+      dsimp only [
+        Annot.stlc_ty, term, Term.stlc_ty, Term.stlc, 
+        Stlc.HasType.interp
+      ]
+      sorry
     | app => sorry
     | pair => sorry
     | let_pair => sorry
