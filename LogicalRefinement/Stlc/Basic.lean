@@ -25,7 +25,7 @@ def Ty.interp_val_in (A: Ty) (M: Type -> Type): Type
     | coprod A B => Sum (A.interp_val_in M) (B.interp_val_in M)
 
 def Ty.interp_in (A: Ty) (M: Type -> Type) := M (A.interp_val_in M)
-def Ty.interp_val_char {A: Ty} {M}
+theorem Ty.interp_val_in_char {A: Ty} {M}
   : A.interp_in M = M (A.interp_val_in M) 
   := rfl
 
@@ -33,22 +33,23 @@ def Ty.eager {A: Ty} {M: Type -> Type} [Monad M]: A.interp_val_in M -> A.interp_
 
 def Ty.interp (A: Ty): Type := A.interp_in Option
 def Ty.interp_val (A: Ty): Type := A.interp_val_in Option
+theorem Ty.interp_val_char {A: Ty}
+  : A.interp = Option A.interp_val
+  := rfl
 
 def Ty.abort (A: Ty): A.interp := by cases A <;> exact none
 
 def Ty.interp.bind_val {A B: Ty} 
   (l: A.interp_val -> B.interp) (r: A.interp): B.interp
-  := by cases A <;>
-     exact match r with
+  := match r with
      | some r => l r
      | none => B.abort
 def Ty.interp.app {A B} (l: (arrow A B).interp) (r: A.interp): B.interp :=
   match l with
   | some l => bind_val l r
   | none => B.abort
-def Ty.interp.pair {A B} (l: A.interp) (r: B.interp): (prod A B).interp := by
-  cases A <;> cases B <;>
-  exact match l, r with
+def Ty.interp.pair {A B} (l: A.interp) (r: B.interp): (prod A B).interp := 
+  match l, r with
   | some l, some r => some (l, r)
   | _, _ => none
 def Ty.interp.let_pair {A B C: Ty} 
@@ -58,10 +59,10 @@ def Ty.interp.let_pair {A B C: Ty}
   := match e with
   | some (a, b) => e' b a
   | none => C.abort
-def Ty.interp.inl {A B} (e: A.interp): (coprod A B).interp := by 
-  cases A <;> exact e.map Sum.inl
-def Ty.interp.inr {A B} (e: B.interp): (coprod A B).interp := by 
-  cases B <;> exact e.map Sum.inr
+def Ty.interp.inl {A B} (e: A.interp): (coprod A B).interp := 
+  e.map Sum.inl
+def Ty.interp.inr {A B} (e: B.interp): (coprod A B).interp := 
+  e.map Sum.inr
 def Ty.interp.case {A B C: Ty} 
   (d: (coprod A B).interp) 
   (l: A.interp_val -> C.interp) (r: B.interp_val -> C.interp)

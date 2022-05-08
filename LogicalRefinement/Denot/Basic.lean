@@ -336,12 +336,14 @@ theorem HasType.denote
     | lam Hs HA Is IA => 
       dsimp only [Annot.denote, Term.denote_ty]
       intro x Hx
-      dsimp only [
-        Annot.stlc_ty, term, Term.stlc_ty, Term.stlc, 
-        Stlc.HasType.interp, Ty.interp.app
-      ]
       cases x with
-      | some x => sorry
+      | some x => 
+        dsimp only [
+          Annot.stlc_ty, term, Term.stlc_ty, Term.stlc, 
+          Stlc.HasType.interp, 
+          Ty.interp.app
+        ]
+        sorry
       | none => sorry --TODO: contradiction
     | app => sorry
     | pair => sorry
