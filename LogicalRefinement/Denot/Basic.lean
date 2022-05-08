@@ -263,7 +263,27 @@ theorem HasVar.denote_annot
               | cons_val HΓ =>
                 have I' := I Hv HΓ G HG;
                 cases s with
-                | type => sorry
+                | type =>                   
+                  simp only [denote, Context.stlc]
+                  apply Term.denote_wk1_prop _ _ Γ G _ _ _ I'
+                  rw [monorecursor]
+                  rename Nat => n;
+                  rw [Stlc.HasType.interp_transport_mono]
+                  rfl
+                  rw [Term.stlc_var]
+                  dsimp only [Sparsity.stlc]
+                  split
+                  . dsimp only [Term.stlc, Sparsity.stlc]
+                    split
+                    . rfl
+                    . have s := Hv.sigma_ty;
+                      contradiction
+                  . have s := Hv.sigma_ty;
+                    contradiction
+                  rw [Term.stlc_ty_wk1]
+                  constructor
+                  rw [Term.stlc_ty_wk1]
+                  rfl
                 | prop => 
                   simp only [denote]
                   exact 
