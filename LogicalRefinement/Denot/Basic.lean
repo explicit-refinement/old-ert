@@ -341,8 +341,13 @@ theorem HasType.denote
         dsimp only [
           Annot.stlc_ty, term, Term.stlc_ty, Term.stlc, 
           Stlc.HasType.interp, 
-          Ty.interp.app
+          Ty.interp.app, Ty.interp.bind_val
         ]
+        rw [<-Stlc.Context.interp.downgrade_ty]
+        apply Is
+        constructor
+        exact HΓ
+        exact HA
         sorry
       | none => sorry --TODO: contradiction
     | app => sorry
