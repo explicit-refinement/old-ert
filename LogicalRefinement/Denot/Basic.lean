@@ -348,7 +348,7 @@ theorem HasType.denote
         constructor
         exact HΓ
         exact HA
-        sorry
+        exact ⟨Hx, HG⟩
       | none => sorry --TODO: contradiction
     | app => sorry
     | pair => sorry
