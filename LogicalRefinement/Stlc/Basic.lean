@@ -39,19 +39,22 @@ theorem Ty.interp_val_char {A: Ty}
 
 def Ty.abort (A: Ty): A.interp := by cases A <;> exact none
 
+@[simp]
 def Ty.interp.bind_val {A B: Ty} 
-  (l: A.interp_val -> B.interp) (r: A.interp): B.interp
-  := match r with
-     | some r => l r
-     | none => B.abort
+  (l: A.interp_val -> B.interp): A.interp -> B.interp
+  | some r => l r
+  | none => B.abort
+@[simp]
 def Ty.interp.app {A B} (l: (arrow A B).interp) (r: A.interp): B.interp :=
   match l with
   | some l => bind_val l r
   | none => B.abort
+@[simp]
 def Ty.interp.pair {A B} (l: A.interp) (r: B.interp): (prod A B).interp := 
   match l, r with
   | some l, some r => some (l, r)
   | _, _ => none
+@[simp]
 def Ty.interp.let_pair {A B C: Ty} 
   (e: (prod A B).interp) 
   (e': B.interp_val -> A.interp_val -> C.interp)
@@ -59,10 +62,13 @@ def Ty.interp.let_pair {A B C: Ty}
   := match e with
   | some (a, b) => e' b a
   | none => C.abort
+@[simp]
 def Ty.interp.inl {A B} (e: A.interp): (coprod A B).interp := 
   e.map Sum.inl
+@[simp]
 def Ty.interp.inr {A B} (e: B.interp): (coprod A B).interp := 
   e.map Sum.inr
+@[simp]
 def Ty.interp.case {A B C: Ty} 
   (d: (coprod A B).interp) 
   (l: A.interp_val -> C.interp) (r: B.interp_val -> C.interp)
