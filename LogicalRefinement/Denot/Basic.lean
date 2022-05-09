@@ -427,16 +427,11 @@ theorem HasType.denote
         | none => exact False.elim (HA.denote_ty_non_null Ir')
       | none => exact False.elim (HAB.denote_ty_non_null Il')
     | pair HAB Hl Hr Il Ir => 
-      dsimp only [denote', Term.denote_ty', Term.denote_ty]
-      generalize Hei: Stlc.HasType.interp _ _ = ei;
-      dsimp only [
+      dsimp only [denote', Term.denote_ty', Term.denote_ty, 
         Stlc.HasType.interp, Term.stlc, stlc_ty, term, Term.stlc_ty, 
-        Ty.interp.pair
-      ] at Hei; 
-      simp only [] at Hei;
-      cases ei with
-      | some ei => sorry
-      | none => sorry
+        Ty.interp.pair]
+      generalize Hli: Stlc.HasType.interp _ _ = li;
+      sorry
     | let_pair => sorry
     | inj_l He HB Ie IB => 
       dsimp only [
