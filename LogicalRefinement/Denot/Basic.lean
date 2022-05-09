@@ -87,7 +87,7 @@ def Term.denote_ty' (A: Term) {Γ: Context}
   := A.denote_ty Γ.upgrade.sparsity G a
 
 set_option quotPrecheck false in
-notation G "⊧" a "∈" A => @Term.denote_ty' A Γ G A
+notation G "⊧" a "∈" A => Term.denote_ty' A G a
 
 theorem Term.denote_ty_transport 
   {A: Term} {Γ G} {a: A.stlc_ty.interp}
@@ -381,6 +381,7 @@ theorem HasType.denote
         exact ⟨Hx, HG⟩
       | none => exact False.elim (HA.denote_ty_non_null Hx)
     | @app Γ A B l r HAB Hl Hr IA Il Ir => 
+      stop
       dsimp only [Annot.denote]
       dsimp only [
         Annot.stlc_ty, term, Term.stlc_ty, Term.stlc, 
@@ -440,10 +441,18 @@ theorem HasType.denote
     | sym => 
       dsimp only [denote', Annot.denote]
       sorry
-    | trans => sorry
-    | cong => sorry
-    | beta => sorry
-    | eta => sorry
+    | trans => 
+      dsimp only [denote', Annot.denote]
+      sorry
+    | cong => 
+      dsimp only [denote', Annot.denote]
+      sorry
+    | beta => 
+      dsimp only [denote', Annot.denote]
+      sorry
+    | eta => 
+      dsimp only [denote', Annot.denote]
+      sorry
     | irir Hf Hx Hy => exact ⟨sorry, sorry, rfl⟩
     | prir Hf Hx Hy => exact ⟨sorry, sorry, rfl⟩
     | succ => 
