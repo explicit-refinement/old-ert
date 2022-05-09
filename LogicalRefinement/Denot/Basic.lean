@@ -439,7 +439,7 @@ theorem HasType.denote
         cases ri with
         | some ri => sorry
         | none => sorry
-      | none => sorry
+      | none => exact Hl.term_regular.denote_ty_non_null Il'
     | let_pair => sorry
     | inj_l He HB Ie IB => 
       dsimp only [
