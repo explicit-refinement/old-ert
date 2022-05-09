@@ -445,7 +445,7 @@ theorem HasType.denote
       | some ei => 
         dsimp only [Option.map, Option.bind, Function.comp]
         exact Ie'
-      | none => exact False.elim (He.term_regular.denote_ty_non_null Ie')
+      | none => exact He.term_regular.denote_ty_non_null Ie'
     | inj_r He HA Ie IA => 
       dsimp only [
         denote', Term.denote_ty', Term.denote_ty, Term.stlc, 
@@ -457,7 +457,7 @@ theorem HasType.denote
       | some ei => 
         dsimp only [Option.map, Option.bind, Function.comp]
         exact Ie'
-      | none => exact False.elim (He.term_regular.denote_ty_non_null Ie')
+      | none => exact He.term_regular.denote_ty_non_null Ie'
     | case => sorry
     | elem => sorry
     | let_set => sorry
