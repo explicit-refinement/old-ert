@@ -441,7 +441,7 @@ theorem HasType.denote
         dsimp only [Option.map, Option.bind, Function.comp]
         exact Ie'
       | none => exact False.elim (He.term_regular.denote_ty_non_null Ie')
-    | inj_r => sorry
+    | inj_r He HB Ie Ib => sorry
     | case => sorry
     | elem => sorry
     | let_set => sorry
