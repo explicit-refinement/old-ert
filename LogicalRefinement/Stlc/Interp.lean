@@ -212,6 +212,9 @@ theorem HasType.stlc_ty_subst {Γ A σ s} (H: Γ ⊢ A: sort s):
   )
 }
 
+theorem HasType.stlc_ty_subst0 {Γ A b} (H: Γ ⊢ A: sort s):
+  (A.subst0 b).stlc_ty = A.stlc_ty := H.stlc_ty_subst
+
 theorem Term.stlc_ty_wk (A: Term) (ρ: Wk): (A.wk ρ).stlc_ty = A.stlc_ty 
 := by {
   induction A generalizing ρ <;> 
