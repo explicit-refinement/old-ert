@@ -431,6 +431,7 @@ theorem HasType.denote
         Stlc.HasType.interp, Term.stlc, stlc_ty, term, Term.stlc_ty, 
         Ty.interp.pair]
       generalize Hli: Stlc.HasType.interp _ _ = li;
+      generalize Hri: Stlc.HasType.interp _ _ = ri;
       sorry
     | let_pair => sorry
     | inj_l He HB Ie IB => 
