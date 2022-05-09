@@ -5,7 +5,8 @@ import LogicalRefinement.Stlc
 open AnnotSort
 open Annot
 
-def Term.denote_ty (A: Term) {Γ: Stlc.Context}
+def Term.denote_ty (A: Term) 
+  {Γ: Stlc.Context}
   (σ: Sparsity)
   (G: Γ.interp)
   (a: A.stlc_ty.interp): Prop
@@ -185,7 +186,7 @@ theorem Term.denote_wk1_gst
   : @denote_ty' A.wk1 ((Hyp.gst B)::Γ) (x, G) a'
   := sorry
 
-def Annot.denote (A: Annot) {Γ: Stlc.Context}
+abbrev Annot.denote (A: Annot) {Γ: Stlc.Context}
   (σ: Sparsity)
   (G: Γ.interp)
   (a: A.stlc_ty.interp): Prop
@@ -197,7 +198,10 @@ def Annot.denote (A: Annot) {Γ: Stlc.Context}
 abbrev Annot.denote' (A: Annot) (Γ: Context)
   (G: Γ.upgrade.stlc.interp)
   (a: A.stlc_ty.interp): Prop
-  := Annot.denote A Γ.upgrade.sparsity G a
+  := match A with
+  | sort s => True
+  | expr type A => A.denote_ty' G a
+  | expr prop A => A.denote_ty' G none
 
 -- NOTE: I don't think wk1 is necessary here, due to the fact that
 -- A.wk1.stlc_ty = A.stlc_ty, and also that a is not passed to itself...
@@ -378,35 +382,35 @@ theorem HasType.denote
       | none => exact False.elim (HA.denote_ty_non_null Hx)
     | @app Γ A B l r HAB Hl Hr IA Il Ir => 
       dsimp only [Annot.denote]
-        dsimp only [
-          Annot.stlc_ty, term, Term.stlc_ty, Term.stlc, 
-          Stlc.HasType.interp, 
-          Ty.interp.app
-        ]
-        generalize Hlg:
-          Stlc.HasType.interp
-          (_ : _⊧Term.stlc l _:_)
-          (Stlc.Context.interp.downgrade G) = li;
-        have Il' := Hlg ▸ (Il HΓ G HG);
-        generalize Hrg:
-          Stlc.HasType.interp
-          (_ : _⊧Term.stlc r _:_)
-          (Stlc.Context.interp.downgrade G) = ri;
-        have Ir' := Hrg ▸ (Ir HΓ G HG);
-        cases li with
-        | some li => 
-          cases ri with
-          | some ri => 
-            simp only []
-            dsimp only [Annot.denote, Term.denote_ty, denote'] at Il'
-            dsimp only [Annot.denote, Term.denote_ty, denote']
-            --TODO: I guess this needs substitution...
-            sorry
-          | none =>
-            have HA: Γ ⊢ A: type := by cases HAB; assumption;
-            exact False.elim (HA.denote_ty_non_null Ir')
+      dsimp only [
+        Annot.stlc_ty, term, Term.stlc_ty, Term.stlc, 
+        Stlc.HasType.interp, 
+        Ty.interp.app
+      ]
+      generalize Hlg:
+        Stlc.HasType.interp
+        (_ : _⊧Term.stlc l _:_)
+        (Stlc.Context.interp.downgrade G) = li;
+      have Il' := Hlg ▸ (Il HΓ G HG);
+      generalize Hrg:
+        Stlc.HasType.interp
+        (_ : _⊧Term.stlc r _:_)
+        (Stlc.Context.interp.downgrade G) = ri;
+      have Ir' := Hrg ▸ (Ir HΓ G HG);
+      cases li with
+      | some li => 
+        cases ri with
+        | some ri => 
+          simp only []
+          dsimp only [Annot.denote, Term.denote_ty, denote'] at Il'
+          dsimp only [Annot.denote, Term.denote_ty, denote']
+          --TODO: I guess this needs substitution...
+          sorry
         | none =>
-          exact False.elim (HAB.denote_ty_non_null Il')
+          have HA: Γ ⊢ A: type := by cases HAB; assumption;
+          exact False.elim (HA.denote_ty_non_null Ir')
+      | none =>
+        exact False.elim (HAB.denote_ty_non_null Il')
     | pair => sorry
     | let_pair => sorry
     | inj_l => sorry
@@ -433,7 +437,9 @@ theorem HasType.denote
     | wit => sorry
     | let_wit => sorry
     | refl Ha => exact ⟨Ha.stlc, Ha.stlc, rfl⟩
-    | sym => sorry
+    | sym => 
+      dsimp only [denote', Annot.denote]
+      sorry
     | trans => sorry
     | cong => sorry
     | beta => sorry
