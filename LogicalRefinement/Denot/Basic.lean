@@ -426,7 +426,10 @@ theorem HasType.denote
           rfl
         | none => exact False.elim (HA.denote_ty_non_null Ir')
       | none => exact False.elim (HAB.denote_ty_non_null Il')
-    | pair => sorry
+    | pair => 
+      dsimp only [denote', Term.denote_ty', Term.denote_ty]
+      generalize Hei: Stlc.HasType.interp _ _ = ei;
+      sorry
     | let_pair => sorry
     | inj_l He HB Ie IB => 
       dsimp only [
