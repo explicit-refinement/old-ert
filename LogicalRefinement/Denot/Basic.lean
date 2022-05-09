@@ -437,7 +437,9 @@ theorem HasType.denote
       generalize Hei: Stlc.HasType.interp _ _ = ei;
       have Ie' := Hei ▸ Ie HΓ G HG;
       cases ei with
-      | some ei => sorry
+      | some ei => 
+        dsimp only [Option.map, Option.bind, Function.comp]
+        exact Ie'
       | none => exact False.elim (He.term_regular.denote_ty_non_null Ie')
     | inj_r => sorry
     | case => sorry
