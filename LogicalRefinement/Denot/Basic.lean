@@ -394,6 +394,7 @@ theorem HasType.denote
         exact ⟨Hx, HG⟩
       | none => exact False.elim (HA.denote_ty_non_null Hx)
     | @app Γ A B l r HAB Hl Hr IA Il Ir => 
+      stop
       dsimp only [Annot.denote]
       dsimp only [
         Annot.stlc_ty, term, Term.stlc_ty, Term.stlc, 
@@ -427,7 +428,17 @@ theorem HasType.denote
       | none => exact False.elim (HAB.denote_ty_non_null Il')
     | pair => sorry
     | let_pair => sorry
-    | inj_l => sorry
+    | inj_l He HB Ie IB => 
+      dsimp only [
+        denote', Term.denote_ty', Term.denote_ty, Term.stlc, 
+        stlc_ty, Term.stlc_ty, Stlc.HasType.interp,
+        Ty.interp.inl
+      ]
+      generalize Hei: Stlc.HasType.interp _ _ = ei;
+      have Ie' := Hei ▸ Ie HΓ G HG;
+      cases ei with
+      | some ei => sorry
+      | none => exact False.elim (He.term_regular.denote_ty_non_null Ie')
     | inj_r => sorry
     | case => sorry
     | elem => sorry
