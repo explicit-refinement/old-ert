@@ -432,7 +432,12 @@ theorem HasType.denote
         Ty.interp.pair]
       generalize Hli: Stlc.HasType.interp _ _ = li;
       generalize Hri: Stlc.HasType.interp _ _ = ri;
-      sorry
+      cases li with
+      | some li => 
+        cases ri with
+        | some ri => sorry
+        | none => sorry
+      | none => sorry
     | let_pair => sorry
     | inj_l He HB Ie IB => 
       dsimp only [
