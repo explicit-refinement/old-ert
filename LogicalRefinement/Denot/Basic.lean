@@ -426,13 +426,14 @@ theorem HasType.denote
           rfl
         | none => exact False.elim (HA.denote_ty_non_null Ir')
       | none => exact False.elim (HAB.denote_ty_non_null Il')
-    | pair HAB Hl Hr IAB Il Ir => 
+    | @pair Γ A B l r HAB Hl Hr IAB Il Ir => 
       dsimp only [denote', Term.denote_ty', Term.denote_ty, 
         Stlc.HasType.interp, Term.stlc, stlc_ty, term, Term.stlc_ty, 
         Ty.interp.pair]
       generalize Hli: Stlc.HasType.interp _ _ = li;
       have Il' := Hli ▸ Il HΓ G HG;
       generalize Hri: Stlc.HasType.interp _ _ = ri;
+      have HB: (_::Γ) ⊢ B: type := by cases HAB; assumption;
       have Ir' := Hri ▸ Ir HΓ G HG;
       cases li with
       | some li => 
