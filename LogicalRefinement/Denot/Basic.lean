@@ -354,6 +354,19 @@ theorem HasVar.denote_annot
                     none none (by rw [interp_eq_none]) I';
   }
 
+theorem HasType.denote_subst0'
+  {A: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} {a: A.stlc_ty.interp}
+  {B: Term} {b: Term}
+  {a': (A.subst0 b).stlc_ty.interp}
+  {b'}
+  (Hb: Γ ⊢ b: term B)
+  (HAA': A.stlc_ty = (A.subst0 b).stlc_ty)
+  (Haa': a' = HAA' ▸ a)
+  (Hbb': b' = Hb.stlc.interp G.downgrade)
+  (H: @Term.denote_ty A (B.stlc_ty::Γ.upgrade.stlc) (true::σ) (b', G) a)
+  : @Term.denote_ty (A.subst0 b) Γ.upgrade.stlc σ G a'
+  := sorry
+
 theorem HasType.denote
   (H: Γ ⊢ a: A)
   (HΓ: IsCtx Γ)
@@ -381,7 +394,6 @@ theorem HasType.denote
         exact ⟨Hx, HG⟩
       | none => exact False.elim (HA.denote_ty_non_null Hx)
     | @app Γ A B l r HAB Hl Hr IA Il Ir => 
-      stop
       dsimp only [Annot.denote]
       dsimp only [
         Annot.stlc_ty, term, Term.stlc_ty, Term.stlc, 
@@ -398,20 +410,21 @@ theorem HasType.denote
         (_ : _⊧Term.stlc r _:_)
         (Stlc.Context.interp.downgrade G) = ri;
       have Ir' := Hrg ▸ (Ir HΓ G HG);
+      have HA: Γ ⊢ A: type := by cases HAB; assumption;
+      have HB: ((Hyp.val A type)::Γ) ⊢ B: type := by cases HAB; assumption;
       cases li with
       | some li => 
         cases ri with
         | some ri => 
+          have Ilr := Il' (some ri) Ir';
           simp only []
-          dsimp only [Annot.denote, Term.denote_ty, denote'] at Il'
+          dsimp only [Annot.denote, Term.denote_ty, denote', Term.denote_ty'] at Il'
           dsimp only [Annot.denote, Term.denote_ty, denote']
-          --TODO: I guess this needs substitution...
-          sorry
-        | none =>
-          have HA: Γ ⊢ A: type := by cases HAB; assumption;
-          exact False.elim (HA.denote_ty_non_null Ir')
-      | none =>
-        exact False.elim (HAB.denote_ty_non_null Il')
+          apply HasType.denote_subst0' Hr HB.stlc_ty_subst.symm _ Hrg.symm Ilr
+          rw [monorecursor]
+          rfl
+        | none => exact False.elim (HA.denote_ty_non_null Ir')
+      | none => exact False.elim (HAB.denote_ty_non_null Il')
     | pair => sorry
     | let_pair => sorry
     | inj_l => sorry
