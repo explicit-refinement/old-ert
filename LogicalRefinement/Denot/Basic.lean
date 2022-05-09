@@ -5,8 +5,9 @@ import LogicalRefinement.Stlc
 open AnnotSort
 open Annot
 
-def Term.denote_ty (A: Term) (Γ: Context)
-  (G: Γ.upgrade.stlc.interp)
+def Term.denote_ty (A: Term) {Γ: Stlc.Context}
+  (σ: Sparsity)
+  (G: Γ.interp)
   (a: A.stlc_ty.interp): Prop
   := match A with
   | const TermKind.unit => 
@@ -17,65 +18,75 @@ def Term.denote_ty (A: Term) (Γ: Context)
     match a with
     | some a =>
       ∀x: A.stlc_ty.interp,
-        A.denote_ty Γ G x ->
-        B.denote_ty ((Hyp.val A type)::Γ) (x, G) (x.bind_val a)
+        A.denote_ty σ G x ->
+        @denote_ty B (A.stlc_ty::Γ) (true::σ) (x, G) (x.bind_val a)
     | none => False
   | abs TermKind.sigma A B => 
     match a with
     | some (a, b) => 
       let a := Ty.eager a;
       let b := Ty.eager b;
-      A.denote_ty Γ G a ∧ B.denote_ty ((Hyp.val A type)::Γ) (a, G) b
+      A.denote_ty σ G a ∧ @denote_ty B (A.stlc_ty::Γ) (true::σ) (a, G) b
     | none => False
   | bin TermKind.coprod A B =>
     match a with
     | some a => 
       match a with
-      | Sum.inl a => A.denote_ty Γ G (Ty.eager a)
-      | Sum.inr b => B.denote_ty Γ G (Ty.eager b)
+      | Sum.inl a => A.denote_ty σ G (Ty.eager a)
+      | Sum.inr b => B.denote_ty σ G (Ty.eager b)
     | none => False
   | abs TermKind.assume φ A => 
     a ≠ none ∧
-    ((φ.denote_ty Γ G none) -> (A.denote_ty Γ G a))
+    ((φ.denote_ty σ G none) -> (A.denote_ty (false::σ) G a))
   | abs TermKind.set A φ => 
-    A.denote_ty Γ G a ∧ φ.denote_ty ((Hyp.val A type)::Γ) (a, G) none
+    A.denote_ty σ G a ∧ @denote_ty φ (A.stlc_ty::Γ) (true::σ) (a, G) none
   | abs TermKind.intersect A B => 
     a ≠ none ∧
     ∀x: A.stlc_ty.interp,
-      A.denote_ty Γ G x ->
-      B.denote_ty ((Hyp.gst A)::Γ) (x, G) a
+      A.denote_ty σ G x ->
+      @denote_ty B (A.stlc_ty::Γ) (true::σ) (x, G) a
   | abs TermKind.union A B => 
     a ≠ none ∧
     ∃x: A.stlc_ty.interp,
-      A.denote_ty Γ G x ->
-      B.denote_ty ((Hyp.gst A)::Γ) (x, G) a
+      A.denote_ty σ G x ->
+      @denote_ty B (A.stlc_ty::Γ) (true::σ) (x, G) a
   | const TermKind.top => True
   | const TermKind.bot => False
   | abs TermKind.dimplies A B => 
     --TODO: think about this...
-    (A.denote_ty Γ G none) -> (B.denote_ty Γ G none)
+    (A.denote_ty σ G none) -> (B.denote_ty (false::σ) G none)
   | abs TermKind.dand A B =>
     --TODO: think about this...
-    A.denote_ty Γ G none ∧ B.denote_ty Γ G none
+    A.denote_ty σ G none ∧ B.denote_ty (false::σ) G none
   | bin TermKind.or A B => 
-    A.denote_ty Γ G none ∨ B.denote_ty Γ G none
+    A.denote_ty σ G none ∨ B.denote_ty σ G none
   | abs TermKind.forall_ A φ => 
     ∀x: A.stlc_ty.interp,
-      A.denote_ty Γ G x ->
-      φ.denote_ty ((Hyp.val A type)::Γ) (x, G) none
+      A.denote_ty σ G x ->
+      @denote_ty φ (A.stlc_ty::Γ) (true::σ) (x, G) none
   | abs TermKind.exists_ A φ => 
     ∃x: A.stlc_ty.interp,
-      A.denote_ty Γ G x ->
-      φ.denote_ty ((Hyp.gst A)::Γ) (x, G) none
+      A.denote_ty σ G x ->
+      @denote_ty φ (A.stlc_ty::Γ) (true::σ) (x, G) none
   | tri TermKind.eq A x y => 
-    (px: Γ.upgrade ⊢ x: term A) -> 
-    (py: Γ.upgrade ⊢ y: term A) ->
-    px.stlc.interp G = py.stlc.interp G
+    ∃ px: Γ ⊧ x.stlc σ: A.stlc_ty, 
+    ∃ py: Γ ⊧ y.stlc σ: A.stlc_ty,
+    px.interp G = py.interp G
   | const TermKind.nats => 
     match a with
     | some _ => True
     | none => False
   | _ => False
+
+notation G "⊧" a "↓" σ "∈" A => Term.denote_ty A σ G a
+
+def Term.denote_ty' (A: Term) {Γ: Context}
+  (G: Γ.upgrade.stlc.interp)
+  (a: A.stlc_ty.interp): Prop
+  := A.denote_ty Γ.upgrade.sparsity G a
+
+set_option quotPrecheck false in
+notation G "⊧" a "∈" A => @Term.denote_ty' A Γ G A
 
 theorem Term.denote_ty_transport 
   {A: Term} {Γ G} {a: A.stlc_ty.interp}
@@ -84,7 +95,7 @@ theorem Term.denote_ty_transport
   (HΓ: Γ = Γ')
   (HG: G = HΓ ▸ G')
   (Ha: a' = HA ▸ a)
-  : A.denote_ty Γ G a -> A'.denote_ty Γ' G' a'
+  : @denote_ty' A Γ G a -> @denote_ty' A' Γ' G' a'
   := by {
     cases HA;
     cases HΓ;
@@ -93,13 +104,13 @@ theorem Term.denote_ty_transport
     exact id
   }
 
-theorem HasType.denote_ty_non_null:
+theorem HasType.denote_ty_non_null {Δ: Stlc.Context} {G: Δ.interp}:
   (Γ ⊢ A: type) ->
-  ¬(A.denote_ty Δ G none)
+  ¬(A.denote_ty σ G none)
   := by {
     generalize HS: sort type = S;
     intro HA;
-    induction HA generalizing Δ with
+    induction HA with
     | set _ _ IA Iφ => 
       dsimp only [Term.denote_ty]
       intro ⟨HA, Hφ⟩;
@@ -145,8 +156,8 @@ theorem Term.denote_wk1_ty
   (a: A.stlc_ty.interp)
   (a': A.wk1.stlc_ty.interp)
   (Haa': a' = A.stlc_ty_wk1 ▸ a)
-  (H: A.denote_ty Γ G a) 
-  : A.wk1.denote_ty ((Hyp.val B type)::Γ) (x, G) a'
+  (H: A.denote_ty' G a) 
+  : @denote_ty' A.wk1 ((Hyp.val B type)::Γ) (x, G) a'
   := sorry
   
 theorem Term.denote_wk1_prop
@@ -157,8 +168,8 @@ theorem Term.denote_wk1_prop
   (a: A.stlc_ty.interp)
   (a': A.wk1.stlc_ty.interp)
   (Haa': a' = A.stlc_ty_wk1 ▸ a)
-  (H: A.denote_ty Γ G a) 
-  : A.wk1.denote_ty ((Hyp.val φ prop)::Γ) G a'
+  (H: @denote_ty' A Γ G a) 
+  : @denote_ty' A.wk1 ((Hyp.val φ prop)::Γ) G a'
   := sorry
   
 theorem Term.denote_wk1_gst
@@ -170,53 +181,23 @@ theorem Term.denote_wk1_gst
   (a: A.stlc_ty.interp)
   (a': A.wk1.stlc_ty.interp)
   (Haa': a' = A.stlc_ty_wk1 ▸ a)
-  (H: A.denote_ty Γ G a) 
-  : A.wk1.denote_ty ((Hyp.gst B)::Γ) (x, G) a'
+  (H: A.denote_ty' G a) 
+  : @denote_ty' A.wk1 ((Hyp.gst B)::Γ) (x, G) a'
   := sorry
 
-def Annot.denote (A: Annot) (Γ: Context)
-  (G: Γ.upgrade.stlc.interp)
+def Annot.denote (A: Annot) {Γ: Stlc.Context}
+  (σ: Sparsity)
+  (G: Γ.interp)
   (a: A.stlc_ty.interp): Prop
   := match A with
   | sort s => True
-  | expr type A => A.denote_ty Γ G a
-  | expr prop A => A.denote_ty Γ G none
+  | expr type A => A.denote_ty σ G a
+  | expr prop A => A.denote_ty σ G none
 
-def Annot.denote_regular (A: Annot) (Γ: Context) (H: A.regular Γ)
+abbrev Annot.denote' (A: Annot) (Γ: Context)
   (G: Γ.upgrade.stlc.interp)
   (a: A.stlc_ty.interp): Prop
-  := match A with
-     | sort s => True
-     | expr s A => by {
-       apply A.denote_ty Γ G;
-       rw [<-Annot.sort_case (by cases H <;> assumption)]
-       exact a
-     }
-
-theorem Annot.denote_regular_eq (A: Annot) (Γ: Context) (H: A.regular Γ)
-  : A.denote_regular Γ H = A.denote Γ
-  := by {
-    funext G a;
-    cases A with
-    | sort => rfl
-    | expr s A =>
-      cases s with
-      | type => rfl
-      | prop => 
-        simp only [denote_regular, denote]
-        have H: ∀a': A.stlc_ty.interp, a' = none 
-          := by {
-            cases H with
-            | expr H => 
-              intro a';
-              cases a' with
-              | none => rfl
-              | some a' => 
-                rw [H.prop_is_bot] at a'
-                cases a'
-          };
-        rw [<-H]
-  }
+  := Annot.denote A Γ.upgrade.sparsity G a
 
 -- NOTE: I don't think wk1 is necessary here, due to the fact that
 -- A.wk1.stlc_ty = A.stlc_ty, and also that a is not passed to itself...
@@ -224,11 +205,11 @@ theorem Annot.denote_regular_eq (A: Annot) (Γ: Context) (H: A.regular Γ)
 def Context.denote: (Γ: Context) -> Γ.upgrade.stlc.interp -> Prop
 | [], () => True
 | (Hyp.mk A (HypKind.val type))::Γ, (a, G) => 
-  A.denote_ty Γ G a ∧ denote Γ G
+  A.denote_ty (upgrade Γ).sparsity G a ∧ denote Γ G
 | (Hyp.mk φ (HypKind.val prop))::Γ, G =>
-  φ.denote_ty Γ G none ∧ denote Γ G
+  φ.denote_ty (upgrade Γ).sparsity G none ∧ denote Γ G
 | (Hyp.mk A HypKind.gst)::Γ, (a, G) =>
-  A.denote_ty Γ G a ∧ denote Γ G
+  A.denote_ty (upgrade Γ).sparsity G a ∧ denote Γ G
 
 --set_option pp.explicit true
 
@@ -237,7 +218,7 @@ theorem HasVar.denote_annot
   (HΓ: IsCtx Γ)
   (G: Γ.upgrade.stlc.interp)
   (HG: Γ.denote G)
-  : (expr s A).denote Γ G ((HΓ.var Hv).stlc.interp G.downgrade)
+  : (expr s A).denote' Γ G ((HΓ.var Hv).stlc.interp G.downgrade)
   := by {
     induction Γ generalizing s n A with
     | nil => cases Hv
@@ -374,12 +355,11 @@ theorem HasType.denote
   (HΓ: IsCtx Γ)
   (G: Γ.upgrade.stlc.interp)
   (HG: Γ.denote G)
-  : A.denote Γ G (H.stlc.interp G.downgrade)
+  : A.denote' Γ G (H.stlc.interp G.downgrade)
   := by {
     induction H with
     | var HA Hv IA => exact Hv.denote_annot HΓ G HG
     | lam Hs HA Is IA => 
-      stop
       intro x Hx
       cases x with
       | some x => 
@@ -397,7 +377,6 @@ theorem HasType.denote
         exact ⟨Hx, HG⟩
       | none => exact False.elim (HA.denote_ty_non_null Hx)
     | @app Γ A B l r HAB Hl Hr IA Il Ir => 
-      stop
       dsimp only [Annot.denote]
         dsimp only [
           Annot.stlc_ty, term, Term.stlc_ty, Term.stlc, 
@@ -419,7 +398,8 @@ theorem HasType.denote
           cases ri with
           | some ri => 
             simp only []
-            dsimp only [Annot.denote, Term.denote_ty] at Il'
+            dsimp only [Annot.denote, Term.denote_ty, denote'] at Il'
+            dsimp only [Annot.denote, Term.denote_ty, denote']
             --TODO: I guess this needs substitution...
             sorry
           | none =>
@@ -452,30 +432,14 @@ theorem HasType.denote
     | inst => sorry
     | wit => sorry
     | let_wit => sorry
-    | refl => intro _ _; rfl
-    | sym => 
-      intro x Hx y Hy Heq Hl Hr;
-      dsimp [Term.subst, Subst.lift, Subst.wk1, Term.denote_ty] at Heq
-      dsimp [
-        Stlc.HasType.interp, 
-        Stlc.HasVar.interp, 
-        Context.stlc, 
-        Context.upgrade,
-        Hyp.val,
-        Subst.lift,
-        Subst.wk1,
-        Term.stlc,
-        Term.wk,
-        Term.subst,
-        Term.denote_ty
-      ]
-      sorry
+    | refl Ha => exact ⟨Ha.stlc, Ha.stlc, rfl⟩
+    | sym => sorry
     | trans => sorry
     | cong => sorry
     | beta => sorry
     | eta => sorry
-    | irir => intro Hx Hy; rfl
-    | prir => intro Hx Hy; rfl
+    | irir Hf Hx Hy => exact ⟨sorry, sorry, rfl⟩
+    | prir Hf Hx Hy => exact ⟨sorry, sorry, rfl⟩
     | succ => 
       intro x H;
       cases x with
