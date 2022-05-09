@@ -434,7 +434,7 @@ theorem HasType.denote
       have Il' := Hli ▸ Il HΓ G HG;
       generalize Hri: Stlc.HasType.interp _ _ = ri;
       have HB: (_::Γ) ⊢ B: type := by cases HAB; assumption;
-      have Ir' := Hri ▸ Ir HΓ G HG;
+      have Ir' := Ir HΓ G HG;
       cases li with
       | some li => 
         cases ri with
