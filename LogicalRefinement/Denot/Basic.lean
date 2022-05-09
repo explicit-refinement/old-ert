@@ -429,6 +429,9 @@ theorem HasType.denote
     | pair HAB Hl Hr Il Ir => 
       dsimp only [denote', Term.denote_ty', Term.denote_ty]
       generalize Hei: Stlc.HasType.interp _ _ = ei;
+      dsimp only [
+        Stlc.HasType.interp, Term.stlc, stlc_ty, term, Term.stlc_ty
+      ] at Hei; 
       cases ei with
       | some ei => sorry
       | none => sorry
