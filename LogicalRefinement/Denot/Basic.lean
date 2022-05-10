@@ -49,7 +49,7 @@ def Term.denote_ty (A: Term)
   | abs TermKind.union A B => 
     a ≠ none ∧
     ∃x: A.stlc_ty.interp,
-      A.denote_ty σ G x ->
+      A.denote_ty σ G x ∧
       @denote_ty B (A.stlc_ty::Γ) (true::σ) (x, G) a
   | const TermKind.top => True
   | const TermKind.bot => False
@@ -67,7 +67,7 @@ def Term.denote_ty (A: Term)
       @denote_ty φ (A.stlc_ty::Γ) (true::σ) (x, G) none
   | abs TermKind.exists_ A φ => 
     ∃x: A.stlc_ty.interp,
-      A.denote_ty σ G x ->
+      A.denote_ty σ G x ∧
       @denote_ty φ (A.stlc_ty::Γ) (true::σ) (x, G) none
   | tri TermKind.eq A x y => 
     ∃ px: Γ ⊧ x.stlc σ: A.stlc_ty, 
@@ -504,7 +504,9 @@ theorem HasType.denote
     | mp => sorry
     | general => sorry
     | inst => sorry
-    | wit => sorry
+    | @wit Γ A φ l r HAφ Hl Hr IAφ Il Ir => 
+      dsimp only [denote', Term.denote_ty, Term.denote_ty']
+      sorry
     | let_wit => sorry
     | refl Ha => exact ⟨Ha.stlc, Ha.stlc, rfl⟩
     | sym => 
