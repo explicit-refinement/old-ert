@@ -496,7 +496,14 @@ theorem HasType.denote
     | inst => sorry
     | @wit Γ A φ l r HAφ Hl Hr IAφ Il Ir => 
       dsimp only [denote', Term.denote_ty, Term.denote_ty']
-      sorry
+      exists Hl.stlc.interp G
+      apply And.intro
+      . {
+        sorry
+      }
+      . {
+        sorry
+      }
     | let_wit => sorry
     | refl Ha => exact ⟨Ha.stlc, Ha.stlc, rfl⟩
     | sym => 
