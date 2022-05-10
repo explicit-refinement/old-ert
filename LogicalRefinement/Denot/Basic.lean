@@ -131,6 +131,13 @@ theorem interp_eq_none
     cases p <;> rfl
   }
 
+theorem interp_eq_none' {n: Ty.interp a}
+  : n = none -> @Eq.rec Ty a (λx _ => Ty.interp x) n x p = none := by {
+    intro H;
+    cases H <;>
+    cases p <;> rfl
+  }
+
 theorem interp_eq_some
   : @Eq.rec Ty a (λx _ => Ty.interp x) (some v) x p = (some (p ▸ v)) := by {
     cases p <;> rfl
@@ -446,10 +453,8 @@ theorem HasType.denote
           dsimp only [denote'] at Ir'
           apply Term.denote_ty_transport rfl rfl rfl _ Ir'
           simp only []
-          rw [<-Stlc.HasType.interp_transport _ _ rfl HB.stlc_ty_subst.symm]
-          sorry
-          rw [<-HB.stlc_ty_subst0]
-          exact Hr.stlc
+          rw [<-Stlc.HasType.interp_transport_inner _ _ rfl HB.stlc_ty_subst.symm]
+          exact (interp_eq_none' Hri).symm
       | none => exact Hl.term_regular.denote_ty_non_null Il'
     | let_pair => sorry
     | inj_l He HB Ie IB => 
