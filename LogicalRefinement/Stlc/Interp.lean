@@ -88,7 +88,7 @@ def Context.downgrade_sparsity: Context -> Sparsity
 
 @[simp]
 theorem Context.downgrade_sparsity_downgrade (Γ: Context)
-  : Γ.upgrade.stlc.thin Γ.downgrade_sparsity = Γ.stlc
+  : Γ.downgrade_sparsity.thin Γ.upgrade.stlc = Γ.stlc
   := by {
     induction Γ with
     | nil => simp [downgrade_sparsity]
@@ -132,7 +132,15 @@ theorem Stlc.Context.interp.downgrade_ty
   (x: A.stlc_ty.interp) (G: Γ.upgrade.stlc.interp)
   : @downgrade ((Hyp.val A type)::Γ) (x, G) = (x, G.downgrade)
   := by {
-    sorry      
+    dsimp only [downgrade, Eq.mpr]
+    rw [monorecursor]
+    dsimp only [thin]
+    rw [monorecursor]
+    rw [pair_mono_transport]
+    rw [Context.downgrade_sparsity_downgrade]
+    rfl
+    simp only [Sparsity.thin, Context.downgrade_sparsity_downgrade]
+    rfl
   }
   
 theorem Context.sparsity_true {Γ: Context}

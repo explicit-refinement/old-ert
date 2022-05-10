@@ -153,7 +153,7 @@ def Stlc.let_natrec (e: Stlc) (C: Ty): Stlc
 def Stlc.Context := List Ty
 
 @[simp]
-def Stlc.Context.thin (Γ: Context) (Δ: Sparsity): Context := Δ.thin Γ
+abbrev Stlc.Context.thin (Γ: Context) (Δ: Sparsity): Context := Δ.thin Γ
 
 def Stlc.Context.interp: Context -> Type
 | [] => Unit
