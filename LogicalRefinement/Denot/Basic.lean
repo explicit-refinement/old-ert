@@ -426,6 +426,7 @@ theorem HasType.denote
         | none => exact False.elim (HA.denote_ty_non_null Ir')
       | none => exact False.elim (HAB.denote_ty_non_null Il')
     | @pair Γ A B l r HAB Hl Hr IAB Il Ir => 
+      stop
       dsimp only [denote', Term.denote_ty', Term.denote_ty, 
         Stlc.HasType.interp, Term.stlc, stlc_ty, term, Term.stlc_ty, 
         Ty.interp.pair]
@@ -497,13 +498,13 @@ theorem HasType.denote
     | @wit Γ A φ l r HAφ Hl Hr IAφ Il Ir => 
       dsimp only [denote', Term.denote_ty, Term.denote_ty']
       exists Hl.stlc.interp G
+      --TODO: upgrade theorems for IsCtx and context denotation
+      have Il' := Il sorry (Context.upgrade_idem.symm ▸ G) sorry;
       apply And.intro
-      . {
+      . dsimp only [denote', Term.denote_ty'] at Il'
+        --rw [Context.upgrade_idem] at Il'
         sorry
-      }
-      . {
-        sorry
-      }
+      . sorry
     | let_wit => sorry
     | refl Ha => exact ⟨Ha.stlc, Ha.stlc, rfl⟩
     | sym => 
