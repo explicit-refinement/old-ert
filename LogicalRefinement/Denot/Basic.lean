@@ -445,7 +445,11 @@ theorem HasType.denote
           apply Hr.term_regular.denote_ty_non_null
           dsimp only [denote'] at Ir'
           apply Term.denote_ty_transport rfl rfl rfl _ Ir'
+          simp only []
+          rw [<-Stlc.HasType.interp_transport _ _ rfl HB.stlc_ty_subst.symm]
           sorry
+          rw [<-HB.stlc_ty_subst0]
+          exact Hr.stlc
       | none => exact Hl.term_regular.denote_ty_non_null Il'
     | let_pair => sorry
     | inj_l He HB Ie IB => 
