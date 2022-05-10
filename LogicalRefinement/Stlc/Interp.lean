@@ -131,7 +131,9 @@ theorem Stlc.Context.interp.downgrade_ty
   {A: Term} {Γ: _root_.Context} 
   (x: A.stlc_ty.interp) (G: Γ.upgrade.stlc.interp)
   : @downgrade ((Hyp.val A type)::Γ) (x, G) = (x, G.downgrade)
-  := sorry
+  := by {
+    sorry      
+  }
   
 theorem Context.sparsity_true {Γ: Context}
   : H.kind = HypKind.val type -> sparsity (H::Γ) = true::Γ.sparsity

@@ -143,16 +143,6 @@ theorem interp_eq_some
     cases p <;> rfl
   }
 
-theorem monorecursor
-  : 
-  @Eq.rec A x F D y p =
-  @Eq.rec (Type) (F x rfl) (λA p => A) D (F y p) p'  
-  := by {
-    cases p;
-    cases p';
-    simp
-  }
-
 theorem Term.denote_wk1_ty
   (A: Term) 
   (B: Term)

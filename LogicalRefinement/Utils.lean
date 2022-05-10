@@ -328,3 +328,13 @@ theorem Nat.gt_sub_succ: n ≤ m -> (Nat.succ m) - n = Nat.succ (m - n) := by {
       simp only [Nat.succ_sub_succ_eq_sub]
       exact I (Nat.le_of_succ_le_succ H)
 }
+
+theorem monorecursor
+  : 
+  @Eq.rec A x F D y p =
+  @Eq.rec (Type) (F x rfl) (λA p => A) D (F y p) p'  
+  := by {
+    cases p;
+    cases p';
+    simp
+  }
