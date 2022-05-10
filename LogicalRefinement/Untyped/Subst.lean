@@ -184,7 +184,6 @@ theorem Term.liftn_wk {u: Term}: {σ: Subst} -> (n: Nat) ->
   (u.wknth n).subst (σ.liftn (n + 1))  =
   (u.subst (σ.liftn n)).wknth n
   := by {
-    unfold Wk.wk1
     induction u with
     | var v =>
       intros σ n;

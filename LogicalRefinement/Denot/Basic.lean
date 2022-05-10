@@ -79,14 +79,12 @@ def Term.denote_ty (A: Term)
     | none => False
   | _ => False
 
-notation G "⊧" a "↓" σ "∈" A => Term.denote_ty A σ G a
-
 def Term.denote_ty' (A: Term) {Γ: Context}
   (G: Γ.upgrade.stlc.interp)
   (a: A.stlc_ty.interp): Prop
   := A.denote_ty Γ.upgrade.sparsity G a
 
-set_option quotPrecheck false in
+notation G "⊧" a "↓" σ "∈" A => Term.denote_ty A σ G a
 notation G "⊧" a "∈" A => Term.denote_ty' A G a
 
 theorem Term.denote_ty_transport 
@@ -202,6 +200,9 @@ abbrev Annot.denote' (A: Annot) (Γ: Context)
   | sort s => True
   | expr type A => A.denote_ty' G a
   | expr prop A => A.denote_ty' G none
+
+notation G "⊧" a "↓" σ "∈:" A => Annot.denote A σ G a
+notation G "⊧" a "∈:" A => Annot.denote' A G a
 
 -- NOTE: I don't think wk1 is necessary here, due to the fact that
 -- A.wk1.stlc_ty = A.stlc_ty, and also that a is not passed to itself...
@@ -440,7 +441,11 @@ theorem HasType.denote
       | some li => 
         cases ri with
         | some ri => sorry
-        | none => sorry
+        | none => 
+          apply Hr.term_regular.denote_ty_non_null
+          dsimp only [denote'] at Ir'
+          apply Term.denote_ty_transport rfl rfl rfl _ Ir'
+          sorry
       | none => exact Hl.term_regular.denote_ty_non_null Il'
     | let_pair => sorry
     | inj_l He HB Ie IB => 
