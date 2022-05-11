@@ -485,7 +485,22 @@ theorem HasType.denote
         dsimp only [Option.map, Option.bind, Function.comp]
         exact Ie'
       | none => exact He.term_regular.denote_ty_non_null Ie'
-    | case => sorry
+    | @case Γ A B C e l r k He HA HB HC Hl Hr Ie IA IB IC Il Ir => 
+      cases k with
+      | type => 
+        dsimp only [denote']
+        dsimp only [Term.stlc, Term.stlc_ty, stlc_ty, Stlc.HasType.interp]
+        simp only [Ty.interp.case]
+        generalize Hei: Stlc.HasType.interp (_ : _⊧Term.stlc e _:_) _ = ei;
+        cases ei with
+        | some e => 
+          cases e with
+          | inl a => sorry
+          | inr b => sorry
+        | none => sorry
+      | prop => 
+        dsimp only [denote']
+        sorry
     | elem => sorry
     | let_set => sorry
     | lam_pr => sorry
