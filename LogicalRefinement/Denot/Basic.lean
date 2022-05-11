@@ -480,7 +480,10 @@ theorem HasType.denote
     | elem => sorry
     | let_set => sorry
     | lam_pr => sorry
-    | app_pr => sorry
+    | app_pr HφA Hl Hr IφA Il Ir => 
+      stop
+      dsimp only [denote', Term.denote_ty, Term.denote_ty']
+      sorry
     | lam_irrel => sorry
     | app_irrel => sorry
     | repr => sorry
@@ -488,21 +491,20 @@ theorem HasType.denote
     | abort => sorry
     | dconj => sorry
     | let_conj => sorry
-    | disj_l => sorry
-    | disj_r => sorry
+    | disj_l He HB Ie IB => exact Or.inl (Ie HΓ G HG)
+    | disj_r He HB Ie IB => exact Or.inr (Ie HΓ G HG)
     | case_pr => sorry
     | imp => sorry
     | mp => sorry
     | general => sorry
     | inst => sorry
-    | @wit Γ A φ l r HAφ Hl Hr IAφ Il Ir => 
-      dsimp only [denote', Term.denote_ty, Term.denote_ty']
+    | @wit Γ A φ l r HAφ Hl Hr IAφ Il Ir =>
+      stop
       exists Hl.stlc.interp G
       --TODO: upgrade theorems for IsCtx and context denotation
       have Il' := Il sorry (Context.upgrade_idem.symm ▸ G) sorry;
       apply And.intro
       . dsimp only [denote', Term.denote_ty'] at Il'
-        --rw [Context.upgrade_idem] at Il'
         sorry
       . sorry
     | let_wit => sorry
