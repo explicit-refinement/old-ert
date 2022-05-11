@@ -5,6 +5,7 @@ import LogicalRefinement.Stlc
 open AnnotSort
 open Annot
 
+--TODO: should this be an inductive type?
 def Term.denote_ty (A: Term) 
   {Γ: Stlc.Context}
   (σ: Sparsity)
@@ -125,6 +126,14 @@ theorem HasType.denote_ty_non_null {Δ: Stlc.Context} {G: Δ.interp}:
       exact H rfl
     | _ => cases HS <;> intro H <;> cases H
   }
+  
+theorem HasType.denote_ty_some {Δ: Stlc.Context} {G: Δ.interp}
+  (H: Γ ⊢ A: type)
+  (D: A.denote_ty σ G a)
+  : ∃a': A.stlc_ty.interp_val, a = some a'
+  := match a with
+    | some a => ⟨a, rfl⟩
+    | none => False.elim (H.denote_ty_non_null D)
 
 theorem interp_eq_none
   : @Eq.rec Ty a (λx _ => Ty.interp x) none x p = none := by {
@@ -521,8 +530,24 @@ theorem HasType.denote
     | beta => 
       dsimp only [denote', Annot.denote]
       sorry
-    | eta => 
-      dsimp only [denote', Annot.denote]
+    | @eta Γ A B f Hf HA If IA => 
+      have px
+        : Γ.upgrade.stlc ⊧ (Term.eta_ex A B f).stlc Γ.upgrade.sparsity
+          : Ty.arrow A.stlc_ty B.stlc_ty 
+        := sorry;
+      have py
+        : Γ.upgrade.stlc ⊧ f.stlc Γ.upgrade.sparsity
+          : Ty.arrow A.stlc_ty B.stlc_ty 
+        := sorry;
+      --TODO: get rid of double upgrade...
+      have If' := If sorry (Context.upgrade_idem.symm ▸ G) sorry;
+      have HAB := Hf.term_regular;
+      have ⟨yi, Hyi⟩ := HAB.denote_ty_some If';
+      dsimp only [denote'] at If';
+      exists px, py;
+      unfold Term.eta_ex
+      dsimp only [Term.stlc_ty, Stlc.HasType.interp, Term.stlc]
+      simp only []
       sorry
     | irir Hf Hx Hy => exact ⟨sorry, sorry, rfl⟩
     | prir Hf Hx Hy => exact ⟨sorry, sorry, rfl⟩
