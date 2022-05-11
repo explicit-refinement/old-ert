@@ -490,14 +490,20 @@ theorem HasType.denote
       | type => 
         dsimp only [denote']
         dsimp only [Term.stlc, Term.stlc_ty, stlc_ty, Stlc.HasType.interp]
-        simp only [Ty.interp.case]
+        have HAB: Γ ⊢ Term.coprod A B: type := HasType.coprod HA HB;
+        have Ie' := Ie HΓ G HG;
+        dsimp only [Term.stlc, Term.stlc_ty, stlc_ty, Stlc.HasType.interp] at Ie';
         generalize Hei: Stlc.HasType.interp (_ : _⊧Term.stlc e _:_) _ = ei;
+        -- rw [Hei] at Ie'; Hm?
         cases ei with
         | some e => 
           cases e with
           | inl a => sorry
           | inr b => sorry
-        | none => sorry
+        | none =>
+          stop
+          apply False.elim
+          apply HAB.denote_ty_non_null
       | prop => 
         dsimp only [denote']
         sorry
@@ -546,6 +552,7 @@ theorem HasType.denote
       dsimp only [denote', Annot.denote]
       sorry
     | @eta Γ A B f Hf HA If IA => 
+      stop
       have px
         : Γ.upgrade.stlc ⊧ (Term.eta_ex A B f).stlc Γ.upgrade.sparsity
           : Ty.arrow A.stlc_ty B.stlc_ty 
