@@ -494,7 +494,9 @@ theorem HasType.denote
         have Ie' := Ie HΓ G HG;
         dsimp only [Term.stlc, Term.stlc_ty, stlc_ty, Stlc.HasType.interp] at Ie';
         generalize Hei: Stlc.HasType.interp (_ : _⊧Term.stlc e _:_) _ = ei;
-        -- rw [Hei] at Ie'; Hm?
+        --TODO: report this rewrite match failure on Zulip
+        rw [Stlc.HasType.interp_irrel] at Ie'
+        rw [Hei] at Ie'
         cases ei with
         | some e => 
           cases e with

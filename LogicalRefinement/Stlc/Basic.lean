@@ -731,3 +731,9 @@ theorem Stlc.HasType.interp_transport_mono
     cases H;
     cases HA <;> cases HB <;> rfl 
   }
+
+theorem Stlc.HasType.interp_irrel
+  (H: Γ ⊧ a: A)
+  (H': Γ ⊧ a: A)
+  : H.interp = H'.interp
+  := rfl
