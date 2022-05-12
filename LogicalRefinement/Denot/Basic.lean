@@ -486,6 +486,7 @@ theorem HasType.denote
         exact Ie'
       | none => exact He.term_regular.denote_ty_non_null Ie'
     | @case Γ A B C e l r k He HA HB HC Hl Hr Ie IA IB IC Il Ir => 
+      stop
       cases k with
       | type => 
         dsimp only [denote']
@@ -519,7 +520,16 @@ theorem HasType.denote
       sorry
     | lam_irrel => sorry
     | app_irrel => sorry
-    | repr => sorry
+    | @repr Γ A B l r HAB Hl Hr IAB Il Ir =>
+      stop 
+      dsimp only [
+        denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
+        Term.denote_ty', Term.denote_ty
+      ]
+      apply And.intro
+      . sorry -- not_none + Ir?
+      . exists Hl.stlc.interp G.downgrade
+        sorry
     | let_repr => sorry
     | abort => sorry
     | dconj => sorry
