@@ -80,10 +80,20 @@ def Term.denote_ty (A: Term)
     | none => False
   | _ => False
 
-def Term.denote_ty' (A: Term) {Γ: Context}
+abbrev Term.denote_prop (A: Term) 
+  {Γ: Stlc.Context}
+  (σ: Sparsity)
+  (G: Γ.interp): Prop
+  := A.denote_ty σ G none
+
+abbrev Term.denote_ty' (A: Term) {Γ: Context}
   (G: Γ.upgrade.stlc.interp)
   (a: A.stlc_ty.interp): Prop
   := A.denote_ty Γ.upgrade.sparsity G a
+
+abbrev Term.denote_prop' (A: Term) {Γ: Context}
+  (G: Γ.upgrade.stlc.interp): Prop
+  := A.denote_prop Γ.upgrade.sparsity G
 
 notation G "⊧" a "↓" σ "∈" A => Term.denote_ty A σ G a
 notation G "⊧" a "∈" A => Term.denote_ty' A G a
@@ -361,6 +371,38 @@ theorem HasVar.denote_annot
                     none none (by rw [interp_eq_none]) I';
   }
 
+theorem HasType.sym_axiom {Γ A} (HA: Γ ⊢ A: type):
+  ∀{G: Γ.upgrade.stlc.interp}, (Term.sym_ty A).denote_prop' G
+  := by {
+    intro G;
+    dsimp only [
+      Term.denote_prop', 
+      Term.denote_prop,
+      Term.denote_ty,
+      Term.sym_ty, Term.sym_ty_tmp, Term.subst0, Term.subst,
+      Subst.lift, Subst.wk1, Term.wk1, Term.to_subst,
+      Wk.var, Term.wk
+    ]
+    intro x Hx y Hy ⟨px, py, Hxy⟩;
+    sorry
+  }
+
+theorem HasType.trans_axiom {Γ A} (HA: Γ ⊢ A: type):
+  ∀{G: Γ.upgrade.stlc.interp}, (Term.trans_ty A).denote_prop' G
+  := by {
+    intro G;
+    dsimp only [
+      Term.denote_prop', 
+      Term.denote_prop,
+      Term.denote_ty,
+      Term.sym_ty, Term.sym_ty_tmp, Term.subst0, Term.subst,
+      Subst.lift, Subst.wk1, Term.wk1, Term.to_subst,
+      Wk.var, Term.wk
+    ]
+    intro x Hx y Hy z Hz ⟨px, py, Hxy⟩ ⟨py, pz, Hyz⟩;
+    sorry
+  }
+
 theorem HasType.denote_subst0'
   {A: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} {a: A.stlc_ty.interp}
   {B: Term} {b: Term}
@@ -564,12 +606,8 @@ theorem HasType.denote
       . sorry
     | let_wit => sorry
     | refl Ha => exact ⟨Ha.stlc, Ha.stlc, rfl⟩
-    | sym => 
-      dsimp only [denote', Annot.denote]
-      sorry
-    | trans => 
-      dsimp only [denote', Annot.denote]
-      sorry
+    | sym HA => exact HA.sym_axiom
+    | trans HA => exact HA.trans_axiom 
     | cong => 
       dsimp only [denote', Annot.denote]
       sorry
