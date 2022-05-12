@@ -500,8 +500,12 @@ theorem HasType.denote
         cases ei with
         | some e => 
           cases e with
-          | inl a => sorry
-          | inr b => sorry
+          | inl a => 
+            simp only [Ty.interp.case]
+            sorry --TODO: appropriate typecasting for Il
+          | inr b => 
+            simp only [Ty.interp.case]
+            sorry --TODO: appropriate typecasting for Il
         | none => exact False.elim (HAB.denote_ty_non_null Ie')
       | prop => 
         dsimp only [denote']
