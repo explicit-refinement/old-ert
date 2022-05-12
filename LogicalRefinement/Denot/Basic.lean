@@ -457,7 +457,10 @@ theorem HasType.denote
           rw [<-Stlc.HasType.interp_transport_inner _ _ rfl HB.stlc_ty_subst.symm]
           exact (interp_eq_none' Hri).symm
       | none => exact Hl.term_regular.denote_ty_non_null Il'
-    | let_pair => sorry
+    | @let_pair Γ A B C e e' k He HA HB HC He' Ie IA IB IC Ie' =>
+      cases k with
+      | type => sorry
+      | prop => sorry
     | inj_l He HB Ie IB => 
       stop
       dsimp only [
