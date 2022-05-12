@@ -502,10 +502,7 @@ theorem HasType.denote
           cases e with
           | inl a => sorry
           | inr b => sorry
-        | none =>
-          stop
-          apply False.elim
-          apply HAB.denote_ty_non_null
+        | none => exact False.elim (HAB.denote_ty_non_null Ie')
       | prop => 
         dsimp only [denote']
         sorry
