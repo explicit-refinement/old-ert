@@ -482,7 +482,8 @@ theorem HasType.denote
         stlc_ty, Term.stlc_ty, Stlc.HasType.interp,
         Ty.interp.inl
       ]
-      generalize Hei: Stlc.HasType.interp _ _ = ei;have Ie' := Hei ▸ Ie HΓ G HG;
+      generalize Hei: Stlc.HasType.interp _ _ = ei;
+      have Ie' := Hei ▸ Ie HΓ G HG;
       cases ei with
       | some ei => 
         dsimp only [Option.map, Option.bind, Function.comp]
@@ -539,7 +540,15 @@ theorem HasType.denote
     | let_conj => sorry
     | disj_l He HB Ie IB => exact Or.inl (Ie HΓ G HG)
     | disj_r He HB Ie IB => exact Or.inr (Ie HΓ G HG)
-    | case_pr => sorry
+    | case_pr He HA HB HC Hl Hr Ie IA IB IC Il Ir => 
+      dsimp only [
+        denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
+        Term.denote_ty', Term.denote_ty
+      ]
+      have Ie' := Ie HΓ G HG;
+      cases Ie' with
+      | inl Ie' => sorry
+      | inr Ie' => sorry
     | imp => sorry
     | mp => sorry
     | general => sorry
