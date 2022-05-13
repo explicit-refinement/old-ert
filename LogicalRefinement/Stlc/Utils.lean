@@ -26,5 +26,11 @@ theorem HasType.stlc_var_term {Γ n A} (H: Γ ⊢ Term.var n: term A)
 theorem HasType.stlc_interp_var {Γ n A} (H: Γ ⊢ Term.var n: term A):
   H.stlc.interp = H.to_var.stlc.interp
   := by {
-    sorry
+    dsimp only [Context.stlc_ix]
+    funext G;
+    rw [<-
+      Stlc.HasType.interp_transport_inner (Stlc.HasType.var H.to_var.stlc) 
+      _ H.stlc_var_term.symm rfl
+    ]
+    rfl
   }
