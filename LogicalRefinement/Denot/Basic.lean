@@ -423,6 +423,7 @@ theorem HasType.denote
   (HG: Γ.denote G)
   : A.denote' Γ G (H.stlc.interp G.downgrade)
   := by {
+    --TODO: replace with a recursive match?
     induction H with
     | var HA Hv IA => exact Hv.denote_annot HΓ G HG
     | lam Hs HA Is IA => 
@@ -541,7 +542,8 @@ theorem HasType.denote
         have Ie' := Ie HΓ G HG;
         dsimp only [Term.stlc, Term.stlc_ty, stlc_ty, Stlc.HasType.interp] at Ie';
         generalize Hei: Stlc.HasType.interp (_ : _⊧Term.stlc e _:_) _ = ei;
-        --TODO: report this rewrite match failure on Zulip
+        --TODO: wait for Zulip to answer regarding the requirement to have
+        -- Stlc.HasType.interp_irrel here.
         rw [Stlc.HasType.interp_irrel] at Ie'
         rw [Hei] at Ie'
         cases ei with
@@ -641,6 +643,6 @@ theorem HasType.denote
       cases x with
       | none => cases H
       | some x => exact True.intro
-    | natrec => sorry
+    | @natrec Γ C e z s k HC He Hz Hs IC Ie Iz Is => sorry
     | _ => exact True.intro
   }
