@@ -35,7 +35,7 @@ theorem WkCtx.upgrade: WkCtx ρ Γ Δ
 }
 
 theorem HasVar.wk:
-  (ρ: Wk) -> {Γ Δ: Context} -> (Hs: WkCtx ρ Γ Δ) ->
+  {ρ: Wk} -> {Γ Δ: Context} -> (Hs: WkCtx ρ Γ Δ) ->
   {n: Nat} -> {A: Term} -> {s: HypKind} ->
   HasVar Δ n s A -> HasVar Γ (ρ.var n) s (A.wk ρ) 
   := by {

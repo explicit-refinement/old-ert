@@ -16,6 +16,9 @@ inductive SubstVar: Subst -> Context -> Nat -> Term -> HypKind -> Prop
 def SubstCtx (σ: Subst) (Γ Δ: Context): Prop :=  
   ∀{n A k}, HasVar Δ n k A -> SubstVar σ Γ n A k
 
+theorem SubstCtx.id {Γ}: SubstCtx Subst.id Γ Γ := 
+  λHv => SubstVar.var rfl (Term.subst_id _ ▸ Hv)
+
 theorem SubstCtx.lift_primitive 
   {σ: Subst} {Γ Δ: Context} {A: Term} {k k': HypKind}:
   SubstCtx σ Γ Δ ->
@@ -240,3 +243,6 @@ theorem SubstCtx.lift_delta' {σ Γ Δ A}
   (HA: Δ ⊢ A: sort k.annot):
   SubstCtx σ.lift ((Hyp.mk (A.subst σ) k)::Γ) ((Hyp.mk A k)::Δ)
   := S.lift_delta HA
+
+theorem WkCtx.to_subst {ρ Γ Δ} (R: WkCtx ρ Γ Δ): SubstCtx ρ Γ Δ
+  := λHv => SubstVar.var rfl (Subst.subst_wk_compat.symm ▸ Hv.wk R)
