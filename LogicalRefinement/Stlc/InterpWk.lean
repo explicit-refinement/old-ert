@@ -11,13 +11,12 @@ open AnnotSort
 
 def Wk.stlc (ρ: Wk) (Γ: Sparsity) (Δ: Sparsity): Stlc.Subst := ρ.to_subst.stlc Γ Δ
 
---TODO: relate Wk.stlc to context operations...
-
---TODO: WkCtx -> SubstCtx
-
 theorem Term.wk_stlc_commute {Γ Δ ρ a} 
   (H: Δ ⊢ a: term A) 
-  (S: WkCtx ρ Γ Δ)
+  (R: WkCtx ρ Γ Δ)
   : (a.wk ρ).stlc Γ.sparsity
   = (a.stlc Δ.sparsity).subst (ρ.stlc Γ.sparsity Δ.sparsity)
-  := sorry
+  := by {
+    rw [<-Subst.subst_wk_compat]
+    apply Term.subst_stlc_commute H R.to_subst
+  }
