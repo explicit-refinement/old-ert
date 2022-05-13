@@ -396,15 +396,23 @@ theorem HasType.denote_antisubst0'
     | assume => sorry
     | intersect => sorry
     | union => sorry
-    | top => sorry
-    | bot => sorry
+    | top => 
+      cases HAA'; cases Haa'
+      apply Term.top.denote_wk1_ty B _ b' G _ _ rfl H
+      exact a
+    | bot => 
+      cases HAA'; cases Haa'
+      apply Term.bot.denote_wk1_ty B _ b' G _ _ rfl H
+      exact a
     | dand => sorry
     | or => sorry
     | dimplies => sorry
     | forall_ => sorry
     | exists_ => sorry
     | eq => sorry
-    | nats => sorry
+    | nats => 
+      cases HAA'; cases Haa'
+      apply Term.nats.denote_wk1_ty B _ b' G _ _ rfl H
     | _ => cases HS
   }
 
