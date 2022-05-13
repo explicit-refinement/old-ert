@@ -371,6 +371,7 @@ theorem HasVar.denote_annot
                     none none (by rw [interp_eq_none]) I';
   }
 
+--TODO: prove it using general substitutions...
 theorem HasType.denote_antisubst0'
   {A: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} {a: A.stlc_ty.interp}
   {B: Term} {b: Term}
@@ -409,7 +410,9 @@ theorem HasType.denote_antisubst0'
     | dimplies => sorry
     | forall_ => sorry
     | exists_ => sorry
-    | eq => sorry
+    | eq => 
+      dsimp only [Term.denote_ty]
+      sorry
     | nats => 
       cases HAA'; cases Haa'
       apply Term.nats.denote_wk1_ty B _ b' G _ _ rfl H

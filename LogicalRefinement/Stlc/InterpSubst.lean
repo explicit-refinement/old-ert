@@ -265,6 +265,8 @@ theorem Term.subst_stlc_commute {Γ Δ σ a}
         --
         -- Note on (2022-04-26, 23:46): same thing with `lift_delta`;
         -- think it has to do with unification...
+        --
+        -- Note on (2022-05-13, 15:21): still have the same error...
         have S'': SubstCtx σ.lift.lift Γ'' Δ''
           := S'.lift_delta (by exact HK);
         have Is'' := 
