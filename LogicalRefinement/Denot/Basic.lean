@@ -577,7 +577,7 @@ theorem HasType.denote
       . exists Hl.stlc.interp G.downgrade
         sorry
     | let_repr => sorry
-    | abort => sorry
+    | abort Hp HA Ip IA => exact False.elim (Ip HΓ G HG)
     | dconj => sorry
     | let_conj => sorry
     | disj_l He HB Ie IB => exact Or.inl (Ie HΓ G HG)
