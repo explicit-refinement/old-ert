@@ -371,6 +371,41 @@ theorem HasVar.denote_annot
                     none none (by rw [interp_eq_none]) I';
   }
 
+theorem HasType.denote_antisubst0'
+  {A: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} {a: A.stlc_ty.interp}
+  {B: Term} {b: Term}
+  {a': (A.subst0 b).stlc_ty.interp}
+  {b'}
+  (HA: Γ ⊢ A: S)
+  (HS: S = sort s)
+  (Hb: Γ ⊢ b: term B)
+  (HAA': A.stlc_ty = (A.subst0 b).stlc_ty)
+  (Haa': a' = HAA' ▸ a)
+  (Hbb': b' = Hb.stlc.interp G.downgrade)
+  (H: @Term.denote_ty (A.subst0 b) Γ.upgrade.stlc σ G a')
+  : @Term.denote_ty A (B.stlc_ty::Γ.upgrade.stlc) (true::σ) (b', G) a
+  := by {
+    induction HA generalizing B b with
+    | unit => sorry
+    | pi => sorry
+    | sigma => sorry
+    | coprod => sorry
+    | set => sorry
+    | assume => sorry
+    | intersect => sorry
+    | union => sorry
+    | top => sorry
+    | bot => sorry
+    | dand => sorry
+    | or => sorry
+    | dimplies => sorry
+    | forall_ => sorry
+    | exists_ => sorry
+    | eq => sorry
+    | nats => sorry
+    | _ => cases HS
+  }
+
 theorem HasType.sym_axiom {Γ A} (HA: Γ ⊢ A: type):
   ∀{G: Γ.upgrade.stlc.interp}, (Term.sym_ty A).denote_prop' G
   := by {
