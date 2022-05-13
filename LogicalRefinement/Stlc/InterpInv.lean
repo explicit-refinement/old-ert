@@ -2,8 +2,6 @@ import LogicalRefinement.Untyped
 import LogicalRefinement.Typed
 import LogicalRefinement.Stlc.Basic
 import LogicalRefinement.Stlc.Interp
-import LogicalRefinement.Stlc.InterpWk
-import LogicalRefinement.Stlc.Subst
 open AnnotSort
 
 theorem Stlc.HasVar.interp_inv {Γ n A} 
