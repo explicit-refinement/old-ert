@@ -8,8 +8,7 @@ import LogicalRefinement.Stlc.InterpWk
 import LogicalRefinement.Stlc.Subst
 
 open Annot
-
-set_option pp.explicit true
+open AnnotSort
 
 theorem HasVar.stlc_var {Γ n A} (H: HasVar Γ n (HypKind.val type) A)
   : (Term.var n).stlc Γ.sparsity = Stlc.var (Γ.sparsity.ix n)
@@ -17,14 +16,12 @@ theorem HasVar.stlc_var {Γ n A} (H: HasVar Γ n (HypKind.val type) A)
     dsimp only [Term.stlc, Sparsity.stlc]
     rw [if_pos]
     rw [H.sigma]
-    sorry
+    rfl
   }
 
 theorem HasType.stlc_var_term {Γ n A} (H: Γ ⊢ Term.var n: term A)
   : (Term.var n).stlc Γ.sparsity = Stlc.var (Γ.sparsity.ix n)
-  := by {
-    sorry
-  }
+  := HasVar.stlc_var (by cases H <;> assumption)
 
 theorem HasType.stlc_interp_var {Γ n A} (H: Γ ⊢ Term.var n: term A):
   H.stlc.interp = H.to_var.stlc.interp

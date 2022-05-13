@@ -60,7 +60,7 @@ def Context.ghosts: Context -> Stlc.Context
 | (Hyp.mk A HypKind.gst)::Hs => A.stlc_ty::(ghosts Hs)
 | (Hyp.mk A _)::Hs => (ghosts Hs)
 
-def Hyp.sparsity (H: Hyp): Bool := H.kind == HypKind.val type
+def Hyp.sparsity (H: Hyp): Bool := H.kind = HypKind.val type
 
 def Context.sparsity: Context -> Sparsity
 | [] => []
@@ -148,7 +148,6 @@ theorem Context.sparsity_true {Γ: Context}
   := by {
     intro H;
     simp [sparsity, Hyp.sparsity, H]
-    rfl
   }
 
 theorem Context.sparsity_false {Γ: Context}
@@ -192,7 +191,7 @@ def Term.stlc: Term -> Sparsity -> Stlc
 | const TermKind.zero, σ => Stlc.zero
 | const TermKind.succ, σ => Stlc.succ
 | natrec k K n z s, σ => 
-  if k == type then
+  if k = type then
     Stlc.natrec K.stlc_ty (n.stlc σ) (z.stlc σ) (s.stlc (true::false::σ))
   else
     Stlc.abort
@@ -298,7 +297,7 @@ theorem HasVar.stlc {Γ A n}:
 
 theorem HasVar.sigma_get? {Γ A n s}:
   HasVar Γ n (HypKind.val s) A ->
-  Γ.sparsity.get? n = some (s == type)
+  Γ.sparsity.get? n = some (decide (s = type))
   := by {
     revert Γ A s;
     induction n with
@@ -319,11 +318,10 @@ theorem HasVar.sigma_get? {Γ A n s}:
 
 theorem HasVar.sigma {Γ A n s}:
   HasVar Γ n (HypKind.val s) A ->
-  Γ.sparsity.dep n = (s == type)
+  Γ.sparsity.dep n = decide (s = type)
   := by {
     intro H;
-    apply Sparsity.dep_get?;
-    exact H.sigma_get?
+    rw [Sparsity.dep_get? H.sigma_get?];
   }
 
 theorem HasVar.sigma_ty {Γ A n}:
@@ -340,8 +338,7 @@ theorem HasVar.sigma_prop {Γ A n}:
   Γ.sparsity.dep n = false
   := by {
     intro H;
-    rw [H.sigma]
-    rfl
+    exact H.sigma
   }
 
 -- But why...
