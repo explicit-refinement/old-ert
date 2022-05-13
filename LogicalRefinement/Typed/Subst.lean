@@ -231,7 +231,11 @@ theorem SubstCtx.lift_delta {σ Γ Δ A k}
   (HA: Δ ⊢ A: sort k.annot):
   SubstCtx σ.lift ((Hyp.mk (A.subst σ) k)::Γ) ((Hyp.mk A k)::Δ)
   := by {
-    --  Again, the strange "exact" bug...
+    -- Again, the strange "exact" bug...
+    -- 
+    -- Note: I think this is not actually a bug, but rather the `constructor` tactic
+    -- failing to infer an appropriate constructor due to being confused by the
+    -- additional constraints induced by the `HA.subst S` argument
     apply S.lift_primitive;
     constructor
     exact HA.subst S
