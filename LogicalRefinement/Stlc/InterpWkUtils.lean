@@ -4,8 +4,6 @@ import LogicalRefinement.Stlc.Basic
 import LogicalRefinement.Stlc.Interp
 import LogicalRefinement.Stlc.Subst
 
-set_option maxHeartbeats 1000000
-
 theorem Term.stlc_wknth_false {t: Term} {Γ: Sparsity} {n: Nat}
 : (t.wknth n).stlc (Γ.wknth n false) = t.stlc Γ
 := by {
