@@ -386,7 +386,9 @@ theorem HasType.denote_antisubst0'
   : @Term.denote_ty A (B.stlc_ty::Γ.upgrade.stlc) (true::σ) (b', G) a
   := by {
     induction HA generalizing B b with
-    | unit => sorry
+    | unit => 
+      cases HAA'; cases Haa'
+      apply Term.unit.denote_wk1_ty B _ b' G _ _ rfl H
     | pi => sorry
     | sigma => sorry
     | coprod => sorry
