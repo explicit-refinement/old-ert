@@ -100,7 +100,7 @@ def Stlc.InterpSubst.transport_ctx {Γ Δ: Context} (S: InterpSubst Γ Δ)
 
 def second_helper {a a': A} {f: A -> B}: a = a' -> f a = f a' := by intros; simp [*]
 def pair_helper: a = a' -> b = b' -> (a, b) = (a', b') := by intros; simp [*]
-def Stlc.InterpSubst.transport_helper {Γ Δ: Context} {H: Ty} 
+theorem Stlc.InterpSubst.transport_helper {Γ Δ: Context} {H: Ty} 
   (S: InterpSubst Γ (H::Δ))
   (G: Γ.interp)
   : S.transport_ctx G = (S HasVar.zero G, transport_ctx S.pop G)
@@ -131,7 +131,7 @@ def Stlc.InterpSubst.transport_pop_lift {Γ Δ: Context} {H: Ty} (S: InterpSubst
     apply transport_step
   }
 
-def Stlc.InterpSubst.transport_lift {Γ Δ: Context} {H: Ty} (S: InterpSubst Γ Δ)
+theorem Stlc.InterpSubst.transport_lift {Γ Δ: Context} {H: Ty} (S: InterpSubst Γ Δ)
   (G: Γ.interp) (x: H.interp)
   : transport_ctx (Stlc.InterpSubst.lift S) (x, G) = (x, S.transport_ctx G)
   := by {
@@ -140,7 +140,7 @@ def Stlc.InterpSubst.transport_lift {Γ Δ: Context} {H: Ty} (S: InterpSubst Γ 
     apply transport_pop_lift
   }
   
-def Stlc.InterpSubst.transport_lift2 {Γ Δ: Context} {A B: Ty} (S: InterpSubst Γ Δ)
+theorem Stlc.InterpSubst.transport_lift2 {Γ Δ: Context} {A B: Ty} (S: InterpSubst Γ Δ)
   (G: Γ.interp) (a: A.interp) (b: B.interp)
   : transport_ctx (Stlc.InterpSubst.lift2 S) (a, b, G) = (a, b, S.transport_ctx G)
   := by {
@@ -158,7 +158,7 @@ def Stlc.Context.deriv.subst {Γ Δ: Context} {A} (D: Δ.deriv A) (S: InterpSubs
   : Γ.deriv A
   := λG => D (S.transport_ctx G)
 
-def Stlc.Context.deriv.subst_lift {Γ Δ: Context} {A B} 
+theorem Stlc.Context.deriv.subst_lift {Γ Δ: Context} {A B} 
   (D: Context.deriv (B::Δ) A) 
   (S: InterpSubst Γ Δ)
   (x: B.interp)
@@ -169,7 +169,7 @@ def Stlc.Context.deriv.subst_lift {Γ Δ: Context} {A B}
     rw [Stlc.InterpSubst.transport_lift]
   }
   
-def Stlc.Context.deriv.subst_lift2 {Γ Δ: Context} {A B C} 
+theorem Stlc.Context.deriv.subst_lift2 {Γ Δ: Context} {A B C} 
   (D: Context.deriv (B::C::Δ) A) 
   (S: InterpSubst Γ Δ)
   (b: B.interp)
@@ -181,13 +181,13 @@ def Stlc.Context.deriv.subst_lift2 {Γ Δ: Context} {A B C}
     rw [Stlc.InterpSubst.transport_lift2]
   }
 
-def Stlc.HasType.subst_var {Γ Δ σ A n}
+theorem Stlc.HasType.subst_var {Γ Δ σ A n}
   (H: Stlc.HasType Δ (Stlc.var n) A)
   (S: SubstCtx σ Γ Δ)
   : H.subst S = S H.has_var
   := rfl
 
-def Stlc.HasVar.subst_interp_dist {Γ Δ σ A n}
+theorem Stlc.HasVar.subst_interp_dist {Γ Δ σ A n}
   (Hv: HasVar Δ n A)
   (S: SubstCtx σ Γ Δ)
   (H: HasType Γ (σ n) A)
