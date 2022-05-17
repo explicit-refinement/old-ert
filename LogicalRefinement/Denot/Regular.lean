@@ -8,7 +8,6 @@ import LogicalRefinement.Denot.Subst
 open AnnotSort
 open Annot
 
-
 theorem HasVar.denote_annot
   (Hv: HasVar Γ n (HypKind.val s) A)
   (HΓ: IsCtx Γ)

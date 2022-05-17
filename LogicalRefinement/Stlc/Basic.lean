@@ -737,3 +737,18 @@ theorem Stlc.HasType.interp_irrel
   (H': Γ ⊧ a: A)
   : H.interp = H'.interp
   := rfl
+
+def Stlc.Context.interp.subst {Γ Δ σ} (G: Γ.interp) (S: SubstCtx σ Γ Δ): Δ.interp 
+  := sorry
+
+def Stlc.Context.deriv.subst {Γ Δ σ A} (D: Δ.deriv A) (S: SubstCtx σ Γ Δ): Γ.deriv A
+  := λG => D (Stlc.Context.interp.subst G S)
+
+theorem Stlc.HasType.interp_subst {Γ Δ σ a A}
+  (H: HasType Δ a A)
+  (S: SubstCtx σ Γ Δ)
+  :
+  (H.subst S).interp = H.interp.subst S
+  := by {
+    sorry
+  }

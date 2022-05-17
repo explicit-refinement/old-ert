@@ -6,6 +6,7 @@ import LogicalRefinement.Denot.Basic
 open AnnotSort
 open Annot
 
+
 theorem HasType.denote_subst0'
   {A: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} {a: A.stlc_ty.interp}
   {B: Term} {b: Term}
