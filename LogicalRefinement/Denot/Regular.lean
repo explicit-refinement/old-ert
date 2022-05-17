@@ -206,8 +206,7 @@ theorem HasType.denote
         exact HA
         exact ⟨Hx, HG⟩
       | none => exact False.elim (HA.denote_ty_non_null Hx)
-    | @app Γ A B l r HAB Hl Hr IA Il Ir => 
-      stop
+    | @app Γ A B l r HAB Hl Hr IA Il Ir =>
       dsimp only [Annot.denote]
       dsimp only [
         Annot.stlc_ty, term, Term.stlc_ty, Term.stlc, 
