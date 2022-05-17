@@ -10,12 +10,13 @@ def ValidSubst {Γ Δ: Context}
   (I: Stlc.InterpSubst Γ.upgrade.stlc Δ.upgrade.stlc): Prop 
   := ∀G, (G ⊧ ✓Γ) -> (I.transport_ctx G ⊧ ✓Δ)
 
--- theorem Term.denote_ty.subst {Γ Δ: Context} {G: Γ.upgrade.stlc.interp} {A: Term} {a}
---   {I: Stlc.InterpSubst Γ.upgrade.stlc Δ.upgrade.stlc}
---   (H: A.denote_ty Γ.upgrade.sparsity G a)
---   (V: ValidSubst I)
---   : True
---   := by sorry
+theorem Term.denote_ty.subst {Γ Δ: Context} {σ} {G: Γ.upgrade.stlc.interp} {A: Term} {a}
+  (H: A.denote_ty Γ.upgrade.sparsity G a)
+  (S: SubstCtx σ Γ Δ)
+  (IΓ: IsCtx Γ) (IΔ: IsCtx Δ)
+  (V: ValidSubst (Stlc.SubstCtx.interp (SubstCtx.stlc S.upgrade IΔ.upgrade)))
+  : True
+  := by sorry
 
 theorem HasType.denote_subst0'
   {A: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} {a: A.stlc_ty.interp}

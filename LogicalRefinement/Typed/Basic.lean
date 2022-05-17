@@ -439,6 +439,13 @@ inductive IsCtx: Context -> Prop
     IsCtx Γ -> (Γ ⊢ A: type) -> 
     IsCtx ((Hyp.mk A HypKind.gst)::Γ)
 
+theorem IsCtx.upgrade {Γ} (H: IsCtx Γ): IsCtx Γ.upgrade
+  := by {
+    induction H <;>
+    constructor <;>
+    first | assumption | (apply HasType.upgrade; assumption)
+  }
+
 def IsHyp (Γ: Context) (H: Hyp): Prop := Γ ⊢ H.ty: sort H.kind.annot
 
 theorem HasType.to_var {s A n} (H: Γ ⊢ Term.var n: expr s A):
