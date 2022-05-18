@@ -115,7 +115,8 @@ theorem Term.denote_ty_transport
     exact id
   }
 
-theorem HasType.denote_ty_non_null {Δ: Stlc.Context} {G: Δ.interp}:
+theorem HasType.denote_ty_non_null 
+  {Γ} {Δ: Stlc.Context} {G: Δ.interp} {A σ}:
   (Γ ⊢ A: type) ->
   ¬(A.denote_ty σ G none)
   := by {

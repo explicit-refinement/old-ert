@@ -24,40 +24,70 @@ theorem SubstCtx.subst_denot
     generalize HK: sort s = K;
     rw [HK] at HA;
     induction HA generalizing σ s with
-    | pi => 
+    | pi =>
       stop
       cases a with
-      | none => sorry
+      | none => 
+        dsimp only [Term.denote_ty]
+        rw [interp_eq_none]
       | some a => sorry
     | sigma => 
       stop
       cases a with
-      | none => sorry
+      | none => 
+        dsimp only [Term.denote_ty]
+        rw [interp_eq_none]
       | some a => sorry
     | coprod => 
       stop
       cases a with
-      | none => sorry
+      | none => 
+        dsimp only [Term.denote_ty]
+        rw [interp_eq_none]
       | some a => sorry
     | assume => 
       stop
       cases a with
-      | none => sorry
+      | none => 
+        dsimp only [Term.denote_ty]
+        rw [interp_eq_none]
+        apply propext
+        apply Iff.intro <;> intro ⟨c, _⟩ <;> exact (c rfl).elim
       | some a => sorry
     | set => 
       stop
       cases a with
-      | none => sorry
+      | none => 
+        dsimp only [Term.denote_ty]
+        rw [interp_eq_none]
+        apply propext
+        apply Iff.intro <;> 
+        intro ⟨HAG, HφG⟩ <;>
+        apply False.elim <;>
+        apply HasType.denote_ty_non_null 
+          (by first 
+            | assumption 
+            | (apply HasType.subst_sort <;> assumption)
+          ) 
+          HAG
       | some a => sorry
     | intersect => 
       stop
       cases a with
-      | none => sorry
+      | none => 
+        dsimp only [Term.denote_ty]
+        rw [interp_eq_none]
+        apply propext
+        apply Iff.intro <;> intro ⟨c, _⟩ <;> exact (c rfl).elim
       | some a => sorry
     | union => 
       stop
       cases a with
-      | none => sorry
+      | none => 
+        dsimp only [Term.denote_ty]
+        rw [interp_eq_none]
+        apply propext
+        apply Iff.intro <;> intro ⟨c, _⟩ <;> exact (c rfl).elim
       | some a => sorry
     | dimplies => 
       stop
@@ -85,6 +115,7 @@ theorem SubstCtx.subst_denot
       | none => sorry
       | some a => cases a
     | @eq Δ A l r HA' Hl Hr IA Il Ir => 
+      stop
       cases a with
       | none => 
         dsimp only [Term.denote_ty];
