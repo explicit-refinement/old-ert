@@ -101,6 +101,7 @@ theorem SubstCtx.subst_denot
         }
         {
           intro ⟨px, py, Hxy⟩;
+          dsimp only [Annot.stlc_ty] at Hxy
           exists Hl.stlc;
           exists Hr.stlc;
           have R := @HasType.subst_stlc_interp_up_commute';
