@@ -31,28 +31,47 @@ theorem SubstCtx.subst_denot
       | some a => 
         dsimp only [Term.denote_ty]
         rw [interp_eq_some]
+        simp only []
         apply propext
         apply Iff.intro <;>
-        intro H x xin
+        intro H x xin <;>
+        generalize Ha': 
+          @Eq.rec Ty _ (λx _ => Ty.interp_val_in x Option) a _ _ = a' 
+        <;>
+        generalize Hb: Ty.interp.bind_val _ _ = b
         {
+          generalize Hx': 
+            ((HasType.stlc_ty_subst (by assumption)) ▸ x) = x';
+          have IA' :=
+            Hx' ▸
+            interp_eq_collapse ▸
+            Hx'.symm ▸ 
+            @IA Γ σ G x' type S IΓ IΔ HG (by assumption) rfl;
+          have xin' := Hx' ▸ IA'.symm ▸ xin;
+          have H' := H x' xin';
           have S' := S.lift_delta' (HypKind.val type) HA';
           have IB' := 
-            λb => @IB (
+          interp_eq_collapse ▸ 
+          @IB (
               { ty := Term.subst _ σ, kind := HypKind.val type } :: Γ) 
               σ.lift 
               (x, G) 
-              b 
+              ((HasType.stlc_ty_subst (by assumption)) ▸ b)
               type 
               S'
               (by 
                 constructor 
-                . assumption
+                . exact IΓ
                 . apply HasType.subst_sort <;> assumption
               )
               (by constructor <;> assumption)
-              ⟨xin, by assumption⟩
+              ⟨xin, HG⟩
               (by assumption)
               rfl;
+            dsimp only 
+              [Context.upgrade, Hyp.upgrade, HypKind.upgrade] at IB';
+            simp only [Context.sparsity_ty] at IB';
+            rw [<-IB']
           sorry
         }
         {

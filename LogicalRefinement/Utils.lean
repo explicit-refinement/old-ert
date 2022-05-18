@@ -342,7 +342,10 @@ theorem monorecursor
 theorem pair_mono_transport
   :
   @Eq.rec (Type) (Prod A B) (λA p => A) (x, y) (Prod C D) Ppair =
-  (@Eq.rec (Type) A (λA p => A) x C PA, @Eq.rec (Type) B (λA p => A) y D PB)
+  (
+    @Eq.rec (Type) A (λA p => A) x C PA, 
+    @Eq.rec (Type) B (λA p => A) y D PB
+  )
   := by {
     cases PA;
     cases PB;

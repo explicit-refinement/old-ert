@@ -164,6 +164,17 @@ theorem interp_eq_some
     cases p <;> rfl
   }
 
+theorem interp_eq_collapse
+  : 
+  @Eq.rec Ty b 
+    (λx _ => Ty.interp x) 
+    (@Eq.rec Ty a (λx _ => Ty.interp x) v b p) a p' 
+  = v
+  := by {
+    cases p;
+    rfl
+  }
+
 abbrev Annot.denote (A: Annot) {Γ: Stlc.Context}
   (σ: Sparsity)
   (G: Γ.interp)
