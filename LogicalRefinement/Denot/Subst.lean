@@ -68,10 +68,10 @@ theorem SubstCtx.subst_denot
               ⟨xin, HG⟩
               (by assumption)
               rfl;
-            dsimp only 
-              [Context.upgrade, Hyp.upgrade, HypKind.upgrade] at IB';
-            simp only [Context.sparsity_ty] at IB';
-            rw [<-IB']
+          dsimp only 
+            [Context.upgrade, Hyp.upgrade, HypKind.upgrade] at IB';
+          simp only [Context.sparsity_ty] at IB';
+          rw [<-IB']
           sorry
         }
         {
