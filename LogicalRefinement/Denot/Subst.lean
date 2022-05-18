@@ -32,8 +32,15 @@ theorem SubstCtx.subst_denot
       | some a => 
         dsimp only [Term.denote_ty]
         rw [interp_eq_some]
-        simp only []
-        sorry
+        apply propext
+        apply Iff.intro <;>
+        intro H x xin
+        {
+          sorry
+        }
+        {
+          sorry
+        }
     | sigma => 
       stop
       cases a with
