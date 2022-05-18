@@ -14,45 +14,43 @@ theorem SubstCtx.subst_denot
   {Γ Δ: Context} {σ} {G: Γ.upgrade.stlc.interp} {A: Term} {a s}
   (S: SubstCtx σ Γ Δ)
   (IΓ: IsCtx Γ) (IΔ: IsCtx Δ)
-  (Ha: A.denote_ty Δ.upgrade.sparsity (S.transport_interp_up IΔ G) a)
   (HG: G ⊧ ✓Γ)
   (V: ValidSubst (S.interp_up IΔ))
   (HA: Δ ⊢ A: sort s)
-  : (A.subst σ).denote_ty 
-    Γ.upgrade.sparsity
-    G
-    (HA.stlc_ty_subst ▸ a)
+  : 
+    A.denote_ty Δ.upgrade.sparsity (S.transport_interp_up IΔ G) a =
+    (A.subst σ).denote_ty Γ.upgrade.sparsity G (HA.stlc_ty_subst ▸ a)
   := by {
     generalize HK: sort s = K;
     rw [HK] at HA;
     induction HA generalizing σ s with
     | pi => 
       cases a with
-      | none => cases Ha
+      | none => sorry
       | some a => sorry
     | sigma => 
       cases a with
-      | none => cases Ha
+      | none => sorry
       | some a => sorry
     | coprod => 
       cases a with
-      | none => cases Ha
+      | none => sorry
       | some a => sorry
     | assume => 
       cases a with
-      | none => cases HK; exact False.elim (HA.denote_ty_non_null Ha)
+      | none => sorry
       | some a => sorry
     | set => 
       cases a with
-      | none => cases HK; exact False.elim (HA.denote_ty_non_null Ha)
+      | none => sorry
       | some a => sorry
     | intersect => 
       cases a with
-      | none => cases HK; exact False.elim (HA.denote_ty_non_null Ha)
+      | none => sorry
       | some a => sorry
     | union => 
       cases a with
-      | none => cases HK; exact False.elim (HA.denote_ty_non_null Ha)
+      | none => sorry
       | some a => sorry
     | dimplies => 
       cases a with
@@ -78,19 +76,24 @@ theorem SubstCtx.subst_denot
       cases a with
       | none => 
         dsimp only [Term.denote_ty];
-        exists (Hl.subst S.upgrade).stlc;
-        exists (Hr.subst S.upgrade).stlc;
-        rw [Hl.subst_stlc_interp_up_commute S IΔ G]
-        rw [Hr.subst_stlc_interp_up_commute S IΔ G]
-        have ⟨px, py, Hxy⟩ := Ha;
-        dsimp only [transport_interp_up] at Hxy;
-        rw [rec_down]
-        exact Hxy
+        apply propext;
+        apply Iff.intro
+        {
+          intro ⟨px, py, Hxy⟩;
+          exists (Hl.subst S.upgrade).stlc;
+          exists (Hr.subst S.upgrade).stlc;
+          rw [Hl.subst_stlc_interp_up_commute S IΔ G]
+          rw [Hr.subst_stlc_interp_up_commute S IΔ G]
+          dsimp only [transport_interp_up] at Hxy;
+          rw [rec_down]
+          exact Hxy
+        }
+        {
+          intro ⟨px, py, Hxy⟩;
+          sorry
+        }
       | some a => cases a
-    | _ => 
-      cases HK <;>
-      cases a <;> 
-      first | exact True.intro | cases Ha
+    | _ => cases HK <;> cases a <;> rfl
   }
 
 theorem HasType.denote_subst0'
