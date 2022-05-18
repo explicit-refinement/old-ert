@@ -41,7 +41,7 @@ theorem SubstCtx.stlc {σ Γ Δ} (S: SubstCtx σ Γ Δ) (HΔ: IsCtx Δ)
     exact S.subst_var HΔA' Hv'
   }
 
-theorem Term.subst_stlc_commute {Γ Δ σ a} 
+theorem Term.term_subst_stlc_commute {Γ Δ σ a} 
   (H: Δ ⊢ a: term A) 
   (S: SubstCtx σ Γ Δ)
   : (a.subst σ).stlc Γ.sparsity 
@@ -281,6 +281,18 @@ theorem Term.subst_stlc_commute {Γ Δ σ a}
             rw [Subst.stlc_lift_false]
   }
 
+
+theorem Term.subst_stlc_commute {Γ Δ σ a s} 
+  (H: Δ ⊢ a: expr s A) 
+  (S: SubstCtx σ Γ Δ)
+  : (a.subst σ).stlc Γ.sparsity 
+  = (a.stlc Δ.sparsity).subst (σ.stlc Γ.sparsity Δ.sparsity)
+:= by {
+  cases s with
+  | type => apply Term.term_subst_stlc_commute <;> assumption
+  | prop => sorry
+}
+
 abbrev SubstCtx.interp {σ Γ Δ} (S: SubstCtx σ Γ Δ) (IΔ: IsCtx Δ)
   : Stlc.InterpSubst Γ.stlc Δ.stlc
   := Stlc.SubstCtx.interp (S.stlc IΔ)
@@ -303,13 +315,26 @@ abbrev SubstCtx.transport_interp_up {σ Γ Δ}
   : Δ.upgrade.stlc.interp
   := Stlc.InterpSubst.transport_ctx (S.interp_up IΔ) G
 
-theorem Term.subst_stlc_interp_commute {Γ Δ σ a} 
-  (H: Δ ⊢ a: term A) 
+theorem HasType.subst_stlc_interp_commute {Γ Δ σ a} 
+  (H: Δ ⊢ a: expr s A) 
   (S: SubstCtx σ Γ Δ)
   (IΔ: IsCtx Δ)
   (G: Γ.stlc.interp)
-  : (Annot.stlc_ty_subst H.term_regular) ▸ (H.subst S).stlc.interp G
-  = H.stlc.interp.subst (S.interp IΔ) G
+  : (H.subst S).stlc.interp G
+  = (Annot.stlc_ty_subst H.expr_regular) ▸ H.stlc.interp.subst (S.interp IΔ) G
+  := by {
+    rw [<-Stlc.HasType.subst_interp_dist]
+    sorry
+  }
+  
+theorem HasType.subst_stlc_interp_up_commute {Γ Δ σ a} 
+  (H: Δ.upgrade ⊢ a: expr s A) 
+  (S: SubstCtx σ Γ Δ)
+  (IΔ: IsCtx Δ)
+  (G: Γ.upgrade.stlc.interp)
+  : (H.subst S.upgrade).stlc.interp G
+  = (Annot.stlc_ty_subst H.expr_regular) 
+    ▸ H.stlc.interp.subst (S.interp_up IΔ) G
   := by {
     rw [<-Stlc.HasType.subst_interp_dist]
     sorry

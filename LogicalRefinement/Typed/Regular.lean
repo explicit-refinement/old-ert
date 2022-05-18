@@ -263,6 +263,13 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
   )
 }
 
+theorem HasType.expr_regular (p: HasType Γ a (expr s A)): HasType Γ A (sort s) 
+  := by {
+    let H := regular p;
+    cases H with
+    | expr H => exact H
+  }
+
 theorem HasType.term_regular (p: HasType Γ a (term A)): HasType Γ A type 
   := by {
     let H := regular p;

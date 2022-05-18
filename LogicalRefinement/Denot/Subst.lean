@@ -46,7 +46,9 @@ theorem SubstCtx.subst_denot
         dsimp only [Term.denote_ty];
         exists (Hl.subst S.upgrade).stlc;
         exists (Hr.subst S.upgrade).stlc;
-        simp only [Term.subst_stlc_commute Hl S.upgrade]
+        rw [Hl.subst_stlc_interp_up_commute S IΔ G]
+        rw [Hr.subst_stlc_interp_up_commute S IΔ G]
+        have ⟨px, py, Hxy⟩ := Ha;
         sorry
       | some a => cases a
     | _ => 
