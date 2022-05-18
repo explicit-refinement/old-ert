@@ -26,20 +26,54 @@ theorem SubstCtx.subst_denot
     generalize HK: sort s = K;
     rw [HK] at HA;
     induction HA generalizing σ s with
-    | pi => sorry
-    | sigma => sorry
-    | coprod => sorry
-    | assume => sorry
-    | set => sorry
-    | intersect => sorry
-    | union => sorry
-    | top => sorry
-    | bot => sorry
-    | dimplies => sorry
-    | dand => sorry
-    | or => sorry
-    | forall_ => sorry
-    | exists_ => sorry
+    | pi => 
+      cases a with
+      | none => cases Ha
+      | some a => sorry
+    | sigma => 
+      cases a with
+      | none => cases Ha
+      | some a => sorry
+    | coprod => 
+      cases a with
+      | none => cases Ha
+      | some a => sorry
+    | assume => 
+      cases a with
+      | none => cases HK; exact False.elim (HA.denote_ty_non_null Ha)
+      | some a => sorry
+    | set => 
+      cases a with
+      | none => cases HK; exact False.elim (HA.denote_ty_non_null Ha)
+      | some a => sorry
+    | intersect => 
+      cases a with
+      | none => cases HK; exact False.elim (HA.denote_ty_non_null Ha)
+      | some a => sorry
+    | union => 
+      cases a with
+      | none => cases HK; exact False.elim (HA.denote_ty_non_null Ha)
+      | some a => sorry
+    | dimplies => 
+      cases a with
+      | none => sorry
+      | some a => cases a
+    | dand => 
+      cases a with
+      | none => sorry
+      | some a => cases a
+    | or => 
+      cases a with
+      | none => sorry
+      | some a => cases a
+    | forall_ => 
+      cases a with
+      | none => sorry
+      | some a => cases a
+    | exists_ => 
+      cases a with
+      | none => sorry
+      | some a => cases a
     | @eq Γ A l r HA' Hl Hr IA Il Ir => 
       cases a with
       | none => 
@@ -55,9 +89,8 @@ theorem SubstCtx.subst_denot
       | some a => cases a
     | _ => 
       cases HK <;>
-      cases a with
-      | none => cases Ha
-      | some => exact True.intro
+      cases a <;> 
+      first | exact True.intro | cases Ha
   }
 
 theorem HasType.denote_subst0'
