@@ -318,12 +318,14 @@ abbrev SubstCtx.transport_interp_up {σ Γ Δ}
 theorem SubstCtx.transport_interp_up_lift_ty 
   {σ: Subst} {Γ Δ: Context} {A}
   (S: SubstCtx σ Γ Δ)
-  (S': SubstCtx σ.lift ((Hyp.val A type)::Γ) ((Hyp.val A type)::Δ))
+  (S': SubstCtx σ.lift ({ ty := A.subst σ, kind := HypKind.val type }::Γ) ({ ty := A, kind := HypKind.val type }::Δ))
   (IΔ: IsCtx Δ)
-  (IAΔ: IsCtx ((Hyp.val A type)::Δ))
+  (HA: Γ ⊢ A: type)
+  (IAΔ: IsCtx ({ ty := A, kind := HypKind.val type }::Δ))
   (G: Γ.upgrade.stlc.interp)
-  (x: A.stlc_ty.interp)
-  : transport_interp_up S' IAΔ (x, G)
+  (x y)
+  (p: x = HA.stlc_ty_subst ▸ y)
+  : transport_interp_up S' IAΔ (y, G)
   = (x, transport_interp_up S IΔ G)
   := sorry
 
