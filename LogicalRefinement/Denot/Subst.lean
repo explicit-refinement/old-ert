@@ -25,50 +25,62 @@ theorem SubstCtx.subst_denot
     rw [HK] at HA;
     induction HA generalizing σ s with
     | pi => 
+      stop
       cases a with
       | none => sorry
       | some a => sorry
     | sigma => 
+      stop
       cases a with
       | none => sorry
       | some a => sorry
     | coprod => 
+      stop
       cases a with
       | none => sorry
       | some a => sorry
     | assume => 
+      stop
       cases a with
       | none => sorry
       | some a => sorry
     | set => 
+      stop
       cases a with
       | none => sorry
       | some a => sorry
     | intersect => 
+      stop
       cases a with
       | none => sorry
       | some a => sorry
     | union => 
+      stop
       cases a with
       | none => sorry
       | some a => sorry
     | dimplies => 
+      stop
       cases a with
       | none => sorry
       | some a => cases a
     | dand => 
+      stop
       cases a with
       | none => sorry
       | some a => cases a
     | or => 
+      stop
       cases a with
       | none => sorry
       | some a => cases a
     | forall_ => 
+      stop
       cases a with
       | none => sorry
       | some a => cases a
     | exists_ => 
+      stop
       cases a with
       | none => sorry
       | some a => cases a
@@ -84,7 +96,6 @@ theorem SubstCtx.subst_denot
           exists (Hr.subst S.upgrade).stlc;
           rw [Hl.subst_stlc_interp_up_commute S IΔ G]
           rw [Hr.subst_stlc_interp_up_commute S IΔ G]
-          dsimp only [transport_interp_up] at Hxy;
           rw [rec_down]
           exact Hxy
         }
@@ -92,10 +103,16 @@ theorem SubstCtx.subst_denot
           intro ⟨px, py, Hxy⟩;
           exists Hl.stlc;
           exists Hr.stlc;
-          sorry
+          have R := @HasType.subst_stlc_interp_up_commute';
+          dsimp only [Stlc.Context.deriv.subst] at R;
+          unfold transport_interp_up
+          rw [<-R Hl]
+          rw [<-R Hr]
+          rw [rec_down]
+          exact Hxy
         }
       | some a => cases a
-    | _ => cases HK <;> cases a <;> rfl
+    | _ => stop cases HK <;> cases a <;> rfl
   }
 
 theorem HasType.denote_subst0'
