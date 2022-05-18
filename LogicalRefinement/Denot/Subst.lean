@@ -49,7 +49,9 @@ theorem SubstCtx.subst_denot
         rw [Hl.subst_stlc_interp_up_commute S IΔ G]
         rw [Hr.subst_stlc_interp_up_commute S IΔ G]
         have ⟨px, py, Hxy⟩ := Ha;
-        sorry
+        dsimp only [transport_interp_up] at Hxy;
+        rw [rec_down]
+        exact Hxy
       | some a => cases a
     | _ => 
       cases HK <;>

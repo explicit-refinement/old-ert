@@ -349,3 +349,18 @@ theorem pair_mono_transport
     cases Ppair;
     rfl
   }
+
+theorem rec_down
+  {A: Type}
+  {a: A}
+  {M: (b: A) -> a = b -> Type}
+  {D D': M a rfl}
+  {b: A}
+  {p p': a = b}
+  (H: D = D'):
+  @Eq.rec A a M D b p =
+  @Eq.rec A a M D' b p'
+  := by {
+    cases H;
+    rfl
+  }
