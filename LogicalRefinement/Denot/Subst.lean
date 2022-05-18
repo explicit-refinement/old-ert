@@ -90,6 +90,8 @@ theorem SubstCtx.subst_denot
         }
         {
           intro ⟨px, py, Hxy⟩;
+          exists Hl.stlc;
+          exists Hr.stlc;
           sorry
         }
       | some a => cases a
