@@ -71,6 +71,7 @@ def Term.denote_ty (A: Term)
       A.denote_ty σ G x ∧
       @denote_ty φ (A.stlc_ty::Γ) (true::σ) (x, G) none
   | tri TermKind.eq A x y => 
+    --TODO: this should probably be a forall; makes life a little easier...
     ∃ px: Γ ⊧ x.stlc σ: A.stlc_ty, 
     ∃ py: Γ ⊧ y.stlc σ: A.stlc_ty,
     px.interp G = py.interp G
