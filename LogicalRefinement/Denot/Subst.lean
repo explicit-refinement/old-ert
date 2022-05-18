@@ -21,7 +21,7 @@ abbrev SubstCtx.transport_interp_up {σ Γ Δ}
   : Δ.upgrade.stlc.interp
   := Stlc.InterpSubst.transport_ctx (S.interp_up IΔ) G
 
-theorem Term.denote_ty.subst {Γ Δ: Context} {σ} {G: Γ.upgrade.stlc.interp} {A: Term} {a}
+theorem Term.denote_ty.subst {Γ Δ: Context} {σ} {G: Γ.upgrade.stlc.interp} {A: Term} {a s}
   (Ha: A.denote_ty Γ.upgrade.sparsity G a)
   (S: SubstCtx σ Γ Δ)
   (IΓ: IsCtx Γ) (IΔ: IsCtx Δ)
@@ -32,7 +32,31 @@ theorem Term.denote_ty.subst {Γ Δ: Context} {σ} {G: Γ.upgrade.stlc.interp} {
     Δ.upgrade.sparsity 
     (S.transport_interp_up IΔ G) 
     (HA.stlc_ty_subst ▸ a)
-  := by sorry
+  := by {
+    generalize HK: sort s = K;
+    rw [HK] at HA;
+    induction HA generalizing Δ σ s with
+    | pi => sorry
+    | sigma => sorry
+    | coprod => sorry
+    | assume => sorry
+    | set => sorry
+    | intersect => sorry
+    | union => sorry
+    | top => sorry
+    | bot => sorry
+    | dimplies => sorry
+    | dand => sorry
+    | or => sorry
+    | forall_ => sorry
+    | exists_ => sorry
+    | eq => sorry
+    | _ => 
+      cases HK <;>
+      cases a with
+      | none => cases Ha
+      | some => exact True.intro
+  }
 
 theorem HasType.denote_subst0'
   {A: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} {a: A.stlc_ty.interp}
