@@ -21,21 +21,22 @@ abbrev SubstCtx.transport_interp_up {σ Γ Δ}
   : Δ.upgrade.stlc.interp
   := Stlc.InterpSubst.transport_ctx (S.interp_up IΔ) G
 
-theorem Term.denote_ty.subst {Γ Δ: Context} {σ} {G: Γ.upgrade.stlc.interp} {A: Term} {a s}
-  (Ha: A.denote_ty Γ.upgrade.sparsity G a)
+theorem SubstCtx.subst_denot
+  {Γ Δ: Context} {σ} {G: Γ.upgrade.stlc.interp} {A: Term} {a s}
   (S: SubstCtx σ Γ Δ)
   (IΓ: IsCtx Γ) (IΔ: IsCtx Δ)
+  (Ha: A.denote_ty Δ.upgrade.sparsity (S.transport_interp_up IΔ G) a)
   (HG: G ⊧ ✓Γ)
   (V: ValidSubst (S.interp_up IΔ))
-  (HA: Γ ⊢ A: sort s)
+  (HA: Δ ⊢ A: sort s)
   : (A.subst σ).denote_ty 
-    Δ.upgrade.sparsity 
-    (S.transport_interp_up IΔ G) 
+    Γ.upgrade.sparsity
+    G
     (HA.stlc_ty_subst ▸ a)
   := by {
     generalize HK: sort s = K;
     rw [HK] at HA;
-    induction HA generalizing Δ σ s with
+    induction HA generalizing σ s with
     | pi => sorry
     | sigma => sorry
     | coprod => sorry
@@ -50,7 +51,15 @@ theorem Term.denote_ty.subst {Γ Δ: Context} {σ} {G: Γ.upgrade.stlc.interp} {
     | or => sorry
     | forall_ => sorry
     | exists_ => sorry
-    | eq => sorry
+    | @eq Γ A l r HA' Hl Hr IA Il Ir => 
+      cases a with
+      | none => 
+        dsimp only [Term.denote_ty];
+        exists (Hl.subst S.upgrade).stlc;
+        exists (Hr.subst S.upgrade).stlc;
+        simp only [Term.subst_stlc_commute Hl S.upgrade]
+        sorry
+      | some a => cases a
     | _ => 
       cases HK <;>
       cases a with
