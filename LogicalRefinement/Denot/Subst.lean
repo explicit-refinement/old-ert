@@ -15,7 +15,6 @@ theorem SubstCtx.subst_denot
   (S: SubstCtx σ Γ Δ)
   (IΓ: IsCtx Γ) (IΔ: IsCtx Δ)
   (HG: G ⊧ ✓Γ)
-  (V: ValidSubst (S.interp_up IΔ))
   (HA: Δ ⊢ A: sort s)
   : 
     A.denote_ty Δ.upgrade.sparsity (S.transport_interp_up IΔ G) a =
@@ -23,8 +22,8 @@ theorem SubstCtx.subst_denot
   := by {
     generalize HK: sort s = K;
     rw [HK] at HA;
-    induction HA generalizing σ s with
-    | pi =>
+    induction HA generalizing σ Γ s with
+    | pi HA' HB IA IB =>
       cases a with
       | none => 
         dsimp only [Term.denote_ty]
@@ -36,6 +35,24 @@ theorem SubstCtx.subst_denot
         apply Iff.intro <;>
         intro H x xin
         {
+          have S' := S.lift_delta' (HypKind.val type) HA';
+          have IB' := 
+            λb => @IB (
+              { ty := Term.subst _ σ, kind := HypKind.val type } :: Γ) 
+              σ.lift 
+              (x, G) 
+              b 
+              type 
+              S'
+              (by 
+                constructor 
+                . assumption
+                . apply HasType.subst_sort <;> assumption
+              )
+              (by constructor <;> assumption)
+              ⟨xin, by assumption⟩
+              (by assumption)
+              rfl;
           sorry
         }
         {
