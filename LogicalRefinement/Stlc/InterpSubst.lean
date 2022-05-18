@@ -310,4 +310,7 @@ theorem Term.subst_stlc_interp_commute {Γ Δ σ a}
   (G: Γ.stlc.interp)
   : (Annot.stlc_ty_subst H.term_regular) ▸ (H.subst S).stlc.interp G
   = H.stlc.interp.subst (S.interp IΔ) G
-  := sorry
+  := by {
+    rw [<-Stlc.HasType.subst_interp_dist]
+    sorry
+  }
