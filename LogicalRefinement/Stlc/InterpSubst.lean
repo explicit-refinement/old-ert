@@ -333,8 +333,31 @@ theorem HasType.subst_stlc_interp_up_commute {Γ Δ σ a}
   (IΔ: IsCtx Δ)
   (G: Γ.upgrade.stlc.interp)
   : (H.subst S.upgrade).stlc.interp G
-  = (Annot.stlc_ty_subst H.expr_regular) 
-    ▸ H.stlc.interp.subst (S.interp_up IΔ) G
+  = (Annot.stlc_ty_subst H.expr_regular) ▸ H.stlc.interp.subst (S.interp_up IΔ) G
+  := by {
+    rw [<-Stlc.HasType.subst_interp_dist]
+    sorry
+  }
+
+theorem HasType.subst_stlc_interp_commute' {Γ Δ σ a} 
+  (H: Δ ⊢ a: expr s A) 
+  (S: SubstCtx σ Γ Δ)
+  (IΔ: IsCtx Δ)
+  (G: Γ.stlc.interp)
+  : (Annot.stlc_ty_subst H.expr_regular) ▸ (H.subst S).stlc.interp G
+  = H.stlc.interp.subst (S.interp IΔ) G
+  := by {
+    rw [<-Stlc.HasType.subst_interp_dist]
+    sorry
+  }
+  
+theorem HasType.subst_stlc_interp_up_commute' {Γ Δ σ a} 
+  (H: Δ.upgrade ⊢ a: expr s A) 
+  (S: SubstCtx σ Γ Δ)
+  (IΔ: IsCtx Δ)
+  (G: Γ.upgrade.stlc.interp)
+  : (Annot.stlc_ty_subst H.expr_regular) ▸ (H.subst S.upgrade).stlc.interp G
+  = H.stlc.interp.subst (S.interp_up IΔ) G
   := by {
     rw [<-Stlc.HasType.subst_interp_dist]
     sorry

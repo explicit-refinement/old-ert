@@ -72,7 +72,7 @@ theorem SubstCtx.subst_denot
       cases a with
       | none => sorry
       | some a => cases a
-    | @eq Γ A l r HA' Hl Hr IA Il Ir => 
+    | @eq Δ A l r HA' Hl Hr IA Il Ir => 
       cases a with
       | none => 
         dsimp only [Term.denote_ty];
