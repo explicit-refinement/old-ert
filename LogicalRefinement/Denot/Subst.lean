@@ -10,17 +10,6 @@ def ValidSubst {Γ Δ: Context}
   (I: Stlc.InterpSubst Γ.upgrade.stlc Δ.upgrade.stlc): Prop 
   := ∀G, (G ⊧ ✓Γ) -> (I.transport_ctx G ⊧ ✓Δ)
 
-abbrev SubstCtx.interp_up {σ Γ Δ} (S: SubstCtx σ Γ Δ) (IΔ: IsCtx Δ)
-  : Stlc.InterpSubst Γ.upgrade.stlc Δ.upgrade.stlc
-  := Stlc.SubstCtx.interp (SubstCtx.stlc S.upgrade IΔ.upgrade)
-
-abbrev SubstCtx.transport_interp_up {σ Γ Δ}
-  (S: SubstCtx σ Γ Δ)
-  (IΔ: IsCtx Δ)
-  (G: Γ.upgrade.stlc.interp)
-  : Δ.upgrade.stlc.interp
-  := Stlc.InterpSubst.transport_ctx (S.interp_up IΔ) G
-
 theorem SubstCtx.subst_denot
   {Γ Δ: Context} {σ} {G: Γ.upgrade.stlc.interp} {A: Term} {a s}
   (S: SubstCtx σ Γ Δ)

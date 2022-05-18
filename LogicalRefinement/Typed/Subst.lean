@@ -14,10 +14,10 @@ inductive SubstVar: Subst -> Context -> Nat -> Term -> HypKind -> Prop
   | var {σ Γ n A k m}: σ n = var m -> HasVar Γ m k (A.subst σ) -> SubstVar σ Γ n A k
 
 def SubstCtx (σ: Subst) (Γ Δ: Context): Prop :=  
-  ∀{n A k}, HasVar Δ n k A -> SubstVar σ Γ n A k
+  ∀n A k, HasVar Δ n k A -> SubstVar σ Γ n A k
 
 theorem SubstCtx.id {Γ}: SubstCtx Subst.id Γ Γ := 
-  λHv => SubstVar.var rfl (Term.subst_id _ ▸ Hv)
+  λn A k Hv => SubstVar.var rfl (Term.subst_id _ ▸ Hv)
 
 theorem SubstCtx.lift_primitive 
   {σ: Subst} {Γ Δ: Context} {A: Term} {k k': HypKind}:
@@ -44,7 +44,7 @@ theorem SubstCtx.lift_primitive
       simp only [Annot.subst, Hyp.annot]
       cases HΔ;
       rename_i A n H
-      cases S H with
+      cases S _ _ _ H with
       | expr S =>
         apply SubstVar.expr
         simp only [Subst.lift_wk, Nat.add]
@@ -76,7 +76,7 @@ theorem SubstCtx.upgrade (S: SubstCtx ρ Γ Δ): SubstCtx ρ Γ.upgrade Δ.upgra
 := by {
   intro n A k H;
   have H' := HasVar.downgrade H;
-  cases S H' with
+  cases S _ _ _ H' with
   | expr S =>
     rw [HypKind.annot_downgrade] at S
     exact SubstVar.expr (HasType.upgrade S)
@@ -91,7 +91,7 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
 
     case var H I =>
       intros σ Γ S;
-      cases S H with
+      cases S _ _ _ H with
       | expr E => exact E
       | var Hv HΓ =>
         dsimp only [Term.subst]
@@ -249,4 +249,4 @@ theorem SubstCtx.lift_delta' {σ Γ Δ A}
   := S.lift_delta HA
 
 theorem WkCtx.to_subst {ρ Γ Δ} (R: WkCtx ρ Γ Δ): SubstCtx ρ Γ Δ
-  := λHv => SubstVar.var rfl (Subst.subst_wk_compat.symm ▸ Hv.wk R)
+  := λ_ _ _ Hv => SubstVar.var rfl (Subst.subst_wk_compat.symm ▸ Hv.wk R)

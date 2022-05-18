@@ -35,14 +35,14 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
     apply subst_sort
     cases HP <;> assumption
     intro n A k;
-    exact Hr.to_subst
+    apply Hr.to_subst
 
   case app_pr A B l r HP Hl Hr Is IP IA =>
     constructor
     apply subst_sort
     cases HP <;> assumption
     intro n A k;
-    exact Hr.to_subst
+    apply Hr.to_subst
 
   case lam_irrel _ _ _ IB => 
     constructor

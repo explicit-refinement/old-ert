@@ -41,11 +41,6 @@ theorem SubstCtx.stlc {σ Γ Δ} (S: SubstCtx σ Γ Δ) (HΔ: IsCtx Δ)
     exact S.subst_var HΔA' Hv'
   }
 
--- TODO: this can probably be simplified to a sparsity-respecting 
--- condition on terms. Would clean things up a little, but for now
--- probably not worth the effort.
-set_option maxHeartbeats 1000000
-
 theorem Term.subst_stlc_commute {Γ Δ σ a} 
   (H: Δ ⊢ a: term A) 
   (S: SubstCtx σ Γ Δ)
@@ -285,3 +280,34 @@ theorem Term.subst_stlc_commute {Γ Δ σ a}
             rw [Subst.stlc_lift_true]
             rw [Subst.stlc_lift_false]
   }
+
+abbrev SubstCtx.interp {σ Γ Δ} (S: SubstCtx σ Γ Δ) (IΔ: IsCtx Δ)
+  : Stlc.InterpSubst Γ.stlc Δ.stlc
+  := Stlc.SubstCtx.interp (S.stlc IΔ)
+
+abbrev SubstCtx.interp_up {σ Γ Δ} (S: SubstCtx σ Γ Δ) (IΔ: IsCtx Δ)
+  : Stlc.InterpSubst Γ.upgrade.stlc Δ.upgrade.stlc
+  := Stlc.SubstCtx.interp (SubstCtx.stlc S.upgrade IΔ.upgrade)
+
+abbrev SubstCtx.transport_interp {σ Γ Δ}
+  (S: SubstCtx σ Γ Δ)
+  (IΔ: IsCtx Δ)
+  (G: Γ.stlc.interp)
+  : Δ.stlc.interp
+  := Stlc.InterpSubst.transport_ctx (S.interp IΔ) G
+
+abbrev SubstCtx.transport_interp_up {σ Γ Δ}
+  (S: SubstCtx σ Γ Δ)
+  (IΔ: IsCtx Δ)
+  (G: Γ.upgrade.stlc.interp)
+  : Δ.upgrade.stlc.interp
+  := Stlc.InterpSubst.transport_ctx (S.interp_up IΔ) G
+
+theorem Term.subst_stlc_interp_commute {Γ Δ σ a} 
+  (H: Δ ⊢ a: term A) 
+  (S: SubstCtx σ Γ Δ)
+  (IΔ: IsCtx Δ)
+  (G: Γ.stlc.interp)
+  : (Annot.stlc_ty_subst H.term_regular) ▸ (H.subst S).stlc.interp G
+  = H.stlc.interp.subst (S.interp IΔ) G
+  := sorry
