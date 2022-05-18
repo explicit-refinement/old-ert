@@ -25,12 +25,15 @@ theorem SubstCtx.subst_denot
     rw [HK] at HA;
     induction HA generalizing σ s with
     | pi =>
-      stop
       cases a with
       | none => 
         dsimp only [Term.denote_ty]
         rw [interp_eq_none]
-      | some a => sorry
+      | some a => 
+        dsimp only [Term.denote_ty]
+        rw [interp_eq_some]
+        simp only []
+        sorry
     | sigma => 
       stop
       cases a with
