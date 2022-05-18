@@ -737,3 +737,31 @@ theorem Stlc.HasType.interp_irrel
   (H': Γ ⊧ a: A)
   : H.interp = H'.interp
   := rfl
+
+theorem interp_eq_none
+  : @Eq.rec Ty a (λx _ => Ty.interp x) none x p = none := by {
+    cases p <;> rfl
+  }
+
+theorem interp_eq_none' {n: Ty.interp a}
+  : n = none -> @Eq.rec Ty a (λx _ => Ty.interp x) n x p = none := by {
+    intro H;
+    cases H <;>
+    cases p <;> rfl
+  }
+
+theorem interp_eq_some
+  : @Eq.rec Ty a (λx _ => Ty.interp x) (some v) x p = (some (p ▸ v)) := by {
+    cases p <;> rfl
+  }
+
+theorem interp_eq_collapse
+  : 
+  @Eq.rec Ty b 
+    (λx _ => Ty.interp x) 
+    (@Eq.rec Ty a (λx _ => Ty.interp x) v b p) a p' 
+  = v
+  := by {
+    cases p;
+    rfl
+  }

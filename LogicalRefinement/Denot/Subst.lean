@@ -72,7 +72,11 @@ theorem SubstCtx.subst_denot
             [Context.upgrade, Hyp.upgrade, HypKind.upgrade] at IB';
           simp only [Context.sparsity_ty] at IB';
           rw [<-IB']
-          rw [SubstCtx.transport_interp_up_lift_ty]
+          rw [
+            S.transport_interp_up_lift_ty S' IΔ 
+            (by assumption)
+            G x' x Hx'.symm
+          ]
           --TODO: binding lemma...
           repeat sorry
         }
