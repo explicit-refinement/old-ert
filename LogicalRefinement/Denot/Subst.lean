@@ -126,30 +126,52 @@ theorem SubstCtx.subst_denot
       | some a => sorry
     | assume => 
       stop
-      cases a with
-      | none => 
-        dsimp only [Term.denote_ty]
-        rw [interp_eq_none]
-        apply propext
-        apply Iff.intro <;> intro ⟨c, _⟩ <;> exact (c rfl).elim
-      | some a => sorry
+      dsimp only [Term.denote_ty]
+      apply propext;
+      apply Iff.intro <;>
+      intro ⟨Hφ, Ha⟩;
+      {
+        apply And.intro;
+        {
+          sorry
+        }
+        {
+          sorry
+        }
+      }
+      {
+        apply And.intro;
+        {
+          sorry
+        }
+        {
+          sorry
+        }
+      }
     | set => 
       stop
-      cases a with
-      | none => 
-        dsimp only [Term.denote_ty]
-        rw [interp_eq_none]
-        apply propext
-        apply Iff.intro <;> 
-        intro ⟨HAG, HφG⟩ <;>
-        apply False.elim <;>
-        apply HasType.denote_ty_non_null 
-          (by first 
-            | assumption 
-            | (apply HasType.subst_sort <;> assumption)
-          ) 
-          HAG
-      | some a => sorry
+      dsimp only [Term.denote_ty]
+      apply propext;
+      apply Iff.intro <;>
+      intro ⟨Ha, Hφ⟩;
+      {
+        apply And.intro;
+        {
+          sorry
+        }
+        {
+          sorry
+        }
+      }
+      {
+        apply And.intro;
+        {
+          sorry
+        }
+        {
+          sorry
+        }
+      }
     | intersect => 
       stop
       dsimp only [Term.denote_ty]
