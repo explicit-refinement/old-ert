@@ -171,7 +171,17 @@ theorem SubstCtx.subst_denot
     | dimplies => 
       stop
       cases a with
-      | none => sorry
+      | none => 
+        dsimp only [Term.denote_ty];
+        apply propext;
+        apply Iff.intro <;>
+        intro Hl Hr;
+        {
+          sorry
+        }
+        {
+          sorry
+        }
       | some a => cases a
     | dand => 
       stop
@@ -179,6 +189,7 @@ theorem SubstCtx.subst_denot
       | none => sorry
       | some a => cases a
     | or => 
+      stop
       cases a with
       | none => 
         dsimp only [Term.denote_ty];
