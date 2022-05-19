@@ -116,17 +116,35 @@ theorem SubstCtx.subst_denot
       | none => 
         dsimp only [Term.denote_ty]
         rw [interp_eq_none]
-      | some a => sorry
+      | some a => 
+        dsimp only [Term.denote_ty]
+        rw [interp_eq_some]
+        cases a with
+        | mk a b =>
+          --TODO: pair transport...
+          simp only []
+          apply propext;
+          apply Iff.intro <;>
+          intro H
+          {
+            sorry
+          }
+          {
+            sorry
+          }
     | coprod => 
+      stop
       cases a with
       | none => 
         dsimp only [Term.denote_ty]
         rw [interp_eq_none]
       | some a => 
+        dsimp only [Term.denote_ty]
+        rw [interp_eq_some]
+        simp only []
+        --TODO: injection transport...
         cases a with
         | inl a => 
-          --TODO: transport...
-          dsimp only [Term.denote_ty]
           apply propext;
           apply Iff.intro <;>
           intro H;
@@ -136,8 +154,7 @@ theorem SubstCtx.subst_denot
           {
             sorry
           }
-        | inr a => 
-          --TODO: transport...
+        | inr a =>
           dsimp only [Term.denote_ty]
           apply propext;
           apply Iff.intro <;>
