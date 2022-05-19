@@ -35,9 +35,6 @@ theorem SubstCtx.subst_denot
         apply propext
         apply Iff.intro <;>
         intro H x xin <;>
-        generalize Ha': 
-          @Eq.rec Ty _ (λx _ => Ty.interp_val_in x Option) a _ _ = a' 
-        <;>
         generalize Hb: Ty.interp.bind_val _ _ = b;
         {
           generalize Hx': 
@@ -51,23 +48,19 @@ theorem SubstCtx.subst_denot
           have H' := H x' xin';
           have S' := S.lift_delta' (HypKind.val type) HA';
           have IB' := 
-          interp_eq_collapse ▸ 
-          @IB 
-            ({ ty := Term.subst _ σ, kind := HypKind.val type } :: Γ) 
-            σ.lift 
-            (x, G) 
-            ((HasType.stlc_ty_subst (by assumption)) ▸ b)
-            type 
-            S'
-            (by 
-              constructor 
-              . exact IΓ
-              . apply HasType.subst_sort <;> assumption
-            )
-            (by constructor <;> assumption)
-            ⟨xin, HG⟩
-            (by assumption)
-            rfl;
+            interp_eq_collapse ▸ 
+            @IB 
+              ({ ty := Term.subst _ σ, kind := HypKind.val type } :: Γ) 
+              σ.lift 
+              (x, G) 
+              (HB.stlc_ty_subst ▸ b)
+              type 
+              S'
+              (IsCtx.cons_val IΓ (HA'.subst_sort S))
+              (by constructor <;> assumption)
+              ⟨xin, HG⟩
+              (by assumption)
+              rfl;
           dsimp only 
             [Context.upgrade, Hyp.upgrade, HypKind.upgrade] at IB';
           simp only [Context.sparsity_ty] at IB';
@@ -91,6 +84,29 @@ theorem SubstCtx.subst_denot
             @IA Γ σ G x type S IΓ IΔ HG (by assumption) rfl;
           have xin' := Hx' ▸ IA' ▸ xin;
           have H' := H x' xin';
+          have S' := S.lift_delta' (HypKind.val type) HA';
+          have IB' :=
+            @IB 
+              ({ ty := Term.subst _ σ, kind := HypKind.val type } :: Γ) 
+              σ.lift 
+              (x', G) 
+              b
+              type 
+              S'
+              (IsCtx.cons_val IΓ (HA'.subst_sort S))
+              (by constructor <;> assumption)
+              ⟨xin', HG⟩
+              (by assumption)
+              rfl;
+          dsimp only 
+            [Context.upgrade, Hyp.upgrade, HypKind.upgrade] at IB';
+          simp only [Context.sparsity_ty] at IB';
+          rw [
+            <-S.transport_interp_up_lift_ty S' IΔ 
+            (by assumption)
+            G x x' sorry
+          ]
+          rw [IB']
           sorry
         }
     | sigma => 
