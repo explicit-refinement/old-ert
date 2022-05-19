@@ -118,12 +118,36 @@ theorem SubstCtx.subst_denot
         rw [interp_eq_none]
       | some a => sorry
     | coprod => 
-      stop
       cases a with
       | none => 
         dsimp only [Term.denote_ty]
         rw [interp_eq_none]
-      | some a => sorry
+      | some a => 
+        cases a with
+        | inl a => 
+          --TODO: transport...
+          dsimp only [Term.denote_ty]
+          apply propext;
+          apply Iff.intro <;>
+          intro H;
+          {
+            sorry
+          }
+          {
+            sorry
+          }
+        | inr a => 
+          --TODO: transport...
+          dsimp only [Term.denote_ty]
+          apply propext;
+          apply Iff.intro <;>
+          intro H;
+          {
+            sorry
+          }
+          {
+            sorry
+          }
     | assume => 
       stop
       dsimp only [Term.denote_ty]
