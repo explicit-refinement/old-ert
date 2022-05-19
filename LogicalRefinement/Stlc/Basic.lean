@@ -763,6 +763,27 @@ theorem Stlc.HasType.interp_transport_cast'
     rfl
   }
 
+theorem Stlc.HasType.interp_transport_cast''
+  {Γ Δ}
+  {A B: Ty}
+  {a b: Stlc}
+  (HA: HasType Γ a A)
+  (HB: HasType Δ b B)
+  (Hab: a = b)
+  (HAB: A = B)
+  (HΓΔ: Γ = Δ)
+  (G: Γ.interp)
+  (D: Δ.interp)
+  (HGD: G = HΓΔ ▸ D)
+  : @cast A.interp B.interp (by rw [HAB]) (HA.interp G) = HB.interp D
+  := by {
+    cases HΓΔ;
+    cases Hab;
+    cases HAB;
+    simp only [HGD]
+    rfl
+  }
+
 theorem Stlc.HasType.interp_irrel
   (H: Γ ⊧ a: A)
   (H': Γ ⊧ a: A)
