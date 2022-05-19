@@ -38,7 +38,7 @@ theorem SubstCtx.subst_denot
         generalize Ha': 
           @Eq.rec Ty _ (λx _ => Ty.interp_val_in x Option) a _ _ = a' 
         <;>
-        generalize Hb: Ty.interp.bind_val _ _ = b
+        generalize Hb: Ty.interp.bind_val _ _ = b;
         {
           generalize Hx': 
             ((HasType.stlc_ty_subst (by assumption)) ▸ x) = x';
@@ -83,7 +83,14 @@ theorem SubstCtx.subst_denot
           rw [Hbind]
           exact H'
         }
-        {
+        {     
+          -- Why does this otherwise not know how to synthesize
+          -- the implicit argument?
+          generalize Hx': 
+            ((@HasType.stlc_ty_subst _ _ σ type HA') ▸ x) = x';
+          have IA' :=
+            Hx' ▸
+            @IA Γ σ G x type S IΓ IΔ HG (by assumption) rfl;
           sorry
         }
     | sigma => 
