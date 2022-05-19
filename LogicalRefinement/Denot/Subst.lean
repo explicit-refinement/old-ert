@@ -179,22 +179,46 @@ theorem SubstCtx.subst_denot
       | none => sorry
       | some a => cases a
     | or => 
-      stop
-      cases a with
-      | none => sorry
-      | some a => cases a
-    | forall_ => 
-      stop
-      cases a with
-      | none => sorry
-      | some a => cases a
-    | exists_ HA' Hφ =>
       cases a with
       | none => 
         dsimp only [Term.denote_ty];
         apply propext;
         apply Iff.intro <;>
-        intro ⟨x, Hx⟩;
+        intro H;
+        {
+          cases H with
+          | inl H => sorry
+          | inr H => sorry
+        }
+        {
+          cases H with
+          | inl H => sorry
+          | inr H => sorry
+        }
+      | some a => cases a
+    | forall_ => 
+      stop
+      cases a with
+      | none => 
+        dsimp only [Term.denote_ty];
+        apply propext;
+        apply Iff.intro <;>
+        intro H x Hx;
+        {
+          sorry
+        }
+        {
+          sorry
+        }
+      | some a => cases a
+    | exists_ HA' Hφ IA Iφ =>
+      stop
+      cases a with
+      | none => 
+        dsimp only [Term.denote_ty];
+        apply propext;
+        apply Iff.intro <;>
+        intro ⟨x, ⟨Hx, Hφ⟩⟩;
         {
           generalize Hx': HA'.stlc_ty_subst.symm ▸ x = x';
           exists x';
