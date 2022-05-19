@@ -198,10 +198,24 @@ theorem SubstCtx.subst_denot
         {
           generalize Hx': HA'.stlc_ty_subst.symm ▸ x = x';
           exists x';
-          sorry
+          apply And.intro;
+          {
+            sorry
+          }
+          {
+            sorry
+          }
         }
         {
-          sorry
+          generalize Hx': HA'.stlc_ty_subst ▸ x = x';
+          exists x';
+          apply And.intro;
+          {
+            sorry
+          }
+          {
+            sorry
+          }
         }
       | some a => cases a
     | @eq Δ A l r HA' Hl Hr IA Il Ir => 
