@@ -339,6 +339,16 @@ theorem monorecursor
     simp
   }
 
+theorem rec_to_cast
+  : 
+  @Eq.rec A x F D y p =
+  cast p' D 
+  := by {
+    cases p;
+    cases p';
+    simp [cast]
+  }
+
 theorem pair_mono_transport
   :
   @Eq.rec (Type) (Prod A B) (λA p => A) (x, y) (Prod C D) Ppair =
