@@ -354,14 +354,12 @@ theorem rec_to_cast'
   cast (by cases p; rfl) D 
   := by {
     cases p;
-    simp [cast]
+    rfl
   }
 
 theorem cast_merge
   : cast p (cast p' x) = cast (p.trans p') x
-  := by {
-    simp [cast]
-  }
+  := by rfl
 
 theorem pair_mono_transport
   :
@@ -374,6 +372,44 @@ theorem pair_mono_transport
     cases PA;
     cases PB;
     cases Ppair;
+    rfl
+  }
+
+theorem cast_pair {A B C D a b} (pa: A = C) (pb: B = D)
+  : cast (by rw [pa, pb]) (a, b) = (cast pa a, cast pb b)
+  := by {
+    cases pa;
+    cases pb;
+    rfl
+  }
+
+theorem cast_some
+  : cast p (some a) = some (cast p' a)
+  := by {
+    cases p';
+    rfl
+  }
+
+theorem cast_none (p: A = B)
+  : cast (by rw [p]) (@none A) = @none B
+  := by {
+    cases p;
+    rfl
+  }
+ 
+theorem cast_inl {A B C D: Type} {a: A} (p: A = C) (p': B = D)
+  : cast (by rw [p, p']) (@Sum.inl A B a) = @Sum.inl C D (cast p a)
+  := by {
+    cases p;
+    cases p';
+    rfl
+  }
+ 
+theorem cast_inr {A B C D: Type} {b: B} (p: A = C) (p': B = D)
+  : cast (by rw [p, p']) (@Sum.inr A B b) = @Sum.inr C D (cast p' b)
+  := by {
+    cases p;
+    cases p';
     rfl
   }
 
