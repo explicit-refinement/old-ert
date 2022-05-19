@@ -24,6 +24,7 @@ theorem SubstCtx.subst_denot
     rw [HK] at HA;
     induction HA generalizing σ Γ s with
     | pi HA' HB IA IB =>
+      stop
       cases a with
       | none => 
         dsimp only [Term.denote_ty]
@@ -187,10 +188,21 @@ theorem SubstCtx.subst_denot
       cases a with
       | none => sorry
       | some a => cases a
-    | exists_ => 
-      stop
+    | exists_ HA' Hφ =>
       cases a with
-      | none => sorry
+      | none => 
+        dsimp only [Term.denote_ty];
+        apply propext;
+        apply Iff.intro <;>
+        intro ⟨x, Hx⟩;
+        {
+          generalize Hx': HA'.stlc_ty_subst.symm ▸ x = x';
+          exists x';
+          sorry
+        }
+        {
+          sorry
+        }
       | some a => cases a
     | @eq Δ A l r HA' Hl Hr IA Il Ir => 
       stop
