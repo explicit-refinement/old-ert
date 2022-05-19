@@ -52,22 +52,22 @@ theorem SubstCtx.subst_denot
           have S' := S.lift_delta' (HypKind.val type) HA';
           have IB' := 
           interp_eq_collapse ▸ 
-          @IB (
-              { ty := Term.subst _ σ, kind := HypKind.val type } :: Γ) 
-              σ.lift 
-              (x, G) 
-              ((HasType.stlc_ty_subst (by assumption)) ▸ b)
-              type 
-              S'
-              (by 
-                constructor 
-                . exact IΓ
-                . apply HasType.subst_sort <;> assumption
-              )
-              (by constructor <;> assumption)
-              ⟨xin, HG⟩
-              (by assumption)
-              rfl;
+          @IB 
+            ({ ty := Term.subst _ σ, kind := HypKind.val type } :: Γ) 
+            σ.lift 
+            (x, G) 
+            ((HasType.stlc_ty_subst (by assumption)) ▸ b)
+            type 
+            S'
+            (by 
+              constructor 
+              . exact IΓ
+              . apply HasType.subst_sort <;> assumption
+            )
+            (by constructor <;> assumption)
+            ⟨xin, HG⟩
+            (by assumption)
+            rfl;
           dsimp only 
             [Context.upgrade, Hyp.upgrade, HypKind.upgrade] at IB';
           simp only [Context.sparsity_ty] at IB';
