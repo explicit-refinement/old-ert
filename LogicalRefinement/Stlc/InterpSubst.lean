@@ -371,7 +371,12 @@ theorem HasType.subst_stlc_interp_commute {Γ Δ σ a}
   = (Annot.stlc_ty_subst H.expr_regular) ▸ H.stlc.interp.subst (S.interp IΔ) G
   := by {
     rw [<-Stlc.HasType.subst_interp_dist]
-    sorry
+    rw [rec_to_cast']
+    rw [Stlc.HasType.interp_transport_cast']
+    rw [Term.subst_stlc_commute]
+    assumption
+    assumption
+    rw [Annot.stlc_ty_subst H.expr_regular]
   }
   
 theorem HasType.subst_stlc_interp_up_commute {Γ Δ σ a} 
