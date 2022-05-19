@@ -83,14 +83,14 @@ theorem SubstCtx.subst_denot
           rw [Hbind]
           exact H'
         }
-        {     
-          -- Why does this otherwise not know how to synthesize
-          -- the implicit argument?
+        {
           generalize Hx': 
-            ((@HasType.stlc_ty_subst _ _ σ type HA') ▸ x) = x';
+            (HA'.stlc_ty_subst.symm ▸ x) = x';
           have IA' :=
             Hx' ▸
             @IA Γ σ G x type S IΓ IΔ HG (by assumption) rfl;
+          have xin' := Hx' ▸ IA' ▸ xin;
+          have H' := H x' xin';
           sorry
         }
     | sigma => 
