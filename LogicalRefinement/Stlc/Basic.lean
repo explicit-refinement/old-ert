@@ -732,6 +732,37 @@ theorem Stlc.HasType.interp_transport_mono
     cases HA <;> cases HB <;> rfl 
   }
 
+theorem Stlc.HasType.interp_transport_cast
+  {Γ}
+  {A B: Ty}
+  {a b: Stlc}
+  (HA: HasType Γ a A)
+  (HB: HasType Γ b B)
+  (Hab: a = b)
+  (HAB: A = B)
+  : @cast (Γ.deriv A) (Γ.deriv B) (by rw [HAB]) HA.interp = HB.interp
+  := by {
+    cases Hab;
+    cases HAB;
+    rfl
+  }
+
+theorem Stlc.HasType.interp_transport_cast'
+  {Γ}
+  {A B: Ty}
+  {a b: Stlc}
+  (HA: HasType Γ a A)
+  (HB: HasType Γ b B)
+  (Hab: a = b)
+  (HAB: A = B)
+  (G: Γ.interp)
+  : @cast A.interp B.interp (by rw [HAB]) (HA.interp G) = HB.interp G
+  := by {
+    cases Hab;
+    cases HAB;
+    rfl
+  }
+
 theorem Stlc.HasType.interp_irrel
   (H: Γ ⊧ a: A)
   (H': Γ ⊧ a: A)
