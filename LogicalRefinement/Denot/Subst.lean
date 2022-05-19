@@ -152,22 +152,40 @@ theorem SubstCtx.subst_denot
       | some a => sorry
     | intersect => 
       stop
-      cases a with
-      | none => 
-        dsimp only [Term.denote_ty]
-        rw [interp_eq_none]
-        apply propext
-        apply Iff.intro <;> intro ⟨c, _⟩ <;> exact (c rfl).elim
-      | some a => sorry
+      dsimp only [Term.denote_ty]
+      apply propext;
+      apply Iff.intro <;>
+      intro ⟨Han, H⟩
+      {
+        apply And.intro;
+        {
+          sorry
+        }
+        {
+          sorry
+        }
+      }
+      {
+        apply And.intro;
+        {
+          sorry
+        }
+        {
+          sorry
+        }
+      }
     | union => 
       stop
-      cases a with
-      | none => 
-        dsimp only [Term.denote_ty]
-        rw [interp_eq_none]
-        apply propext
-        apply Iff.intro <;> intro ⟨c, _⟩ <;> exact (c rfl).elim
-      | some a => sorry
+      dsimp only [Term.denote_ty]
+      apply propext;
+      apply Iff.intro <;>
+      intro ⟨Han, x, Hx, Ha⟩;
+      {
+        sorry
+      }
+      {
+        sorry
+      }
     | dimplies => 
       stop
       cases a with
