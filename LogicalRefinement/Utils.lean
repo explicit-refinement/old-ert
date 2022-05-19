@@ -345,7 +345,21 @@ theorem rec_to_cast
   cast p' D 
   := by {
     cases p;
-    cases p';
+    simp [cast]
+  }
+
+theorem rec_to_cast'
+  : 
+  @Eq.rec A x F D y p =
+  cast (by cases p; rfl) D 
+  := by {
+    cases p;
+    simp [cast]
+  }
+
+theorem cast_merge
+  : cast p (cast p' x) = cast (p.trans p') x
+  := by {
     simp [cast]
   }
 
