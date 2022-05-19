@@ -77,8 +77,11 @@ theorem SubstCtx.subst_denot
             (by assumption)
             G x' x Hx'.symm
           ]
-          --TODO: binding lemma...
-          repeat sorry
+          have Hbind: 
+            ((HasType.stlc_ty_subst (by assumption)) ▸ b) 
+            = Ty.interp.bind_val a x' := sorry;
+          rw [Hbind]
+          exact H'
         }
         {
           sorry
