@@ -282,18 +282,6 @@ theorem Term.term_subst_stlc_commute {Γ Δ σ a}
             rw [Subst.stlc_lift_false]
   }
 
-
-theorem Term.subst_stlc_commute {Γ Δ σ a s} 
-  (H: Δ ⊢ a: expr s A) 
-  (S: SubstCtx σ Γ Δ)
-  : (a.subst σ).stlc Γ.sparsity 
-  = (a.stlc Δ.sparsity).subst (σ.stlc Γ.sparsity Δ.sparsity)
-:= by {
-  cases s with
-  | type => apply Term.term_subst_stlc_commute <;> assumption
-  | prop => sorry
-}
-
 abbrev SubstCtx.interp {σ Γ Δ} (S: SubstCtx σ Γ Δ) (IΔ: IsCtx Δ)
   : Stlc.InterpSubst Γ.stlc Δ.stlc
   := Stlc.SubstCtx.interp (S.stlc IΔ)
@@ -370,13 +358,24 @@ theorem HasType.subst_stlc_interp_commute {Γ Δ σ a}
   : (H.subst S).stlc.interp G
   = (Annot.stlc_ty_subst H.expr_regular) ▸ H.stlc.interp.subst (S.interp IΔ) G
   := by {
-    rw [<-Stlc.HasType.subst_interp_dist]
-    rw [rec_to_cast']
-    rw [Stlc.HasType.interp_transport_cast']
-    rw [Term.subst_stlc_commute]
-    assumption
-    assumption
-    rw [Annot.stlc_ty_subst H.expr_regular]
+    cases s with
+    | type =>
+      rw [<-Stlc.HasType.subst_interp_dist]
+      rw [rec_to_cast']
+      rw [Stlc.HasType.interp_transport_cast']
+      rw [Term.term_subst_stlc_commute]
+      assumption
+      assumption
+      rw [Annot.stlc_ty_subst H.expr_regular]
+    | prop => 
+      generalize Stlc.HasType.interp _ _ = x;
+      generalize Stlc.Context.deriv.subst _ _ _ = y;
+      cases x with
+      | none => 
+        cases y with
+        | none => simp
+        | some x => cases x
+      | some x => cases x
   }
   
 theorem HasType.subst_stlc_interp_up_commute {Γ Δ σ a} 
@@ -387,13 +386,24 @@ theorem HasType.subst_stlc_interp_up_commute {Γ Δ σ a}
   : (H.subst S.upgrade).stlc.interp G
   = (Annot.stlc_ty_subst H.expr_regular) ▸ H.stlc.interp.subst (S.interp_up IΔ) G
   := by {
-    rw [<-Stlc.HasType.subst_interp_dist]
-    rw [rec_to_cast']
-    rw [Stlc.HasType.interp_transport_cast']
-    rw [Term.subst_stlc_commute]
-    assumption
-    apply SubstCtx.upgrade S;
-    rw [Annot.stlc_ty_subst H.expr_regular]
+    cases s with
+    | type =>
+      rw [<-Stlc.HasType.subst_interp_dist]
+      rw [rec_to_cast']
+      rw [Stlc.HasType.interp_transport_cast']
+      rw [Term.term_subst_stlc_commute]
+      assumption
+      apply SubstCtx.upgrade S;
+      rw [Annot.stlc_ty_subst H.expr_regular]
+    | prop =>
+      generalize Stlc.HasType.interp _ _ = x;
+      generalize Stlc.Context.deriv.subst _ _ _ = y;
+      cases x with
+      | none => 
+        cases y with
+        | none => simp
+        | some x => cases x
+      | some x => cases x
   }
 
 theorem HasType.subst_stlc_interp_commute' {Γ Δ σ a} 
@@ -404,13 +414,24 @@ theorem HasType.subst_stlc_interp_commute' {Γ Δ σ a}
   : (Annot.stlc_ty_subst H.expr_regular) ▸ (H.subst S).stlc.interp G
   = H.stlc.interp.subst (S.interp IΔ) G
   := by {
-    rw [<-Stlc.HasType.subst_interp_dist]
-    rw [rec_to_cast']
-    rw [Stlc.HasType.interp_transport_cast']
-    rw [Term.subst_stlc_commute]
-    assumption
-    assumption
-    rw [Annot.stlc_ty_subst H.expr_regular]
+    cases s with
+    | type =>
+      rw [<-Stlc.HasType.subst_interp_dist]
+      rw [rec_to_cast']
+      rw [Stlc.HasType.interp_transport_cast']
+      rw [Term.term_subst_stlc_commute]
+      assumption
+      assumption
+      rw [Annot.stlc_ty_subst H.expr_regular]
+    | prop =>
+      generalize Stlc.HasType.interp _ _ = x;
+      generalize Stlc.Context.deriv.subst _ _ _ = y;
+      cases x with
+      | none => 
+        cases y with
+        | none => simp
+        | some x => cases x
+      | some x => cases x
   }
   
 theorem HasType.subst_stlc_interp_up_commute' {Γ Δ σ a} 
@@ -421,11 +442,22 @@ theorem HasType.subst_stlc_interp_up_commute' {Γ Δ σ a}
   : (Annot.stlc_ty_subst H.expr_regular) ▸ (H.subst S.upgrade).stlc.interp G
   = H.stlc.interp.subst (S.interp_up IΔ) G
   := by {
-    rw [<-Stlc.HasType.subst_interp_dist]
-    rw [rec_to_cast']
-    rw [Stlc.HasType.interp_transport_cast']
-    rw [Term.subst_stlc_commute]
-    assumption
-    apply SubstCtx.upgrade S;
-    rw [Annot.stlc_ty_subst H.expr_regular]
+    cases s with
+    | type =>
+      rw [<-Stlc.HasType.subst_interp_dist]
+      rw [rec_to_cast']
+      rw [Stlc.HasType.interp_transport_cast']
+      rw [Term.term_subst_stlc_commute]
+      assumption
+      apply SubstCtx.upgrade S;
+      rw [Annot.stlc_ty_subst H.expr_regular]
+    | prop =>
+      generalize Stlc.HasType.interp _ _ = x;
+      generalize Stlc.Context.deriv.subst _ _ _ = y;
+      cases x with
+      | none => 
+        cases y with
+        | none => simp
+        | some x => cases x
+      | some x => cases x
   }

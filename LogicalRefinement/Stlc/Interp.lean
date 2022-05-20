@@ -410,7 +410,7 @@ theorem HasType.stlc {Γ a A}:
       )
   }
 
-theorem HasType.stlc_prop_is_none {Γ a A G} (H: Γ ⊢ a: proof A)
+theorem HasType.stlc_prop_is_none {Γ a A G} (H: Γ ⊢ a: expr prop A)
   : H.stlc.interp G = none
   := by {
     generalize Stlc.HasType.interp _ _ = x;
