@@ -42,8 +42,8 @@ theorem SubstCtx.stlc {σ Γ Δ} (S: SubstCtx σ Γ Δ) (HΔ: IsCtx Δ)
     exact S.subst_var HΔA' Hv'
   }
 
-theorem Term.term_subst_stlc_commute {Γ Δ σ a} 
-  (H: Δ ⊢ a: term A) 
+theorem Term.subst_stlc_commute {Γ Δ σ a s} 
+  (H: Δ ⊢ a: expr s A) 
   (S: SubstCtx σ Γ Δ)
   : (a.subst σ).stlc Γ.sparsity 
   = (a.stlc Δ.sparsity).subst (σ.stlc Γ.sparsity Δ.sparsity)
@@ -66,105 +66,118 @@ theorem Term.term_subst_stlc_commute {Γ Δ σ a}
         rw [HSΓ, HSΔ];
         exact Il HΔ S
       }
-    induction a generalizing σ Γ Δ A;
-    case var v => 
+    induction a generalizing σ Γ Δ A with
+    | var v => 
       cases H with
       | var HA Hv => 
-        --TODO: factor out as lemma
-        rw [Term.stlc_var]
-        dsimp only [subst, Subst.stlc, Sparsity.stlc]
-        simp only [Hv.sigma, if_pos True.intro]
-        dsimp only [Stlc.subst]
-        rw [Sparsity.ix_inv_valid]
-        rw [Hv.sigma]
-        rfl
-    case const k => cases k <;> rfl
-    case unary k t I => 
-      --TODO: change to cases h?
-      cases k with
-      | inj => 
-        have ⟨B, HB⟩: ∃B, Δ ⊢ t: term B 
-          := by cases H <;> exact ⟨_, by assumption⟩;
+        cases s with
+        | type =>
+          --TODO: factor out as lemma
+          rw [Term.stlc_var]
+          dsimp only [subst, Subst.stlc, Sparsity.stlc]
+          simp only [Hv.sigma, if_pos True.intro]
+          dsimp only [Stlc.subst]
+          rw [Sparsity.ix_inv_valid]
+          rw [Hv.sigma]
+          rfl
+        | prop => sorry
+    | const k => cases k <;> rfl
+    | unary k t I => 
+      cases H with
+      | inj_l HB Ht =>
+        dsimp only [stlc, Stlc.subst]
+        rw [I HB S]
+      | inj_r HB Ht => 
         dsimp only [stlc, Stlc.subst]
         rw [I HB S]
       | _ => rfl
-    case let_bin k C e e' IC Ie Ie' => 
+    | let_bin k C e e' IC Ie Ie' => 
       cases H with
       | let_pair He HA HB HC He' =>
-        rename_i A B C;
-        let Γ' := (Hyp.val (A.subst σ) type)::Γ;
-        let Δ' := (Hyp.val A type)::Δ;
-        have S': SubstCtx σ.lift Γ' Δ'
-          := S.lift_delta (by exact HA)
-        let Γ'' := (Hyp.val (B.subst σ.lift) type)::Γ';
-        let Δ'' := (Hyp.val B type)::Δ';
-        have S'': SubstCtx σ.lift.lift Γ'' Δ''
-          := S'.lift_delta (by exact HB);
-        have Ie'' := 
-          loosen Ie' He' S'' 
-          (true::true::Γ.sparsity) (true::true::Δ.sparsity);
-        dsimp only [stlc, Stlc.subst, Subst.liftn]
-        conv =>
-          lhs
-          congr
-          . rw [(HasType.sigma HA HB).stlc_ty_subst]
-          . rw [Ie He S]
-          . rw [Ie'']
-            rw [Subst.stlc_lift_true]
-            rw [Subst.stlc_lift_true]
-      | let_set He HA HB HC He' =>        
-        rename_i A B C;
-        let Γ' := (Hyp.val (A.subst σ) type)::Γ;
-        let Δ' := (Hyp.val A type)::Δ;
-        have S': SubstCtx σ.lift Γ' Δ'
-          := S.lift_delta (by exact HA)
-        let Γ'' := (Hyp.val (B.subst σ.lift) prop)::Γ';
-        let Δ'' := (Hyp.val B prop)::Δ';
-        have S'': SubstCtx σ.lift.lift Γ'' Δ''
-          := S'.lift_delta (by exact HB);
-        have Ie'' := 
-          loosen Ie' He' S'' 
-          (false::true::Γ.sparsity) (false::true::Δ.sparsity);
-        dsimp only [stlc, Stlc.subst, Subst.liftn]
-        conv =>
-          lhs
-          congr
-          . rw [(HasType.set HA HB).stlc_ty_subst]
-          . rw [Ie He S]
-          . rw [Ie'']
-            rw [Subst.stlc_lift_false]
-            rw [Subst.stlc_lift_true]
-      | let_repr He HA HB HC He' =>        
-        rename_i A B C;
-        let Γ' := (Hyp.gst (A.subst σ))::Γ;
-        let Δ' := (Hyp.gst A)::Δ;
-        have S': SubstCtx σ.lift Γ' Δ'
-          := S.lift_delta (by exact HA)
-        let Γ'' := (Hyp.val (B.subst σ.lift) type)::Γ';
-        let Δ'' := (Hyp.val B type)::Δ';
-        have S'': SubstCtx σ.lift.lift Γ'' Δ''
-          := S'.lift_delta (by exact HB);
-        have Ie'' := 
-          loosen Ie' He' S'' 
-          (true::false::Γ.sparsity) (true::false::Δ.sparsity);
-        have HB': ((Hyp.val A type)::Δ) ⊢ B: type
-          := by {
-            apply HB.sub;
-            constructor
-            exact Context.is_sub.refl;
-            constructor
-            constructor
-          }
-        dsimp only [stlc, Stlc.subst, Subst.liftn]
-        conv =>
-          lhs
-          congr
-          . rw [(HasType.union HA HB').stlc_ty_subst]
-          . rw [Ie He S]
-          . rw [Ie'']
-            rw [Subst.stlc_lift_true]
-            rw [Subst.stlc_lift_false]
-    case bin k l r Il Ir => 
+        cases s with
+        | type =>
+          rename_i A B C;
+          let Γ' := (Hyp.val (A.subst σ) type)::Γ;
+          let Δ' := (Hyp.val A type)::Δ;
+          have S': SubstCtx σ.lift Γ' Δ'
+            := S.lift_delta (by exact HA)
+          let Γ'' := (Hyp.val (B.subst σ.lift) type)::Γ';
+          let Δ'' := (Hyp.val B type)::Δ';
+          have S'': SubstCtx σ.lift.lift Γ'' Δ''
+            := S'.lift_delta (by exact HB);
+          have Ie'' := 
+            loosen Ie' He' S'' 
+            (true::true::Γ.sparsity) (true::true::Δ.sparsity);
+          dsimp only [stlc, Stlc.subst, Subst.liftn]
+          conv =>
+            lhs
+            congr
+            . rw [(HasType.sigma HA HB).stlc_ty_subst]
+            . rw [Ie He S]
+            . rw [Ie'']
+              rw [Subst.stlc_lift_true]
+              rw [Subst.stlc_lift_true]
+        | prop => sorry
+      | let_set He HA HB HC He' =>   
+        cases s with
+        | type =>     
+          rename_i A B C;
+          let Γ' := (Hyp.val (A.subst σ) type)::Γ;
+          let Δ' := (Hyp.val A type)::Δ;
+          have S': SubstCtx σ.lift Γ' Δ'
+            := S.lift_delta (by exact HA)
+          let Γ'' := (Hyp.val (B.subst σ.lift) prop)::Γ';
+          let Δ'' := (Hyp.val B prop)::Δ';
+          have S'': SubstCtx σ.lift.lift Γ'' Δ''
+            := S'.lift_delta (by exact HB);
+          have Ie'' := 
+            loosen Ie' He' S'' 
+            (false::true::Γ.sparsity) (false::true::Δ.sparsity);
+          dsimp only [stlc, Stlc.subst, Subst.liftn]
+          conv =>
+            lhs
+            congr
+            . rw [(HasType.set HA HB).stlc_ty_subst]
+            . rw [Ie He S]
+            . rw [Ie'']
+              rw [Subst.stlc_lift_false]
+              rw [Subst.stlc_lift_true]
+        | prop => sorry
+      | let_repr He HA HB HC He' =>
+        cases s with
+        | type =>      
+          rename_i A B C;
+          let Γ' := (Hyp.gst (A.subst σ))::Γ;
+          let Δ' := (Hyp.gst A)::Δ;
+          have S': SubstCtx σ.lift Γ' Δ'
+            := S.lift_delta (by exact HA)
+          let Γ'' := (Hyp.val (B.subst σ.lift) type)::Γ';
+          let Δ'' := (Hyp.val B type)::Δ';
+          have S'': SubstCtx σ.lift.lift Γ'' Δ''
+            := S'.lift_delta (by exact HB);
+          have Ie'' := 
+            loosen Ie' He' S'' 
+            (true::false::Γ.sparsity) (true::false::Δ.sparsity);
+          have HB': ((Hyp.val A type)::Δ) ⊢ B: type
+            := by {
+              apply HB.sub;
+              constructor
+              exact Context.is_sub.refl;
+              constructor
+              constructor
+            }
+          dsimp only [stlc, Stlc.subst, Subst.liftn]
+          conv =>
+            lhs
+            congr
+            . rw [(HasType.union HA HB').stlc_ty_subst]
+            . rw [Ie He S]
+            . rw [Ie'']
+              rw [Subst.stlc_lift_true]
+              rw [Subst.stlc_lift_false]
+        | prop => sorry
+      | _ => rfl
+    | bin k l r Il Ir => 
       cases H with
       | pair HP Hl Hr => 
         dsimp only [stlc, Stlc.subst]
@@ -179,9 +192,10 @@ theorem Term.term_subst_stlc_commute {Γ Δ σ a}
       | repr HP Hl Hr => 
         dsimp only [stlc, Stlc.subst]
         rw [Ir Hr S]
+      | _ => rfl
     -- TODO: potential bug: when A shadows A', there's an error
     -- (2022-04-26, 23:15)
-    case abs k A' t IA It => 
+    | abs k A' t IA It => 
       have SA: ∀k, (Δ ⊢ A': k.annot) -> 
         SubstCtx σ.lift ((Hyp.mk (A'.subst σ) k)::Γ) ((Hyp.mk A' k)::Δ)
         := λk HA => S.lift_delta HA
@@ -200,16 +214,17 @@ theorem Term.term_subst_stlc_commute {Γ Δ σ a}
             rhs
             rw [Subst.stlc_lift_true]
       | _ => 
-        rename _ ⊢ t: _ => Ht;
-        rename _ ⊢ A': _ => HA;
-        dsimp only [stlc, Stlc.subst]
-        rw [
-          loosen It Ht (SA _ (by exact HA)) 
-          (false::Γ.sparsity) (false::Δ.sparsity)
-          rfl rfl
-        ]
-        rw [Subst.stlc_lift_false]
-    case tri k X l r IX Il Ir => 
+        first | rfl |
+          rename _ ⊢ t: _ => Ht;
+          rename _ ⊢ A': _ => HA;
+          dsimp only [stlc, Stlc.subst]
+          rw [
+            loosen It Ht (SA _ (by exact HA)) 
+            (false::Γ.sparsity) (false::Δ.sparsity)
+            rfl rfl
+          ]
+          rw [Subst.stlc_lift_false]
+    | tri k X l r IX Il Ir => 
       cases H with
       | app HAB Hl Hr => 
         dsimp only [stlc, Stlc.subst]
@@ -225,74 +240,70 @@ theorem Term.term_subst_stlc_commute {Γ Δ σ a}
       | app_irrel HAB Hl Hr => 
         dsimp only [stlc, Stlc.subst]
         rw [Il Hl S]
-    case cases k C d l r IC Id Il Ir => 
+      | _ => rfl
+    | cases k C d l r IC Id Il Ir => 
       cases H with
       | case Hd HA HB HC Hl Hr => 
-        rename_i A B C;
-        have SA 
-          : SubstCtx σ.lift ((Hyp.val (A.subst σ) type)::Γ) ((Hyp.val A type)::Δ)
-          := S.lift_delta (by exact HA)
-        have SB 
-          : SubstCtx σ.lift ((Hyp.val (B.subst σ) type)::Γ) ((Hyp.val B type)::Δ)
-          := S.lift_delta (by exact HB);
-        dsimp only [stlc, Stlc.subst]
-        conv =>
-          lhs
-          congr
-          . rw [(HasType.coprod HA HB).stlc_ty_subst]
-          . rw [Id Hd S]
-          . rw [loosen Il Hl SA (true::Γ.sparsity) (true::Δ.sparsity)]
-            rhs
-            rw [Subst.stlc_lift_true]
-          . rw [loosen Ir Hr SB (true::Γ.sparsity) (true::Δ.sparsity)]
-            rhs
-            rw [Subst.stlc_lift_true]
-    case natrec k K e z s IK Ie Iz Is => 
-      cases H with
-      | natrec HK He Hz Hs => 
-        let Γ' := (Hyp.gst nats)::Γ;
-        let Δ' := (Hyp.gst nats)::Δ;
-        have S': SubstCtx σ.lift Γ' Δ'
-          := S.lift_delta (by constructor)
-        let Γ'' := (Hyp.val (K.subst σ.lift) type)::Γ';
-        let Δ'' := (Hyp.val K type)::Δ';
-        -- BUG?: why is it that if the `by exact` is removed for argument 2, 
-        -- there's an error? (2022-04-25, 16:34)
-        --
-        -- Note on (2022-04-26, 23:46): same thing with `lift_delta`;
-        -- think it has to do with unification...
-        --
-        -- Note on (2022-05-13, 15:21): still have the same error...
-        have S'': SubstCtx σ.lift.lift Γ'' Δ''
-          := S'.lift_delta (by exact HK);
-        have Is'' := 
-          loosen Is Hs S'' 
-          (true::false::Γ.sparsity) (true::false::Δ.sparsity);
-        dsimp only [subst, stlc, Stlc.subst, Subst.liftn]
-        simp only [if_pos True.intro]
-        conv =>
-          lhs
-          congr
-          . rw [HK.stlc_ty_subst]
-          . rw [Ie He S]
-          . rw [Iz Hz S]
-          . rw [Is'']
-            rhs
-            rw [Subst.stlc_lift_true]
-            rw [Subst.stlc_lift_false]
+        cases s with
+        | type =>
+          rename_i A B C;
+          have SA 
+            : SubstCtx σ.lift ((Hyp.val (A.subst σ) type)::Γ) ((Hyp.val A type)::Δ)
+            := S.lift_delta (by exact HA)
+          have SB 
+            : SubstCtx σ.lift ((Hyp.val (B.subst σ) type)::Γ) ((Hyp.val B type)::Δ)
+            := S.lift_delta (by exact HB);
+          dsimp only [stlc, Stlc.subst]
+          conv =>
+            lhs
+            congr
+            . rw [(HasType.coprod HA HB).stlc_ty_subst]
+            . rw [Id Hd S]
+            . rw [loosen Il Hl SA (true::Γ.sparsity) (true::Δ.sparsity)]
+              rhs
+              rw [Subst.stlc_lift_true]
+            . rw [loosen Ir Hr SB (true::Γ.sparsity) (true::Δ.sparsity)]
+              rhs
+              rw [Subst.stlc_lift_true]
+        | prop => sorry
+      | _ => rfl
+    | natrec k K e z s IK Ie Iz Is => 
+      cases k with
+      | type =>
+        cases H with
+        | natrec HK He Hz Hs =>
+          let Γ' := (Hyp.gst nats)::Γ;
+          let Δ' := (Hyp.gst nats)::Δ;
+          have S': SubstCtx σ.lift Γ' Δ'
+            := S.lift_delta (by constructor)
+          let Γ'' := (Hyp.val (K.subst σ.lift) type)::Γ';
+          let Δ'' := (Hyp.val K type)::Δ';
+          -- BUG?: why is it that if the `by exact` is removed for argument 2, 
+          -- there's an error? (2022-04-25, 16:34)
+          --
+          -- Note on (2022-04-26, 23:46): same thing with `lift_delta`;
+          -- think it has to do with unification...
+          --
+          -- Note on (2022-05-13, 15:21): still have the same error...
+          have S'': SubstCtx σ.lift.lift Γ'' Δ''
+            := S'.lift_delta (by exact HK);
+          have Is'' := 
+            loosen Is Hs S'' 
+            (true::false::Γ.sparsity) (true::false::Δ.sparsity);
+          dsimp only [subst, stlc, Stlc.subst, Subst.liftn]
+          simp only [if_pos True.intro]
+          conv =>
+            lhs
+            congr
+            . rw [HK.stlc_ty_subst]
+            . rw [Ie He S]
+            . rw [Iz Hz S]
+            . rw [Is'']
+              rhs
+              rw [Subst.stlc_lift_true]
+              rw [Subst.stlc_lift_false]
+      | prop => rfl
   }
-
-
-theorem Term.subst_stlc_commute {Γ Δ σ a s} 
-  (H: Δ ⊢ a: expr s A) 
-  (S: SubstCtx σ Γ Δ)
-  : (a.subst σ).stlc Γ.sparsity 
-  = (a.stlc Δ.sparsity).subst (σ.stlc Γ.sparsity Δ.sparsity)
-:= by {
-  cases s with
-  | type => apply Term.term_subst_stlc_commute <;> assumption
-  | prop => sorry
-}
 
 abbrev SubstCtx.interp {σ Γ Δ} (S: SubstCtx σ Γ Δ) (IΔ: IsCtx Δ)
   : Stlc.InterpSubst Γ.stlc Δ.stlc
