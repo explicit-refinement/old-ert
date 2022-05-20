@@ -413,6 +413,22 @@ theorem cast_inr {A B C D: Type} {b: B} (p: A = C) (p': B = D)
     rfl
   }
 
+theorem cast_tri {B: A -> Type} {D: C -> Type}
+  (f: (a: A) -> B a)
+  (x: C)
+  (p: C = A)
+  (p': p ▸ B = D)
+  : @cast 
+    (B (p ▸ x)) (D x) 
+    (by cases p; cases p'; rfl) 
+    (f (cast p x)) = 
+    (@cast ((a: A) -> B a) ((c: C) -> D c) (by cases p; cases p'; rfl) f) x
+  := by {
+    cases p;
+    cases p';
+    rfl
+  }
+
 theorem rec_down
   {A: Type}
   {a: A}

@@ -24,7 +24,6 @@ theorem SubstCtx.subst_denot
     rw [HK] at HA;
     induction HA generalizing σ Γ s with
     | pi HA' HB IA IB =>
-      stop
       cases a with
       | none => 
         dsimp only [Term.denote_ty]
@@ -73,7 +72,19 @@ theorem SubstCtx.subst_denot
           ]
           have Hbind: 
             ((HasType.stlc_ty_subst (by assumption)) ▸ b) 
-            = Ty.interp.bind_val a x' := sorry;
+            = Ty.interp.bind_val a x' := by {
+              rw [<-Hb]
+              rw [<-Hx']
+              cases x with
+              | none => 
+                simp [Ty.abort, interp_eq_none]
+              | some x => 
+                simp [interp_eq_some]
+                rw [rec_to_cast']
+                rw [rec_to_cast']
+                rw [rec_to_cast']
+                sorry
+            };
           rw [Hbind]
           exact H'
         }
