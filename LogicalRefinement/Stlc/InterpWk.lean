@@ -18,5 +18,5 @@ theorem Term.wk_stlc_commute {Γ Δ ρ a}
   = (a.stlc Δ.sparsity).subst (ρ.stlc Γ.sparsity Δ.sparsity)
   := by {
     rw [<-Subst.subst_wk_compat]
-    apply Term.subst_stlc_commute H R.to_subst
+    apply Term.term_subst_stlc_commute H R.to_subst
   }

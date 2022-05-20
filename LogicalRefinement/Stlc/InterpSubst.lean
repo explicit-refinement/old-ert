@@ -304,7 +304,9 @@ theorem SubstCtx.interp_lift_ty {σ Γ Δ A}
       Δ.stlc 
       (S.interp IΔ))
   = S'.interp (IsCtx.cons_val IΔ HA)
-  := by sorry
+  := by {
+    sorry
+  }
 
 abbrev SubstCtx.interp_up {σ Γ Δ} (S: SubstCtx σ Γ Δ) (IΔ: IsCtx Δ)
   : Stlc.InterpSubst Γ.upgrade.stlc Δ.upgrade.stlc
