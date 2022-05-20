@@ -286,12 +286,31 @@ abbrev SubstCtx.interp {σ Γ Δ} (S: SubstCtx σ Γ Δ) (IΔ: IsCtx Δ)
   : Stlc.InterpSubst Γ.stlc Δ.stlc
   := Stlc.SubstCtx.interp (S.stlc IΔ)
 
+theorem SubstCtx.interp_lift_ty {σ Γ Δ A} 
+  (S: SubstCtx σ Γ Δ)
+  (S': 
+    SubstCtx σ.lift 
+      ({ ty := A.subst σ, kind := HypKind.val type }::Γ) 
+      ({ ty := A, kind := HypKind.val type }::Δ))
+  (IΔ: IsCtx Δ)
+  (HA: Δ ⊢ A: type)
+  : cast 
+    (by 
+      dsimp only [Context.stlc, Context.upgrade]
+      rw [HA.stlc_ty_subst]) 
+    (@Stlc.InterpSubst.lift 
+      A.stlc_ty 
+      Γ.stlc 
+      Δ.stlc 
+      (S.interp IΔ))
+  = S'.interp (IsCtx.cons_val IΔ HA)
+  := by sorry
+
 abbrev SubstCtx.interp_up {σ Γ Δ} (S: SubstCtx σ Γ Δ) (IΔ: IsCtx Δ)
   : Stlc.InterpSubst Γ.upgrade.stlc Δ.upgrade.stlc
-  := @Stlc.SubstCtx.interp 
-    (σ.stlc Γ.upgrade.sparsity Δ.upgrade.sparsity) 
-    Γ.upgrade.stlc Δ.upgrade.stlc (SubstCtx.stlc S.upgrade IΔ.upgrade)
+  := SubstCtx.interp S.upgrade IΔ.upgrade
 
+--TODO: think about this...
 theorem SubstCtx.interp_up_char {σ Γ Δ} (S: SubstCtx σ Γ Δ) (IΔ: IsCtx Δ)
   : S.interp_up IΔ = S.upgrade.interp IΔ.upgrade
   := by rfl
@@ -315,7 +334,10 @@ theorem SubstCtx.interp_up_lift_ty {σ Γ Δ A}
       (S.interp_up IΔ))
   = S'.interp_up (IsCtx.cons_val IΔ HA)
   := by {
-    sorry
+    dsimp only [interp_up]
+    rw [SubstCtx.interp_lift_ty]
+    rfl
+    exact HA.upgrade
   }
 
 abbrev SubstCtx.transport_interp {σ Γ Δ}
@@ -347,6 +369,7 @@ theorem SubstCtx.transport_interp_up_lift_ty
   : transport_interp_up S' (IsCtx.cons_val IΔ HA) (y, G)
   = (x, transport_interp_up S IΔ G)
   := by {
+    unfold transport_interp_up
     sorry
   }
 
