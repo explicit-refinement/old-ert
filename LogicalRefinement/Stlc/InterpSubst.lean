@@ -347,12 +347,31 @@ abbrev SubstCtx.transport_interp {σ Γ Δ}
   : Δ.stlc.interp
   := Stlc.InterpSubst.transport_ctx (S.interp IΔ) G
 
+theorem SubstCtx.transport_interp_lift_ty 
+  {σ: Subst} {Γ Δ: Context} {A}
+  (S: SubstCtx σ Γ Δ)
+  (S': 
+    SubstCtx σ.lift 
+      ({ ty := A.subst σ, kind := HypKind.val type }::Γ) 
+      ({ ty := A, kind := HypKind.val type }::Δ))
+  (IΔ: IsCtx Δ)
+  (HA: Δ ⊢ A: type)
+  (G: Γ.stlc.interp)
+  (x y)
+  (p: x = HA.stlc_ty_subst ▸ y)
+  : transport_interp S' (IsCtx.cons_val IΔ HA) (y, G)
+  = (x, transport_interp S IΔ G)
+  := by {
+    unfold transport_interp
+    sorry
+  }
+
 abbrev SubstCtx.transport_interp_up {σ Γ Δ}
   (S: SubstCtx σ Γ Δ)
   (IΔ: IsCtx Δ)
   (G: Γ.upgrade.stlc.interp)
   : Δ.upgrade.stlc.interp
-  := Stlc.InterpSubst.transport_ctx (S.interp_up IΔ) G
+  := transport_interp S.upgrade IΔ.upgrade G
 
 theorem SubstCtx.transport_interp_up_lift_ty 
   {σ: Subst} {Γ Δ: Context} {A}
@@ -370,7 +389,9 @@ theorem SubstCtx.transport_interp_up_lift_ty
   = (x, transport_interp_up S IΔ G)
   := by {
     unfold transport_interp_up
-    sorry
+    apply transport_interp_lift_ty;
+    exact p;
+    exact HA.upgrade
   }
 
 theorem HasType.subst_stlc_interp_commute {Γ Δ σ a} 
