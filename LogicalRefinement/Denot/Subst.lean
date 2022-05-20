@@ -83,7 +83,7 @@ theorem SubstCtx.subst_denot
                 rw [rec_to_cast']
                 rw [rec_to_cast']
                 rw [rec_to_cast']
-                sorry
+                apply cast_tri''
             };
           rw [Hbind]
           exact H'

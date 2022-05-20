@@ -428,6 +428,32 @@ theorem cast_tri {B: A -> Type} {D: C -> Type}
     cases p';
     rfl
   }
+  
+theorem cast_tri' {A B C D}
+  (x: A)
+  (f: C -> D)
+  (p: A = C)
+  (p': B = D)
+  : cast p'.symm (f (cast p x)) 
+  = (@cast (C -> D) (A -> B) (by cases p; cases p'; rfl) f) x
+  := by {
+    cases p;
+    cases p';
+    rfl
+  }
+
+theorem cast_tri'' {A B C D}
+  (x: A)
+  (f: C -> D)
+  (p: A = C)
+  (p': B = D)
+  : cast p' ((@cast (C -> D) (A -> B) (by cases p; cases p'; rfl) f) x) 
+  = f (cast p x)
+  := by {
+    cases p;
+    cases p';
+    rfl
+  }
 
 theorem rec_down
   {A: Type}
