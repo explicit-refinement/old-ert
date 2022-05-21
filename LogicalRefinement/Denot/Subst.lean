@@ -154,27 +154,35 @@ theorem SubstCtx.subst_denot
         rw [interp_eq_some]
         cases a with
         | mk a b =>
-          --TODO: pair transport...
+          rw [rec_to_cast']
+          rw [cast_pair' 
+            (by rw [HA'.stlc_ty_subst]) 
+            (by rw [HB.stlc_ty_subst])
+          ]
           simp only []
-          apply propext;
-          apply Iff.intro <;>
-          intro H
+          apply congr;
+          apply congr rfl;
           {
-            rw [rec_to_cast']
-            rw [@cast_pair' _ _ _ _ a b]
-            simp only []
-            apply And.intro;
+            apply propext;
+            apply Iff.intro <;>
+            intro H;
             {
               sorry
             }
             {
               sorry
             }
-            rw [HA'.stlc_ty_subst]
-            rw [HB.stlc_ty_subst]
           }
           {
-            sorry
+            apply propext;
+            apply Iff.intro <;>
+            intro H;
+            {
+              sorry
+            }
+            {
+              sorry
+            }
           }
     | coprod => 
       stop
