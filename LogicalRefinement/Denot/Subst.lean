@@ -190,8 +190,8 @@ theorem SubstCtx.subst_denot
             (some b)
             type
             S' 
-            sorry 
-            sorry 
+            (IsCtx.cons_val IΓ (HA'.subst S))
+            (IsCtx.cons_val IΔ HA')
             ⟨HGa', HG⟩ 
             HB 
             rfl;
