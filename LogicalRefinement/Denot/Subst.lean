@@ -164,9 +164,10 @@ theorem SubstCtx.subst_denot
           simp only [rec_to_cast'] at IA;
           rw [IA _ IΓ IΔ HG HA' rfl]
           apply equiv_and_split;
-          intro Ha;
+          intro HGa;
           let S' := S.lift_type HA';
           generalize Ha': cast _ a = a';
+          have HGa' := Ha' ▸ cast_some ▸ HGa;
           simp only [rec_to_cast'] at IB;
           rw [<-
             transport_interp_up_lift_ty S S'
@@ -191,7 +192,7 @@ theorem SubstCtx.subst_denot
             S' 
             sorry 
             sorry 
-            ⟨sorry, HG⟩ 
+            ⟨HGa', HG⟩ 
             HB 
             rfl;
           sorry
