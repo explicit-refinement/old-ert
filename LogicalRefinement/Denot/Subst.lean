@@ -140,7 +140,8 @@ theorem SubstCtx.subst_denot
             rw [rec_to_cast']
             apply congr;
             rfl
-            sorry
+            rw [cast_dist]
+            rfl
         }
     | sigma => 
       stop
