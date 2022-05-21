@@ -390,6 +390,14 @@ theorem cast_pair {A B C D a b} (pa: A = C) (pb: B = D)
     rfl
   }
 
+theorem cast_pair' {A B C D a b} (pa: A = C) (pb: B = D) (p)
+  : cast p (a, b) = (cast pa a, cast pb b)
+  := by {
+    cases pa;
+    cases pb;
+    rfl
+  }
+
 theorem cast_some
   : cast p (some a) = some (cast p' a)
   := by {

@@ -24,6 +24,7 @@ theorem SubstCtx.subst_denot
     rw [HK] at HA;
     induction HA generalizing σ Γ s with
     | pi HA' HB IA IB =>
+      stop
       cases a with
       | none => 
         dsimp only [Term.denote_ty]
@@ -143,8 +144,7 @@ theorem SubstCtx.subst_denot
             rw [cast_dist]
             rfl
         }
-    | sigma => 
-      stop
+    | sigma HA' HB IA IB => 
       cases a with
       | none => 
         dsimp only [Term.denote_ty]
@@ -160,7 +160,18 @@ theorem SubstCtx.subst_denot
           apply Iff.intro <;>
           intro H
           {
-            sorry
+            rw [rec_to_cast']
+            rw [@cast_pair' _ _ _ _ a b]
+            simp only []
+            apply And.intro;
+            {
+              sorry
+            }
+            {
+              sorry
+            }
+            rw [HA'.stlc_ty_subst]
+            rw [HB.stlc_ty_subst]
           }
           {
             sorry
