@@ -160,14 +160,10 @@ theorem SubstCtx.subst_denot
             (by rw [HB.stlc_ty_subst])
           ]
           simp only [Ty.eager, pure]
-          apply congr;
-          apply congr rfl;
-          {
-            rw [<-@cast_some _ _ (by rw [HA'.stlc_ty_subst])]
-            simp only [rec_to_cast'] at IA;
-            rw [IA _ IΓ IΔ HG HA' rfl]
-            rfl
-          }
+          rw [<-@cast_some _ _ (by rw [HA'.stlc_ty_subst])]
+          simp only [rec_to_cast'] at IA;
+          rw [IA _ IΓ IΔ HG HA' rfl]
+          stop
           {
             let S' := S.lift_type HA';
             generalize Ha': cast _ a = a';
