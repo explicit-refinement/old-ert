@@ -145,6 +145,7 @@ theorem SubstCtx.subst_denot
             rfl
         }
     | sigma HA' HB IA IB => 
+      stop
       cases a with
       | none => 
         dsimp only [Term.denote_ty]
