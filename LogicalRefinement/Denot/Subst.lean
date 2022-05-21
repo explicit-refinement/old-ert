@@ -195,8 +195,11 @@ theorem SubstCtx.subst_denot
             ⟨HGa', HG⟩ 
             HB 
             rfl;
-          sorry
-          sorry
+          . rfl
+          . generalize Hsa': cast _ (some a) = sa';
+            have H: sa' = some a' := by rw [<-Hsa', <-Ha', cast_some]
+            rw [H, cast_some]
+            rfl
     | coprod => 
       stop
       cases a with
