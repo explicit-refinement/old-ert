@@ -183,15 +183,7 @@ theorem SubstCtx.subst_denot
                 rw [HA'.stlc_ty_subst]
               )
             ]
-            apply propext;
-            apply Iff.intro <;>
-            intro H;
-            {
-              sorry
-            }
-            {
-              sorry
-            }
+            sorry
           }
     | coprod => 
       stop
