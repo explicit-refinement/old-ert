@@ -126,6 +126,12 @@ theorem SubstCtx.subst_denot
             )
           ]
           rw [IB']
+          apply equiv_prop_helper H';
+          rw [<-Hb]
+          rw [<-Hx']
+          rw [rec_to_cast']
+          rw [rec_to_cast']
+          rw [rec_to_cast']
           sorry
         }
     | sigma => 

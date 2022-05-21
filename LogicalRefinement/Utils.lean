@@ -476,3 +476,8 @@ theorem rec_down
     cases H;
     rfl
   }
+
+theorem equiv_prop_helper {P Q: Prop} {H: P = Q}: P -> Q := by {
+  cases H;
+  exact id
+}
