@@ -333,6 +333,7 @@ theorem SubstCtx.transport_interp_lift_ty
       ]
     }
     {
+      unfold Stlc.InterpSubst.transport_ctx;
       sorry
     }
   }
