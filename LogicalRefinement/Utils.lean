@@ -462,6 +462,14 @@ theorem cast_tri'' {A B C D}
     rfl
   }
 
+theorem cast_dist {A B C D}
+  (x: A)
+  (f: A -> B)
+  (p: A = C)
+  (p': B = D)
+  : cast p' (f x) = (@cast (A -> B) (C -> D) (by rw [p, p']) f) (cast p x)
+  := by cases p; cases p'; rfl
+
 theorem rec_down
   {A: Type}
   {a: A}
