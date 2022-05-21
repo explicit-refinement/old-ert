@@ -159,19 +159,14 @@ theorem SubstCtx.subst_denot
             (by rw [HA'.stlc_ty_subst]) 
             (by rw [HB.stlc_ty_subst])
           ]
-          simp only []
+          simp only [Ty.eager, pure]
           apply congr;
           apply congr rfl;
           {
-            apply propext;
-            apply Iff.intro <;>
-            intro H;
-            {
-              sorry
-            }
-            {
-              sorry
-            }
+            rw [<-@cast_some _ _ (by rw [HA'.stlc_ty_subst])]
+            simp only [rec_to_cast'] at IA;
+            rw [IA _ IΓ IΔ HG HA' rfl]
+            rfl
           }
           {
             apply propext;
