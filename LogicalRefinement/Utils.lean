@@ -504,3 +504,13 @@ theorem equiv_prop_split {P Q R S: Prop}
   := by {
     cases p; cases q; cases r; rfl 
   }
+
+theorem equiv_and_split {P Q R: Prop}:
+  (P -> Q = R) -> (P ∧ Q) = (P ∧ R)
+  := by {
+    intro H;
+    apply propext;
+    apply Iff.intro;
+    . intro ⟨p, q⟩; rw [<-H p]; exact ⟨p, q⟩
+    . intro ⟨p, r⟩; rw [H p]; exact ⟨p, r⟩
+  }
