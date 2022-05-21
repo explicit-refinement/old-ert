@@ -116,7 +116,14 @@ theorem SubstCtx.subst_denot
           rw [
             <-S.transport_interp_up_lift_ty S' IΔ 
             (by assumption)
-            G x x' sorry
+            G x x' 
+            (by
+              rw [<-Hx']
+              rw [rec_to_cast']
+              rw [rec_to_cast']
+              rw [cast_merge]
+              rfl
+            )
           ]
           rw [IB']
           sorry

@@ -357,9 +357,16 @@ theorem rec_to_cast'
     rfl
   }
 
-theorem cast_merge
-  : cast p (cast p' x) = cast (p.trans p') x
-  := by rfl
+theorem cast_merge {A B C: Type}
+  {p: A = B}
+  {p': B = C}
+  {x: A}
+  : cast p' (cast p x) = cast (p.trans p') x
+  := by {
+    cases p;
+    cases p';
+    rfl
+  }
 
 theorem pair_mono_transport
   :
