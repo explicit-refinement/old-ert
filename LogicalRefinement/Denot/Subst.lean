@@ -138,6 +138,8 @@ theorem SubstCtx.subst_denot
             rw [rec_to_cast']
             rw [rec_to_cast']
             rw [rec_to_cast']
+            apply congr;
+            rfl
             sorry
         }
     | sigma => 
