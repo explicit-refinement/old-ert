@@ -129,10 +129,16 @@ theorem SubstCtx.subst_denot
           apply equiv_prop_helper H';
           rw [<-Hb]
           rw [<-Hx']
-          rw [rec_to_cast']
-          rw [rec_to_cast']
-          rw [rec_to_cast']
-          sorry
+          cases x with
+          | none => simp [interp_eq_none, Ty.abort, Ty.interp.bind_val]
+          | some x => 
+            unfold Ty.interp.bind_val
+            rw [interp_eq_some]
+            simp only []
+            rw [rec_to_cast']
+            rw [rec_to_cast']
+            rw [rec_to_cast']
+            sorry
         }
     | sigma => 
       stop
