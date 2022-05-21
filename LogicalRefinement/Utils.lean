@@ -497,3 +497,10 @@ theorem equiv_prop_helper {P Q: Prop} {H: P = Q}: P -> Q := by {
   cases H;
   exact id
 }
+
+theorem equiv_prop_split {P Q R S: Prop}
+  (q: Q = R) (p: P = Q) (r: R = S):
+  P = S
+  := by {
+    cases p; cases q; cases r; rfl 
+  }

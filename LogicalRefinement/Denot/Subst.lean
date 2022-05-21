@@ -169,10 +169,11 @@ theorem SubstCtx.subst_denot
             rfl
           }
           {
+            let S' := S.lift_type HA';
             generalize Ha': cast _ a = a';
             simp only [rec_to_cast'] at IB;
             rw [<-
-              transport_interp_up_lift_ty S (S.lift_delta HA')
+              transport_interp_up_lift_ty S S'
               IΔ HA' G (some a) (some a')
               (by
                 rw [rec_to_cast']
@@ -183,6 +184,20 @@ theorem SubstCtx.subst_denot
                 rw [HA'.stlc_ty_subst]
               )
             ]
+            apply equiv_prop_split;
+            apply 
+              @IB ((Hyp.mk _ (HypKind.val type))::Γ) 
+              σ.lift 
+              (some a', G) 
+              (some b)
+              type
+              S' 
+              sorry 
+              sorry 
+              ⟨sorry, HG⟩ 
+              HB 
+              rfl;
+            sorry
             sorry
           }
     | coprod => 

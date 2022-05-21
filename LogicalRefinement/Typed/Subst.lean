@@ -241,6 +241,30 @@ theorem SubstCtx.lift_delta {σ Γ Δ A k}
     exact HA.subst S
   }
 
+theorem SubstCtx.lift_type {σ Γ Δ A}
+  (S: SubstCtx σ Γ Δ)
+  (HA: Δ ⊢ A: sort type):
+  SubstCtx σ.lift 
+  ((Hyp.mk (A.subst σ) (HypKind.val type))::Γ) 
+  ((Hyp.mk A (HypKind.val type))::Δ)
+  := @SubstCtx.lift_delta σ Γ Δ A (HypKind.val type) S HA
+
+theorem SubstCtx.lift_gst {σ Γ Δ A}
+  (S: SubstCtx σ Γ Δ)
+  (HA: Δ ⊢ A: sort type):
+  SubstCtx σ.lift 
+  ((Hyp.mk (A.subst σ) HypKind.gst)::Γ) 
+  ((Hyp.mk A HypKind.gst)::Δ)
+  := @SubstCtx.lift_delta σ Γ Δ A HypKind.gst S HA
+
+theorem SubstCtx.lift_prop {σ Γ Δ A}
+  (S: SubstCtx σ Γ Δ)
+  (HA: Δ ⊢ A: sort prop):
+  SubstCtx σ.lift 
+  ((Hyp.mk (A.subst σ) (HypKind.val prop))::Γ) 
+  ((Hyp.mk A (HypKind.val prop))::Δ)
+  := @SubstCtx.lift_delta σ Γ Δ A (HypKind.val prop) S HA
+
 theorem SubstCtx.lift_delta' {σ Γ Δ A}
   (S: SubstCtx σ Γ Δ)
   (k: HypKind)
