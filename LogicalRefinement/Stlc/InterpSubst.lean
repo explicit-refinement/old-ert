@@ -321,9 +321,20 @@ theorem SubstCtx.transport_interp_lift_ty
     unfold Stlc.InterpSubst.transport_ctx
     simp only [Context.stlc]
     apply congr;
-    apply congr rfl;
-    sorry
-    sorry
+    {
+      apply congr rfl;
+      unfold interp;
+      unfold Stlc.SubstCtx.interp;
+      simp only [
+        Stlc.HasType.interp_var, 
+        Stlc.HasVar.interp, 
+        Sparsity.ix, p, 
+        Eq.mp, rec_to_cast'
+      ]
+    }
+    {
+      sorry
+    }
   }
 
 abbrev SubstCtx.transport_interp_up {σ Γ Δ}
