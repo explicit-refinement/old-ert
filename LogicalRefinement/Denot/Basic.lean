@@ -5,7 +5,8 @@ import LogicalRefinement.Stlc
 open AnnotSort
 open Annot
 
---TODO: should this be an inductive type?
+-- NOTE: this can't be an inductive type as far as I can tell, since'
+-- the type former for pi is not strictly positive.
 def Term.denote_ty (A: Term) 
   {Γ: Stlc.Context}
   (σ: Sparsity)
