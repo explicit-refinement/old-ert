@@ -169,6 +169,20 @@ theorem SubstCtx.subst_denot
             rfl
           }
           {
+            generalize Ha': cast _ a = a';
+            simp only [rec_to_cast'] at IB;
+            rw [<-
+              transport_interp_up_lift_ty S (S.lift_delta HA')
+              IΔ HA' G (some a) (some a')
+              (by
+                rw [rec_to_cast']
+                rw [<-Ha']
+                rw [cast_some]
+                rw [cast_merge]
+                rfl
+                rw [HA'.stlc_ty_subst]
+              )
+            ]
             apply propext;
             apply Iff.intro <;>
             intro H;
