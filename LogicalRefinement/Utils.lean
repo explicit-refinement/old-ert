@@ -545,3 +545,29 @@ theorem cast_not_none_is_not_none {p: Option A = Option B} (p': A = B):
       apply propext; apply Iff.intro <;> intro _ <;> contradiction
       exact p'
   }
+
+theorem equiv_arrow_helper {A B C D: Prop}
+  : A = C -> B = D -> (A -> B) = (C -> D)
+  := by {
+    intro H H';
+    cases H; cases H'; rfl 
+  }
+
+theorem equiv_arrow_helper' {A B C D: Prop}
+  : A = C -> (A -> B = D) -> (A -> B) = (C -> D)
+  := by {
+    intro H H';
+    cases H;
+    apply propext;
+    apply Iff.intro;
+    {
+      intro H'' a;
+      rw [<-H' a]
+      exact H'' a 
+    }
+    {
+      intro H'' a;
+      rw [H' a]
+      exact H'' a
+    }
+  }

@@ -232,15 +232,34 @@ theorem SubstCtx.subst_denot
           rw [cast_some]
           rw [HB.stlc_ty_subst]
           rw [HA'.stlc_ty_subst]
-    | assume Hφ HA Iφ IA => 
+    | assume Hφ HA' Iφ IA => 
       dsimp only [Term.denote_ty]
       rw [rec_to_cast']
       rw [cast_not_none_is_not_none]
       apply equiv_and_split;
       intro Ha;
-      cases a with
-      | some a => sorry
-      | none => exact False.elim (Ha rfl)
+      have Iφ' := 
+        interp_eq_none ▸ @Iφ Γ σ G none prop S IΓ IΔ HG Hφ rfl;
+      apply equiv_arrow_helper';
+      {
+       exact Iφ'
+      }
+      {
+        intro Hφ';
+        apply equiv_prop_split 
+          (IA 
+            (S.lift_prop Hφ) 
+            (IsCtx.cons_val IΓ (Hφ.subst S)) 
+            (IsCtx.cons_val IΔ Hφ) 
+            ⟨Iφ' ▸ Hφ', HG⟩ HA' rfl);
+        {
+          sorry
+        }
+        {
+          sorry
+        }
+        repeat sorry
+      }
       rw [HA.stlc_ty_subst]
     | set => 
       stop
