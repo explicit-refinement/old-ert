@@ -412,6 +412,7 @@ theorem SubstCtx.subst_denot
         }
       | some a => cases a
     | @forall_ Γ A φ HA' Hφ IA Iφ => 
+      stop
       cases a with
       | none => 
         dsimp only [Term.denote_ty];
@@ -462,34 +463,71 @@ theorem SubstCtx.subst_denot
           rw [interp_eq_collapse]
         }
       | some a => cases a
-    | exists_ HA' Hφ IA Iφ =>
-      stop
+    | @exists_ Γ A φ HA' Hφ IA Iφ =>
       cases a with
       | none => 
         dsimp only [Term.denote_ty];
         apply propext;
         apply Iff.intro <;>
-        intro ⟨x, ⟨Hx, Hφ⟩⟩;
+        intro ⟨x, ⟨Hx, HGφ⟩⟩;
         {
-          generalize Hx': HA'.stlc_ty_subst.symm ▸ x = x';
+          let x': (A.subst σ).stlc_ty.interp := 
+            HA'.stlc_ty_subst.symm ▸ x;
           exists x';
+          have IA' := 
+            @IA Γ σ G x type S IΓ IΔ HG HA' rfl;
+          have S' := S.lift_type HA'
+          have Iφ' := @Iφ 
+            ((Hyp.mk (A.subst σ) (HypKind.val type))::Γ) 
+            σ.lift (x', G) none prop 
+            S'
+            (IsCtx.cons_val IΓ (HA'.subst S)) (IsCtx.cons_val IΔ HA') 
+            ⟨sorry, HG⟩ Hφ rfl;
+          rw[interp_eq_none] at Iφ';
+          simp [
+            Context.sparsity, Context.upgrade, 
+            Hyp.sparsity, Hyp.upgrade, HypKind.upgrade] at Iφ';
           apply And.intro;
           {
             sorry
           }
           {
-            sorry
+            rw [<-Iφ']
+            rw [
+              transport_interp_up_lift_ty S S'
+              IΔ HA' G x (HA'.stlc_ty_subst ▸ x)
+            ]
+            repeat sorry
           }
         }
         {
-          generalize Hx': HA'.stlc_ty_subst ▸ x = x';
+          let x': A.stlc_ty.interp := 
+            HA'.stlc_ty_subst.symm ▸ x;
           exists x';
+          have IA' := 
+            @IA Γ σ G x' type S IΓ IΔ HG HA' rfl;
+          have S' := S.lift_type HA'
+          have Iφ' := @Iφ 
+            ((Hyp.mk _ (HypKind.val type))::Γ) 
+            σ.lift (HA'.stlc_ty_subst ▸ x, G) none prop 
+            S'
+            (IsCtx.cons_val IΓ (HA'.subst S)) (IsCtx.cons_val IΔ HA') 
+            ⟨sorry, HG⟩ Hφ rfl;
+          rw[interp_eq_none] at Iφ';
+          simp [
+            Context.sparsity, Context.upgrade, 
+            Hyp.sparsity, Hyp.upgrade, HypKind.upgrade] at Iφ';
           apply And.intro;
           {
             sorry
           }
           {
-            sorry
+            rw [<-
+              transport_interp_up_lift_ty S S'
+              IΔ HA' G x' (HA'.stlc_ty_subst ▸ x)
+            ]
+            rw [Iφ']
+            repeat sorry
           }
         }
       | some a => cases a
