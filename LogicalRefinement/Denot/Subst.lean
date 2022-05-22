@@ -222,7 +222,16 @@ theorem SubstCtx.subst_denot
           rw [cast_some]
           rw [HA'.stlc_ty_subst]
           rw [HB.stlc_ty_subst]
-        | inr a => sorry
+        | inr a => 
+          rw [rec_to_cast']
+          rw [cast_inr']
+          simp only [Ty.eager, pure]
+          apply equiv_prop_split (IB S IΓ IΔ HG HB rfl)
+          rfl
+          rw [rec_to_cast']
+          rw [cast_some]
+          rw [HB.stlc_ty_subst]
+          rw [HA'.stlc_ty_subst]
     | assume => 
       stop
       dsimp only [Term.denote_ty]
