@@ -464,6 +464,7 @@ theorem SubstCtx.subst_denot
         }
       | some a => cases a
     | @exists_ Γ A φ HA' Hφ IA Iφ =>
+      stop
       cases a with
       | none => 
         dsimp only [Term.denote_ty];
