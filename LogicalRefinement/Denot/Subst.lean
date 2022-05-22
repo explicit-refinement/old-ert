@@ -233,7 +233,6 @@ theorem SubstCtx.subst_denot
           rw [HB.stlc_ty_subst]
           rw [HA'.stlc_ty_subst]
     | assume => 
-      stop
       dsimp only [Term.denote_ty]
       apply propext;
       apply Iff.intro <;>

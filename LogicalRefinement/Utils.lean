@@ -530,3 +530,18 @@ theorem equiv_and_split {P Q R: Prop}:
     . intro ⟨p, q⟩; rw [<-H p]; exact ⟨p, q⟩
     . intro ⟨p, r⟩; rw [H p]; exact ⟨p, r⟩
   }
+
+theorem cast_not_none_is_not_none {p: Option A = Option B} (p': A = B):
+  (cast p a ≠ none) = (a ≠ none)
+  := by {
+    cases a with
+    | some a => 
+      apply propext; 
+      apply Iff.intro <;> intro _
+      . simp
+      . rw [cast_some]; simp; exact p'
+    | none =>
+      rw [cast_none]
+      apply propext; apply Iff.intro <;> intro _ <;> contradiction
+      exact p'
+  }
