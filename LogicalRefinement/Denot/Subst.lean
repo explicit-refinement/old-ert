@@ -270,15 +270,27 @@ theorem SubstCtx.subst_denot
       rw [IA']
       apply equiv_and_split;
       intro Ha;
+      have S' := S.lift_type HA';
       have Iφ' := @Iφ 
         ((Hyp.mk (A.subst σ) (HypKind.val type))::Γ) 
         σ.lift (HA'.stlc_ty_subst ▸ a, G) none prop 
-        (S.lift_type HA') 
+        S'
         (IsCtx.cons_val IΓ (HA'.subst S)) (IsCtx.cons_val IΔ HA') 
         ⟨Ha, HG⟩ Hφ rfl;
       apply equiv_prop_split Iφ';
       {
-        sorry
+        --TODO: this really shouldn't be using set, but eh it works
+        cases s with
+        | type => 
+          rw [<-transport_interp_up_lift_ty]
+          rfl
+          exact S.lift_type HA;
+          exact HA;
+          rw [rec_to_cast']
+          rw [rec_to_cast']
+          rw [cast_merge]
+          rfl
+        | prop => cases HA
       }
       {
         sorry
