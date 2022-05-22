@@ -358,6 +358,7 @@ theorem SubstCtx.subst_denot
         }
       | some a => cases a
     | dand Hφ Hψ Iφ Iψ => 
+      stop
       cases a with
       | none => 
         dsimp only [Term.denote_ty];
@@ -385,23 +386,28 @@ theorem SubstCtx.subst_denot
         }
         rfl
       | some a => cases a
-    | or => 
-      stop
+    | or Hφ Hψ Iφ Iψ => 
       cases a with
       | none => 
         dsimp only [Term.denote_ty];
-        apply propext;
-        apply Iff.intro <;>
-        intro H;
+        apply equiv_or_split;
         {
-          cases H with
-          | inl H => sorry
-          | inr H => sorry
+          rw [Iφ]
+          rw [interp_eq_none]
+          exact prop;
+          assumption
+          assumption
+          assumption
+          rfl
         }
         {
-          cases H with
-          | inl H => sorry
-          | inr H => sorry
+          rw [Iψ]
+          rw [interp_eq_none]
+          exact prop;
+          assumption
+          assumption
+          assumption
+          rfl
         }
       | some a => cases a
     | forall_ => 

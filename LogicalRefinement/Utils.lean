@@ -531,6 +531,13 @@ theorem equiv_and_split {P Q R: Prop}:
     . intro ⟨p, r⟩; rw [H p]; exact ⟨p, r⟩
   }
 
+theorem equiv_or_split {P Q R S: Prop}:
+  (P = R) -> (Q = S) -> (P ∨ Q) = (R ∨ S)
+  := by {
+    intro H H';
+    cases H; cases H'; rfl
+  }
+
 theorem cast_not_none_is_not_none {p: Option A = Option B} (p': A = B):
   (cast p a ≠ none) = (a ≠ none)
   := by {
