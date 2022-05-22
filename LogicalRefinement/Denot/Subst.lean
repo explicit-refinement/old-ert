@@ -293,7 +293,8 @@ theorem SubstCtx.subst_denot
         | prop => cases HA
       }
       {
-        sorry
+        rw [interp_eq_none]
+        rfl
       }
     | intersect => 
       stop
