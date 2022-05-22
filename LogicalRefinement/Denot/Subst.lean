@@ -265,6 +265,7 @@ theorem SubstCtx.subst_denot
       }
       rw [HA.stlc_ty_subst]
     | @set Γ A B  HA' Hφ IA Iφ =>
+      stop
       dsimp only [Term.denote_ty]
       have IA' := @IA Γ σ G a type S IΓ IΔ HG HA' rfl;
       rw [IA']
@@ -296,30 +297,21 @@ theorem SubstCtx.subst_denot
         rw [interp_eq_none]
         rfl
       }
-    | intersect => 
-      stop
+    | intersect HA HB IA IB => 
       dsimp only [Term.denote_ty]
+      rw [rec_to_cast']
+      rw [cast_not_none_is_not_none]
+      apply equiv_and_split;
+      intro Ha;
       apply propext;
-      apply Iff.intro <;>
-      intro ⟨Han, H⟩
+      apply Iff.intro <;> intro H x Hx;
       {
-        apply And.intro;
-        {
-          sorry
-        }
-        {
-          sorry
-        }
+        sorry
       }
       {
-        apply And.intro;
-        {
-          sorry
-        }
-        {
-          sorry
-        }
+        sorry
       }
+      rw [HA.stlc_ty_subst]
     | union => 
       stop
       dsimp only [Term.denote_ty]
