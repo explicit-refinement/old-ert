@@ -420,6 +420,7 @@ theorem SubstCtx.subst_denot
         intro H x Hx;
         {
           have IA' := 
+            interp_eq_collapse ▸
             @IA Γ σ G (HA'.stlc_ty_subst ▸ x) type S IΓ IΔ HG HA' rfl;
           have S' := S.lift_type HA'
           have Iφ' := @Iφ 
@@ -435,9 +436,7 @@ theorem SubstCtx.subst_denot
           rw [<-Iφ']
           rw [transport_interp_up_lift_ty]
           apply H;
-          rw [interp_eq_collapse] at IA';
-          rw [<-IA'] at Hx
-          exact Hx;
+          exact IA'.symm ▸ Hx;
           exact HA';
           rfl
         }
