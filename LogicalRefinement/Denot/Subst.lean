@@ -298,6 +298,7 @@ theorem SubstCtx.subst_denot
         rfl
       }
     | intersect HA HB IA IB => 
+      stop
       dsimp only [Term.denote_ty]
       rw [rec_to_cast']
       rw [cast_not_none_is_not_none]
