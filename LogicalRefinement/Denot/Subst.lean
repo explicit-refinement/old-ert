@@ -327,6 +327,7 @@ theorem SubstCtx.subst_denot
         sorry
       }
     | dimplies Hφ Hψ Iφ Iψ => 
+      stop
       cases a with
       | none => 
         dsimp only [Term.denote_ty];
@@ -356,10 +357,33 @@ theorem SubstCtx.subst_denot
           rfl
         }
       | some a => cases a
-    | dand => 
-      stop
+    | dand Hφ Hψ Iφ Iψ => 
       cases a with
-      | none => sorry
+      | none => 
+        dsimp only [Term.denote_ty];
+        have Iφ' := 
+          interp_eq_none ▸ @Iφ Γ σ G none prop S IΓ IΔ HG Hφ rfl;
+        rw [Iφ']
+        apply equiv_and_split;
+        intro HGφ;
+        have S' := (S.lift_prop Hφ) 
+        have Iψ' := 
+          interp_eq_none ▸ 
+          @Iψ 
+          ((Hyp.mk _ (HypKind.val prop))::Γ)  
+          σ.lift G none prop S'
+          (IsCtx.cons_val IΓ (Hφ.subst S)) 
+          (IsCtx.cons_val IΔ Hφ) 
+          ⟨Iφ' ▸ HGφ, HG⟩ Hψ rfl;
+        apply equiv_prop_split Iψ';
+        {
+            rw [
+              <-transport_interp_up_lift_prop
+                S S' IΔ Hφ G
+            ]
+            rfl
+        }
+        rfl
       | some a => cases a
     | or => 
       stop
