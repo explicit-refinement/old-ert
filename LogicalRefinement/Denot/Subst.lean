@@ -232,29 +232,16 @@ theorem SubstCtx.subst_denot
           rw [cast_some]
           rw [HB.stlc_ty_subst]
           rw [HA'.stlc_ty_subst]
-    | assume => 
+    | assume Hφ HA Iφ IA => 
       dsimp only [Term.denote_ty]
-      apply propext;
-      apply Iff.intro <;>
-      intro ⟨Hφ, Ha⟩;
-      {
-        apply And.intro;
-        {
-          sorry
-        }
-        {
-          sorry
-        }
-      }
-      {
-        apply And.intro;
-        {
-          sorry
-        }
-        {
-          sorry
-        }
-      }
+      rw [rec_to_cast']
+      rw [cast_not_none_is_not_none]
+      apply equiv_and_split;
+      intro Ha;
+      cases a with
+      | some a => sorry
+      | none => exact False.elim (Ha rfl)
+      rw [HA.stlc_ty_subst]
     | set => 
       stop
       dsimp only [Term.denote_ty]
