@@ -435,8 +435,7 @@ theorem SubstCtx.subst_denot
             Hyp.sparsity, Hyp.upgrade, HypKind.upgrade] at Iφ';
           rw [<-Iφ']
           rw [transport_interp_up_lift_ty]
-          apply H;
-          exact IA'.symm ▸ Hx;
+          apply H (HA'.stlc_ty_subst ▸ x) (IA'.symm ▸ Hx);
           exact HA';
           rfl
         }
@@ -451,7 +450,16 @@ theorem SubstCtx.subst_denot
             (IsCtx.cons_val IΓ (HA'.subst S)) (IsCtx.cons_val IΔ HA') 
             ⟨IA' ▸ Hx, HG⟩ Hφ rfl;
           rw[interp_eq_none] at Iφ';
-          sorry
+          simp [
+            Context.sparsity, Context.upgrade, 
+            Hyp.sparsity, Hyp.upgrade, HypKind.upgrade] at Iφ';
+          rw [<-
+            transport_interp_up_lift_ty S S'
+            IΔ HA' G x (HA'.stlc_ty_subst ▸ x)
+          ]
+          rw [Iφ']
+          exact H (HA'.stlc_ty_subst ▸ x) (IA' ▸ Hx);
+          rw [interp_eq_collapse]
         }
       | some a => cases a
     | exists_ HA' Hφ IA Iφ =>
