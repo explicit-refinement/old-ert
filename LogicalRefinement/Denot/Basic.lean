@@ -38,9 +38,9 @@ def Term.denote_ty (A: Term)
       | Sum.inl a => A.denote_ty σ G (Ty.eager a)
       | Sum.inr b => B.denote_ty σ G (Ty.eager b)
     | none => False
-  | abs TermKind.assume φ A => 
-    a ≠ none ∧
-    ((φ.denote_ty σ G none) -> (A.denote_ty (false::σ) G a))
+  | abs TermKind.assume φ A =>
+    (φ.denote_ty σ G none) ∧ 
+    (A.denote_ty (false::σ) G a)
   | abs TermKind.set A φ => 
     A.denote_ty σ G a ∧ @denote_ty φ (A.stlc_ty::Γ) (true::σ) (a, G) none
   | abs TermKind.intersect A B => 
@@ -123,14 +123,14 @@ theorem HasType.denote_ty_non_null
   := by {
     generalize HS: sort type = S;
     intro HA;
-    induction HA with
+    induction HA generalizing σ Δ with
     | set _ _ IA Iφ => 
       dsimp only [Term.denote_ty]
       intro ⟨HA, Hφ⟩;
       exact IA rfl HA
     | assume _ _ Iφ IA => 
-      intro ⟨H, _⟩;
-      exact H rfl
+      intro ⟨Hφ, HA⟩;
+      apply IA rfl HA
     | intersect => 
       intro ⟨H, _⟩;
       exact H rfl
