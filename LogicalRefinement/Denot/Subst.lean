@@ -202,6 +202,7 @@ theorem SubstCtx.subst_denot
             rw [H, cast_some]
             rfl
     | coprod HA' HB IA IB =>
+      stop
       cases a with
       | none => 
         dsimp only [Term.denote_ty]
