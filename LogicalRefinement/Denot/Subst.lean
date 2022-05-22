@@ -364,10 +364,53 @@ theorem SubstCtx.subst_denot
       apply propext;
       apply Iff.intro <;> intro ⟨x, Hx, Ha⟩;
       {
-        sorry
+        let x': (A.subst σ).stlc_ty.interp := 
+          HA'.stlc_ty_subst.symm ▸ x;
+        exists x';
+        have IA' := 
+          @IA Γ σ G x type S IΓ IΔ HG HA' rfl;         
+        have S' := S.lift_type HA'
+        have IB' := @IB 
+          ((Hyp.mk _ (HypKind.val type))::Γ) 
+          σ.lift (x', G) a type 
+          S'
+          (IsCtx.cons_val IΓ (HA'.subst S)) (IsCtx.cons_val IΔ HA') 
+          ⟨IA' ▸ Hx, HG⟩ HB rfl;
+        simp [
+          Context.sparsity, Context.upgrade, 
+          Hyp.sparsity, Hyp.upgrade, HypKind.upgrade] at IB';
+        rw [rec_to_cast'] at IB';
+        apply And.intro;
+        {
+          sorry
+        }
+        {
+          sorry
+        }
       }
       {
-        sorry
+        let x': A.stlc_ty.interp := 
+          HA'.stlc_ty_subst.symm ▸ x;
+        exists x';
+        have IA' := 
+          @IA Γ σ G x' type S IΓ IΔ HG HA' rfl;         
+        have S' := S.lift_type HA'
+        have IB' := @IB 
+          ((Hyp.mk _ (HypKind.val type))::Γ) 
+          σ.lift (x, G) a type 
+          S'
+          (IsCtx.cons_val IΓ (HA'.subst S)) (IsCtx.cons_val IΔ HA') 
+          ⟨Hx, HG⟩ HB rfl;
+        simp [
+          Context.sparsity, Context.upgrade, 
+          Hyp.sparsity, Hyp.upgrade, HypKind.upgrade] at IB';
+        apply And.intro;
+        {
+          sorry
+        }
+        {
+          sorry
+        }
       }
       rw [HA.stlc_ty_subst]
     | dimplies Hφ Hψ Iφ Iψ => 
