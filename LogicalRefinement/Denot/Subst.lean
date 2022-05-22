@@ -298,6 +298,7 @@ theorem SubstCtx.subst_denot
         rfl
       }
     | @intersect Γ A B HA' HB IA IB => 
+      stop
       dsimp only [Term.denote_ty]
       rw [rec_to_cast']
       rw [cast_not_none_is_not_none]
@@ -354,19 +355,21 @@ theorem SubstCtx.subst_denot
         rw [interp_eq_collapse]
       }
       rw [HA.stlc_ty_subst]
-    | union => 
-      stop
+    | @union Γ A B HA' HB IA IB =>
       dsimp only [Term.denote_ty]
       rw [rec_to_cast']
       rw [cast_not_none_is_not_none]
       apply equiv_and_split;
-      intro Ha;
+      intro Hann;
+      apply propext;
+      apply Iff.intro <;> intro ⟨x, Hx, Ha⟩;
       {
         sorry
       }
       {
         sorry
       }
+      rw [HA.stlc_ty_subst]
     | dimplies Hφ Hψ Iφ Iψ => 
       stop
       cases a with
