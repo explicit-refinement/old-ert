@@ -253,10 +253,12 @@ theorem SubstCtx.subst_denot
             (IsCtx.cons_val IΔ Hφ) 
             ⟨Iφ' ▸ Hφ', HG⟩ HA' rfl);
         {
+          --TODO: transport_interp_up_prop
           sorry
         }
         {
-          sorry
+          rw [rec_to_cast']
+          rfl
         }
         repeat sorry
       }
