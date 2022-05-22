@@ -326,18 +326,24 @@ theorem SubstCtx.subst_denot
       {
         sorry
       }
-    | dimplies => 
-      stop
+    | dimplies Hφ Hψ Iφ Iψ => 
       cases a with
       | none => 
         dsimp only [Term.denote_ty];
-        apply propext;
-        apply Iff.intro <;>
-        intro Hl Hr;
+        have Iφ' := 
+          interp_eq_none ▸ @Iφ Γ σ G none prop S IΓ IΔ HG Hφ rfl;
+        apply equiv_arrow_helper';
+        rw [Iφ']
         {
-          sorry
-        }
-        {
+          intro HGφ;
+          have Iψ' := 
+            interp_eq_none ▸ 
+            @Iψ 
+            ((Hyp.mk _ (HypKind.val prop))::Γ)  
+            σ.lift G none prop (S.lift_prop Hφ) 
+            (IsCtx.cons_val IΓ (Hφ.subst S)) 
+            (IsCtx.cons_val IΔ Hφ) 
+            ⟨Iφ' ▸ HGφ, HG⟩ Hψ rfl;
           sorry
         }
       | some a => cases a
