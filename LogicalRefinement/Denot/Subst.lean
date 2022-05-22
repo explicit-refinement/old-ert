@@ -336,15 +336,24 @@ theorem SubstCtx.subst_denot
         rw [Iφ']
         {
           intro HGφ;
+          have S' := (S.lift_prop Hφ) 
           have Iψ' := 
             interp_eq_none ▸ 
             @Iψ 
             ((Hyp.mk _ (HypKind.val prop))::Γ)  
-            σ.lift G none prop (S.lift_prop Hφ) 
+            σ.lift G none prop S'
             (IsCtx.cons_val IΓ (Hφ.subst S)) 
             (IsCtx.cons_val IΔ Hφ) 
             ⟨Iφ' ▸ HGφ, HG⟩ Hψ rfl;
-          sorry
+          apply equiv_prop_split Iψ';
+          {
+            rw [
+              <-transport_interp_up_lift_prop
+                S S' IΔ Hφ G
+            ]
+            rfl
+          }
+          rfl
         }
       | some a => cases a
     | dand => 
