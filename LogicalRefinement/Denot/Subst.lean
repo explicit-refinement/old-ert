@@ -489,7 +489,8 @@ theorem SubstCtx.subst_denot
             Hyp.sparsity, Hyp.upgrade, HypKind.upgrade] at Iφ';
           apply And.intro;
           {
-            sorry
+            rw [<-IA']
+            exact Hx
           }
           {
             rw [<-Iφ']
@@ -520,7 +521,8 @@ theorem SubstCtx.subst_denot
             Hyp.sparsity, Hyp.upgrade, HypKind.upgrade] at Iφ';
           apply And.intro;
           {
-            sorry
+            rw [IA']
+            exact interp_eq_collapse ▸ Hx
           }
           {
             rw [<-
