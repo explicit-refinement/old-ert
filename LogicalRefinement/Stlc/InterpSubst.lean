@@ -337,6 +337,29 @@ theorem SubstCtx.transport_interp_lift_ty
       sorry
     }
   }
+  
+theorem SubstCtx.transport_interp_lift_prop
+  {σ: Subst} {Γ Δ: Context} {A}
+  (S: SubstCtx σ Γ Δ)
+  (S': 
+    SubstCtx σ.lift 
+      ({ ty := A.subst σ, kind := HypKind.val prop }::Γ) 
+      ({ ty := A, kind := HypKind.val prop }::Δ))
+  (IΔ: IsCtx Δ)
+  (HA: Δ ⊢ A: prop)
+  (G: Γ.stlc.interp)
+  : transport_interp S' (IsCtx.cons_val IΔ HA) G
+  = transport_interp S IΔ G
+  := by {
+    unfold transport_interp
+    unfold Stlc.InterpSubst.transport_ctx
+    simp only [Context.stlc]
+    apply congr _ rfl;
+    {
+      funext h;
+      sorry
+    }
+  }
 
 abbrev SubstCtx.transport_interp_up {σ Γ Δ}
   (S: SubstCtx σ Γ Δ)
@@ -363,6 +386,24 @@ theorem SubstCtx.transport_interp_up_lift_ty
     unfold transport_interp_up
     apply transport_interp_lift_ty;
     exact p;
+    exact HA.upgrade
+  }
+  
+theorem SubstCtx.transport_interp_up_lift_prop
+  {σ: Subst} {Γ Δ: Context} {A}
+  (S: SubstCtx σ Γ Δ)
+  (S': 
+    SubstCtx σ.lift 
+      ({ ty := A.subst σ, kind := HypKind.val prop }::Γ) 
+      ({ ty := A, kind := HypKind.val prop }::Δ))
+  (IΔ: IsCtx Δ)
+  (HA: Δ ⊢ A: prop)
+  (G: Γ.upgrade.stlc.interp)
+  : transport_interp_up S' (IsCtx.cons_val IΔ HA) G
+  = transport_interp_up S IΔ G
+  := by {
+    unfold transport_interp_up
+    apply transport_interp_lift_prop;
     exact HA.upgrade
   }
 
