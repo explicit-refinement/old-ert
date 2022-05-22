@@ -297,8 +297,7 @@ theorem SubstCtx.subst_denot
         rw [interp_eq_none]
         rfl
       }
-    | intersect HA HB IA IB => 
-      stop
+    | intersect HA' HB IA IB => 
       dsimp only [Term.denote_ty]
       rw [rec_to_cast']
       rw [cast_not_none_is_not_none]
@@ -307,9 +306,28 @@ theorem SubstCtx.subst_denot
       apply propext;
       apply Iff.intro <;> intro H x Hx;
       {
+        have IA' := 
+          interp_eq_collapse ▸
+          @IA Γ σ G (HA'.stlc_ty_subst ▸ x) type S IΓ IΔ HG HA' rfl;          have S' := S.lift_type HA'
+        have IB' := @IB 
+          ((Hyp.mk _ (HypKind.val type))::Γ) 
+          σ.lift (x, G) none type 
+          S'
+          (IsCtx.cons_val IΓ (HA'.subst S)) (IsCtx.cons_val IΔ HA') 
+          ⟨Hx, HG⟩ HB rfl;
         sorry
       }
       {
+        have IA' := 
+          @IA Γ σ G x type S IΓ IΔ HG HA' rfl;
+        have S' := S.lift_type HA'
+        have IB' := @IB 
+          ((Hyp.mk _ (HypKind.val type))::Γ) 
+          σ.lift (HA'.stlc_ty_subst ▸ x, G) none type 
+          S'
+          (IsCtx.cons_val IΓ (HA'.subst S)) (IsCtx.cons_val IΔ HA') 
+          ⟨IA' ▸ Hx, HG⟩ HB rfl;
+        rw[interp_eq_none] at IB';
         sorry
       }
       rw [HA.stlc_ty_subst]
