@@ -201,8 +201,7 @@ theorem SubstCtx.subst_denot
             have H: sa' = some a' := by rw [<-Hsa', <-Ha', cast_some]
             rw [H, cast_some]
             rfl
-    | coprod => 
-      stop
+    | coprod HA' HB IA IB =>
       cases a with
       | none => 
         dsimp only [Term.denote_ty]
@@ -214,26 +213,16 @@ theorem SubstCtx.subst_denot
         --TODO: injection transport...
         cases a with
         | inl a => 
-          apply propext;
-          apply Iff.intro <;>
-          intro H;
-          {
-            sorry
-          }
-          {
-            sorry
-          }
-        | inr a =>
-          dsimp only [Term.denote_ty]
-          apply propext;
-          apply Iff.intro <;>
-          intro H;
-          {
-            sorry
-          }
-          {
-            sorry
-          }
+          rw [rec_to_cast']
+          rw [cast_inl']
+          simp only [Ty.eager, pure]
+          apply equiv_prop_split (IA S IΓ IΔ HG HA' rfl)
+          rfl
+          rw [rec_to_cast']
+          rw [cast_some]
+          rw [HA'.stlc_ty_subst]
+          rw [HB.stlc_ty_subst]
+        | inr a => sorry
     | assume => 
       stop
       dsimp only [Term.denote_ty]

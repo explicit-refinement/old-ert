@@ -427,6 +427,22 @@ theorem cast_inr {A B C D: Type} {b: B} (p: A = C) (p': B = D)
     cases p';
     rfl
   }
+  
+theorem cast_inl' {A B C D: Type} {a: A} (p: A = C) (p': B = D) (p'')
+  : cast p'' (@Sum.inl A B a) = @Sum.inl C D (cast p a)
+  := by {
+    cases p;
+    cases p';
+    rfl
+  }
+ 
+theorem cast_inr' {A B C D: Type} {b: B} (p: A = C) (p': B = D) (p'')
+  : cast p'' (@Sum.inr A B b) = @Sum.inr C D (cast p' b)
+  := by {
+    cases p;
+    cases p';
+    rfl
+  }
 
 theorem cast_tri {B: A -> Type} {D: C -> Type}
   (f: (a: A) -> B a)
