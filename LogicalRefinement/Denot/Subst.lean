@@ -397,11 +397,9 @@ theorem SubstCtx.subst_denot
         }
       }
       {
-        let x': A.stlc_ty.interp := 
-          HA'.stlc_ty_subst.symm ▸ x;
-        exists x';
+        exists HA'.stlc_ty_subst.symm ▸ x;
         have IA' := 
-          @IA Γ σ G x' type S IΓ IΔ HG HA' rfl;         
+          @IA Γ σ G (HA'.stlc_ty_subst.symm ▸ x) type S IΓ IΔ HG HA' rfl;         
         have S' := S.lift_type HA'
         have IB' := @IB 
           ((Hyp.mk _ (HypKind.val type))::Γ) 
@@ -412,13 +410,22 @@ theorem SubstCtx.subst_denot
         simp [
           Context.sparsity, Context.upgrade, 
           Hyp.sparsity, Hyp.upgrade, HypKind.upgrade] at IB';
+        rw [rec_to_cast'] at IB';
         apply And.intro;
         {
             rw [IA']
             exact interp_eq_collapse ▸ Hx
         }
         {
-          sorry
+          rw [rec_to_cast']
+          dsimp only [Term.stlc_ty];
+          rw [<-
+            transport_interp_up_lift_ty S S'
+          ]
+          rw [IB']
+          exact Ha;
+          assumption
+          rw [rec_to_cast']
         }
       }
       rw [HA.stlc_ty_subst]
