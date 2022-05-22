@@ -233,6 +233,7 @@ theorem SubstCtx.subst_denot
           rw [HB.stlc_ty_subst]
           rw [HA'.stlc_ty_subst]
     | assume Hφ HA' Iφ IA => 
+      stop
       dsimp only [Term.denote_ty]
       rw [rec_to_cast']
       rw [cast_not_none_is_not_none]
@@ -263,29 +264,24 @@ theorem SubstCtx.subst_denot
         }
       }
       rw [HA.stlc_ty_subst]
-    | set => 
-      stop
+    | @set Γ A B  HA' Hφ IA Iφ =>
       dsimp only [Term.denote_ty]
-      apply propext;
-      apply Iff.intro <;>
-      intro ⟨Ha, Hφ⟩;
+      have IA' := @IA Γ σ G a type S IΓ IΔ HG HA' rfl;
+      rw [IA']
+      apply equiv_and_split;
+      intro Ha;
+      have Iφ' := @Iφ 
+        ((Hyp.mk (A.subst σ) (HypKind.val type))::Γ) 
+        σ.lift (HA'.stlc_ty_subst ▸ a, G) none prop 
+        (S.lift_type HA') 
+        (IsCtx.cons_val IΓ (HA'.subst S)) (IsCtx.cons_val IΔ HA') 
+        ⟨Ha, HG⟩ Hφ rfl;
+      apply equiv_prop_split Iφ';
       {
-        apply And.intro;
-        {
-          sorry
-        }
-        {
-          sorry
-        }
+        sorry
       }
       {
-        apply And.intro;
-        {
-          sorry
-        }
-        {
-          sorry
-        }
+        sorry
       }
     | intersect => 
       stop
