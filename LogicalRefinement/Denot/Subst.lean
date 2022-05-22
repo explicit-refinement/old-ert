@@ -482,7 +482,7 @@ theorem SubstCtx.subst_denot
             σ.lift (x', G) none prop 
             S'
             (IsCtx.cons_val IΓ (HA'.subst S)) (IsCtx.cons_val IΔ HA') 
-            ⟨sorry, HG⟩ Hφ rfl;
+            ⟨IA' ▸ Hx, HG⟩ Hφ rfl;
           rw[interp_eq_none] at Iφ';
           simp [
             Context.sparsity, Context.upgrade, 
@@ -512,7 +512,7 @@ theorem SubstCtx.subst_denot
             σ.lift (HA'.stlc_ty_subst ▸ x, G) none prop 
             S'
             (IsCtx.cons_val IΓ (HA'.subst S)) (IsCtx.cons_val IΔ HA') 
-            ⟨sorry, HG⟩ Hφ rfl;
+            ⟨interp_eq_collapse ▸ Hx, HG⟩ Hφ rfl;
           rw[interp_eq_none] at Iφ';
           simp [
             Context.sparsity, Context.upgrade, 
