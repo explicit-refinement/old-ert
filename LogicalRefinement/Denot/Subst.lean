@@ -497,7 +497,8 @@ theorem SubstCtx.subst_denot
               transport_interp_up_lift_ty S S'
               IΔ HA' G x (HA'.stlc_ty_subst ▸ x)
             ]
-            repeat sorry
+            exact HGφ;
+            rw [interp_eq_collapse]
           }
         }
         {
@@ -527,7 +528,8 @@ theorem SubstCtx.subst_denot
               IΔ HA' G x' (HA'.stlc_ty_subst ▸ x)
             ]
             rw [Iφ']
-            repeat sorry
+            exact interp_eq_collapse ▸ HGφ;
+            rw [interp_eq_collapse]
           }
         }
       | some a => cases a
