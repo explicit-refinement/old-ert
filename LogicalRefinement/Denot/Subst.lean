@@ -387,6 +387,7 @@ theorem SubstCtx.subst_denot
         rfl
       | some a => cases a
     | or Hφ Hψ Iφ Iψ => 
+      stop
       cases a with
       | none => 
         dsimp only [Term.denote_ty];
@@ -410,8 +411,7 @@ theorem SubstCtx.subst_denot
           rfl
         }
       | some a => cases a
-    | forall_ => 
-      stop
+    | forall_ HA' Hφ IA Iφ => 
       cases a with
       | none => 
         dsimp only [Term.denote_ty];
@@ -419,9 +419,27 @@ theorem SubstCtx.subst_denot
         apply Iff.intro <;>
         intro H x Hx;
         {
+          have IA' := 
+            @IA Γ σ G (HA'.stlc_ty_subst ▸ x) type S IΓ IΔ HG HA' rfl;
+          have S' := S.lift_type HA'
+          have Iφ' := @Iφ 
+            ((Hyp.mk _ (HypKind.val type))::Γ) 
+            σ.lift (x, G) none prop 
+            S'
+            (IsCtx.cons_val IΓ (HA'.subst S)) (IsCtx.cons_val IΔ HA') 
+            ⟨Hx, HG⟩ Hφ rfl;
           sorry
         }
         {
+          have IA' := 
+            @IA Γ σ G x type S IΓ IΔ HG HA' rfl;
+          have S' := S.lift_type HA'
+          have Iφ' := @Iφ 
+            ((Hyp.mk _ (HypKind.val type))::Γ) 
+            σ.lift (HA'.stlc_ty_subst ▸ x, G) none prop 
+            S'
+            (IsCtx.cons_val IΓ (HA'.subst S)) (IsCtx.cons_val IΔ HA') 
+            ⟨IA' ▸ Hx, HG⟩ Hφ rfl;
           sorry
         }
       | some a => cases a
