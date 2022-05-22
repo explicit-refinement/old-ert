@@ -435,9 +435,10 @@ theorem SubstCtx.subst_denot
           rw [<-Iφ']
           rw [transport_interp_up_lift_ty]
           apply H;
-          sorry
+          rw [interp_eq_collapse] at IA';
+          rw [<-IA'] at Hx
+          exact Hx;
           exact HA';
-          exact HA'.stlc_ty_subst ▸ x;
           rfl
         }
         {
