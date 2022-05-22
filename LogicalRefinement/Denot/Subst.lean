@@ -411,7 +411,7 @@ theorem SubstCtx.subst_denot
           rfl
         }
       | some a => cases a
-    | forall_ HA' Hφ IA Iφ => 
+    | @forall_ Γ A φ HA' Hφ IA Iφ => 
       cases a with
       | none => 
         dsimp only [Term.denote_ty];
@@ -428,7 +428,17 @@ theorem SubstCtx.subst_denot
             S'
             (IsCtx.cons_val IΓ (HA'.subst S)) (IsCtx.cons_val IΔ HA') 
             ⟨Hx, HG⟩ Hφ rfl;
+          rw[interp_eq_none] at Iφ';
+          simp [
+            Context.sparsity, Context.upgrade, 
+            Hyp.sparsity, Hyp.upgrade, HypKind.upgrade] at Iφ';
+          rw [<-Iφ']
+          rw [transport_interp_up_lift_ty]
+          apply H;
           sorry
+          exact HA';
+          exact HA'.stlc_ty_subst ▸ x;
+          rfl
         }
         {
           have IA' := 
@@ -440,6 +450,7 @@ theorem SubstCtx.subst_denot
             S'
             (IsCtx.cons_val IΓ (HA'.subst S)) (IsCtx.cons_val IΔ HA') 
             ⟨IA' ▸ Hx, HG⟩ Hφ rfl;
+          rw[interp_eq_none] at Iφ';
           sorry
         }
       | some a => cases a
