@@ -297,7 +297,7 @@ theorem SubstCtx.subst_denot
         rw [interp_eq_none]
         rfl
       }
-    | intersect HA' HB IA IB => 
+    | @intersect Γ A B HA' HB IA IB => 
       dsimp only [Term.denote_ty]
       rw [rec_to_cast']
       rw [cast_not_none_is_not_none]
@@ -344,7 +344,13 @@ theorem SubstCtx.subst_denot
           IΔ HA' G x (HA'.stlc_ty_subst ▸ x)
         ]
         rw [IB']
-        sorry
+        rw [rec_to_cast']
+        rw [rec_to_cast']
+        dsimp only [Term.stlc_ty] at H;
+        apply H;
+        rw [rec_to_cast'] at IA';
+        rw [<-IA']
+        exact Hx;
         rw [interp_eq_collapse]
       }
       rw [HA.stlc_ty_subst]
