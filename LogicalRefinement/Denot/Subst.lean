@@ -210,7 +210,6 @@ theorem SubstCtx.subst_denot
         dsimp only [Term.denote_ty]
         rw [interp_eq_some]
         simp only []
-        --TODO: injection transport...
         cases a with
         | inl a => 
           rw [rec_to_cast']
