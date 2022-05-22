@@ -311,11 +311,20 @@ theorem SubstCtx.subst_denot
           @IA Γ σ G (HA'.stlc_ty_subst ▸ x) type S IΓ IΔ HG HA' rfl;          have S' := S.lift_type HA'
         have IB' := @IB 
           ((Hyp.mk _ (HypKind.val type))::Γ) 
-          σ.lift (x, G) none type 
+          σ.lift (x, G) a type 
           S'
           (IsCtx.cons_val IΓ (HA'.subst S)) (IsCtx.cons_val IΔ HA') 
           ⟨Hx, HG⟩ HB rfl;
-        sorry
+        simp [
+          Context.sparsity, Context.upgrade, 
+          Hyp.sparsity, Hyp.upgrade, HypKind.upgrade] at IB';
+        rw [rec_to_cast'] at IB';
+        dsimp only [Term.stlc_ty];
+        rw [<-IB']
+        rw [transport_interp_up_lift_ty]
+        apply H (HA'.stlc_ty_subst ▸ x) (IA'.symm ▸ Hx);
+        exact HA';
+        rfl
       }
       {
         have IA' := 
