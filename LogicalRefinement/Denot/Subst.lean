@@ -24,7 +24,6 @@ theorem SubstCtx.subst_denot
     rw [HK] at HA;
     induction HA generalizing σ Γ s with
     | pi HA' HB IA IB =>
-      stop
       cases a with
       | none => 
         dsimp only [Term.denote_ty]
@@ -145,7 +144,6 @@ theorem SubstCtx.subst_denot
             rfl
         }
     | sigma HA' HB IA IB => 
-      stop
       cases a with
       | none => 
         dsimp only [Term.denote_ty]
@@ -202,7 +200,6 @@ theorem SubstCtx.subst_denot
             rw [H, cast_some]
             rfl
     | coprod HA' HB IA IB =>
-      stop
       cases a with
       | none => 
         dsimp only [Term.denote_ty]
@@ -233,7 +230,6 @@ theorem SubstCtx.subst_denot
           rw [HB.stlc_ty_subst]
           rw [HA'.stlc_ty_subst]
     | assume Hφ HA' Iφ IA => 
-      stop
       dsimp only [Term.denote_ty]
       rw [rec_to_cast']
       rw [cast_not_none_is_not_none]
@@ -265,7 +261,6 @@ theorem SubstCtx.subst_denot
       }
       rw [HA.stlc_ty_subst]
     | @set Γ A B  HA' Hφ IA Iφ =>
-      stop
       dsimp only [Term.denote_ty]
       have IA' := @IA Γ σ G a type S IΓ IΔ HG HA' rfl;
       rw [IA']
@@ -298,7 +293,6 @@ theorem SubstCtx.subst_denot
         rfl
       }
     | @intersect Γ A B HA' HB IA IB => 
-      stop
       dsimp only [Term.denote_ty]
       rw [rec_to_cast']
       rw [cast_not_none_is_not_none]
@@ -430,7 +424,6 @@ theorem SubstCtx.subst_denot
       }
       rw [HA.stlc_ty_subst]
     | dimplies Hφ Hψ Iφ Iψ => 
-      stop
       cases a with
       | none => 
         dsimp only [Term.denote_ty];
@@ -461,7 +454,6 @@ theorem SubstCtx.subst_denot
         }
       | some a => cases a
     | dand Hφ Hψ Iφ Iψ => 
-      stop
       cases a with
       | none => 
         dsimp only [Term.denote_ty];
@@ -490,7 +482,6 @@ theorem SubstCtx.subst_denot
         rfl
       | some a => cases a
     | or Hφ Hψ Iφ Iψ => 
-      stop
       cases a with
       | none => 
         dsimp only [Term.denote_ty];
@@ -515,7 +506,6 @@ theorem SubstCtx.subst_denot
         }
       | some a => cases a
     | @forall_ Γ A φ HA' Hφ IA Iφ => 
-      stop
       cases a with
       | none => 
         dsimp only [Term.denote_ty];
@@ -567,7 +557,6 @@ theorem SubstCtx.subst_denot
         }
       | some a => cases a
     | @exists_ Γ A φ HA' Hφ IA Iφ =>
-      stop
       cases a with
       | none => 
         dsimp only [Term.denote_ty];
@@ -639,8 +628,7 @@ theorem SubstCtx.subst_denot
           }
         }
       | some a => cases a
-    | @eq Δ A l r HA' Hl Hr IA Il Ir => 
-      stop
+    | @eq Δ A l r HA' Hl Hr IA Il Ir =>
       cases a with
       | none => 
         dsimp only [Term.denote_ty];
@@ -666,10 +654,14 @@ theorem SubstCtx.subst_denot
           rw [<-R Hl]
           rw [<-R Hr]
           rw [rec_down]
-          exact Hxy
+          exact Hxy;
+          assumption
+          assumption
+          assumption
+          assumption
         }
       | some a => cases a
-    | _ => stop cases HK <;> cases a <;> rfl
+    | _ => cases HK <;> cases a <;> rfl
   }
 
 theorem HasType.denote_subst0'
