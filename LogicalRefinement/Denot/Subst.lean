@@ -670,21 +670,44 @@ theorem HasType.denote_subst0
   {A: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} {a: A.stlc_ty.interp}
   {B: Term} {b: Term}
   {a': (A.subst0 b).stlc_ty.interp}
-  {b'}
+  {b' σ}
   (Hb: Γ ⊢ b: term B)
+  (HΓ: IsCtx Γ)
+  (Hσ: σ = Γ.upgrade.sparsity)
+  (HG: G ⊧ ✓Γ)
+  (HA: ({ ty := B, kind := HypKind.val type } :: Γ) ⊢ A: type)
   (HAA': A.stlc_ty = (A.subst0 b).stlc_ty)
   (Haa': a' = HAA' ▸ a)
   (Hbb': b' = Hb.stlc.interp G.downgrade)
   : @Term.denote_ty A (B.stlc_ty::Γ.upgrade.stlc) (true::σ) (b', G) a =
     @Term.denote_ty (A.subst0 b) Γ.upgrade.stlc σ G a'
-  := sorry
+  := by {
+    rw [Haa']
+    rw [Hbb']
+    rw [Hσ]
+    have I := 
+      @SubstCtx.subst_denot 
+      _ _ _ _ _ a _
+      Hb.to_subst HΓ 
+      (IsCtx.cons_val HΓ Hb.term_regular) HG HA;
+    apply equiv_prop_split I;
+    {
+      sorry
+    }
+    rfl
+  }
+    
 
 theorem HasType.denote_subst0'
   {A: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} {a: A.stlc_ty.interp}
   {B: Term} {b: Term}
   {a': (A.subst0 b).stlc_ty.interp}
-  {b'}
+  {b' σ}
   (Hb: Γ ⊢ b: term B)
+  (HΓ: IsCtx Γ)
+  (Hσ: σ = Γ.upgrade.sparsity)
+  (HG: G ⊧ ✓Γ)
+  (HA: ({ ty := B, kind := HypKind.val type } :: Γ) ⊢ A: type)
   (HAA': A.stlc_ty = (A.subst0 b).stlc_ty)
   (Haa': a' = HAA' ▸ a)
   (Hbb': b' = Hb.stlc.interp G.downgrade)
@@ -699,16 +722,20 @@ theorem HasType.denote_antisubst0'
   {A: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} {a: A.stlc_ty.interp}
   {B: Term} {b: Term}
   {a': (A.subst0 b).stlc_ty.interp}
-  {b'}
+  {b' σ}
   (HA: Γ ⊢ A: S)
   (HS: S = sort s)
+  (HΓ: IsCtx Γ)
+  (Hσ: σ = Γ.upgrade.sparsity)
+  (HG: G ⊧ ✓Γ)
   (Hb: Γ ⊢ b: term B)
+  (HA: ({ ty := B, kind := HypKind.val type } :: Γ) ⊢ A: type)
   (HAA': A.stlc_ty = (A.subst0 b).stlc_ty)
   (Haa': a' = HAA' ▸ a)
   (Hbb': b' = Hb.stlc.interp G.downgrade)
   (H: @Term.denote_ty (A.subst0 b) Γ.upgrade.stlc σ G a')
   : @Term.denote_ty A (B.stlc_ty::Γ.upgrade.stlc) (true::σ) (b', G) a
-  :=  by 
+  := by 
     rw [HasType.denote_subst0]
     exact H
     repeat assumption
