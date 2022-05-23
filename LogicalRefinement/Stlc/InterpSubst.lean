@@ -357,7 +357,19 @@ theorem SubstCtx.transport_interp_lift_prop
     apply congr _ rfl;
     {
       funext h;
-      sorry
+      generalize HI: interp S _ = I;
+      generalize HI': interp S' _ = I';
+      have HII': I = I' := by {
+        rw [<-HI];
+        rw [<-HI'];
+        unfold interp;
+        funext n A Hv G;
+        unfold Stlc.SubstCtx.interp;
+        apply congr _ rfl;
+        simp
+        sorry
+      };
+      rw [HII']
     }
   }
 
