@@ -366,8 +366,8 @@ theorem SubstCtx.transport_interp_lift_prop
         funext n A Hv G;
         unfold Stlc.SubstCtx.interp;
         apply congr _ rfl;
-        simp
-        sorry
+        apply interp_congr;
+        simp [Subst.stlc_lift_false]
       };
       rw [HII']
     }

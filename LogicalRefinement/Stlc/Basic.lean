@@ -817,3 +817,13 @@ theorem interp_eq_collapse
     cases p;
     rfl
   }
+
+theorem interp_congr
+  (H: Γ ⊧ a: A)
+  (H': Γ ⊧ b: A)
+  (p: a = b)
+  : H.interp = H'.interp
+  := by {
+    cases p;
+    rfl
+  }
