@@ -20,7 +20,6 @@ theorem SubstCtx.subst_denot
     A.denote_ty Δ.upgrade.sparsity (S.transport_interp_up IΔ G) a =
     (A.subst σ).denote_ty Γ.upgrade.sparsity G (HA.stlc_ty_subst ▸ a)
   := by {
-    stop
     generalize HK: sort s = K;
     rw [HK] at HA;
     induction HA generalizing σ Γ s with

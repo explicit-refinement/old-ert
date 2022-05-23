@@ -353,7 +353,7 @@ theorem HasType.denote
     | @wit Γ A φ l r HAφ Hl Hr IAφ Il Ir =>
       exists Hl.stlc.interp G
       --TODO: upgrade theorems for IsCtx and context denotation
-      have Il' := Il HΓ.upgrade (Context.upgrade_idem.symm ▸ G) sorry;
+      have Il' := Il HΓ.upgrade (Context.upgrade_idem.symm ▸ G) HG.upgrade;
       apply And.intro
       . dsimp only [denote', Term.denote_ty'] at Il'
         sorry
@@ -378,7 +378,7 @@ theorem HasType.denote
           : Ty.arrow A.stlc_ty B.stlc_ty 
         := sorry;
       --TODO: get rid of double upgrade...
-      have If' := If sorry (Context.upgrade_idem.symm ▸ G) sorry;
+      have If' := If HΓ.upgrade (Context.upgrade_idem.symm ▸ G) HG.upgrade;
       have HAB := Hf.term_regular;
       have ⟨yi, Hyi⟩ := HAB.denote_ty_some If';
       dsimp only [denote'] at If';
