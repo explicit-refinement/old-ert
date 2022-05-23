@@ -20,6 +20,7 @@ theorem SubstCtx.subst_denot
     A.denote_ty Δ.upgrade.sparsity (S.transport_interp_up IΔ G) a =
     (A.subst σ).denote_ty Γ.upgrade.sparsity G (HA.stlc_ty_subst ▸ a)
   := by {
+    stop
     generalize HK: sort s = K;
     rw [HK] at HA;
     induction HA generalizing σ Γ s with
@@ -664,6 +665,20 @@ theorem SubstCtx.subst_denot
     | _ => cases HK <;> cases a <;> rfl
   }
 
+
+theorem HasType.denote_subst0
+  {A: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} {a: A.stlc_ty.interp}
+  {B: Term} {b: Term}
+  {a': (A.subst0 b).stlc_ty.interp}
+  {b'}
+  (Hb: Γ ⊢ b: term B)
+  (HAA': A.stlc_ty = (A.subst0 b).stlc_ty)
+  (Haa': a' = HAA' ▸ a)
+  (Hbb': b' = Hb.stlc.interp G.downgrade)
+  : @Term.denote_ty A (B.stlc_ty::Γ.upgrade.stlc) (true::σ) (b', G) a =
+    @Term.denote_ty (A.subst0 b) Γ.upgrade.stlc σ G a'
+  := sorry
+
 theorem HasType.denote_subst0'
   {A: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} {a: A.stlc_ty.interp}
   {B: Term} {b: Term}
@@ -675,7 +690,10 @@ theorem HasType.denote_subst0'
   (Hbb': b' = Hb.stlc.interp G.downgrade)
   (H: @Term.denote_ty A (B.stlc_ty::Γ.upgrade.stlc) (true::σ) (b', G) a)
   : @Term.denote_ty (A.subst0 b) Γ.upgrade.stlc σ G a'
-  := sorry
+  := by 
+    rw [<-HasType.denote_subst0]
+    exact H
+    repeat assumption
 
 theorem HasType.denote_antisubst0'
   {A: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} {a: A.stlc_ty.interp}
@@ -690,4 +708,7 @@ theorem HasType.denote_antisubst0'
   (Hbb': b' = Hb.stlc.interp G.downgrade)
   (H: @Term.denote_ty (A.subst0 b) Γ.upgrade.stlc σ G a')
   : @Term.denote_ty A (B.stlc_ty::Γ.upgrade.stlc) (true::σ) (b', G) a
-  := sorry
+  :=  by 
+    rw [HasType.denote_subst0]
+    exact H
+    repeat assumption
