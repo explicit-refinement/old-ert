@@ -131,6 +131,20 @@ def Stlc.InterpSubst.transport_pop_lift {Γ Δ: Context} {H: Ty} (S: InterpSubst
     apply transport_step
   }
 
+theorem Stlc.InterpSubst.pop_cast {Γ Δ Γ' Δ': Context}
+  (H H': Ty)
+  (S: InterpSubst Γ' (H'::Δ'))
+  (HΓ: Γ = Γ')
+  (HΔ: Δ = Δ')
+  (HH: H = H')
+  : InterpSubst.pop 
+    (@cast (InterpSubst Γ' (H'::Δ')) (InterpSubst Γ (H::Δ)) (by rw [HΓ, HΔ, HH]) S) 
+  = @cast (InterpSubst Γ' Δ') (InterpSubst Γ Δ) (by rw [HΓ, HΔ]) (S.pop)
+  := by {
+    cases HΓ; cases HΔ; cases HH;
+    rfl
+  }
+
 theorem Stlc.InterpSubst.transport_lift {Γ Δ: Context} {H: Ty} (S: InterpSubst Γ Δ)
   (G: Γ.interp) (x: H.interp)
   : transport_ctx (Stlc.InterpSubst.lift S) (x, G) = (x, S.transport_ctx G)

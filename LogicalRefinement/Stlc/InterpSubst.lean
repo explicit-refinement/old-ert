@@ -286,6 +286,20 @@ abbrev SubstCtx.interp {σ Γ Δ} (S: SubstCtx σ Γ Δ) (IΔ: IsCtx Δ)
   : Stlc.InterpSubst Γ.stlc Δ.stlc
   := Stlc.SubstCtx.interp (S.stlc IΔ)
 
+theorem SubstCtx.interp_lift_ty 
+  {σ: Subst} {Γ Δ: Context} {A}
+  (S: SubstCtx σ Γ Δ)
+  (S': 
+    SubstCtx σ.lift 
+      ({ ty := A.subst σ, kind := HypKind.val type }::Γ) 
+      ({ ty := A, kind := HypKind.val type }::Δ))
+  (IΔ: IsCtx Δ)
+  (HA: Δ ⊢ A: type)
+  : S'.interp (IsCtx.cons_val IΔ HA) 
+  = cast (by simp only [Context.stlc]; rw [HA.stlc_ty_subst])
+    (@Stlc.InterpSubst.lift A.stlc_ty Γ.stlc Δ.stlc (S.interp IΔ))
+  := sorry
+
 abbrev SubstCtx.interp_up {σ Γ Δ} (S: SubstCtx σ Γ Δ) (IΔ: IsCtx Δ)
   : Stlc.InterpSubst Γ.upgrade.stlc Δ.upgrade.stlc
   := SubstCtx.interp S.upgrade IΔ.upgrade
@@ -332,7 +346,13 @@ theorem SubstCtx.transport_interp_lift_ty
       ]
     }
     {
+      rw [interp_lift_ty S S' IΔ HA]
+      rw [Stlc.InterpSubst.pop_cast]
+      rw [Stlc.InterpSubst.pop_lift_step]
       sorry
+      rw [HA.stlc_ty_subst]
+      rfl
+      rfl
     }
   }
   
