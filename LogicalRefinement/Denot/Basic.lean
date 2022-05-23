@@ -190,4 +190,11 @@ theorem Context.denote.upgrade_eq {Γ: Context} {G}
     sorry
   }
 
+theorem Context.denote.upgrade {Γ: Context} {G}
+  : Γ.denote G -> Γ.upgrade.denote (Context.upgrade_idem.symm ▸ G)
+  := by {
+    rw [Context.denote.upgrade_eq]
+    exact id
+  }
+
 notation G "⊧" "✓" Γ => Context.denote Γ G
