@@ -682,9 +682,6 @@ theorem HasType.denote_subst0
   : @Term.denote_ty A (B.stlc_ty::Γ.upgrade.stlc) (true::σ) (b', G) a =
     @Term.denote_ty (A.subst0 b) Γ.upgrade.stlc σ G a'
   := by {
-    rw [Haa']
-    rw [Hbb']
-    rw [Hσ]
     have I := 
       @SubstCtx.subst_denot 
       _ _ _ _ _ a _
@@ -692,9 +689,37 @@ theorem HasType.denote_subst0
       (IsCtx.cons_val HΓ Hb.term_regular) HG HA;
     apply equiv_prop_split I;
     {
-      sorry
+      apply congr _ rfl;
+      apply congr;
+      {
+        rw [Hσ]
+        rfl
+      }
+      {
+        simp only [
+          SubstCtx.transport_interp_up, 
+          SubstCtx.transport_interp,
+          SubstCtx.interp,
+          Stlc.SubstCtx.interp,
+          Stlc.InterpSubst.transport_ctx
+        ]
+        apply congr;
+        {
+          --TODO: upgrade lemma...
+          apply congr rfl _;
+          rw [Hbb'];
+          sorry
+        }
+        {
+          sorry
+        }
+      }
     }
-    rfl
+    {
+      rw [Haa']
+      rw [Hσ]
+      rfl
+    }
   }
     
 
