@@ -318,8 +318,7 @@ theorem SubstCtx.transport_interp_lift_ty
   = (x, transport_interp S IΔ G)
   := by {
     unfold transport_interp
-    unfold Stlc.InterpSubst.transport_ctx
-    simp only [Context.stlc]
+    simp only [Context.stlc, Stlc.InterpSubst.transport_ctx]
     apply congr;
     {
       apply congr rfl;
@@ -333,7 +332,6 @@ theorem SubstCtx.transport_interp_lift_ty
       ]
     }
     {
-      unfold Stlc.InterpSubst.transport_ctx;
       sorry
     }
   }
