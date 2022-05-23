@@ -188,7 +188,6 @@ theorem HasType.denote
     induction H with
     | var HA Hv IA => exact Hv.denote_annot HΓ G HG
     | lam Hs HA Is IA => 
-      stop
       intro x Hx
       cases x with
       | some x => 
@@ -232,13 +231,12 @@ theorem HasType.denote
           simp only []
           dsimp only [Annot.denote, Term.denote_ty, denote', Term.denote_ty'] at Il'
           dsimp only [Annot.denote, Term.denote_ty, denote']
-          apply HasType.denote_subst0' Hr HB.stlc_ty_subst.symm _ Hrg.symm Ilr
+          apply HasType.denote_subst0' Hr HΓ rfl HG HB HB.stlc_ty_subst.symm _ Hrg.symm Ilr
           rw [monorecursor]
           rfl
         | none => exact False.elim (HA.denote_ty_non_null Ir')
       | none => exact False.elim (HAB.denote_ty_non_null Il')
     | @pair Γ A B l r HAB Hl Hr IAB Il Ir => 
-      stop
       dsimp only [denote', Term.denote_ty', Term.denote_ty, 
         Stlc.HasType.interp, Term.stlc, stlc_ty, term, Term.stlc_ty, 
         Ty.interp.pair]
@@ -265,7 +263,6 @@ theorem HasType.denote
       | type => sorry
       | prop => sorry
     | inj_l He HB Ie IB => 
-      stop
       dsimp only [
         denote', Term.denote_ty', Term.denote_ty, Term.stlc, 
         stlc_ty, Term.stlc_ty, Stlc.HasType.interp,
@@ -279,7 +276,6 @@ theorem HasType.denote
         exact Ie'
       | none => exact He.term_regular.denote_ty_non_null Ie'
     | inj_r He HA Ie IA => 
-      stop
       dsimp only [
         denote', Term.denote_ty', Term.denote_ty, Term.stlc, 
         stlc_ty, Term.stlc_ty, Stlc.HasType.interp,
@@ -293,7 +289,6 @@ theorem HasType.denote
         exact Ie'
       | none => exact He.term_regular.denote_ty_non_null Ie'
     | @case Γ A B C e l r k He HA HB HC Hl Hr Ie IA IB IC Il Ir => 
-      stop
       cases k with
       | type => 
         dsimp only [denote']
@@ -323,13 +318,11 @@ theorem HasType.denote
     | let_set => sorry
     | lam_pr => sorry
     | app_pr HφA Hl Hr IφA Il Ir => 
-      stop
       dsimp only [denote', Term.denote_ty, Term.denote_ty']
       sorry
     | lam_irrel => sorry
     | app_irrel => sorry
     | @repr Γ A B l r HAB Hl Hr IAB Il Ir =>
-      stop 
       dsimp only [
         denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
         Term.denote_ty', Term.denote_ty
@@ -377,7 +370,6 @@ theorem HasType.denote
       dsimp only [denote', Annot.denote]
       sorry
     | @eta Γ A B f Hf HA If IA => 
-      stop
       have px
         : Γ.upgrade.stlc ⊧ (Term.eta_ex A B f).stlc Γ.upgrade.sparsity
           : Ty.arrow A.stlc_ty B.stlc_ty 
