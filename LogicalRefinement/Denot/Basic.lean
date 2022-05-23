@@ -177,4 +177,17 @@ def Context.denote: (Γ: Context) -> Γ.upgrade.stlc.interp -> Prop
 | (Hyp.mk A HypKind.gst)::Γ, (a, G) =>
   A.denote_ty (upgrade Γ).sparsity G a ∧ denote Γ G
 
+theorem Context.denote.upgrade_helper {Γ: Context}
+  : Γ.denote = Context.upgrade_idem.symm ▸ Γ.upgrade.denote
+  := sorry
+
+theorem Context.denote.upgrade_eq {Γ: Context} {G}
+  : Γ.denote G = Γ.upgrade.denote (Context.upgrade_idem.symm ▸ G)
+  := by {
+    rw [Context.denote.upgrade_helper]
+    rw [rec_to_cast']
+    rw [rec_to_cast']
+    sorry
+  }
+
 notation G "⊧" "✓" Γ => Context.denote Γ G
