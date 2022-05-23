@@ -349,7 +349,13 @@ theorem SubstCtx.transport_interp_lift_ty
       rw [interp_lift_ty S S' IΔ HA]
       rw [Stlc.InterpSubst.pop_cast]
       rw [Stlc.InterpSubst.pop_lift_step]
-      sorry
+      rw [Stlc.InterpSubst.transport_cast]
+      rw [cast_pair']
+      rw [Stlc.InterpSubst.transport_step]
+      rfl
+      rw [HA.stlc_ty_subst]
+      rfl
+      rw [HA.stlc_ty_subst]
       rw [HA.stlc_ty_subst]
       rfl
       rfl

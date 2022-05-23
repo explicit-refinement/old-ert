@@ -97,6 +97,15 @@ def Stlc.InterpSubst.transport_ctx {Γ Δ: Context} (S: InterpSubst Γ Δ)
      | [] => ()
      | A::Δ => (S 0 _ HasVar.zero G, transport_ctx S.pop G)
 
+theorem Stlc.InterpSubst.transport_cast {Γ Δ Γ': Context} 
+  (S: InterpSubst Γ' Δ)
+  (HΓ: Γ' = Γ)
+  (G: Γ.interp)
+  : (@cast _ (InterpSubst Γ Δ) (by rw [HΓ]) S).transport_ctx G
+  = S.transport_ctx (cast (by rw [HΓ]) G)
+  := by {
+    cases HΓ; rfl
+  }
 
 def second_helper {a a': A} {f: A -> B}: a = a' -> f a = f a' := by intros; simp [*]
 def pair_helper: a = a' -> b = b' -> (a, b) = (a', b') := by intros; simp [*]
