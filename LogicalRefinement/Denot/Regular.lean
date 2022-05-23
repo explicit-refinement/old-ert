@@ -351,10 +351,9 @@ theorem HasType.denote
     | general => sorry
     | inst => sorry
     | @wit Γ A φ l r HAφ Hl Hr IAφ Il Ir =>
-      stop
       exists Hl.stlc.interp G
       --TODO: upgrade theorems for IsCtx and context denotation
-      have Il' := Il sorry (Context.upgrade_idem.symm ▸ G) sorry;
+      have Il' := Il HΓ.upgrade (Context.upgrade_idem.symm ▸ G) sorry;
       apply And.intro
       . dsimp only [denote', Term.denote_ty'] at Il'
         sorry
