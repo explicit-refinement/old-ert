@@ -578,3 +578,16 @@ theorem equiv_arrow_helper' {A B C D: Prop}
       exact H'' a
     }
   }
+
+theorem cast_app 
+  (A: Type) 
+  (B: A -> Type)
+  (B': A -> Type)
+  (HB: B = B')
+  (a: A)
+  (f: (a: A) -> B a):
+  (@cast ((a: A) -> B a) ((a: A) -> B' a) (by rw [HB]) f) a 
+  = cast (by rw [HB]) (f a)
+  := by {
+    cases HB; rfl
+  }

@@ -298,7 +298,18 @@ theorem SubstCtx.interp_lift_ty
   : S'.interp (IsCtx.cons_val IΔ HA) 
   = cast (by simp only [Context.stlc]; rw [HA.stlc_ty_subst])
     (@Stlc.InterpSubst.lift A.stlc_ty Γ.stlc Δ.stlc (S.interp IΔ))
-  := sorry
+  := by {
+    funext n A' Hv;
+    cases n with
+    | zero => 
+      simp only [
+        interp, Stlc.SubstCtx.interp, Subst.stlc, Sparsity.ix_inv,
+        Subst.lift
+        ]
+      dsimp only [Term.stlc]
+      sorry
+    | succ n => sorry
+  }
 
 abbrev SubstCtx.interp_up {σ Γ Δ} (S: SubstCtx σ Γ Δ) (IΔ: IsCtx Δ)
   : Stlc.InterpSubst Γ.upgrade.stlc Δ.upgrade.stlc
