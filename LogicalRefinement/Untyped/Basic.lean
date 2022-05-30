@@ -95,6 +95,9 @@ inductive TermKind: List Nat -> Type
   | nats: TermKind []
   | zero: TermKind []
   | succ: TermKind []
+  | natrec: TermKind [1, 0, 0, 2]
+  | natrec_zero: TermKind [1, 0, 2]
+  | natec_succ: TermKind [1, 0, 0, 2]
   
 inductive Term: Type
   | var (v: Nat)
