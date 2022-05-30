@@ -149,8 +149,10 @@ def Term.subst: Term -> Subst -> Term
   | tri k A l r, σ => tri k (A.subst σ) (l.subst σ) (r.subst σ)
   | cases k K d l r, σ => 
     cases k (K.subst σ) (d.subst σ) (l.subst σ.lift) (r.subst σ.lift)
-  | natrec k K e z s, σ =>
-    natrec k (K.subst σ.lift) (e.subst σ) (z.subst σ) (s.subst (σ.liftn 2))
+  | nr k K e z s, σ =>
+    nr k (K.subst σ.lift) (e.subst σ) (z.subst σ) (s.subst (σ.liftn 2))
+  | nz k K z s, σ =>
+    nz k (K.subst σ.lift) (z.subst σ) (s.subst (σ.liftn 2))
 
 -- TODO: automate
 theorem Subst.lift_var: {n v: Nat} -> {σ: Subst} -> 
@@ -230,7 +232,7 @@ theorem Term.liftn_wk {u: Term}: {σ: Subst} -> (n: Nat) ->
       rw [Subst.lift_liftn_merge]
       rw [Subst.lift_liftn_merge]
       rw [Il, Ir]
-    | natrec k K e z s IK Ie Iz Is =>
+    | nr k K e z s IK Ie Iz Is =>
       intros σ n
       simp only [wknth, wk, subst, Wk.liftn_wknth_merge]
       rw [Subst.liftn_merge]
@@ -239,6 +241,16 @@ theorem Term.liftn_wk {u: Term}: {σ: Subst} -> (n: Nat) ->
       rw [Subst.lift_liftn_merge]
       rw [Subst.lift_liftn_merge]
       rw [IK, Ie, Iz, Is]
+      simp
+    | nz k K z s IK Iz Is =>
+      intros σ n
+      simp only [wknth, wk, subst, Wk.liftn_wknth_merge]
+      rw [Subst.liftn_merge]
+      simp only [wknth] at *
+      rw [Wk.lift_wknth_merge]
+      rw [Subst.lift_liftn_merge]
+      rw [Subst.lift_liftn_merge]
+      rw [IK, Iz, Is]
       simp
   }
 
@@ -406,13 +418,22 @@ theorem Term.subst_bounds:
       Id Hd Hσ, Il Hl (Subst.lift_subst Hσ), 
       Ir Hr (Subst.lift_subst Hσ)
       ⟩
-  | natrec k K e z s IK Ie Iz Is =>
+  | nr k K e z s IK Ie Iz Is =>
     intros σ n m;
     simp only [Term.fv, Nat.max_r_le_split, Nat.le_sub_is_le_add]
     intro ⟨HK, He, Hz, Hs⟩ Hσ
     exact ⟨
       IK HK (Subst.lift_subst Hσ), 
       Ie He Hσ, Iz Hz Hσ, 
+      Is Hs (Subst.liftn_subst Hσ)
+      ⟩
+  | nz k K z s IK Iz Is =>
+    intros σ n m;
+    simp only [Term.fv, Nat.max_r_le_split, Nat.le_sub_is_le_add]
+    intro ⟨HK, Hz, Hs⟩ Hσ
+    exact ⟨
+      IK HK (Subst.lift_subst Hσ), 
+      Iz Hz Hσ, 
       Is Hs (Subst.liftn_subst Hσ)
       ⟩
 }

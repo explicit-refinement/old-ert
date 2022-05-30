@@ -12,8 +12,10 @@ import LogicalRefinement.Untyped.Basic
   | tri k A l r, ρ => tri k (A.wk ρ) (l.wk ρ) (r.wk ρ)
   | cases k K d l r, ρ => 
     cases k (K.wk ρ) (d.wk ρ) (l.wk ρ.lift) (r.wk ρ.lift)
-  | natrec k K e z s, ρ =>
-    natrec k (K.wk ρ.lift) (e.wk ρ) (z.wk ρ) (s.wk (ρ.liftn 2))
+  | nr k K e z s, ρ =>
+    nr k (K.wk ρ.lift) (e.wk ρ) (z.wk ρ) (s.wk (ρ.liftn 2))
+  | nz k K z s, ρ =>
+    nz k (K.wk ρ.lift) (z.wk ρ) (s.wk (ρ.liftn 2))
 
 @[simp] def Term.wk1 (u: Term) 
   := u.wk Wk.wk1
@@ -52,11 +54,17 @@ def Term.wknth_def {u: Term} {n}: u.wknth n = u.wk (Wk.wknth n) := rfl
     simp only [
       wk, IK H, Id H, Il (Wk.lift_equiv H), Ir (Wk.lift_equiv H)
     ]
-  | natrec k K e z s IK Ie Iz Is =>
+  | nr k K e z s IK Ie Iz Is =>
     intros ρ σ H; 
     simp only [wk];
     simp only [
       Is (Wk.liftn_equiv H), IK (Wk.lift_equiv H), Ie H, Iz H
+    ]
+  | nz k K z s IK Iz Is =>
+    intros ρ σ H; 
+    simp only [wk];
+    simp only [
+      Is (Wk.liftn_equiv H), IK (Wk.lift_equiv H), Iz H
     ]
 }
 
@@ -127,7 +135,7 @@ def Term.wk_bounds {u: Term}: {n m: Nat} -> {ρ: Wk} ->
           apply And.intro;
           case left => apply IHl (@Wk.liftn_maps ρ 1 n m Hm) Hl
           case right => apply IHr (@Wk.liftn_maps ρ 1 n m Hm) Hr
-    | natrec k K e z s IK Ie Iz Is =>
+    | nr k K e z s IK Ie Iz Is =>
       simp only [fv, Nat.max_r_le_split, Nat.le_sub_is_le_add]
       intros n m ρ Hm
       intro ⟨HK, He, Hz, Hs⟩
@@ -140,6 +148,16 @@ def Term.wk_bounds {u: Term}: {n m: Nat} -> {ρ: Wk} ->
           apply And.intro;
           case left => apply Iz Hm Hz
           case right => apply Is (@Wk.liftn_maps ρ 2 n m Hm) Hs
+    | nz k K z s IK Iz Is =>
+      simp only [fv, Nat.max_r_le_split, Nat.le_sub_is_le_add]
+      intros n m ρ Hm
+      intro ⟨HK, Hz, Hs⟩
+      apply And.intro;
+      case left => apply IK (Wk.liftn_maps Hm) HK
+      case right => 
+        apply And.intro;
+        case left => apply Iz Hm Hz
+        case right => apply Is (@Wk.liftn_maps ρ 2 n m Hm) Hs
   }
 
 def Term.fv_wk1: fv (wk1 u) ≤ fv u + 1 

@@ -190,7 +190,7 @@ def Term.stlc: Term -> Sparsity -> Stlc
   Stlc.let_in P.stlc_ty (e.stlc σ) (e'.stlc (true::false::σ))
 | const TermKind.zero, σ => Stlc.zero
 | const TermKind.succ, σ => Stlc.succ
-| natrec k K n z s, σ => 
+| nr (TermKind.natrec k) K n z s, σ => 
   if k = type then
     Stlc.natrec K.stlc_ty (n.stlc σ) (z.stlc σ) (s.stlc (true::false::σ))
   else

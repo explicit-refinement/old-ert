@@ -247,7 +247,7 @@ theorem Term.term_subst_stlc_commute {Γ Δ σ a}
           . rw [loosen Ir Hr SB (true::Γ.sparsity) (true::Δ.sparsity)]
             rhs
             rw [Subst.stlc_lift_true]
-    case natrec k K e z s IK Ie Iz Is => 
+    case nr k K e z s IK Ie Iz Is => 
       cases H with
       | natrec HK He Hz Hs => 
         let Γ' := (Hyp.gst nats)::Γ;
@@ -280,6 +280,7 @@ theorem Term.term_subst_stlc_commute {Γ Δ σ a}
             rhs
             rw [Subst.stlc_lift_true]
             rw [Subst.stlc_lift_false]
+    case nz => cases H
   }
 
 abbrev SubstCtx.interp {σ Γ Δ} (S: SubstCtx σ Γ Δ) (IΔ: IsCtx Δ)

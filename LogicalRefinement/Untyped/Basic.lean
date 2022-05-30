@@ -95,7 +95,7 @@ inductive TermKind: List Nat -> Type
   | nats: TermKind []
   | zero: TermKind []
   | succ: TermKind []
-  | natrec: TermKind [1, 0, 0, 2]
+  | natrec: AnnotSort -> TermKind [1, 0, 0, 2]
   | natrec_zero: TermKind [1, 0, 2]
   | natec_succ: TermKind [1, 0, 0, 2]
   
@@ -113,7 +113,8 @@ inductive Term: Type
   | tri (k: TermKind [0, 0, 0]) (A: Term) (l: Term) (r: Term)
   -- TODO: no cases?
   | cases (k: TermKind [0, 0, 1, 1]) (K: Term) (d: Term) (l: Term) (r: Term)
-  | natrec (k: AnnotSort) (K: Term) (e: Term) (z: Term) (s: Term)
+  | nr (k: TermKind [1, 0, 0, 2]) (K: Term) (e: Term) (z: Term) (s: Term)
+  | nz (k: TermKind [1, 0, 2]) (K: Term) (z: Term) (s: Term)
 
 -- Types
 abbrev Term.unit := const TermKind.unit
@@ -176,6 +177,7 @@ abbrev Term.beta := abs TermKind.beta
 abbrev Term.eta := bin TermKind.eta
 abbrev Term.irir := tri TermKind.irir
 abbrev Term.prir := tri TermKind.prir
+abbrev Term.natrec (k) := nr (TermKind.natrec k)
 
 -- Natural numbers
 abbrev Term.zero := const TermKind.zero
@@ -190,7 +192,8 @@ abbrev Term.succ := const TermKind.succ
   | abs _ A t => Nat.max (fv A) (fv t - 1)
   | tri _ A l r => Nat.max (fv A) (Nat.max (fv l) (fv r))
   | cases _ K d l r => Nat.max (fv K) (Nat.max (fv d) (Nat.max (fv l - 1) (fv r - 1)))
-  | natrec k K e z s => Nat.max (fv K - 1) (Nat.max (fv e) (Nat.max (fv z) (fv s - 2)))
+  | nr k K e z s => Nat.max (fv K - 1) (Nat.max (fv e) (Nat.max (fv z) (fv s - 2)))
+  | nz k K z s => Nat.max (fv K - 1) (Nat.max (fv z) (fv s - 2))
 
 @[simp] def Term.has_dep: Term -> Nat -> Prop
   | var v, i => v = i
@@ -203,8 +206,10 @@ abbrev Term.succ := const TermKind.succ
   | tri _ A l r, i => has_dep A i ∨ has_dep l i ∨ has_dep r i
   | cases _ K d l r, i => 
     has_dep K i ∨ has_dep d i ∨ has_dep l (i + 1) ∨ has_dep r (i + 1)
-  | natrec k K e z s, i =>
+  | nr k K e z s, i =>
     has_dep K (i + 1) ∨ has_dep e i ∨ has_dep z i ∨ has_dep s (i + 2)
+  | nz k K z s, i =>
+    has_dep K (i + 1) ∨ has_dep z i ∨ has_dep s (i + 2)
 
 theorem Term.has_dep_dimplies_fv (u: Term): {i: Nat} ->
   has_dep u i -> i < fv u := by {
