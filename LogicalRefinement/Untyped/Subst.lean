@@ -144,6 +144,8 @@ def Term.subst: Term -> Subst -> Term
   | unary k t, σ => unary k (t.subst σ)
   | let_bin k P e e', σ => 
     let_bin k (P.subst σ) (e.subst σ) (e'.subst (σ.liftn 2))
+  | let_bin_delta k P l r e', σ => 
+    let_bin_delta k (P.subst σ) (l.subst σ) (r.subst σ) (e'.subst (σ.liftn 2))
   | bin k l r, σ => bin k (l.subst σ) (r.subst σ)
   | abs k A t, σ => abs k (A.subst σ) (t.subst σ.lift)
   | tri k A l r, σ => tri k (A.subst σ) (l.subst σ) (r.subst σ)
@@ -201,6 +203,13 @@ theorem Term.liftn_wk {u: Term}: {σ: Subst} -> (n: Nat) ->
       rw [Subst.liftn_merge]
       simp only [wknth] at *
       rw [IP, Ie, Ie']
+      simp
+    | let_bin_delta k P l r e' IP Il Ir Ie' =>
+      intros σ n
+      simp only [wknth, wk, subst, Wk.liftn_wknth_merge]
+      rw [Subst.liftn_merge]
+      simp only [wknth] at *
+      rw [IP, Il, Ir, Ie']
       simp
     | bin k l r Il Ir =>
       intros σ n
@@ -392,6 +401,16 @@ theorem Term.subst_bounds:
     exact IP HP Hσ
     apply And.intro
     exact Ie He Hσ
+    exact Ie' He' (Subst.liftn_subst Hσ)
+  | let_bin_delta k P l r e' IP Il Ir Ie' =>
+    simp only [fv, subst, Nat.max_r_le_split, Nat.le_sub_is_le_add]
+    intro σ n m ⟨HP, Hl, Hr, He'⟩ Hσ;
+    apply And.intro
+    exact IP HP Hσ
+    apply And.intro
+    exact Il Hl Hσ
+    apply And.intro
+    exact Ir Hr Hσ
     exact Ie' He' (Subst.liftn_subst Hσ)
   | bin k l r Il Ir =>
     intros σ n m;

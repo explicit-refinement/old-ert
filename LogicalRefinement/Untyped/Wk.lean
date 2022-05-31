@@ -7,6 +7,7 @@ import LogicalRefinement.Untyped.Basic
   | const c, ρ => const c
   | unary k t, ρ => unary k (t.wk ρ)
   | let_bin k P e e', ρ => let_bin k (P.wk ρ) (e.wk ρ) (e'.wk (ρ.liftn 2))
+  | let_bin_delta k P l r e', ρ => let_bin_delta k (P.wk ρ) (l.wk ρ) (r.wk ρ) (e'.wk (ρ.liftn 2))
   | bin k l r, ρ => bin k (l.wk ρ) (r.wk ρ)
   | abs k A t, ρ => abs k (A.wk ρ) (t.wk ρ.lift)
   | tri k A l r, ρ => tri k (A.wk ρ) (l.wk ρ) (r.wk ρ)
@@ -43,6 +44,10 @@ def Term.wknth_def {u: Term} {n}: u.wknth n = u.wk (Wk.wknth n) := rfl
     intros ρ σ H;
     simp only [wk];
     simp only [IP H, Ie H, Ie' (Wk.liftn_equiv H)]
+  | let_bin_delta k P l r e' IP Il Ir Ie' => 
+    intros ρ σ H;
+    simp only [wk];
+    simp only [IP H, Il H, Ir H, Ie' (Wk.liftn_equiv H)]
   | bin k l r Il Ir => intros ρ σ H; simp [Il H, Ir H]
   | abs k A s IHA IHs =>
     intros ρ σ H;
@@ -93,6 +98,20 @@ def Term.wk_bounds {u: Term}: {n m: Nat} -> {ρ: Wk} ->
       apply IHP Hm HP
       apply And.intro
       apply IHe Hm He
+      apply IHe'
+      apply Wk.liftn_maps
+      apply Hm
+      apply He'
+    | let_bin_delta k P l r e' IHP IHl IHr IHe' =>
+      simp only [fv, Nat.max_r_le_split, Nat.le_sub_is_le_add]
+      intros n m ρ Hm
+      intro ⟨HP, Hl, Hr, He'⟩
+      apply And.intro
+      apply IHP Hm HP
+      apply And.intro
+      apply IHl Hm Hl
+      apply And.intro
+      apply IHr Hm Hr
       apply IHe'
       apply Wk.liftn_maps
       apply Hm
