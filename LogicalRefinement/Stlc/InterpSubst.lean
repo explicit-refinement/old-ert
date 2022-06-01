@@ -280,8 +280,7 @@ theorem Term.term_subst_stlc_commute {Γ Δ σ a}
             rhs
             rw [Subst.stlc_lift_true]
             rw [Subst.stlc_lift_false]
-    case nz => cases H
-    case let_bin_delta => cases H
+    all_goals (cases H)
   }
 
 abbrev SubstCtx.interp {σ Γ Δ} (S: SubstCtx σ Γ Δ) (IΔ: IsCtx Δ)

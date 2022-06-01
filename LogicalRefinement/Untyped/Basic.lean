@@ -109,7 +109,7 @@ inductive Term: Type
   | unary (k: TermKind [0]) (t: Term)
   -- TODO: let n?
   | let_bin (k: TermKind [0, 0, 2]) (P: Term) (e: Term) (e': Term)
-  | let_bin_delta (k: TermKind [0, 0, 0, 2]) (P: Term) (l r: Term) (e': Term)
+  | let_bin_iota (k: TermKind [0, 0, 0, 2]) (P: Term) (l r: Term) (e': Term)
   -- TODO: bin n? Can't, due to, of course, lack of nested inductive types...
   | bin (k: TermKind [0, 0]) (l: Term) (r: Term)
   -- TODO: abs n?
@@ -192,7 +192,7 @@ abbrev Term.succ := const TermKind.succ
   | const c => 0
   | unary _ t => fv t
   | let_bin _ P e e' => Nat.max (fv P) (Nat.max (fv e) ((fv e') - 2))
-  | let_bin_delta _ P l r e' => Nat.max (fv P) (Nat.max (fv l) (Nat.max (fv r) ((fv e') - 2)))
+  | let_bin_iota _ P l r e' => Nat.max (fv P) (Nat.max (fv l) (Nat.max (fv r) ((fv e') - 2)))
   | bin _ l r => Nat.max (fv l) (fv r)
   | abs _ A t => Nat.max (fv A) (fv t - 1)
   | tri _ A l r => Nat.max (fv A) (Nat.max (fv l) (fv r))
@@ -206,7 +206,7 @@ abbrev Term.succ := const TermKind.succ
   | unary _ t, i => has_dep t i
   | let_bin _ P e e', i => 
     has_dep P i ∨ has_dep e i ∨ has_dep e' (i + 2)
-  | let_bin_delta _ P l r e', i => 
+  | let_bin_iota _ P l r e', i => 
     has_dep P i ∨ has_dep l i ∨ has_dep r i ∨ has_dep e' (i + 2)
   | bin _ l r, i => has_dep l i ∨ has_dep r i
   | abs _ A t, i => has_dep A i ∨ has_dep t (i + 1)
