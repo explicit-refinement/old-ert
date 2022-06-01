@@ -87,9 +87,10 @@ inductive TermKind: List Nat -> Type
   | beta: TermKind [0, 1]
   | cases_left: TermKind [0, 0, 1, 1]
   | cases_right: TermKind [0, 0, 1, 1]
-  | let_pair_delta: TermKind [0, 0, 0, 2]
-  | let_set_delta: TermKind [0, 0, 0, 2]
-  | let_repr_delta: TermKind [0, 0, 0, 2]
+  | let_pair_iota_l: TermKind [0, 0, 0, 2]
+  | let_pair_iota_r: TermKind [0, 0, 0, 2]
+  | let_set_iota: TermKind [0, 0, 0, 2]
+  | let_repr_iota: TermKind [0, 0, 0, 2]
   | eta: TermKind [0, 0]
   | irir: TermKind [0, 0, 0]
   | prir: TermKind [0, 0, 0]
@@ -100,7 +101,7 @@ inductive TermKind: List Nat -> Type
   | succ: TermKind []
   | natrec: AnnotSort -> TermKind [1, 0, 0, 2]
   | natrec_zero: TermKind [1, 0, 2]
-  | natec_succ: TermKind [1, 0, 0, 2]
+  | natrec_succ: TermKind [1, 0, 0, 2]
   
 inductive Term: Type
   | var (v: Nat)
@@ -181,11 +182,19 @@ abbrev Term.beta := abs TermKind.beta
 abbrev Term.eta := bin TermKind.eta
 abbrev Term.irir := tri TermKind.irir
 abbrev Term.prir := tri TermKind.prir
-abbrev Term.natrec (k) := nr (TermKind.natrec k)
+abbrev Term.cases_left := cases TermKind.cases_left
+abbrev Term.cases_right := cases TermKind.cases_right
+abbrev Term.let_pair_iota_l := let_bin_iota TermKind.let_pair_iota_l
+abbrev Term.let_pair_iota_r := let_bin_iota TermKind.let_pair_iota_r
+abbrev Term.let_set_iota := let_bin_iota TermKind.let_set_iota
+abbrev Term.let_repr_iota := let_bin_iota TermKind.let_repr_iota
 
 -- Natural numbers
 abbrev Term.zero := const TermKind.zero
 abbrev Term.succ := const TermKind.succ
+abbrev Term.natrec (k) := nr (TermKind.natrec k)
+abbrev Term.natrec_zero := nz TermKind.natrec_zero
+abbrev Term.natrec_succ := nr TermKind.natrec_succ
 
 @[simp] def Term.fv: Term -> Nat
   | var v => Nat.succ v
