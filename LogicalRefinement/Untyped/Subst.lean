@@ -149,6 +149,7 @@ def Term.subst: Term -> Subst -> Term
   | bin k l r, σ => bin k (l.subst σ) (r.subst σ)
   | abs k A t, σ => abs k (A.subst σ) (t.subst σ.lift)
   | tri k A l r, σ => tri k (A.subst σ) (l.subst σ) (r.subst σ)
+  | ir k x y P, σ => ir k (x.subst σ) (y.subst σ) (P.subst σ.lift)
   | cases k K d l r, σ => 
     cases k (K.subst σ) (d.subst σ) (l.subst σ.lift) (r.subst σ.lift)
   | nr k K e z s, σ =>
@@ -231,6 +232,16 @@ theorem Term.liftn_wk {u: Term}: {σ: Subst} -> (n: Nat) ->
       simp only [wknth, wk, subst]
       simp only [wknth] at *
       rw [IA, Il, Ir]
+    | ir k x y P Ix Iy IP =>
+      intros σ n
+      simp only [wknth, wk, subst]
+      simp only [wknth] at *
+      rw [Ix n]
+      rw [Iy n]
+      rw [Wk.lift_wknth_merge]
+      rw [Subst.lift_liftn_merge]
+      rw [Subst.lift_liftn_merge]
+      rw [IP]
     | cases k K d l r IK Id Il Ir =>
       intros σ n
       simp only [wknth, wk, subst]
@@ -428,6 +439,15 @@ theorem Term.subst_bounds:
     simp only [Term.fv, Nat.max_r_le_split]
     intro ⟨HA, Hl, Hr⟩ Hσ
     exact ⟨IA HA Hσ, Il Hl Hσ, Ir Hr Hσ⟩
+  | ir k x y P Ix Iy IP =>
+    intros σ n m;
+    simp only [Term.fv, Nat.max_r_le_split, Nat.le_sub_is_le_add]
+    intro ⟨Hx, Hy, HP⟩ Hσ
+    exact ⟨
+      Ix Hx Hσ, 
+      Iy Hy Hσ,
+      IP HP (Subst.lift_subst Hσ)
+      ⟩
   | cases k K d l r IK Id Il Ir =>
     intros σ n m;
     simp only [Term.fv, Nat.max_r_le_split, Nat.le_sub_is_le_add]
@@ -807,13 +827,13 @@ theorem Term.alphann_comm {u v: Term} {σ: Subst} {n: Nat}:
           simp only [subst]
           revert n;
           rename_i m;
-          induction m with
+          cases m with
           | zero =>
             intro n Hn
             cases Hn
             simp --TODO: nonterminal simp
             simp only [Wk.comp_id_right_id, Subst.wk1, wk1]
-          | succ m I =>
+          | succ m =>
             intro n Hn
             have R: ∀a b, Nat.succ a + b = Nat.succ (a + b) := by {
               simp [Nat.add_comm, Nat.add_succ]

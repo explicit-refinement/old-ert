@@ -4,7 +4,7 @@ import LogicalRefinement.Untyped.Basic
 
 @[simp] def Term.wk: Term -> Wk -> Term
   | var v, ρ => var (Wk.var ρ v)
-  | const c, ρ => const c
+  | const c, _ => const c
   | unary k t, ρ => unary k (t.wk ρ)
   | let_bin k P e e', ρ => let_bin k (P.wk ρ) (e.wk ρ) (e'.wk (ρ.liftn 2))
   | let_bin_iota k P l r e', ρ => let_bin_iota k (P.wk ρ) (l.wk ρ) (r.wk ρ) (e'.wk (ρ.liftn 2))
@@ -13,6 +13,8 @@ import LogicalRefinement.Untyped.Basic
   | tri k A l r, ρ => tri k (A.wk ρ) (l.wk ρ) (r.wk ρ)
   | cases k K d l r, ρ => 
     cases k (K.wk ρ) (d.wk ρ) (l.wk ρ.lift) (r.wk ρ.lift)
+  | ir k x y P, ρ =>
+    ir k (x.wk ρ) (y.wk ρ) (P.wk ρ.lift)
   | nr k K e z s, ρ =>
     nr k (K.wk ρ.lift) (e.wk ρ) (z.wk ρ) (s.wk (ρ.liftn 2))
   | nz k K z s, ρ =>
@@ -54,6 +56,11 @@ def Term.wknth_def {u: Term} {n}: u.wknth n = u.wk (Wk.wknth n) := rfl
     simp only [wk];
     simp only [IHA H, IHs (Wk.lift_equiv H)]
   | tri k A l r IA Il Ir => intros ρ σ H; simp [IA H, Il H, Ir H]
+  | ir k x y P Ix Iy IP => 
+    intros ρ σ H;
+    simp only [
+      wk, Ix H, Iy H, IP (Wk.lift_equiv H)
+    ]
   | cases k K d l r IK Id Il Ir => 
     intros ρ σ H;
     simp only [
@@ -87,7 +94,7 @@ def Term.wk_bounds {u: Term}: {n m: Nat} -> {ρ: Wk} ->
     induction u with
     | var v => intros _ _ ρ Hm. apply Hm
     | const => intros. apply Nat.zero_le
-    | unary k t IHt => 
+    | unary _ _ IHt => 
       intros _ _ ρ Hm
       apply IHt Hm
     | let_bin k P e e' IHP IHe IHe' =>
@@ -141,6 +148,16 @@ def Term.wk_bounds {u: Term}: {n m: Nat} -> {ρ: Wk} ->
         apply And.intro;
         case left => apply IHl Hm Hl
         case right => apply IHr Hm Hr
+    | ir k x y P Ix Iy IP => 
+      simp only [fv, Nat.max_r_le_split, Nat.le_sub_is_le_add]
+      intros n m ρ Hm
+      intro ⟨Hx, Hy, HP⟩
+      apply And.intro;
+      case left => exact Ix Hm Hx
+      case right => 
+        apply And.intro;
+        case left => exact Iy Hm Hy
+        case right => apply IP (@Wk.liftn_maps ρ 1 n m Hm) HP
     | cases k K d l r IK IHd IHl IHr => 
       simp only [fv, Nat.max_r_le_split, Nat.le_sub_is_le_add]
       intros n m ρ Hm

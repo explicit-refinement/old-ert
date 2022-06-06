@@ -92,8 +92,8 @@ inductive TermKind: List Nat -> Type
   | let_set_iota: TermKind [0, 0, 0, 2]
   | let_repr_iota: TermKind [0, 0, 0, 2]
   | eta: TermKind [0, 0]
-  | irir: TermKind [0, 0, 0]
-  | prir: TermKind [0, 0, 0]
+  | irir: TermKind [0, 0, 1]
+  | prir: TermKind [0, 0, 1]
 
   -- Natural numbers
   | nats: TermKind []
@@ -116,6 +116,7 @@ inductive Term: Type
   -- TODO: abs n?
   | abs (k: TermKind [0, 1]) (A: Term) (t: Term)
   | tri (k: TermKind [0, 0, 0]) (A: Term) (l: Term) (r: Term)
+  | ir (k: TermKind [0, 0, 1]) (x: Term) (y: Term) (P: Term)
   -- TODO: no cases?
   | cases (k: TermKind [0, 0, 1, 1]) (K: Term) (d: Term) (l: Term) (r: Term)
   | nr (k: TermKind [1, 0, 0, 2]) (K: Term) (e: Term) (z: Term) (s: Term)
@@ -180,8 +181,8 @@ abbrev Term.trans := unary TermKind.trans
 abbrev Term.cong := abs TermKind.cong
 abbrev Term.beta := abs TermKind.beta
 abbrev Term.eta := bin TermKind.eta
-abbrev Term.irir := tri TermKind.irir
-abbrev Term.prir := tri TermKind.prir
+abbrev Term.irir := ir TermKind.irir
+abbrev Term.prir := ir TermKind.prir
 abbrev Term.cases_left := cases TermKind.cases_left
 abbrev Term.cases_right := cases TermKind.cases_right
 abbrev Term.let_pair_iota_l := let_bin_iota TermKind.let_pair_iota_l
@@ -198,20 +199,21 @@ abbrev Term.natrec_succ := nr TermKind.natrec_succ
 
 @[simp] def Term.fv: Term -> Nat
   | var v => Nat.succ v
-  | const c => 0
+  | const _ => 0
   | unary _ t => fv t
   | let_bin _ P e e' => Nat.max (fv P) (Nat.max (fv e) ((fv e') - 2))
   | let_bin_iota _ P l r e' => Nat.max (fv P) (Nat.max (fv l) (Nat.max (fv r) ((fv e') - 2)))
   | bin _ l r => Nat.max (fv l) (fv r)
   | abs _ A t => Nat.max (fv A) (fv t - 1)
   | tri _ A l r => Nat.max (fv A) (Nat.max (fv l) (fv r))
+  | ir _ x y p => Nat.max (fv x) (Nat.max (fv y) (fv p - 1))
   | cases _ K d l r => Nat.max (fv K) (Nat.max (fv d) (Nat.max (fv l - 1) (fv r - 1)))
-  | nr k K e z s => Nat.max (fv K - 1) (Nat.max (fv e) (Nat.max (fv z) (fv s - 2)))
-  | nz k K z s => Nat.max (fv K - 1) (Nat.max (fv z) (fv s - 2))
+  | nr _ K e z s => Nat.max (fv K - 1) (Nat.max (fv e) (Nat.max (fv z) (fv s - 2)))
+  | nz _ K z s => Nat.max (fv K - 1) (Nat.max (fv z) (fv s - 2))
 
 @[simp] def Term.has_dep: Term -> Nat -> Prop
   | var v, i => v = i
-  | const c, _ => False
+  | const _, _ => False
   | unary _ t, i => has_dep t i
   | let_bin _ P e e', i => 
     has_dep P i ∨ has_dep e i ∨ has_dep e' (i + 2)
@@ -220,11 +222,12 @@ abbrev Term.natrec_succ := nr TermKind.natrec_succ
   | bin _ l r, i => has_dep l i ∨ has_dep r i
   | abs _ A t, i => has_dep A i ∨ has_dep t (i + 1)
   | tri _ A l r, i => has_dep A i ∨ has_dep l i ∨ has_dep r i
+  | ir _ x y p, i => has_dep x i ∨ has_dep y i ∨ has_dep p (i + 1)
   | cases _ K d l r, i => 
     has_dep K i ∨ has_dep d i ∨ has_dep l (i + 1) ∨ has_dep r (i + 1)
-  | nr k K e z s, i =>
+  | nr _ K e z s, i =>
     has_dep K (i + 1) ∨ has_dep e i ∨ has_dep z i ∨ has_dep s (i + 2)
-  | nz k K z s, i =>
+  | nz _ K z s, i =>
     has_dep K (i + 1) ∨ has_dep z i ∨ has_dep s (i + 2)
 
 theorem Term.has_dep_dimplies_fv (u: Term): {i: Nat} ->
