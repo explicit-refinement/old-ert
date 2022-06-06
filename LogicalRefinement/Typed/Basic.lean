@@ -385,7 +385,7 @@ theorem HasVar.wk_sort {k k'} (Hk: k.is_sub k') (p: HasVar Γ A k' n):
     apply Hk
     cases Hk
     constructor
-  | succ H I => 
+  | succ _ I => 
     apply succ
     apply I
     apply Hk
@@ -425,7 +425,7 @@ theorem HasVar.upgrade_val (p: HasVar Γ A (HypKind.val s) n):
 theorem HasVar.upgrade_upgraded:
   k.is_sub k' -> HasVar Γ A k n -> HasVar Γ.upgrade A k' n := by {
   intro Hk HΓ;
-  let Hv := upgrade HΓ;
+  have Hv := upgrade HΓ;
   cases k <;> cases Hk <;> try exact Hv
   exact HasVar.wk_sort HypKind.is_sub.gst Hv
 }
