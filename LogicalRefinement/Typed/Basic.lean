@@ -294,6 +294,32 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType Γ.upgrade y (proof φ) ->
     HasType Γ (irir f x y) 
     (proof (eq A (prir_ex φ A f x) (prir_ex φ A f y)))
+  | cases_left {Γ: Context} {A B C e l r: Term} {k: AnnotSort}:
+    HasType Γ e (term A) ->
+    HasType Γ A type ->
+    HasType Γ B type ->
+    HasType ((Hyp.mk (coprod A B) (HypKind.val type))::Γ) C k ->
+    HasType ((Hyp.mk A (HypKind.val type))::Γ) l (expr k (C.alpha0 (inj 0 (var 0)))) ->
+    HasType ((Hyp.mk B (HypKind.val type))::Γ) r (expr k (C.alpha0 (inj 1 (var 0)))) ->
+    HasType Γ (cases_left (coprod A B) (inj 0 e) l r) 
+    (proof 
+      (eq 
+        (C.subst0 (inj 0 e)) 
+        (case (coprod A B) (inj 0 e) l r) 
+        (l.subst0 e)))
+  | cases_right {Γ: Context} {A B C e l r: Term} {k: AnnotSort}:
+    HasType Γ e (term B) ->
+    HasType Γ A type ->
+    HasType Γ B type ->
+    HasType ((Hyp.mk (coprod A B) (HypKind.val type))::Γ) C k ->
+    HasType ((Hyp.mk A (HypKind.val type))::Γ) l (expr k (C.alpha0 (inj 0 (var 0)))) ->
+    HasType ((Hyp.mk B (HypKind.val type))::Γ) r (expr k (C.alpha0 (inj 1 (var 0)))) ->
+    HasType Γ (cases_right (coprod A B) (inj 1 e) l r) 
+    (proof 
+      (eq 
+        (C.subst0 (inj 1 e)) 
+        (case (coprod A B) (inj 1 e) l r) 
+        (r.subst0 e)))
 
   -- Natural numbers
   | nats {Γ}: HasType Γ nats type
