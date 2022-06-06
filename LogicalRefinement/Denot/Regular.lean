@@ -389,6 +389,8 @@ theorem HasType.denote
       sorry
     | irir Hf Hx Hy => exact ⟨sorry, sorry, rfl⟩
     | prir Hf Hx Hy => exact ⟨sorry, sorry, rfl⟩
+    | cases_left => sorry
+    | cases_right => sorry
     | succ => 
       intro x H;
       cases x with

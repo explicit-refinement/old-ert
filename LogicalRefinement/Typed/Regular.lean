@@ -30,14 +30,14 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
   -- Types and propositions are trivially regular
   all_goals try exact Annot.regular.sort
 
-  case app A B l r HP Hl Hr Is IP IA =>
+  case app A B _ r HP _ Hr _ _ _ =>
     constructor
     apply subst_sort
     cases HP <;> assumption
     intro n A k;
     apply Hr.to_subst
 
-  case app_pr A B l r HP Hl Hr Is IP IA =>
+  case app_pr A B _ r HP _ Hr _ _ _ =>
     constructor
     apply subst_sort
     cases HP <;> assumption
@@ -55,7 +55,7 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
     exact Context.is_sub.refl
     repeat constructor
     
-  case app_irrel A B l r HP Hl Hr Is IP IA =>
+  case app_irrel A B _ r HP _ Hr _ _ _ =>
     constructor
     apply HasType.downgrade
     apply subst_sort
@@ -67,7 +67,7 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
     apply Context.is_sub.upgrade
     repeat constructor
 
-  case dconj HD _ _ _ IA IB => 
+  case dconj HD _ _ _ IA _ => 
     constructor
     constructor
     cases IA
@@ -75,7 +75,7 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
     cases HD
     assumption
 
-  case mp HM Hl Hr _ _ _ =>
+  case mp HM _ Hr _ _ _ =>
     cases HM with
     | dimplies Hφ Hψ =>
       constructor
@@ -84,7 +84,7 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
       exact Hψ.upgrade
       assumption
 
-  case inst Hf Hl Hr If Il Ir => 
+  case inst Hf _ Hr _ _ _ => 
     constructor
     apply HasType.downgrade
     apply HasType.subst0_sort
@@ -131,7 +131,7 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
     | expr Ip => cases Ip; assumption
     repeat constructor
 
-  case beta Hs HA Ht Is IA It => 
+  case beta Hs HA Ht Is _ _ => 
     cases Is with
     | expr HB =>
       constructor
@@ -148,7 +148,7 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
       exact Ht.upgrade
       exact Hs.upgrade.upgrade.subst0 Ht.upgrade
 
-  case eta Γ A B f Hf HA If IA => 
+  case eta Γ A B f Hf _ If _ => 
     cases If with
     | expr Hf =>
       cases Hf with
@@ -180,7 +180,7 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
         exact HA'.upgrade
         exact Hf.upgrade
 
-  case irir Γ A B f x y Hf Hx Hy If Ix Iy => 
+  case irir Γ A B f x y Hf Hx Hy If Ix _ => 
     cases Ix with
     | expr HA =>
       cases If with
@@ -207,7 +207,7 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
           exact Hf.upgrade
           exact Hy.upgrade.upgrade
 
-  case prir Γ A B f x y Hf Hx Hy If Ix Iy => 
+  case prir Γ A B f x y Hf Hx Hy If Ix _ => 
     cases Ix with
     | expr HA =>
       cases If with
@@ -234,9 +234,13 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
           exact Hf.upgrade
           exact Hy.upgrade
 
+  case cases_left => sorry
+
+  case cases_right => sorry
+
   case succ => repeat constructor
 
-  case natrec HC Hn Hz Hs IC In Iz Is => 
+  case natrec HC Hn _ _ _ _ _ _ => 
     constructor
     apply HasType.subst0_sort
     apply HC.sub
