@@ -282,18 +282,18 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType Γ.upgrade f (term (pi A B)) ->
     HasType Γ A type ->
     HasType Γ (eta A f) (proof (eq (pi A B) (eta_ex A B f) f))
-  -- | irir {Γ: Context} {A B f x y: Term}:
-  --   HasType Γ.upgrade f (term (const_arrow A B)) ->
-  --   HasType Γ.upgrade x (term A) ->
-  --   HasType Γ.upgrade y (term A) ->
-  --   HasType Γ (irir f x y) 
-  --   (proof (eq B (irir_ex A B f x) (irir_ex A B f y)))
-  -- | prir {Γ: Context} {φ A f x y: Term}:
-  --   HasType Γ.upgrade f (term (assume_wf φ A)) ->
-  --   HasType Γ.upgrade x (proof φ) ->
-  --   HasType Γ.upgrade y (proof φ) ->
-  --   HasType Γ (irir f x y) 
-  --   (proof (eq A (prir_ex φ A f x) (prir_ex φ A f y)))
+  | irir {Γ: Context} {A P x y: Term}:
+    HasType ((Hyp.mk A HypKind.gst)::Γ) P prop -> 
+    HasType Γ A type ->
+    HasType Γ x (term A) ->
+    HasType Γ y (term A) ->
+    HasType Γ (irir x y P) (proof (implies (P.subst0 x) (P.subst0 y)))
+  | prir {Γ: Context} {A P x y: Term}:
+    HasType ((Hyp.mk A (HypKind.val prop))::Γ) P prop -> 
+    HasType Γ A prop ->
+    HasType Γ x (proof A) ->
+    HasType Γ y (proof A) ->
+    HasType Γ (prir x y P) (proof (implies (P.subst0 x) (P.subst0 y)))
   | cases_left {Γ: Context} {A B C e l r: Term} {k: AnnotSort}:
     HasType Γ e (term A) ->
     HasType Γ A type ->

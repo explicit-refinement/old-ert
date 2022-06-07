@@ -387,8 +387,8 @@ theorem HasType.denote
       dsimp only [Term.stlc_ty, Stlc.HasType.interp, Term.stlc]
       simp only []
       sorry
-    -- | irir Hf Hx Hy => exact ⟨sorry, sorry, rfl⟩
-    -- | prir Hf Hx Hy => exact ⟨sorry, sorry, rfl⟩
+    | irir => sorry
+    | prir => sorry
     | cases_left => sorry
     | cases_right => sorry
     | succ => 
