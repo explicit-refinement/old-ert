@@ -1054,3 +1054,12 @@ theorem Term.subst00_wknth (u: Term)
     rw [Subst.subst00_wknth_id]
     rw [Term.subst_id]
   }
+
+def Term.to_subst01 (u v: Term): Subst
+  | 0 => u
+  | 1 => v
+  | n + 2 => Term.var n
+
+def Term.subst01 (e u v: Term): Term := e.subst (u.to_subst01 v)
+
+--TODO: prove subst01 properties...

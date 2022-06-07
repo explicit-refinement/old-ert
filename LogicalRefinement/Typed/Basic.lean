@@ -179,7 +179,7 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType Γ (app_irrel (intersect A B) l r) (term (B.subst0 r))
   | repr {Γ: Context} {A B l r: Term}:
     HasType Γ (union A B) type ->
-    HasType Γ l (term A) -> HasType Γ r (term (B.subst0 l)) ->
+    HasType Γ.upgrade l (term A) -> HasType Γ r (term (B.subst0 l)) ->
     HasType Γ (repr l r) (term (union A B))
   | let_repr {Γ: Context} {A B C e e': Term} {k: AnnotSort}:
     HasType Γ e (term (union A B)) ->
@@ -320,6 +320,42 @@ inductive HasType: Context -> Term -> Annot -> Prop
         (C.subst0 (inj 1 e)) 
         (case (coprod A B) (inj 1 e) l r) 
         (r.subst0 e)))
+  | let_pair_iota {Γ: Context} {A B C l r e: Term} {k: AnnotSort}:
+    HasType Γ l (term A) ->
+    HasType Γ r (term (B.subst0 x)) ->
+    HasType Γ A type ->
+    HasType ((Hyp.mk A (HypKind.val type))::Γ) B type ->
+    HasType ((Hyp.mk (sigma A B) (HypKind.val type))::Γ) C k ->
+    HasType 
+    ((Hyp.mk B (HypKind.val type))::(Hyp.mk A (HypKind.val type))::Γ) 
+    e (expr k ((C.wknth 1).alpha0 (pair (var 1) (var 0)))) ->
+    HasType Γ 
+      (let_pair_iota (sigma A B) l r e)
+      (expr prop (eq (C.subst0 e) (let_pair (sigma A B) (pair l r) e) (e.subst01 l r)))
+  | let_set_iota {Γ: Context} {A φ C l r e: Term} {k: AnnotSort}:
+    HasType Γ l (term A) ->
+    HasType Γ r (proof (φ.subst0 x)) ->
+    HasType Γ A type ->
+    HasType ((Hyp.mk A (HypKind.val type))::Γ) φ prop ->
+    HasType ((Hyp.mk (set A φ) (HypKind.val type))::Γ) C k ->
+    HasType 
+    ((Hyp.mk φ (HypKind.val prop))::(Hyp.mk A (HypKind.val type))::Γ) 
+    e (expr k ((C.wknth 1).alpha0 (pair (var 1) (var 0)))) ->
+    HasType Γ 
+      (let_set_iota (set A φ) l r e)
+      (expr prop (eq (C.subst0 e) (let_pair (set A φ) (elem l r) e) (e.subst01 l r)))
+  | let_repr_iota {Γ: Context} {A B C l r e: Term} {k: AnnotSort}:
+    HasType Γ.upgrade l (term A) ->
+    HasType Γ r (term (B.subst0 x)) ->
+    HasType Γ A type ->
+    HasType ((Hyp.mk A HypKind.gst)::Γ) B type ->
+    HasType ((Hyp.mk (union A B) (HypKind.val type))::Γ) C k ->
+    HasType 
+    ((Hyp.mk B (HypKind.val type))::(Hyp.mk A HypKind.gst)::Γ) 
+    e (expr k ((C.wknth 1).alpha0 (pair (var 1) (var 0)))) ->
+    HasType Γ 
+      (let_repr_iota (union A B) l r e)
+      (expr prop (eq (C.subst0 e) (let_pair (union A B) (repr l r) e) (e.subst01 l r)))
 
   -- Natural numbers
   | nats {Γ}: HasType Γ nats type

@@ -381,6 +381,9 @@ theorem HasType.stlc {Γ a A}:
           assumption
         )
       | prop => exact Stlc.HasType.abort
+    | let_pair_iota => sorry
+    | let_set_iota => sorry
+    | let_repr_iota => sorry
     | _ =>
       first
       | assumption

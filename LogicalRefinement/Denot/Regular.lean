@@ -329,7 +329,7 @@ theorem HasType.denote
       ]
       apply And.intro
       . sorry -- not_none + Ir?
-      . exists Hl.stlc.interp G.downgrade
+      . exists Hl.stlc.interp G
         sorry
     | let_repr => sorry
     | abort Hp HA Ip IA => exact False.elim (Ip HΓ G HG)
@@ -391,6 +391,9 @@ theorem HasType.denote
     | prir => sorry
     | cases_left => sorry
     | cases_right => sorry
+    | let_pair_iota => sorry
+    | let_set_iota => sorry
+    | let_repr_iota => sorry
     | succ => 
       intro x H;
       cases x with

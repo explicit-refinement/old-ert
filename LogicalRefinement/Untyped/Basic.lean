@@ -87,8 +87,7 @@ inductive TermKind: List Nat -> Type
   | beta: TermKind [0, 1]
   | cases_left: TermKind [0, 0, 1, 1]
   | cases_right: TermKind [0, 0, 1, 1]
-  | let_pair_iota_l: TermKind [0, 0, 0, 2]
-  | let_pair_iota_r: TermKind [0, 0, 0, 2]
+  | let_pair_iota: TermKind [0, 0, 0, 2]
   | let_set_iota: TermKind [0, 0, 0, 2]
   | let_repr_iota: TermKind [0, 0, 0, 2]
   | eta: TermKind [0, 0]
@@ -108,16 +107,12 @@ inductive Term: Type
 
   | const (c: TermKind [])
   | unary (k: TermKind [0]) (t: Term)
-  -- TODO: let n?
   | let_bin (k: TermKind [0, 0, 2]) (P: Term) (e: Term) (e': Term)
   | let_bin_iota (k: TermKind [0, 0, 0, 2]) (P: Term) (l r: Term) (e': Term)
-  -- TODO: bin n? Can't, due to, of course, lack of nested inductive types...
   | bin (k: TermKind [0, 0]) (l: Term) (r: Term)
-  -- TODO: abs n?
   | abs (k: TermKind [0, 1]) (A: Term) (t: Term)
   | tri (k: TermKind [0, 0, 0]) (A: Term) (l: Term) (r: Term)
   | ir (k: TermKind [0, 0, 1]) (x: Term) (y: Term) (P: Term)
-  -- TODO: no cases?
   | cases (k: TermKind [0, 0, 1, 1]) (K: Term) (d: Term) (l: Term) (r: Term)
   | nr (k: TermKind [1, 0, 0, 2]) (K: Term) (e: Term) (z: Term) (s: Term)
   | nz (k: TermKind [1, 0, 2]) (K: Term) (z: Term) (s: Term)
@@ -185,8 +180,7 @@ abbrev Term.irir := ir TermKind.irir
 abbrev Term.prir := ir TermKind.prir
 abbrev Term.cases_left := cases TermKind.cases_left
 abbrev Term.cases_right := cases TermKind.cases_right
-abbrev Term.let_pair_iota_l := let_bin_iota TermKind.let_pair_iota_l
-abbrev Term.let_pair_iota_r := let_bin_iota TermKind.let_pair_iota_r
+abbrev Term.let_pair_iota := let_bin_iota TermKind.let_pair_iota
 abbrev Term.let_set_iota := let_bin_iota TermKind.let_set_iota
 abbrev Term.let_repr_iota := let_bin_iota TermKind.let_repr_iota
 

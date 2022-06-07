@@ -188,6 +188,12 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
 
   case cases_right => sorry
 
+  case let_pair_iota => sorry
+
+  case let_set_iota => sorry
+
+  case let_repr_iota => sorry
+
   case succ => repeat constructor
 
   case natrec HC Hn _ _ _ _ _ _ => 

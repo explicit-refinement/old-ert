@@ -98,6 +98,12 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
         rw [Hv]
         exact HasType.var (I S) HΓ
 
+    case let_pair_iota => sorry
+
+    case let_set_iota => sorry
+
+    case let_repr_iota => sorry
+
     all_goals (
       intro σ Γ S;
       rename_i' I5 I4 I3 I2 I1 I0;
