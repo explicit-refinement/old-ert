@@ -92,7 +92,7 @@ def Term.wknth_def {u: Term} {n}: u.wknth n = u.wk (Wk.wknth n) := rfl
 def Term.wk_bounds {u: Term}: {n m: Nat} -> {ρ: Wk} ->
   ρ.maps n m -> fv u ≤ m -> fv (u.wk ρ) ≤ n := by {
     induction u with
-    | var v => intros _ _ ρ Hm. apply Hm
+    | var v => intros _ _ _ Hm. apply Hm
     | const => intros. apply Nat.zero_le
     | unary _ _ IHt => 
       intros _ _ ρ Hm

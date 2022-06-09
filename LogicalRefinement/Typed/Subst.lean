@@ -17,7 +17,7 @@ def SubstCtx (σ: Subst) (Γ Δ: Context): Prop :=
   ∀n A k, HasVar Δ n k A -> SubstVar σ Γ n A k
 
 theorem SubstCtx.id {Γ}: SubstCtx Subst.id Γ Γ := 
-  λn A k Hv => SubstVar.var rfl (Term.subst_id _ ▸ Hv)
+  λ_ _ _ Hv => SubstVar.var rfl (Term.subst_id _ ▸ Hv)
 
 theorem SubstCtx.lift_primitive 
   {σ: Subst} {Γ Δ: Context} {A: Term} {k k': HypKind}:
@@ -98,12 +98,6 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
         rw [Hv]
         exact HasType.var (I S) HΓ
 
-    case let_pair_iota => sorry
-
-    case let_set_iota => sorry
-
-    case let_repr_iota => sorry
-
     all_goals (
       intro σ Γ S;
       rename_i' I5 I4 I3 I2 I1 I0;
@@ -115,7 +109,7 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
       try rw [eta_ex_eq_subst]
       try rw [irir_ex_eq_subst]
       try rw [prir_ex_eq_subst]
-      simp only [Term.subst, Term.subst0_subst] at *
+      simp only [Term.subst, Term.subst0_subst, Subst.subst01_subst] at *
       constructor <;>
       repeat (
         try rw [Term.alpha00_comm (by simp)]
