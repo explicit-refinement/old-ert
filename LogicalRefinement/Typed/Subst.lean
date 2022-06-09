@@ -25,7 +25,7 @@ theorem SubstCtx.lift_primitive
   k.is_sub k' ->
   IsHyp Γ (Hyp.mk (A.subst σ) k') ->
   SubstCtx σ.lift ((Hyp.mk (A.subst σ) k')::Γ) ((Hyp.mk A k)::Δ) := by {
-    intro S Hk HH n A k HΔ;
+    intro S Hk _ n A k HΔ;
     cases n with
     | zero =>
       simp only [Annot.subst]

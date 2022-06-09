@@ -148,7 +148,22 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
       exact Ht.upgrade
       exact Hs.upgrade.upgrade.subst0 Ht.upgrade
 
-  case beta_ir => sorry
+  case beta_ir Hs HA Ht Is _ _ => 
+    cases Is with
+    | expr HB =>
+      constructor
+      apply HasType.downgrade
+      constructor
+      exact HB.upgrade.subst0_sort Ht
+      constructor
+      constructor
+      exact HA.upgrade.upgrade
+      exact HB.upgrade.upgrade
+      constructor
+      exact HA.upgrade.upgrade
+      sorry
+      exact Ht.upgrade.upgrade
+      exact Hs.upgrade.upgrade.subst0 Ht.upgrade
 
   case beta_pr => sorry
 
