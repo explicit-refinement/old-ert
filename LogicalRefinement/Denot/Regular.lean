@@ -368,6 +368,12 @@ theorem HasType.denote
     | beta => 
       dsimp only [denote', Annot.denote]
       sorry
+    | beta_ir => 
+      dsimp only [denote', Annot.denote]
+      sorry
+    | beta_pr => 
+      dsimp only [denote', Annot.denote]
+      sorry
     | @eta Γ A B f Hf HA If IA => 
       have px
         : Γ.upgrade.stlc ⊧ (Term.eta_ex A B f).stlc Γ.upgrade.sparsity

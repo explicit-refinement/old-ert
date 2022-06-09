@@ -285,6 +285,13 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType Γ (beta_pr p s) 
     (proof (eq (A.subst0 t) 
     (app_pr (assume φ A) (lam_pr φ s) p) (s.subst0 p)))
+  | beta_ir {Γ: Context} {A B s t: Term}:
+    HasType ((Hyp.mk A HypKind.gst)::Γ) s (term B) ->
+    HasType Γ A type ->
+    HasType Γ.upgrade t (term A) ->
+    HasType Γ (beta_ir t s) 
+    (proof (eq (B.subst0 t) 
+    (app (intersect A B) (lam_irrel A s) t) (s.subst0 t)))
   | eta {Γ: Context} {A B f: Term}:
     HasType Γ.upgrade f (term (pi A B)) ->
     HasType Γ A type ->
