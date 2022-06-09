@@ -322,7 +322,7 @@ inductive HasType: Context -> Term -> Annot -> Prop
         (r.subst0 e)))
   | let_pair_iota {Γ: Context} {A B C l r e: Term} {k: AnnotSort}:
     HasType Γ l (term A) ->
-    HasType Γ r (term (B.subst0 x)) ->
+    HasType Γ r (term (B.subst0 l)) ->
     HasType Γ A type ->
     HasType ((Hyp.mk A (HypKind.val type))::Γ) B type ->
     HasType ((Hyp.mk (sigma A B) (HypKind.val type))::Γ) C k ->
@@ -331,10 +331,10 @@ inductive HasType: Context -> Term -> Annot -> Prop
     e (expr k ((C.wknth 1).alpha0 (pair (var 1) (var 0)))) ->
     HasType Γ 
       (let_pair_iota (sigma A B) l r e)
-      (expr prop (eq (C.subst0 e) (let_pair (sigma A B) (pair l r) e) (e.subst01 l r)))
+      (expr prop (eq (C.subst0 (pair l r)) (let_pair (sigma A B) (pair l r) e) (e.subst01 l r)))
   | let_set_iota {Γ: Context} {A φ C l r e: Term} {k: AnnotSort}:
     HasType Γ l (term A) ->
-    HasType Γ r (proof (φ.subst0 x)) ->
+    HasType Γ r (proof (φ.subst0 l)) ->
     HasType Γ A type ->
     HasType ((Hyp.mk A (HypKind.val type))::Γ) φ prop ->
     HasType ((Hyp.mk (set A φ) (HypKind.val type))::Γ) C k ->
@@ -343,10 +343,10 @@ inductive HasType: Context -> Term -> Annot -> Prop
     e (expr k ((C.wknth 1).alpha0 (pair (var 1) (var 0)))) ->
     HasType Γ 
       (let_set_iota (set A φ) l r e)
-      (expr prop (eq (C.subst0 e) (let_pair (set A φ) (elem l r) e) (e.subst01 l r)))
+      (expr prop (eq (C.subst0 (pair l r)) (let_pair (set A φ) (elem l r) e) (e.subst01 l r)))
   | let_repr_iota {Γ: Context} {A B C l r e: Term} {k: AnnotSort}:
     HasType Γ.upgrade l (term A) ->
-    HasType Γ r (term (B.subst0 x)) ->
+    HasType Γ r (term (B.subst0 l)) ->
     HasType Γ A type ->
     HasType ((Hyp.mk A HypKind.gst)::Γ) B type ->
     HasType ((Hyp.mk (union A B) (HypKind.val type))::Γ) C k ->
@@ -355,7 +355,7 @@ inductive HasType: Context -> Term -> Annot -> Prop
     e (expr k ((C.wknth 1).alpha0 (pair (var 1) (var 0)))) ->
     HasType Γ 
       (let_repr_iota (union A B) l r e)
-      (expr prop (eq (C.subst0 e) (let_pair (union A B) (repr l r) e) (e.subst01 l r)))
+      (expr prop (eq (C.subst0 (pair l r)) (let_pair (union A B) (repr l r) e) (e.subst01 l r)))
 
   -- Natural numbers
   | nats {Γ}: HasType Γ nats type

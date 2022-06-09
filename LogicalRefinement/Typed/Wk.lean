@@ -28,7 +28,7 @@ theorem WkCtx.upgrade: WkCtx ρ Γ Δ
   intro R;
   induction R with
   | id => exact id
-  | step R => apply step; assumption
+  | step _ => apply step; assumption
   | lift R =>
     simp only [Context.upgrade, Hyp.upgrade_wk_commute]
     apply lift <;> assumption
@@ -143,7 +143,7 @@ theorem IsCtx.var_valid {Γ} (H: IsCtx Γ)
       rename HypKind.is_sub _ _ => Hsub <;>
       cases Hsub <;>
       assumption
-    | succ Hk Hv => 
+    | succ _Hk Hv => 
       apply HasType.wk1_sort
       apply Hv
       cases H <;> assumption
