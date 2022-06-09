@@ -6,7 +6,7 @@ def Sparsity.thin {A}: Sparsity -> List A -> List A
 | _, [] => []
 | [], l => l
 | true::Γ, x::l => x::(thin Γ l)
-| false::Γ, x::l => thin Γ l
+| false::Γ, _::l => thin Γ l
 
 @[simp]
 theorem Sparsity.thin_empty (Γ: Sparsity): @thin A Γ [] = [] := by {
@@ -27,9 +27,9 @@ def Sparsity.anti: Sparsity -> Sparsity
 
 @[simp]
 def Sparsity.dep: Sparsity -> Nat -> Bool
-| [], n => true
-| b::Hs, 0 => b
-| b::Hs, Nat.succ n => dep Hs n
+| [], _ => true
+| b::_, 0 => b
+| _::Hs, Nat.succ n => dep Hs n
 
 theorem Sparsity.dep_get? {Γ: Sparsity} {n b}
   : Γ.get? n = some b -> Γ.dep n = b
@@ -98,7 +98,7 @@ theorem Sparsity.ix_inv_valid (Γ: Sparsity) {n: Nat}:
   := by {
     revert n;
     induction Γ with
-    | nil => intro n H; rfl
+    | nil => intro n _; rfl
     | cons H Γ I =>
       intro n;
       cases n with
@@ -342,11 +342,11 @@ theorem WkSprs.trans_dep
     revert v;
     induction H with
     | id => intro; rfl
-    | step H I =>
+    | step _ I =>
       intro
       rw [<-I]
       rfl
-    | lift H I =>
+    | lift _ I =>
       intro v;
       cases v with
       | zero => rfl

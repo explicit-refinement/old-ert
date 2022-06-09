@@ -18,7 +18,7 @@ inductive Wk: Type 0 where
 def wknth_var: Nat -> Nat -> Nat
 | 0, v => Nat.succ v
 | Nat.succ n, Nat.succ v => Nat.succ (wknth_var n v)
-| Nat.succ n, 0 => 0
+| Nat.succ _, 0 => 0
 
 def wknth_var' (n v: Nat): Nat :=
   if v < n then v else v + 1
@@ -118,7 +118,7 @@ theorem Wk.lift_comp {ρ σ: Wk}:
 def Wk.var: Wk -> Nat -> Nat
   | Wk.id, n => n
   | Wk.step ρ, n => (var ρ n) + 1
-  | Wk.lift ρ, 0 => 0
+  | Wk.lift _, 0 => 0
   | Wk.lift ρ, (n + 1) => (var ρ n) + 1
 
 def Wk.equiv (ρ σ: Wk) := ∀v: Nat, var ρ v = var σ v
@@ -162,7 +162,7 @@ def Wk.liftn_equiv: {n: Nat} -> {ρ σ: Wk} ->
   equiv ρ σ -> equiv (ρ.liftn n) (σ.liftn n) := by {
     intro n;
     induction n with
-    | zero => intros ρ σ H; exact H
+    | zero => intros _ρ _σ H; exact H
     | succ n I => 
       intros ρ σ H;
       simp only [liftn]
@@ -281,7 +281,7 @@ theorem Wk.var_comp: (ρ σ: Wk) -> (n: Nat) ->
   | _, Wk.id, _ => by { simp }
   | Wk.step ρ, _, _ => by { simp; apply var_comp }
   | Wk.lift ρ, Wk.step σ, _ => by { simp; apply var_comp }
-  | Wk.lift ρ, Wk.lift σ, 0 => by { simp } 
+  | Wk.lift _, Wk.lift _, 0 => by { simp } 
   | Wk.lift ρ, Wk.lift σ, (n + 1) => by { simp; apply var_comp }  
  
 def Wk.maps (ρ: Wk) (m n: Nat): Prop := (l: Nat) -> l < n -> Wk.var ρ l < m
@@ -310,7 +310,7 @@ theorem Wk.lift_maps {ρ: Wk} {m n: Nat}:
 }
 
 theorem Wk.wk1_maps {n: Nat}: wk1.maps (n + 1) n
-  := λ v Hv => Nat.succ_le_succ Hv
+  := λ _ Hv => Nat.succ_le_succ Hv
 
 theorem Wk.liftn_maps {ρ: Wk} {l m n: Nat}: 
   ρ.maps m n -> (ρ.liftn l).maps (m + l) (n + l) := by {

@@ -202,7 +202,7 @@ def Nat.le_antistep: succ n ≤ l -> n ≤ l := by {
   intro H;
   induction H with
   | refl => apply Nat.le_step; apply Nat.le_refl
-  | @step m H I => apply Nat.le_step; apply I
+  | @step m _ I => apply Nat.le_step; apply I
 }
 
 def Nat.lt_antistep: succ n < l -> n < l := Nat.le_antistep
@@ -210,7 +210,8 @@ def Nat.lt_antistep: succ n < l -> n < l := Nat.le_antistep
 def Nat.lt_l_add_lt: {n m l: Nat} -> n + m < l -> n < l := by {
   intros n m;
   induction m with
-  | zero => intros l H; exact H
+  --TODO: report unused variable bug here
+  | zero => intros _ H; exact H
   | succ m I => 
     intros l H;
     apply I
@@ -260,7 +261,7 @@ def Nat.succ_match_simp {F: Nat -> A}: (v: Nat) -> (
   match v + 1 with
   | 0 => e
   | Nat.succ n => F n 
-) = F v := λv => rfl
+) = F v := λ_ => rfl
 
 theorem Nat.succ_sub_gt: {n m: Nat} -> m ≤ n -> n + 1 - m = (n - m) + 1 := by {
   intro n;
@@ -332,7 +333,7 @@ theorem Nat.gt_sub_succ: n ≤ m -> (Nat.succ m) - n = Nat.succ (m - n) := by {
 theorem monorecursor
   : 
   @Eq.rec A x F D y p =
-  @Eq.rec (Type) (F x rfl) (λA p => A) D (F y p) p'  
+  @Eq.rec (Type) (F x rfl) (λA _ => A) D (F y p) p'  
   := by {
     cases p;
     cases p';
@@ -370,10 +371,10 @@ theorem cast_merge {A B C: Type}
 
 theorem pair_mono_transport
   :
-  @Eq.rec (Type) (Prod A B) (λA p => A) (x, y) (Prod C D) Ppair =
+  @Eq.rec (Type) (Prod A B) (λA _ => A) (x, y) (Prod C D) Ppair =
   (
-    @Eq.rec (Type) A (λA p => A) x C PA, 
-    @Eq.rec (Type) B (λA p => A) y D PB
+    @Eq.rec (Type) A (λA _ => A) x C PA, 
+    @Eq.rec (Type) B (λA _ => A) y D PB
   )
   := by {
     cases PA;
@@ -544,6 +545,7 @@ theorem cast_not_none_is_not_none {p: Option A = Option B} (p': A = B):
     cases a with
     | some a => 
       apply propext; 
+      --TODO: report unused variable bug here
       apply Iff.intro <;> intro _
       . simp
       . rw [cast_some]; simp; exact p'
