@@ -85,6 +85,8 @@ inductive TermKind: List Nat -> Type
   | trans: TermKind [0]
   | cong: TermKind [0, 1]
   | beta: TermKind [0, 1]
+  | beta_pr: TermKind [0, 1]
+  | beta_ir: TermKind [0, 1]
   | cases_left: TermKind [0, 0, 1, 1]
   | cases_right: TermKind [0, 0, 1, 1]
   | let_pair_iota: TermKind [0, 0, 0, 2]
@@ -175,6 +177,8 @@ abbrev Term.sym := unary TermKind.sym
 abbrev Term.trans := unary TermKind.trans
 abbrev Term.cong := abs TermKind.cong
 abbrev Term.beta := abs TermKind.beta
+abbrev Term.beta_pr := abs TermKind.beta_pr
+abbrev Term.beta_ir := abs TermKind.beta_ir
 abbrev Term.eta := bin TermKind.eta
 abbrev Term.irir := tri TermKind.irir
 abbrev Term.prir := ir TermKind.prir
