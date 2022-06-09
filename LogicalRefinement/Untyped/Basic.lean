@@ -91,7 +91,7 @@ inductive TermKind: List Nat -> Type
   | let_set_iota: TermKind [0, 0, 0, 2]
   | let_repr_iota: TermKind [0, 0, 0, 2]
   | eta: TermKind [0, 0]
-  | irir: TermKind [0, 0, 1]
+  | irir: TermKind [0, 0, 0]
   | prir: TermKind [0, 0, 1]
 
   -- Natural numbers
@@ -176,7 +176,7 @@ abbrev Term.trans := unary TermKind.trans
 abbrev Term.cong := abs TermKind.cong
 abbrev Term.beta := abs TermKind.beta
 abbrev Term.eta := bin TermKind.eta
-abbrev Term.irir := ir TermKind.irir
+abbrev Term.irir := tri TermKind.irir
 abbrev Term.prir := ir TermKind.prir
 abbrev Term.cases_left := cases TermKind.cases_left
 abbrev Term.cases_right := cases TermKind.cases_right
