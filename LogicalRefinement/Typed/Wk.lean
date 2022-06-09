@@ -15,7 +15,8 @@ inductive WkCtx: Wk -> Context -> Context -> Type
     -> WkCtx ρ.lift ((Hyp.mk (A.wk ρ) k)::Γ) ((Hyp.mk A k)::Δ)
 
 def WkCtx.lift_loose: 
-  ρ' = ρ.lift -> A' = A.wk ρ -> WkCtx ρ Γ Δ -> WkCtx ρ' ((Hyp.mk A' k)::Γ) ((Hyp.mk A k)::Δ) := by {
+  ρ' = ρ.lift -> A' = A.wk ρ -> WkCtx ρ Γ Δ 
+  -> WkCtx ρ' ((Hyp.mk A' k)::Γ) ((Hyp.mk A k)::Δ) := by {
     intro Hρ HA R;
     rw [Hρ, HA];
     exact WkCtx.lift R
@@ -83,12 +84,6 @@ theorem HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
       apply HasVar.wk
       repeat assumption
 
-    case let_pair_iota => sorry
-
-    case let_set_iota => sorry
-
-    case let_repr_iota => sorry
-
     all_goals (
       intro ρ Γ R;
       rename_i' I5 I4 I3 I2 I1 I0;
@@ -100,7 +95,7 @@ theorem HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
       try rw [eta_ex_eq_wk]
       try rw [irir_ex_eq_wk]
       try rw [prir_ex_eq_wk]
-      simp only [Term.wk, Term.subst0_wk, Term.wk1] at *
+      simp only [Term.wk, Term.subst0_wk, Wk.subst01_wk, Term.wk1] at *
       constructor <;>
       (try rw [Term.alpha00_wk_comm (by simp)]) <;>
       (try rw [Term.let_bin_ty_alpha_wk_pair]) <;>

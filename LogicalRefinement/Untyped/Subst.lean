@@ -1062,4 +1062,17 @@ def Term.to_subst01 (u v: Term): Subst
 
 def Term.subst01 (e u v: Term): Term := e.subst (u.to_subst01 v)
 
+theorem Subst.subst01_subst {e u v: Term} (σ: Subst):
+  (e.subst01 u v).subst σ 
+  = (e.subst (σ.liftn 2)).subst01 (u.subst σ) (v.subst σ)
+  := sorry
+
+theorem Wk.subst01_wk {e u v: Term} (ρ: Wk):
+  (e.subst01 u v).wk ρ 
+  = (e.wk (ρ.liftn 2)).subst01 (u.wk ρ) (v.wk ρ)
+  := by {
+    simp only [<-Subst.subst_wk_compat, <-Wk.to_subst_liftn]
+    apply Subst.subst01_subst
+  }
+
 --TODO: prove subst01 properties...
