@@ -213,8 +213,34 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
         constructor
         exact HA'.upgrade
         exact Hf.upgrade
+        
+  case irir Γ A B f x y Hf Hx Hy If Ix _ => 
+    cases Ix with
+    | expr HA =>
+      cases If with
+      | expr HF =>
+        cases HF with
+        | intersect HA HB =>
+          constructor
+          apply HasType.downgrade
+          constructor
+          rw [<-B.subst0_wk1]
+          exact HB.subst0_sort Hx
+          conv =>
+            arg 3
+            rw [<-@Term.subst0_wk1 B x]
+          constructor
+          exact HA.upgrade.intersect HB.upgrade
+          exact Hf.upgrade
+          exact Hx.upgrade.upgrade
+          conv =>
+            arg 3
+            rw [<-@Term.subst0_wk1 B y]
+          constructor
+          exact HA.upgrade.intersect HB.upgrade
+          exact Hf.upgrade
+          exact Hy.upgrade.upgrade
 
-  case irir => sorry   
 
   case prir => sorry   
 
