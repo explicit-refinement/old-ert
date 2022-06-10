@@ -27,6 +27,36 @@ def Annot.regular_expr: regular (expr s A) Γ -> (Γ ⊢ A: sort s)
 theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
   induction p;
 
+  case let_repr_iota => 
+    constructor
+    constructor
+    apply subst0_sort
+    assumption
+    constructor
+    constructor
+    assumption
+    sorry --TODO: apply upgrade lemma...
+    assumption
+    assumption
+    constructor
+    constructor
+    constructor
+    apply upgrade
+    assumption
+    sorry --TODO: apply upgrade lemma...
+    apply upgrade
+    assumption
+    apply upgrade
+    assumption
+    apply upgrade
+    assumption
+    sorry --TODO: apply upgrade lemma...
+    sorry --TODO: apply upgrade lemma'...
+    sorry --TODO: apply upgrade lemma''...
+    sorry --TODO: apply subst01 lemma...
+
+  stop
+
   -- Types and propositions are trivially regular
   all_goals try exact Annot.regular.sort
 
@@ -241,7 +271,6 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
           exact Hf.upgrade
           exact Hy.upgrade.upgrade
 
-
   case prir => sorry   
 
   case cases_left => sorry
@@ -252,7 +281,9 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
 
   case let_set_iota => sorry
 
-  case let_repr_iota => sorry
+  -- case let_repr_iota => 
+  --   constructor
+  --   constructor
 
   case succ => repeat constructor
 
