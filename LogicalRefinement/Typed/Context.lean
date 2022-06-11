@@ -122,7 +122,7 @@ def HypKind.downgrade_wk {k k': HypKind}:
         intro H;
         cases H;
         constructor
-      | gst => intro H; constructor
+      | gst => intro _; constructor
   }
 
 def HypKind.downgrade_is_sub {k: HypKind}: k.downgrade.is_sub k := by {
@@ -263,7 +263,7 @@ def Context.upgrade: Context -> Context
 def Context.upgrade_length_is_length {Γ: Context}: Γ.upgrade.length = Γ.length := by {
   induction Γ with
   | nil => rfl
-  | cons H Γ I => simp [I] 
+  | cons _ _ I => simp [I] 
 }
 
 @[simp]
@@ -298,7 +298,7 @@ theorem Context.is_sub.upgrade_eq {Γ Δ: Context}: Γ.is_sub Δ -> Γ.upgrade =
   intro HΓΔ;
   induction HΓΔ with
   | nil => rfl
-  | cons HΓΔ HH I => simp only [Context.upgrade, HH.upgrade_eq, I]
+  | cons _ HH I => simp only [Context.upgrade, HH.upgrade_eq, I]
 }
 
 theorem Context.is_sub.upgrade_bin {Γ Δ: Context} (H: Γ.is_sub Δ)
