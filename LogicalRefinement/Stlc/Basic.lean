@@ -168,9 +168,10 @@ def Stlc.Context.interp.thin: {Γ: Context} -> Γ.interp -> (Δ: Sparsity) -> (�
   simp
   exact G
 }
-| A::Γ, (x, G), true::Δ => (x, G.thin Δ)
---TODO: report spurious unused variable warning...
-| _::Γ, (_, G), false::Δ => G.thin Δ
+| _A::_Γ, (x, G), true::Δ => (x, G.thin Δ)
+-- TODO: report spurious unused variable warning 
+-- when `_` is used as name for `_A`
+| _A::_Γ, (_, G), false::Δ => G.thin Δ
 
 inductive Stlc.HasVar: Context -> Nat -> Ty -> Prop
 | zero {Γ A}: HasVar (A::Γ) 0 A

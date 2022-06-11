@@ -8,7 +8,7 @@ def Stlc.InterpSubst (Γ Δ: Context): Type :=
 
 def Stlc.InterpSubst.pop {H Γ Δ} (S: InterpSubst Γ (H::Δ))
   : InterpSubst Γ Δ
-  := λn A Hv => S _ _ Hv.succ
+  := λ_ _ Hv => S _ _ Hv.succ
 
 def Stlc.InterpSubst.lift {H Γ Δ} (S: InterpSubst Γ Δ)
   : InterpSubst (H::Γ) (H::Δ)
@@ -20,7 +20,7 @@ def Stlc.InterpSubst.lift {H Γ Δ} (S: InterpSubst Γ Δ)
       rw [P];
       exact HasVar.zero.interp G
     | succ n =>
-      let (x, G) := G;
+      let (_, G) := G;
       exact S _ _ (by cases Hv; assumption) G
   }
 
@@ -30,7 +30,7 @@ def Stlc.InterpSubst.lift2 {A B Γ Δ} (S: InterpSubst Γ Δ)
 
 def Stlc.InterpSubst.step {H Γ Δ} (S: InterpSubst Γ Δ)
   : InterpSubst (H::Γ) Δ
-  := λn A Hv => (S _ _ Hv).step H
+  := λ_ _ Hv => (S _ _ Hv).step H
 
 def Stlc.InterpSubst.pop_lift_step {H Γ Δ} (S: InterpSubst Γ Δ)
   : @pop H (H::Γ) Δ (@lift H Γ Δ S) = @step H Γ Δ S
@@ -50,7 +50,7 @@ def Stlc.InterpSubst.pop_step_commute {A B Γ Δ} (S: InterpSubst Γ (A::Δ))
 
 def Stlc.SubstCtx.interp {σ Γ Δ} (S: SubstCtx σ Γ Δ)
   : Stlc.InterpSubst Γ Δ
-  := λn A Hv => (S Hv).interp
+  := λ_ _ Hv => (S Hv).interp
   
 def Stlc.SubstCtx.pop_interp {σ Γ Δ H} (S: SubstCtx σ Γ (H::Δ))
   : @Stlc.InterpSubst.pop H Γ Δ S.interp
@@ -90,12 +90,13 @@ def Stlc.SubstCtx.lift_interp {σ Γ Δ H} (S: SubstCtx σ Γ Δ)
     rfl
   }
 
+--TODO: report spurious unused variable warning
 def Stlc.InterpSubst.transport_ctx {Γ Δ: Context} (S: InterpSubst Γ Δ) 
   (G: Γ.interp)
   : Δ.interp
   := match Δ with
      | [] => ()
-     | A::Δ => (S 0 _ HasVar.zero G, transport_ctx S.pop G)
+     | _::_ => (S 0 _ HasVar.zero G, transport_ctx S.pop G)
 
 theorem Stlc.InterpSubst.transport_cast {Γ Δ Γ': Context} 
   (S: InterpSubst Γ' Δ)
