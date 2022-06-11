@@ -35,7 +35,11 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
     constructor
     constructor
     assumption
-    sorry --TODO: apply upgrade lemma...
+    {
+      apply sub <;>
+      repeat first 
+        | assumption | apply Context.is_sub.refl | constructor
+    }
     assumption
     assumption
     constructor
@@ -43,16 +47,44 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
     constructor
     apply upgrade
     assumption
-    sorry --TODO: apply upgrade lemma...
+    {
+      apply sub <;>
+      repeat first 
+        | assumption 
+        | apply Context.is_sub.refl 
+        | apply Context.is_sub.upgrade 
+        | constructor
+    }
     apply upgrade
     assumption
     apply upgrade
     assumption
     apply upgrade
     assumption
-    sorry --TODO: apply upgrade lemma...
-    sorry --TODO: apply upgrade lemma'...
-    sorry --TODO: apply upgrade lemma''...
+    {
+      apply sub <;>
+      repeat first 
+        | assumption 
+        | apply Context.is_sub.refl 
+        | apply Context.is_sub.upgrade 
+        | constructor
+    }
+    {
+      apply sub <;>
+      repeat first 
+        | assumption 
+        | apply Context.is_sub.refl 
+        | apply Context.is_sub.upgrade 
+        | constructor
+    }
+    {
+      apply sub <;>
+      repeat first 
+        | assumption 
+        | apply Context.is_sub.refl 
+        | apply Context.is_sub.upgrade 
+        | constructor
+    }
     sorry --TODO: apply subst01 lemma...
 
   stop
