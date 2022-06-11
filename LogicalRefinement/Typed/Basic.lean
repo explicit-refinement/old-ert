@@ -334,7 +334,7 @@ inductive HasType: Context -> Term -> Annot -> Prop
         (C.subst0 (inj 1 e)) 
         (case (coprod A B) (inj 1 e) l r) 
         (r.subst0 e)))
-  | let_pair_iota {Γ: Context} {A B C l r e: Term}:
+  | let_pair_beta {Γ: Context} {A B C l r e: Term}:
     HasType Γ l (term A) ->
     HasType Γ r (term (B.subst0 l)) ->
     HasType Γ A type ->
@@ -344,9 +344,9 @@ inductive HasType: Context -> Term -> Annot -> Prop
     ((Hyp.mk B (HypKind.val type))::(Hyp.mk A (HypKind.val type))::Γ) 
     e (expr type ((C.wknth 1).alpha0 (pair (var 1) (var 0)))) ->
     HasType Γ 
-      (let_pair_iota (sigma A B) l r e)
+      (let_pair_beta (sigma A B) l r e)
       (expr prop (eq (C.subst0 (pair l r)) (let_pair (sigma A B) (pair l r) e) (e.subst01 l r)))
-  | let_set_iota {Γ: Context} {A φ C l r e: Term}:
+  | let_set_beta {Γ: Context} {A φ C l r e: Term}:
     HasType Γ l (term A) ->
     HasType Γ r (proof (φ.subst0 l)) ->
     HasType Γ A type ->
@@ -356,9 +356,9 @@ inductive HasType: Context -> Term -> Annot -> Prop
     ((Hyp.mk φ (HypKind.val prop))::(Hyp.mk A (HypKind.val type))::Γ) 
     e (expr type ((C.wknth 1).alpha0 (elem (var 1) (var 0)))) ->
     HasType Γ 
-      (let_set_iota (set A φ) l r e)
+      (let_set_beta (set A φ) l r e)
       (expr prop (eq (C.subst0 (elem l r)) (let_set (set A φ) (elem l r) e) (e.subst01 l r)))
-  | let_repr_iota {Γ: Context} {A B C l r e: Term}:
+  | let_repr_beta {Γ: Context} {A B C l r e: Term}:
     HasType Γ.upgrade l (term A) ->
     HasType Γ r (term (B.subst0 l)) ->
     HasType Γ A type ->
@@ -368,7 +368,7 @@ inductive HasType: Context -> Term -> Annot -> Prop
     ((Hyp.mk B (HypKind.val type))::(Hyp.mk A HypKind.gst)::Γ) 
     e (expr type ((C.wknth 1).alpha0 (repr (var 1) (var 0)))) ->
     HasType Γ 
-      (let_repr_iota (union A B) l r e)
+      (let_repr_beta (union A B) l r e)
       (expr prop (eq (C.subst0 (repr l r)) (let_repr (union A B) (repr l r) e) (e.subst01 l r)))
 
   -- Natural numbers
@@ -383,7 +383,7 @@ inductive HasType: Context -> Term -> Annot -> Prop
     --TODO: this is just C.wk1...
     (term ((C.wknth 1).alpha0 (var 1))) ->
     HasType Γ (natrec k C e z s) (expr k (C.subst0 e))
-  --TODO: natrec iota...
+  --TODO: natrec beta...
 
 notation Γ "⊢" a ":" A => HasType Γ a A
 notation Γ "⊢" a "∈" A => HasType Γ a (term A)

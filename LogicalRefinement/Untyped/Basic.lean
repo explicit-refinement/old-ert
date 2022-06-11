@@ -89,9 +89,9 @@ inductive TermKind: List Nat -> Type
   | beta_ir: TermKind [0, 1]
   | cases_left: TermKind [0, 0, 1, 1]
   | cases_right: TermKind [0, 0, 1, 1]
-  | let_pair_iota: TermKind [0, 0, 0, 2]
-  | let_set_iota: TermKind [0, 0, 0, 2]
-  | let_repr_iota: TermKind [0, 0, 0, 2]
+  | let_pair_beta: TermKind [0, 0, 0, 2]
+  | let_set_beta: TermKind [0, 0, 0, 2]
+  | let_repr_beta: TermKind [0, 0, 0, 2]
   | eta: TermKind [0, 0]
   | irir: TermKind [0, 0, 0]
   | prir: TermKind [0, 0, 1]
@@ -110,7 +110,7 @@ inductive Term: Type
   | const (c: TermKind [])
   | unary (k: TermKind [0]) (t: Term)
   | let_bin (k: TermKind [0, 0, 2]) (P: Term) (e: Term) (e': Term)
-  | let_bin_iota (k: TermKind [0, 0, 0, 2]) (P: Term) (l r: Term) (e': Term)
+  | let_bin_beta (k: TermKind [0, 0, 0, 2]) (P: Term) (l r: Term) (e': Term)
   | bin (k: TermKind [0, 0]) (l: Term) (r: Term)
   | abs (k: TermKind [0, 1]) (A: Term) (t: Term)
   | tri (k: TermKind [0, 0, 0]) (A: Term) (l: Term) (r: Term)
@@ -184,9 +184,9 @@ abbrev Term.irir := tri TermKind.irir
 abbrev Term.prir := ir TermKind.prir
 abbrev Term.cases_left := cases TermKind.cases_left
 abbrev Term.cases_right := cases TermKind.cases_right
-abbrev Term.let_pair_iota := let_bin_iota TermKind.let_pair_iota
-abbrev Term.let_set_iota := let_bin_iota TermKind.let_set_iota
-abbrev Term.let_repr_iota := let_bin_iota TermKind.let_repr_iota
+abbrev Term.let_pair_beta := let_bin_beta TermKind.let_pair_beta
+abbrev Term.let_set_beta := let_bin_beta TermKind.let_set_beta
+abbrev Term.let_repr_beta := let_bin_beta TermKind.let_repr_beta
 
 -- Natural numbers
 abbrev Term.zero := const TermKind.zero
@@ -200,7 +200,7 @@ abbrev Term.natrec_succ := nr TermKind.natrec_succ
   | const _ => 0
   | unary _ t => fv t
   | let_bin _ P e e' => Nat.max (fv P) (Nat.max (fv e) ((fv e') - 2))
-  | let_bin_iota _ P l r e' => Nat.max (fv P) (Nat.max (fv l) (Nat.max (fv r) ((fv e') - 2)))
+  | let_bin_beta _ P l r e' => Nat.max (fv P) (Nat.max (fv l) (Nat.max (fv r) ((fv e') - 2)))
   | bin _ l r => Nat.max (fv l) (fv r)
   | abs _ A t => Nat.max (fv A) (fv t - 1)
   | tri _ A l r => Nat.max (fv A) (Nat.max (fv l) (fv r))
@@ -215,7 +215,7 @@ abbrev Term.natrec_succ := nr TermKind.natrec_succ
   | unary _ t, i => has_dep t i
   | let_bin _ P e e', i => 
     has_dep P i ∨ has_dep e i ∨ has_dep e' (i + 2)
-  | let_bin_iota _ P l r e', i => 
+  | let_bin_beta _ P l r e', i => 
     has_dep P i ∨ has_dep l i ∨ has_dep r i ∨ has_dep e' (i + 2)
   | bin _ l r, i => has_dep l i ∨ has_dep r i
   | abs _ A t, i => has_dep A i ∨ has_dep t (i + 1)

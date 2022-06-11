@@ -11,10 +11,10 @@ def Term.stlc_ty: Term -> Ty
 | abs TermKind.pi A B => Ty.arrow A.stlc_ty B.stlc_ty
 | abs TermKind.sigma A B => Ty.prod A.stlc_ty B.stlc_ty
 | bin TermKind.coprod A B => Ty.coprod A.stlc_ty B.stlc_ty
-| abs TermKind.assume φ A => A.stlc_ty
-| abs TermKind.set A φ => A.stlc_ty
-| abs TermKind.intersect A B => B.stlc_ty
-| abs TermKind.union A B => B.stlc_ty
+| abs TermKind.assume _ A => A.stlc_ty
+| abs TermKind.set A _ => A.stlc_ty
+| abs TermKind.intersect _ B => B.stlc_ty
+| abs TermKind.union _ B => B.stlc_ty
 | const TermKind.nats => Ty.nats
 | _ => Ty.bot
 
@@ -48,7 +48,7 @@ theorem Annot.sort_case {Γ A s} (H: Γ ⊢ A: sort s):
 def Context.stlc: Context -> Stlc.Context
 | [] => []
 | (Hyp.mk A (HypKind.val type))::Hs => A.stlc_ty::(stlc Hs)
-| H::Hs => stlc Hs
+| _::Hs => stlc Hs
 
 @[simp]
 theorem Context.stlc_gst
@@ -58,7 +58,7 @@ theorem Context.stlc_gst
 def Context.ghosts: Context -> Stlc.Context
 | [] => []
 | (Hyp.mk A HypKind.gst)::Hs => A.stlc_ty::(ghosts Hs)
-| (Hyp.mk A _)::Hs => (ghosts Hs)
+| (Hyp.mk _ _)::Hs => (ghosts Hs)
 
 def Hyp.sparsity (H: Hyp): Bool := H.kind = HypKind.val type
 
@@ -82,9 +82,9 @@ theorem Context.sparsity_prop
 
 def Context.downgrade_sparsity: Context -> Sparsity
 | [] => []
-| (Hyp.mk A (HypKind.val type))::Γ => true::(downgrade_sparsity Γ)
-| (Hyp.mk A (HypKind.val prop))::Γ => downgrade_sparsity Γ
-| (Hyp.mk A HypKind.gst)::Γ => false::(downgrade_sparsity Γ)
+| (Hyp.mk _ (HypKind.val type))::Γ => true::(downgrade_sparsity Γ)
+| (Hyp.mk _ (HypKind.val prop))::Γ => downgrade_sparsity Γ
+| (Hyp.mk _ HypKind.gst)::Γ => false::(downgrade_sparsity Γ)
 
 @[simp]
 theorem Context.downgrade_sparsity_downgrade (Γ: Context)
@@ -178,25 +178,25 @@ def Term.stlc: Term -> Sparsity -> Stlc
 | unary (TermKind.inj i) e, σ => Stlc.inj i (e.stlc σ)
 | cases TermKind.case P d l r, σ => 
   Stlc.case P.stlc_ty (d.stlc σ) (l.stlc (true::σ)) (r.stlc (true::σ))
-| abs TermKind.lam_pr φ x, σ => x.stlc (false::σ)
-| tri TermKind.app_pr P e φ, σ => e.stlc σ
-| bin TermKind.elem e φ, σ => e.stlc σ
+| abs TermKind.lam_pr _ x, σ => x.stlc (false::σ)
+| tri TermKind.app_pr _ e _, σ => e.stlc σ
+| bin TermKind.elem e _, σ => e.stlc σ
 | let_bin TermKind.let_set P e e', σ =>
   Stlc.let_in P.stlc_ty (e.stlc σ) (e'.stlc (false::true::σ))
-| abs TermKind.lam_irrel A x, σ => x.stlc (false::σ)
-| tri TermKind.app_irrel P l r, σ => l.stlc σ
-| bin TermKind.repr l r, σ => r.stlc σ
+| abs TermKind.lam_irrel _ x, σ => x.stlc (false::σ)
+| tri TermKind.app_irrel _ l _, σ => l.stlc σ
+| bin TermKind.repr _ r, σ => r.stlc σ
 | let_bin TermKind.let_repr P e e', σ => 
   Stlc.let_in P.stlc_ty (e.stlc σ) (e'.stlc (true::false::σ))
-| const TermKind.zero, σ => Stlc.zero
-| const TermKind.succ, σ => Stlc.succ
+| const TermKind.zero, _ => Stlc.zero
+| const TermKind.succ, _ => Stlc.succ
 | nr (TermKind.natrec k) K n z s, σ => 
   if k = type then
     Stlc.natrec K.stlc_ty (n.stlc σ) (z.stlc σ) (s.stlc (true::false::σ))
   else
     Stlc.abort
-| unary TermKind.abort _, σ => Stlc.abort
-| _, σ => Stlc.abort
+| unary TermKind.abort _, _ => Stlc.abort
+| _, _ => Stlc.abort
 
 def Term.stlc_var: (var v).stlc σ = σ.stlc v := rfl
 
@@ -356,7 +356,7 @@ theorem HasType.stlc {Γ a A}:
       cases s with
       | type => exact Stlc.HasType.var Hv.stlc
       | prop => exact Stlc.HasType.abort
-    | natrec HC He Hz Hs IC Ie Iz Is => 
+    | natrec HC _ _ Hs IC Ie Iz Is => 
       rename AnnotSort => k;
       cases k with
       | type =>
@@ -381,11 +381,9 @@ theorem HasType.stlc {Γ a A}:
           assumption
         )
       | prop => exact Stlc.HasType.abort
-    | let_pair_iota => sorry
-    | let_set_iota => sorry
-    | let_repr_iota => sorry
     | _ =>
       first
+      | exact Stlc.HasType.abort
       | assumption
       | (
         dsimp only [Term.stlc, Term.stlc_ty] at *

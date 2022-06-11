@@ -397,9 +397,9 @@ theorem HasType.denote
     | prir => sorry
     | cases_left => sorry
     | cases_right => sorry
-    | let_pair_iota => sorry
-    | let_set_iota => sorry
-    | let_repr_iota => sorry
+    | let_pair_beta => sorry
+    | let_set_beta => sorry
+    | let_repr_beta => sorry
     | succ => 
       intro x H;
       cases x with

@@ -140,12 +140,12 @@ theorem Subst.liftn_above_wk {σ: Subst}: {base v: Nat} ->
 @[simp]
 def Term.subst: Term -> Subst -> Term
   | var v, σ => σ v
-  | const c, σ => const c
+  | const c, _ => const c
   | unary k t, σ => unary k (t.subst σ)
   | let_bin k P e e', σ => 
     let_bin k (P.subst σ) (e.subst σ) (e'.subst (σ.liftn 2))
-  | let_bin_iota k P l r e', σ => 
-    let_bin_iota k (P.subst σ) (l.subst σ) (r.subst σ) (e'.subst (σ.liftn 2))
+  | let_bin_beta k P l r e', σ => 
+    let_bin_beta k (P.subst σ) (l.subst σ) (r.subst σ) (e'.subst (σ.liftn 2))
   | bin k l r, σ => bin k (l.subst σ) (r.subst σ)
   | abs k A t, σ => abs k (A.subst σ) (t.subst σ.lift)
   | tri k A l r, σ => tri k (A.subst σ) (l.subst σ) (r.subst σ)
@@ -205,7 +205,7 @@ theorem Term.liftn_wk {u: Term}: {σ: Subst} -> (n: Nat) ->
       simp only [wknth] at *
       rw [IP, Ie, Ie']
       simp
-    | let_bin_iota k P l r e' IP Il Ir Ie' =>
+    | let_bin_beta k P l r e' IP Il Ir Ie' =>
       intros σ n
       simp only [wknth, wk, subst, Wk.liftn_wknth_merge]
       rw [Subst.liftn_merge]
@@ -355,7 +355,7 @@ def Subst.wk_bounds {ρ: Wk} {n m: Nat}:
 
 def Subst.wk1_subst: {σ: Subst} -> {n m: Nat} ->
   subst_maps n m σ -> subst_maps (n + 1) m (wk1 σ) := by {
-    intros σ n m Hσ v Hv;
+    intros σ n _ Hσ v Hv;
     simp only [Term.fv, wk1]
     apply Nat.le_trans Term.fv_wk1;
     apply Nat.succ_le_succ;
@@ -380,7 +380,7 @@ def Subst.liftn_subst:  {l n m: Nat} -> {σ: Subst} ->
   subst_maps n m σ -> subst_maps (n + l) (m + l) (σ.liftn l) := by {
     intro l;
     induction l with
-    | zero => intros n m σ Hσ; exact Hσ
+    | zero => intros _ _ _ Hσ; exact Hσ
     | succ l I =>
       intros n m σ Hσ;
       simp only [liftn]
@@ -394,11 +394,11 @@ theorem Term.subst_bounds:
   intro u;
   induction u with
   | var v => 
-    intros σ n m Hv Hσ; 
+    intros _ _ _ Hv Hσ; 
     simp at Hv
     exact Hσ _ Hv
   | const c => 
-    intros σ n m Hv Hσ; 
+    intros σ n _ _ _; 
     simp only [fv, subst]
     apply Nat.zero_le
   | unary k t I =>
@@ -413,7 +413,7 @@ theorem Term.subst_bounds:
     apply And.intro
     exact Ie He Hσ
     exact Ie' He' (Subst.liftn_subst Hσ)
-  | let_bin_iota k P l r e' IP Il Ir Ie' =>
+  | let_bin_beta k P l r e' IP Il Ir Ie' =>
     simp only [fv, subst, Nat.max_r_le_split, Nat.le_sub_is_le_add]
     intro σ n m ⟨HP, Hl, Hr, He'⟩ Hσ;
     apply And.intro

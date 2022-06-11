@@ -123,14 +123,14 @@ def Stlc.let_one (e: Stlc) (C: Ty): Stlc := Stlc.let_in C (var 1) e
 
 def Stlc.has_var: Stlc -> Nat -> Prop
 | var v, n => v = n
-| lam A s, n => s.has_var (n + 1)
-| app P l r, n => l.has_var n ∨ r.has_var n
-| let_in A e e', n => e.has_var n ∨ e'.has_var (n + 1)
+| lam _ s, n => s.has_var (n + 1)
+| app _ l r, n => l.has_var n ∨ r.has_var n
+| let_in _ e e', n => e.has_var n ∨ e'.has_var (n + 1)
 | pair l r, n => l.has_var n ∨ r.has_var n
-| let_pair P e e', n => e.has_var n ∨ e'.has_var (n + 2)
-| inj f e, n => e.has_var n
-| case P d l r, n => d.has_var n ∨ l.has_var (n + 1) ∨ r.has_var (n + 1)
-| natrec A n z s, v => n.has_var v ∨ z.has_var v ∨ s.has_var (v + 1)
+| let_pair _ e e', n => e.has_var n ∨ e'.has_var (n + 2)
+| inj _ e, n => e.has_var n
+| case _ d l r, n => d.has_var n ∨ l.has_var (n + 1) ∨ r.has_var (n + 1)
+| natrec _ n z s, v => n.has_var v ∨ z.has_var v ∨ s.has_var (v + 1)
 | _, _ => False
 
 def Stlc.wk: Stlc -> Wk -> Stlc
@@ -143,7 +143,7 @@ def Stlc.wk: Stlc -> Wk -> Stlc
 | inj i e, ρ => inj i (e.wk ρ)
 | case P d l r, ρ => case P (d.wk ρ) (l.wk ρ.lift) (r.wk ρ.lift)
 | natrec A n z s, ρ => natrec A (n.wk ρ) (z.wk ρ) (s.wk ρ.lift)
-| c, ρ => c
+| c, _ => c
 
 def Stlc.wk1 (s: Stlc): Stlc := s.wk Wk.wk1
 def Stlc.wknth (s: Stlc) (n: Nat): Stlc := s.wk (Wk.wknth n)
@@ -169,7 +169,8 @@ def Stlc.Context.interp.thin: {Γ: Context} -> Γ.interp -> (Δ: Sparsity) -> (�
   exact G
 }
 | A::Γ, (x, G), true::Δ => (x, G.thin Δ)
-| A::Γ, (x, G), false::Δ => G.thin Δ
+--TODO: report spurious unused variable warning...
+| _::Γ, (_, G), false::Δ => G.thin Δ
 
 inductive Stlc.HasVar: Context -> Nat -> Ty -> Prop
 | zero {Γ A}: HasVar (A::Γ) 0 A
@@ -243,10 +244,10 @@ theorem Stlc.HasVar.wk {Γ Δ n A} (H: HasVar Δ n A):
     revert H A n;
     induction R with
     | id => intros; assumption
-    | step R I =>
+    | step _ I =>
       intro n A H;
       exact HasVar.succ (I H)
-    | lift R I =>
+    | lift _ I =>
       intro n A H;
       cases H with
       | zero => exact HasVar.zero
@@ -275,7 +276,10 @@ theorem Stlc.HasType.let_natrec
     repeat constructor
   }
 
-def Stlc.Context.interp.wk {Γ Δ ρ} (G: Γ.interp) (R: WkCtx ρ Γ Δ): Δ.interp := 
+--TODO: report spurious unused variable warning...
+def Stlc.Context.interp.wk {Γ Δ ρ} 
+  (G: Γ.interp) 
+  (R: WkCtx ρ Γ Δ): Δ.interp := 
   match ρ with
   | Wk.id => by {
       have HΓΔ: Δ = Γ := by cases R; rfl;
@@ -342,7 +346,7 @@ def Stlc.subst: Stlc -> Subst -> Stlc
 | inj i e, σ => inj i (e.subst σ)
 | case P d l r, σ => case P (d.subst σ) (l.subst σ.lift) (r.subst σ.lift)
 | natrec C n z s, σ => natrec C (n.subst σ) (z.subst σ) (s.subst σ.lift)
-| c, σ => c
+| c, _ => c
 
 def Stlc.subst_var: (Stlc.var n).subst σ = σ n := rfl
 
@@ -440,6 +444,7 @@ def Stlc.Context.deriv.wk_lift {Γ Δ ρ A} {B: Ty}
   : D.wk R.lift (x, G) = Context.deriv.wk (λD' => D (x, D')) R G
   := rfl
 
+--TODO: report spurious unused variable warning...
 def Stlc.HasVar.interp {Γ A n} (H: HasVar Γ n A): Γ.deriv A :=
   λG =>
   match Γ with
@@ -453,6 +458,7 @@ def Stlc.HasVar.interp {Γ A n} (H: HasVar Γ n A): Γ.deriv A :=
     | 0 => by rw [H.zero_invert] at IA; exact IA
     | Nat.succ n => H.succ_invert.interp G
 
+--TODO: report spurious unused variable warning...
 def Stlc.HasType.interp {Γ a A} (H: HasType Γ a A): Γ.deriv A :=
   λG =>
   match a with

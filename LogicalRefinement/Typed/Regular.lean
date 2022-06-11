@@ -27,7 +27,7 @@ def Annot.regular_expr: regular (expr s A) Γ -> (Γ ⊢ A: sort s)
 theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
   induction p;
 
-  case let_repr_iota => 
+  case let_repr_beta => 
     constructor
     constructor
     apply subst0_sort
@@ -309,11 +309,11 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
 
   case cases_right => sorry
 
-  case let_pair_iota => sorry
+  case let_pair_beta => sorry
 
-  case let_set_iota => sorry
+  case let_set_beta => sorry
 
-  -- case let_repr_iota => 
+  -- case let_repr_beta => 
   --   constructor
   --   constructor
 
