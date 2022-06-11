@@ -31,7 +31,6 @@ theorem SubstCtx.lift_primitive
       simp only [Annot.subst]
       cases HΔ with
       | zero Hkk' =>
-        rename_i k'
         apply SubstVar.var
         rfl
         simp only [Subst.lift_wk]

@@ -6,6 +6,8 @@ import LogicalRefinement.Denot.Basic
 open AnnotSort
 open Annot
 
+set_option maxHeartbeats 10000000
+
 def ValidSubst {Γ Δ: Context} 
   (I: Stlc.InterpSubst Γ.upgrade.stlc Δ.upgrade.stlc): Prop 
   := ∀G, (G ⊧ ✓Γ) -> (I.transport_ctx G ⊧ ✓Δ)
