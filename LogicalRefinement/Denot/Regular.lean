@@ -407,5 +407,6 @@ theorem HasType.denote
       | some x => exact True.intro
     | @natrec Γ C e z s k HC He Hz Hs IC Ie Iz Is => sorry
     | natrec_zero => sorry
+    | natrec_succ => sorry
     | _ => exact True.intro
   }
