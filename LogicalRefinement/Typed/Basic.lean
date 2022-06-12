@@ -424,7 +424,6 @@ theorem HasType.fv {Γ a A} (P: Γ ⊢ a: A): a.fv ≤ Γ.length := by {
     apply HasVar.fv
     assumption
 
-  stop
   all_goals (
     simp only [
       Term.fv, 
@@ -432,7 +431,8 @@ theorem HasType.fv {Γ a A} (P: Γ ⊢ a: A): a.fv ≤ Γ.length := by {
       Nat.le_sub_is_le_add
     ] at *;
     simp only [
-      Context.upgrade_length_is_length
+      Context.upgrade_length_is_length,
+      List.length
     ] at *
     repeat first 
     | assumption
