@@ -202,10 +202,10 @@ theorem HasType.subst01 {Γ e C l r sl sr A B}
       intro n A Hv;
       cases Hv with
       | zero HA =>
-        --TODO: wk1-subst01 theorem
         cases HA <;>
         apply SubstVar.expr <;>
-        sorry
+        rw [<-Term.subst01_wk1] at Hl <;>
+        exact Hl
     | succ n => 
       cases n with
       | zero => 
@@ -214,10 +214,10 @@ theorem HasType.subst01 {Γ e C l r sl sr A B}
         | succ Hv =>
           cases Hv with
           | zero HA =>
-            --TODO: wk1-wk1-subst01 theorem
             cases HA <;>
             apply SubstVar.expr <;>
-            sorry
+            rw [Term.subst01_def, Term.subst01_wk1_wk1] <;>
+            exact Hr
       | succ n => 
         intro n A Hv;
         apply SubstVar.var;
@@ -225,8 +225,9 @@ theorem HasType.subst01 {Γ e C l r sl sr A B}
         cases Hv with
         | succ Hv =>
           cases Hv with
-          --TODO: wk1-wk1-subst01 theorem
-          | succ Hv => sorry
+          | succ Hv => 
+            rw [Term.subst01_def, Term.subst01_wk1_wk1]
+            exact Hv
   }
 
 theorem HasType.subst01_gen {Γ e C l r sl sr A B} 

@@ -1075,6 +1075,18 @@ theorem Wk.subst01_wk {e u v: Term} (ρ: Wk):
     apply Subst.subst01_subst
   }
 
+theorem Term.subst01_def {C l r: Term}:
+  C.subst (l.to_subst01 r) = C.subst01 l r 
+  := rfl
+
+theorem Term.subst01_wk1 {C l r: Term}:
+  C.wk1.subst01 l r = C.subst0 r
+  := sorry
+
+theorem Term.subst01_wk1_wk1 {C l r: Term}:
+  C.wk1.wk1.subst01 l r = C
+  := sorry
+
 theorem Term.alpha0_subst01_bin {k} {C l r: Term}:
   ((C.wknth 1).alpha0 (bin k (var 1) (var 0))).subst01 r l = C.subst0 (bin k l r)
   := sorry
