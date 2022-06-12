@@ -30,20 +30,6 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
   -- Types and propositions are trivially regular
   all_goals try exact Annot.regular.sort
 
-  case natrec_zero => 
-    constructor
-    constructor
-    apply downgrade
-    apply subst0_sort
-    upgrade_ctx assumption
-    constructor
-    constructor
-    upgrade_ctx assumption
-    constructor
-    assumption
-    upgrade_ctx assumption
-    assumption
-
   case natrec_succ => sorry
 
   stop
@@ -411,6 +397,20 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
     apply Context.is_sub.refl
     constructor
     constructor
+    assumption
+
+  case natrec_zero => 
+    constructor
+    constructor
+    apply downgrade
+    apply subst0_sort
+    upgrade_ctx assumption
+    constructor
+    constructor
+    upgrade_ctx assumption
+    constructor
+    assumption
+    upgrade_ctx assumption
     assumption
 
   all_goals (
