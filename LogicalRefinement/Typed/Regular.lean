@@ -27,38 +27,6 @@ def Annot.regular_expr: regular (expr s A) Γ -> (Γ ⊢ A: sort s)
 theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
   induction p;
 
-  case let_repr_beta => 
-    constructor
-    constructor
-    apply subst0_sort
-    assumption
-    constructor
-    constructor
-    assumption
-    upgrade_ctx assumption
-    assumption
-    assumption
-    constructor
-    constructor
-    constructor
-    upgrade_ctx assumption
-    upgrade_ctx assumption
-    upgrade_ctx assumption
-    upgrade_ctx assumption
-    upgrade_ctx assumption
-    upgrade_ctx assumption
-    upgrade_ctx assumption
-    upgrade_ctx assumption
-    apply subst01_gen;
-    upgrade_ctx assumption
-    upgrade_ctx assumption
-    assumption
-    simp only [Annot.subst01, Annot.subst, term]
-    apply congr rfl
-    sorry
-
-  stop
-
   -- Types and propositions are trivially regular
   all_goals try exact Annot.regular.sort
 
@@ -279,13 +247,95 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
 
   case cases_right => sorry
 
-  case let_pair_beta => sorry
+  case let_pair_beta => 
+    constructor
+    constructor
+    apply subst0_sort
+    assumption
+    constructor
+    constructor
+    assumption
+    upgrade_ctx assumption
+    assumption
+    assumption
+    constructor
+    constructor
+    constructor
+    upgrade_ctx assumption
+    upgrade_ctx assumption
+    upgrade_ctx assumption
+    upgrade_ctx assumption
+    upgrade_ctx assumption
+    upgrade_ctx assumption
+    upgrade_ctx assumption
+    upgrade_ctx assumption
+    apply subst01_gen;
+    upgrade_ctx assumption
+    upgrade_ctx assumption
+    upgrade_ctx assumption
+    simp only [Annot.subst01, Annot.subst, term]
+    apply congr rfl
+    exact Term.alpha0_subst01_bin.symm
 
-  case let_set_beta => sorry
+  case let_set_beta => 
+    constructor
+    constructor
+    apply subst0_sort
+    assumption
+    constructor
+    constructor
+    assumption
+    upgrade_ctx assumption
+    assumption
+    assumption
+    constructor
+    constructor
+    constructor
+    upgrade_ctx assumption
+    upgrade_ctx assumption
+    upgrade_ctx assumption
+    upgrade_ctx assumption
+    upgrade_ctx assumption
+    upgrade_ctx assumption
+    upgrade_ctx assumption
+    upgrade_ctx assumption
+    apply subst01_gen;
+    upgrade_ctx assumption
+    upgrade_ctx assumption
+    upgrade_ctx assumption
+    simp only [Annot.subst01, Annot.subst, term]
+    apply congr rfl
+    exact Term.alpha0_subst01_bin.symm
 
-  -- case let_repr_beta => 
-  --   constructor
-  --   constructor
+  case let_repr_beta => 
+    constructor
+    constructor
+    apply subst0_sort
+    assumption
+    constructor
+    constructor
+    assumption
+    upgrade_ctx assumption
+    assumption
+    assumption
+    constructor
+    constructor
+    constructor
+    upgrade_ctx assumption
+    upgrade_ctx assumption
+    upgrade_ctx assumption
+    upgrade_ctx assumption
+    upgrade_ctx assumption
+    upgrade_ctx assumption
+    upgrade_ctx assumption
+    upgrade_ctx assumption
+    apply subst01_gen;
+    upgrade_ctx assumption
+    upgrade_ctx assumption
+    assumption
+    simp only [Annot.subst01, Annot.subst, term]
+    apply congr rfl
+    exact Term.alpha0_subst01_bin.symm
 
   case succ => repeat constructor
 
@@ -298,6 +348,10 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
     constructor
     constructor
     assumption
+  
+  case natrec_zero => sorry
+
+  case natrec_succ => sorry
 
   all_goals (
     constructor; 
