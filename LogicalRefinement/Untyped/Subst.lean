@@ -581,7 +581,9 @@ def Term.substnth_def {u v: Term} {l}:
 def Term.alphanth_def {u v: Term} {l}:
   u.alphanth l v = u.subst (v.to_alpha.liftn l) := rfl
 
-def Term.substnth_wknth {u: Term}: {v: Term} -> {l: Nat} ->
+-- TODO: this is probably much easier to prove by just 
+-- converting to substitution form first...
+theorem Term.substnth_wknth {u: Term}: {v: Term} -> {l: Nat} ->
   (u.wknth l).substnth l v = u := by {
   induction u <;> intros v l;
   case var n =>
@@ -1096,7 +1098,18 @@ theorem Term.subst01_wk1 {C l r: Term}:
 
 theorem Term.subst01_wk1_wk1 {C l r: Term}:
   C.wk1.wk1.subst01 l r = C
-  := sorry
+  := by {
+    simp only [
+      subst01, wk1, subst0, 
+      <-Subst.subst_wk_compat,
+      subst_composes
+    ]
+    rw [Subst.comp_assoc]
+    rw [<-subst_composes]
+    rw [Subst.subst01_wk1]
+    rw [Subst.subst_wk_compat]
+    exact Term.subst0_wk1
+  }
 
 theorem Term.alpha0_subst01_bin {k} {C l r: Term}:
   ((C.wknth 1).alpha0 (bin k (var 1) (var 0))).subst01 r l = C.subst0 (bin k l r)
