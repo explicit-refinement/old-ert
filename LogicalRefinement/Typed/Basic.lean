@@ -309,12 +309,12 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType Γ y (proof A) ->
     HasType Γ (prir x y P) (proof (implies (P.subst0 x) (P.subst0 y)))
   | cases_left {Γ: Context} {A B C e l r: Term}:
-    HasType Γ e (term A) ->
+    HasType Γ.upgrade e (term A) ->
     HasType Γ A type ->
     HasType Γ B type ->
     HasType ((Hyp.mk (coprod A B) (HypKind.val type))::Γ) C type ->
-    HasType ((Hyp.mk A (HypKind.val type))::Γ) l (expr type (C.alpha0 (inj 0 (var 0)))) ->
-    HasType ((Hyp.mk B (HypKind.val type))::Γ) r (expr type (C.alpha0 (inj 1 (var 0)))) ->
+    HasType ((Hyp.mk A (HypKind.val type))::Γ.upgrade) l (expr type (C.alpha0 (inj 0 (var 0)))) ->
+    HasType ((Hyp.mk B (HypKind.val type))::Γ.upgrade) r (expr type (C.alpha0 (inj 1 (var 0)))) ->
     HasType Γ (cases_left (coprod A B) (inj 0 e) l r) 
     (proof 
       (eq 
@@ -322,12 +322,12 @@ inductive HasType: Context -> Term -> Annot -> Prop
         (case (coprod A B) (inj 0 e) l r) 
         (l.subst0 e)))
   | cases_right {Γ: Context} {A B C e l r: Term}:
-    HasType Γ e (term B) ->
+    HasType Γ.upgrade e (term B) ->
     HasType Γ A type ->
     HasType Γ B type ->
     HasType ((Hyp.mk (coprod A B) (HypKind.val type))::Γ) C type ->
-    HasType ((Hyp.mk A (HypKind.val type))::Γ) l (expr type (C.alpha0 (inj 0 (var 0)))) ->
-    HasType ((Hyp.mk B (HypKind.val type))::Γ) r (expr type (C.alpha0 (inj 1 (var 0)))) ->
+    HasType ((Hyp.mk A (HypKind.val type))::Γ.upgrade) l (expr type (C.alpha0 (inj 0 (var 0)))) ->
+    HasType ((Hyp.mk B (HypKind.val type))::Γ.upgrade) r (expr type (C.alpha0 (inj 1 (var 0)))) ->
     HasType Γ (cases_right (coprod A B) (inj 1 e) l r) 
     (proof 
       (eq 
@@ -424,6 +424,7 @@ theorem HasType.fv {Γ a A} (P: Γ ⊢ a: A): a.fv ≤ Γ.length := by {
     apply HasVar.fv
     assumption
 
+  stop
   all_goals (
     simp only [
       Term.fv, 
@@ -467,6 +468,19 @@ theorem HasVar.wk_sort {k k'} (Hk: k.is_sub k') (p: HasVar Γ A k' n):
     apply succ
     apply I
     apply Hk
+}
+
+theorem HasVar.upgrade_weak (p: HasVar Γ A k n): 
+  HasVar Γ.upgrade A k n := by {
+  induction p with
+  | zero H => 
+    rename_i k k';
+    simp only [Context.upgrade, Hyp.upgrade]
+    apply zero
+    cases H;
+    cases k <;> constructor
+    constructor
+  | succ => apply succ; assumption
 }
 
 theorem HasVar.downgrade_helper: {Γ Γ': Context} -> Γ' = Γ.upgrade -> 

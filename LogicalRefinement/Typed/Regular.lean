@@ -27,6 +27,21 @@ def Annot.regular_expr: regular (expr s A) Γ -> (Γ ⊢ A: sort s)
 theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
   induction p;
 
+  case cases_left => 
+    constructor
+    constructor
+    apply subst0_sort
+    assumption
+    constructor
+    assumption
+    assumption
+    apply upgrade
+    repeat sorry
+
+  case cases_right => sorry
+
+  stop
+
   -- Types and propositions are trivially regular
   all_goals try exact Annot.regular.sort
 

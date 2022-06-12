@@ -111,7 +111,7 @@ theorem HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
       | (exact R.upgrade)
       | {
         repeat (apply WkCtx.lift_loose rfl; rfl)
-        exact R
+        first | exact R | exact R.upgrade
       }
     )
   }

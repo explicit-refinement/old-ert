@@ -83,6 +83,16 @@ theorem SubstCtx.upgrade (S: SubstCtx ρ Γ Δ): SubstCtx ρ Γ.upgrade Δ.upgra
     exact SubstVar.var Hv (HasVar.upgrade_downgraded HΓ)
 }
 
+theorem SubstCtx.upgrade_left (S: SubstCtx ρ Γ Δ): SubstCtx ρ Γ.upgrade Δ
+:= by {
+  intro n A k H;
+  cases S _ _ _ H with
+  | expr S =>
+    exact SubstVar.expr (HasType.upgrade S)
+  | var Hv HΓ =>
+    exact SubstVar.var Hv HΓ.upgrade_weak
+}
+
 theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
   {σ: Subst} -> {Γ: Context} -> SubstCtx σ Γ Δ ->
   (Γ ⊢ (a.subst σ): (A.subst σ)) := by {
@@ -122,9 +132,14 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
         first
         | exact S
         | exact SubstCtx.upgrade S
+        | exact SubstCtx.upgrade_left S
         | repeat any_goals (
           apply SubstCtx.lift_primitive _ (by constructor <;> simp only [HypKind, Hyp.subst]) <;>
-          try exact S
+          first 
+          | exact S 
+          | exact SubstCtx.upgrade S 
+          | exact SubstCtx.upgrade_left S
+          | skip
         )
       )
     )
