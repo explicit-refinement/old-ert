@@ -247,6 +247,19 @@ theorem HasType.subst01_gen {Γ e C l r sl sr A B}
   : Γ ⊢ (e.subst01 l r): C' 
   := HCC' ▸ (He.subst01 Hl Hr)
 
+theorem HasType.subst01_gen_gst {Γ e C l r sl A B} 
+  (He: HasType 
+    ((Hyp.mk B (HypKind.val sl))
+    ::(Hyp.mk A HypKind.gst)::Γ) e C)
+  (Hl: HasType Γ l (expr sl (B.subst0 r)))
+  (Hr: HasType Γ r (expr type A))
+  (HCC': C' = C.subst01 l r)
+  : Γ ⊢ (e.subst01 l r): C' 
+  := by {
+    apply subst01_gen _ Hl Hr HCC';
+    upgrade_ctx assumption
+  }
+
 theorem HasType.subst01_sort {Γ e s' l r sl sr A B} 
   (He: HasType 
     ((Hyp.mk B (HypKind.val sl))

@@ -569,6 +569,7 @@ def IsHyp (Γ: Context) (H: Hyp): Prop := Γ ⊢ H.ty: sort H.kind.annot
 theorem HasType.to_var {s A n} (H: Γ ⊢ Term.var n: expr s A):
   HasVar Γ n (HypKind.val s) A := by cases H <;> assumption
 
+--TODO: ask about weird goal hints here...
 syntax "upgrade_ctx" tactic: tactic
 
 macro_rules
