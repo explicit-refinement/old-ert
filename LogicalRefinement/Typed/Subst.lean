@@ -191,7 +191,43 @@ theorem HasType.subst01 {Γ e C l r sl sr A B}
   (Hl: HasType Γ l (expr sl (B.subst0 r)))
   (Hr: HasType Γ r (expr sr A))
   : Γ ⊢ (e.subst01 l r): (C.subst01 l r) 
-  := sorry
+  := by {
+    unfold Term.subst01;
+    unfold Annot.subst01;
+    apply subst;
+    exact He;
+    intro n;
+    cases n with
+    | zero =>
+      intro n A Hv;
+      cases Hv with
+      | zero HA =>
+        --TODO: wk1-subst01 theorem
+        cases HA <;>
+        apply SubstVar.expr <;>
+        sorry
+    | succ n => 
+      cases n with
+      | zero => 
+        intro n A Hv;
+        cases Hv with
+        | succ Hv =>
+          cases Hv with
+          | zero HA =>
+            --TODO: wk1-wk1-subst01 theorem
+            cases HA <;>
+            apply SubstVar.expr <;>
+            sorry
+      | succ n => 
+        intro n A Hv;
+        apply SubstVar.var;
+        rfl
+        cases Hv with
+        | succ Hv =>
+          cases Hv with
+          --TODO: wk1-wk1-subst01 theorem
+          | succ Hv => sorry
+  }
 
 theorem HasType.subst01_gen {Γ e C l r sl sr A B} 
   (He: HasType 
