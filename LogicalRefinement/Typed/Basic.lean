@@ -385,9 +385,9 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType Γ (natrec k C e z s) (expr k (C.subst0 e))
   | natrec_zero {Γ: Context} {C z s: Term}:
     HasType ((Hyp.mk nats HypKind.gst)::Γ) C type ->
-    HasType Γ z (term (C.subst0 zero)) ->
+    HasType Γ.upgrade z (term (C.subst0 zero)) ->
     HasType 
-    ((Hyp.mk C (HypKind.val type))::(Hyp.mk nats HypKind.gst)::Γ) s
+    ((Hyp.mk C (HypKind.val type))::(Hyp.mk nats HypKind.gst)::Γ.upgrade) s
     --TODO: this is just C.wk1...
     (term ((C.wknth 1).alpha0 (var 1))) ->
     HasType Γ 
@@ -395,10 +395,10 @@ inductive HasType: Context -> Term -> Annot -> Prop
       (expr prop (eq (C.subst0 zero) (natrec type C zero z s) z))
   | natrec_succ {Γ: Context} {C e z s: Term}:
     HasType ((Hyp.mk nats HypKind.gst)::Γ) C type ->
-    HasType Γ e (term nats) ->
-    HasType Γ z (term (C.subst0 zero)) ->
+    HasType Γ.upgrade e (term nats) ->
+    HasType Γ.upgrade z (term (C.subst0 zero)) ->
     HasType 
-      ((Hyp.mk C (HypKind.val type))::(Hyp.mk nats HypKind.gst)::Γ) s
+      ((Hyp.mk C (HypKind.val type))::(Hyp.mk nats HypKind.gst)::Γ.upgrade) s
     --TODO: this is just C.wk1...
     (term ((C.wknth 1).alpha0 (var 1))) ->
     HasType Γ 
