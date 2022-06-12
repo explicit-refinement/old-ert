@@ -55,6 +55,8 @@ def Annot.subst: Annot -> Subst -> Annot
   | expr s A, σ => expr s (A.subst σ)
 
 abbrev Annot.subst0 (A: Annot) (e: Term) := A.subst e.to_subst
+abbrev Annot.subst01 (A: Annot) (l r: Term) := A.subst (l.to_subst01 r)
+
 @[simp]
 theorem Annot.subst_sort_const {s σ}:
     (sort s).subst σ = sort s := rfl

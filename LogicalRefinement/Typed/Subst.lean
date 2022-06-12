@@ -163,6 +163,20 @@ theorem HasType.subst0_sort {Γ e s' t s A}
   : Γ ⊢ (e.subst0 t): sort s'
   := He.subst Ht.to_subst
 
+theorem HasType.subst01 {Γ e C l r s A B} 
+  (He: HasType ((Hyp.mk A (HypKind.val s))::Γ) e C)
+  (Hl: HasType Γ l (expr s A))
+  (Hr: HasType Γ r (expr s B))
+  : Γ ⊢ (e.subst01 l r): (C.subst01 l r) 
+  := sorry
+
+theorem HasType.subst01_sort {Γ e s' l r s A B} 
+  (He: HasType ((Hyp.mk A (HypKind.val s))::Γ) e (sort s'))
+  (Hl: HasType Γ l (expr s A))
+  (Hr: HasType Γ r (expr s B))
+  : Γ ⊢ (e.subst01 l r): sort s' 
+  := He.subst01 Hl Hr
+
 theorem HasType.sym_ty (H: Γ ⊢ A: type): Γ ⊢ A.sym_ty: prop
   := by {
     constructor
