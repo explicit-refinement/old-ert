@@ -1115,4 +1115,8 @@ theorem Term.alpha0_subst01_bin {k} {C l r: Term}:
   ((C.wknth 1).alpha0 (bin k (var 1) (var 0))).subst01 r l = C.subst0 (bin k l r)
   := sorry
 
+theorem Term.alpha0_inj_subst {i} {C e: Term}:
+  C.subst0 (inj i e) = (C.alpha0 (inj i (var 0))).subst0 e
+  := sorry
+
 --TODO: prove subst01 properties...

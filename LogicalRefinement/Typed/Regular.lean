@@ -27,35 +27,6 @@ def Annot.regular_expr: regular (expr s A) Γ -> (Γ ⊢ A: sort s)
 theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
   induction p;
 
-  case cases_left => 
-    constructor
-    constructor
-    apply downgrade
-    apply subst0_sort
-    upgrade_ctx assumption
-    constructor
-    assumption
-    upgrade_ctx assumption
-    constructor
-    constructor
-    assumption
-    upgrade_ctx assumption
-    upgrade_ctx assumption
-    upgrade_ctx assumption
-    upgrade_ctx assumption
-    upgrade_ctx assumption
-    upgrade_ctx assumption
-    upgrade_ctx assumption
-    apply subst0_gen
-    assumption
-    assumption
-    --TODO: alpha0 rewrite trick?
-    sorry
-
-  case cases_right => sorry
-
-  stop
-
   -- Types and propositions are trivially regular
   all_goals try exact Annot.regular.sort
 
@@ -272,9 +243,55 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
 
   case prir => sorry   
 
-  case cases_left => sorry
+  case cases_left => 
+    constructor
+    constructor
+    apply downgrade
+    apply subst0_sort
+    upgrade_ctx assumption
+    constructor
+    assumption
+    upgrade_ctx assumption
+    constructor
+    constructor
+    assumption
+    upgrade_ctx assumption
+    upgrade_ctx assumption
+    upgrade_ctx assumption
+    upgrade_ctx assumption
+    upgrade_ctx assumption
+    upgrade_ctx assumption
+    upgrade_ctx assumption
+    apply subst0_gen
+    assumption
+    assumption
+    rw [Term.alpha0_inj_subst]
+    rfl
 
-  case cases_right => sorry
+  case cases_right => 
+    constructor
+    constructor
+    apply downgrade
+    apply subst0_sort
+    upgrade_ctx assumption
+    constructor
+    assumption
+    upgrade_ctx assumption
+    constructor
+    constructor
+    assumption
+    upgrade_ctx assumption
+    upgrade_ctx assumption
+    upgrade_ctx assumption
+    upgrade_ctx assumption
+    upgrade_ctx assumption
+    upgrade_ctx assumption
+    upgrade_ctx assumption
+    apply subst0_gen
+    assumption
+    assumption
+    rw [Term.alpha0_inj_subst]
+    rfl
 
   case let_pair_beta => 
     constructor
