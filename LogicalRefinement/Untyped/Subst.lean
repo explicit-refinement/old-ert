@@ -1079,9 +1079,20 @@ theorem Term.subst01_def {C l r: Term}:
   C.subst (l.to_subst01 r) = C.subst01 l r 
   := rfl
 
+theorem Subst.subst01_wk1 {l r: Term}:
+  (l.to_subst01 r).comp Wk.wk1 = r.to_subst
+  := sorry
+
 theorem Term.subst01_wk1 {C l r: Term}:
   C.wk1.subst01 l r = C.subst0 r
-  := sorry
+  := by {
+    simp only [
+      subst01, wk1, subst0, 
+      <-Subst.subst_wk_compat,
+      subst_composes
+    ]
+    exact congr rfl Subst.subst01_wk1
+  }
 
 theorem Term.subst01_wk1_wk1 {C l r: Term}:
   C.wk1.wk1.subst01 l r = C
