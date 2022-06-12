@@ -1081,7 +1081,7 @@ theorem Term.subst01_def {C l r: Term}:
 
 theorem Subst.subst01_wk1 {l r: Term}:
   (l.to_subst01 r).comp Wk.wk1 = r.to_subst
-  := sorry
+  := by funext n; cases n <;> rfl
 
 theorem Term.subst01_wk1 {C l r: Term}:
   C.wk1.subst01 l r = C.subst0 r
