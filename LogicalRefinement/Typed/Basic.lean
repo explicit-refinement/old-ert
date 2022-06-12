@@ -554,3 +554,20 @@ def IsHyp (Γ: Context) (H: Hyp): Prop := Γ ⊢ H.ty: sort H.kind.annot
 
 theorem HasType.to_var {s A n} (H: Γ ⊢ Term.var n: expr s A):
   HasVar Γ n (HypKind.val s) A := by cases H <;> assumption
+
+syntax "upgrade_ctx" tactic: tactic
+
+macro_rules
+  | `(tactic| upgrade_ctx $t) => `(tactic|
+      apply HasType.sub <;>
+      repeat first 
+        | $t
+        | apply Context.is_sub.refl 
+        | apply Context.is_sub.upgrade 
+        | apply Context.is_sub.cons
+        | apply Hyp.is_sub.refl
+        | apply Hyp.is_sub.upgrade
+        | apply Hyp.is_sub.refl_ty
+        | apply HypKind.is_sub.refl
+        | apply HypKind.is_sub.gst
+  )

@@ -35,67 +35,23 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
     constructor
     constructor
     assumption
-    {
-      apply sub <;>
-      repeat first 
-        | assumption | apply Context.is_sub.refl | constructor
-    }
+    upgrade_ctx assumption
     assumption
     assumption
     constructor
     constructor
     constructor
-    apply upgrade
-    assumption
-    {
-      apply sub <;>
-      repeat first 
-        | assumption 
-        | apply Context.is_sub.refl 
-        | apply Context.is_sub.upgrade 
-        | constructor
-    }
-    apply upgrade
-    assumption
-    apply upgrade
-    assumption
-    apply upgrade
-    assumption
-    {
-      apply sub <;>
-      repeat first 
-        | assumption 
-        | apply Context.is_sub.refl 
-        | apply Context.is_sub.upgrade 
-        | constructor
-    }
-    {
-      apply sub <;>
-      repeat first 
-        | assumption 
-        | apply Context.is_sub.refl 
-        | apply Context.is_sub.upgrade 
-        | constructor
-    }
-    {
-      apply sub <;>
-      repeat first 
-        | assumption 
-        | apply Context.is_sub.refl 
-        | apply Context.is_sub.upgrade 
-        | constructor
-    }
+    upgrade_ctx assumption
+    upgrade_ctx assumption
+    upgrade_ctx assumption
+    upgrade_ctx assumption
+    upgrade_ctx assumption
+    upgrade_ctx assumption
+    upgrade_ctx assumption
+    upgrade_ctx assumption
     apply subst01_gen;
-    {
-      apply sub <;>
-      repeat first 
-        | assumption 
-        | apply Context.is_sub.refl 
-        | apply Context.is_sub.upgrade 
-        | constructor
-    }
-    apply upgrade 
-    assumption
+    upgrade_ctx assumption
+    upgrade_ctx assumption
     assumption
     simp only [Annot.subst01, Annot.subst, term]
     apply congr rfl
