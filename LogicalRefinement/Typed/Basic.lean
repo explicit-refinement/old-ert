@@ -345,7 +345,7 @@ inductive HasType: Context -> Term -> Annot -> Prop
     e (expr type ((C.wknth 1).alpha0 (pair (var 1) (var 0)))) ->
     HasType Γ 
       (let_pair_beta (sigma A B) l r e)
-      (expr prop (eq (C.subst0 (pair l r)) (let_pair (sigma A B) (pair l r) e) (e.subst01 l r)))
+      (expr prop (eq (C.subst0 (pair l r)) (let_pair (sigma A B) (pair l r) e) (e.subst01 r l)))
   | let_set_beta {Γ: Context} {A φ C l r e: Term}:
     HasType Γ l (term A) ->
     HasType Γ r (proof (φ.subst0 l)) ->
@@ -357,7 +357,7 @@ inductive HasType: Context -> Term -> Annot -> Prop
     e (expr type ((C.wknth 1).alpha0 (elem (var 1) (var 0)))) ->
     HasType Γ 
       (let_set_beta (set A φ) l r e)
-      (expr prop (eq (C.subst0 (elem l r)) (let_set (set A φ) (elem l r) e) (e.subst01 l r)))
+      (expr prop (eq (C.subst0 (elem l r)) (let_set (set A φ) (elem l r) e) (e.subst01 r l)))
   | let_repr_beta {Γ: Context} {A B C l r e: Term}:
     HasType Γ.upgrade l (term A) ->
     HasType Γ r (term (B.subst0 l)) ->
@@ -369,7 +369,7 @@ inductive HasType: Context -> Term -> Annot -> Prop
     e (expr type ((C.wknth 1).alpha0 (repr (var 1) (var 0)))) ->
     HasType Γ 
       (let_repr_beta (union A B) l r e)
-      (expr prop (eq (C.subst0 (repr l r)) (let_repr (union A B) (repr l r) e) (e.subst01 l r)))
+      (expr prop (eq (C.subst0 (repr l r)) (let_repr (union A B) (repr l r) e) (e.subst01 r l)))
 
   -- Natural numbers
   | nats {Γ}: HasType Γ nats type

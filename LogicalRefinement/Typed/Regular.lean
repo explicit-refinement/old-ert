@@ -85,7 +85,21 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
         | apply Context.is_sub.upgrade 
         | constructor
     }
-    sorry --TODO: apply subst01 lemma...
+    apply subst01_gen;
+    {
+      apply sub <;>
+      repeat first 
+        | assumption 
+        | apply Context.is_sub.refl 
+        | apply Context.is_sub.upgrade 
+        | constructor
+    }
+    apply upgrade 
+    assumption
+    assumption
+    simp only [Annot.subst01, Annot.subst, term]
+    apply congr rfl
+    sorry
 
   stop
 

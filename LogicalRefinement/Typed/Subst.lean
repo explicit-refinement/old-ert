@@ -163,17 +163,31 @@ theorem HasType.subst0_sort {Γ e s' t s A}
   : Γ ⊢ (e.subst0 t): sort s'
   := He.subst Ht.to_subst
 
-theorem HasType.subst01 {Γ e C l r s A B} 
-  (He: HasType ((Hyp.mk A (HypKind.val s))::Γ) e C)
-  (Hl: HasType Γ l (expr s A))
-  (Hr: HasType Γ r (expr s B))
+theorem HasType.subst01 {Γ e C l r sl sr A B} 
+  (He: HasType 
+    ((Hyp.mk B (HypKind.val sl))
+    ::(Hyp.mk A (HypKind.val sr))::Γ) e C)
+  (Hl: HasType Γ l (expr sl (B.subst0 r)))
+  (Hr: HasType Γ r (expr sr A))
   : Γ ⊢ (e.subst01 l r): (C.subst01 l r) 
   := sorry
 
-theorem HasType.subst01_sort {Γ e s' l r s A B} 
-  (He: HasType ((Hyp.mk A (HypKind.val s))::Γ) e (sort s'))
-  (Hl: HasType Γ l (expr s A))
-  (Hr: HasType Γ r (expr s B))
+theorem HasType.subst01_gen {Γ e C l r sl sr A B} 
+  (He: HasType 
+    ((Hyp.mk B (HypKind.val sl))
+    ::(Hyp.mk A (HypKind.val sr))::Γ) e C)
+  (Hl: HasType Γ l (expr sl (B.subst0 r)))
+  (Hr: HasType Γ r (expr sr A))
+  (HCC': C' = C.subst01 l r)
+  : Γ ⊢ (e.subst01 l r): C' 
+  := HCC' ▸ (He.subst01 Hl Hr)
+
+theorem HasType.subst01_sort {Γ e s' l r sl sr A B} 
+  (He: HasType 
+    ((Hyp.mk B (HypKind.val sl))
+    ::(Hyp.mk A (HypKind.val sr))::Γ) e (sort s'))
+  (Hl: HasType Γ l (expr sl (B.subst0 r)))
+  (Hr: HasType Γ r (expr sr A))
   : Γ ⊢ (e.subst01 l r): sort s' 
   := He.subst01 Hl Hr
 
