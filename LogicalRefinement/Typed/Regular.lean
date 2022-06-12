@@ -30,13 +30,24 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
   case cases_left => 
     constructor
     constructor
+    apply downgrade
     apply subst0_sort
-    assumption
+    upgrade_ctx assumption
     constructor
     assumption
+    upgrade_ctx assumption
+    constructor
+    constructor
     assumption
-    apply upgrade
-    repeat sorry
+    upgrade_ctx assumption
+    upgrade_ctx assumption
+    upgrade_ctx assumption
+    upgrade_ctx assumption
+    upgrade_ctx assumption
+    upgrade_ctx assumption
+    upgrade_ctx assumption
+    --TODO: alpha0 rewrite trick?
+    sorry
 
   case cases_right => sorry
 
