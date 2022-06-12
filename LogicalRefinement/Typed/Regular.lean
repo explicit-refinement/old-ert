@@ -46,6 +46,9 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
     upgrade_ctx assumption
     upgrade_ctx assumption
     upgrade_ctx assumption
+    apply subst0_gen
+    assumption
+    assumption
     --TODO: alpha0 rewrite trick?
     sorry
 
