@@ -307,7 +307,7 @@ theorem Sparsity.wknth_ix_true' {Γ: Sparsity} {n v}
     . rw [wknth_var_char]
       simp only [wknth_var']
       rw [if_pos]
-      apply Nat.lt_of_le_and_ne
+      apply Nat.lt_of_le_of_ne
       apply ix_monotonic
       apply Nat.le_of_lt
       assumption

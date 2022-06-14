@@ -7,7 +7,7 @@ def Nat.le_or_lt (l r: Nat): l < r ∨ r ≤ l := by {
   | inl Hlr => 
     cases (Nat.decEq l r).em with
     | inl Heq => apply Or.inr; rw [Heq]; apply Nat.le_refl
-    | inr Hne => exact Or.inl (Nat.lt_of_le_and_ne Hlr Hne)
+    | inr Hne => exact Or.inl (Nat.lt_of_le_of_ne Hlr Hne)
   | inr Hrl => exact Or.inr Hrl
 }
 
