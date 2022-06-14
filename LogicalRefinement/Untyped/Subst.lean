@@ -1112,11 +1112,30 @@ theorem Term.subst01_wk1_wk1 {C l r: Term}:
   }
 
 theorem Term.alpha0_subst01_bin {k} {C l r: Term}:
-  ((C.wknth 1).alpha0 (bin k (var 1) (var 0))).subst01 r l = C.subst0 (bin k l r)
-  := sorry
+  ((C.wknth 1).alpha0 (bin k (var 1) (var 0))).subst01 r l 
+  = C.subst0 (bin k l r)
+  := by {
+    simp only [
+      subst01, wknth, alpha0, subst0,
+      <-Subst.subst_wk_compat,
+      subst_composes
+    ]
+    apply congr rfl;
+    funext n;
+    cases n <;> rfl
+  }
 
 theorem Term.alpha0_inj_subst {i} {C e: Term}:
   C.subst0 (inj i e) = (C.alpha0 (inj i (var 0))).subst0 e
-  := sorry
+  := by {
+    simp only [
+      subst01, wknth, alpha0, subst0,
+      <-Subst.subst_wk_compat,
+      subst_composes
+    ]
+    apply congr rfl;
+    funext n;
+    cases n <;> rfl
+  }
 
 --TODO: prove subst01 properties...
