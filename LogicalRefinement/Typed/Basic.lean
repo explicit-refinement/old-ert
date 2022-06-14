@@ -574,6 +574,7 @@ syntax "upgrade_ctx" tactic: tactic
 
 macro_rules
   | `(tactic| upgrade_ctx $t) => `(tactic|
+      simp only [Context.upgrade_idem];
       apply HasType.sub <;>
       repeat first 
         | $t

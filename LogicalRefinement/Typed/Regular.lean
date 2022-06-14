@@ -161,7 +161,7 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
       exact HB.upgrade.upgrade
       constructor
       exact HA.upgrade.upgrade
-      sorry
+      upgrade_ctx assumption
       exact Ht.upgrade.upgrade
       exact Hs.upgrade.upgrade.subst0 Ht.upgrade
 
