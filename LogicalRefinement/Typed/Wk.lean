@@ -76,7 +76,16 @@ theorem HasVar.wk:
 theorem Term.alpha0_natrec_wk_helper {C: Term} {ρ: Wk}:
   ((C.wk ρ.lift).wknth 1).alpha0 (Term.app (Term.arrow Term.nats Term.nats) Term.succ (Term.var 1))
   = ((C.wknth 1).alpha0 (Term.app (Term.arrow Term.nats Term.nats) Term.succ (Term.var 1))).wk (ρ.liftn 2)
-  := sorry
+  := by {
+    simp only [
+      subst01, wknth, alpha0, subst0,
+      <-Subst.subst_wk_compat,
+      subst_composes
+    ]
+    apply congr rfl;
+    funext n;
+    cases n <;> rfl
+  }
 
 theorem HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
   {ρ: Wk} -> {Γ: Context} -> WkCtx ρ Γ Δ ->
