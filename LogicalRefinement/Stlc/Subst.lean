@@ -32,7 +32,7 @@ def Stlc.InterpSubst.step {H Γ Δ} (S: InterpSubst Γ Δ)
   : InterpSubst (H::Γ) Δ
   := λ_ _ Hv => (S _ _ Hv).step H
 
-def Stlc.InterpSubst.pop_lift_step {H Γ Δ} (S: InterpSubst Γ Δ)
+theorem Stlc.InterpSubst.pop_lift_step {H Γ Δ} (S: InterpSubst Γ Δ)
   : @pop H (H::Γ) Δ (@lift H Γ Δ S) = @step H Γ Δ S
   := by {
     funext n A Hv G;
@@ -40,7 +40,8 @@ def Stlc.InterpSubst.pop_lift_step {H Γ Δ} (S: InterpSubst Γ Δ)
     rfl
   }
 
-def Stlc.InterpSubst.pop_step_commute {A B Γ Δ} (S: InterpSubst Γ (A::Δ))
+theorem Stlc.InterpSubst.pop_step_commute {A B Γ Δ} 
+  (S: InterpSubst Γ (A::Δ))
   : @step B Γ Δ (@pop A Γ Δ S) = @pop A (B::Γ) Δ (@step B Γ (A::Δ) S)
   := by {
     funext n A Hv G;
@@ -52,7 +53,7 @@ def Stlc.SubstCtx.interp {σ Γ Δ} (S: SubstCtx σ Γ Δ)
   : Stlc.InterpSubst Γ Δ
   := λ_ _ Hv => (S Hv).interp
   
-def Stlc.SubstCtx.pop_interp {σ Γ Δ H} (S: SubstCtx σ Γ (H::Δ))
+theorem Stlc.SubstCtx.pop_interp {σ Γ Δ H} (S: SubstCtx σ Γ (H::Δ))
   : @Stlc.InterpSubst.pop H Γ Δ S.interp
   = @Stlc.SubstCtx.interp (λn => σ n.succ) Γ Δ S.pop
   := by {
@@ -62,25 +63,25 @@ def Stlc.SubstCtx.pop_interp {σ Γ Δ H} (S: SubstCtx σ Γ (H::Δ))
     simp only [InterpSubst.pop, SubstCtx.interp]
   }
 
-def Stlc.SubstCtx.lift_interp {σ Γ Δ H} (S: SubstCtx σ Γ Δ)
+theorem Stlc.SubstCtx.lift_interp {σ Γ Δ H} (S: SubstCtx σ Γ Δ)
   : @Stlc.SubstCtx.interp σ.lift (H::Γ) (H::Δ) S.lift
   = @Stlc.InterpSubst.lift H Γ Δ S.interp
   := by {
     funext n;
     cases n with
     | zero => 
-      funext A Hv G;
+      funext _ Hv _;
       cases Hv;
       rfl
     | succ n => 
-      funext A Hv G;
+      funext _ _ G;
       cases G with
       | mk x G =>
         simp only [InterpSubst.lift]
         apply Stlc.HasType.interp_wk1
   }
   
-  def Stlc.SubstCtx.lift2_interp {σ Γ Δ A B} (S: SubstCtx σ Γ Δ)
+theorem Stlc.SubstCtx.lift2_interp {σ Γ Δ A B} (S: SubstCtx σ Γ Δ)
   : @Stlc.SubstCtx.interp (σ.liftn 2) (A::B::Γ) (A::B::Δ) S.lift2
   = @Stlc.InterpSubst.lift2 A B Γ Δ S.interp
   := by {
@@ -153,6 +154,21 @@ theorem Stlc.InterpSubst.pop_cast {Γ Δ Γ' Δ': Context}
   := by {
     cases HΓ; cases HΔ; cases HH;
     rfl
+  }
+  
+  theorem Stlc.InterpSubst.pop_cast' {Γ Δ Γ' Δ': Context}
+  (H H': Ty)
+  (S: InterpSubst Γ' (H'::Δ'))
+  (HΓ: Γ = Γ')
+  (HΔ: Δ = Δ')
+  (HH: H = H')
+  (P)
+  (P')
+  : InterpSubst.pop 
+    (@cast (InterpSubst Γ' (H'::Δ')) (InterpSubst Γ (H::Δ)) P S) 
+  = @cast (InterpSubst Γ' Δ') (InterpSubst Γ Δ) P' (S.pop)
+  := by {
+    rw [pop_cast] <;> assumption
   }
 
 theorem Stlc.InterpSubst.transport_lift {Γ Δ: Context} {H: Ty} (S: InterpSubst Γ Δ)

@@ -181,7 +181,7 @@ theorem Term.term_subst_stlc_commute {Γ Δ σ a}
         rw [Ir Hr S]
     -- TODO: potential bug: when A shadows A', there's an error
     -- (2022-04-26, 23:15)
-    case abs k A' t IA It => 
+    case abs k A' t _ It => 
       have SA: ∀k, (Δ ⊢ A': k.annot) -> 
         SubstCtx σ.lift ((Hyp.mk (A'.subst σ) k)::Γ) ((Hyp.mk A' k)::Δ)
         := λk HA => S.lift_delta HA
@@ -247,7 +247,7 @@ theorem Term.term_subst_stlc_commute {Γ Δ σ a}
           . rw [loosen Ir Hr SB (true::Γ.sparsity) (true::Δ.sparsity)]
             rhs
             rw [Subst.stlc_lift_true]
-    case nr k K e z s IK Ie Iz Is => 
+    case nr k K e z s _ Ie Iz Is => 
       cases H with
       | natrec HK He Hz Hs => 
         let Γ' := (Hyp.gst nats)::Γ;
@@ -359,19 +359,19 @@ theorem SubstCtx.transport_interp_lift_ty
     }
     {
       rw [interp_lift_ty S S' IΔ HA]
-      sorry
-      -- rw [Stlc.InterpSubst.pop_cast]
-      -- rw [Stlc.InterpSubst.pop_lift_step]
-      -- rw [Stlc.InterpSubst.transport_cast]
-      -- rw [cast_pair']
-      -- rw [Stlc.InterpSubst.transport_step]
-      -- rfl
-      -- rw [HA.stlc_ty_subst]
-      -- rfl
-      -- rw [HA.stlc_ty_subst]
-      -- rw [HA.stlc_ty_subst]
-      -- rfl
-      -- rfl
+      --TODO: report broken binding here...
+      rw [Stlc.InterpSubst.pop_cast']
+      rw [Stlc.InterpSubst.pop_lift_step]
+      rw [Stlc.InterpSubst.transport_cast]
+      rw [cast_pair']
+      rw [Stlc.InterpSubst.transport_step]
+      rfl
+      rw [HA.stlc_ty_subst]
+      rfl
+      rw [HA.stlc_ty_subst]
+      rw [HA.stlc_ty_subst]
+      rfl
+      rfl
     }
   }
   
