@@ -1138,4 +1138,15 @@ theorem Term.alpha0_inj_subst {i} {C e: Term}:
     cases n <;> rfl
   }
 
---TODO: prove subst01 properties...
+theorem Term.alpha0_var1_subst01 {C l r: Term}:
+  ((C.wknth 1).alpha0 (var 1)).subst01 r l = C.subst0 l
+  := by {
+    simp only [
+      subst01, wknth, alpha0, subst0,
+      <-Subst.subst_wk_compat,
+      subst_composes
+    ]
+    apply congr rfl;
+    funext n;
+    cases n <;> rfl
+  }

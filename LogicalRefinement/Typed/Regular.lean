@@ -30,58 +30,6 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
   -- Types and propositions are trivially regular
   all_goals try exact Annot.regular.sort
 
-  case natrec HC Hn _ _ _ _ _ _ => 
-    constructor
-    apply HasType.subst0_sort
-    apply HC.sub
-    constructor
-    apply Context.is_sub.refl
-    constructor
-    constructor
-    assumption
-
-  case natrec_zero => 
-    constructor
-    constructor
-    apply downgrade
-    apply subst0_sort
-    upgrade_ctx assumption
-    constructor
-    constructor
-    upgrade_ctx assumption
-    constructor
-    assumption
-    upgrade_ctx assumption
-    assumption
-
-  case natrec_succ => 
-    constructor
-    constructor
-    apply downgrade
-    apply subst0_sort
-    upgrade_ctx assumption
-    focus repeat constructor
-    assumption
-    constructor
-    upgrade_ctx assumption
-    focus repeat constructor
-    assumption
-    assumption
-    assumption
-    apply subst01_gen_gst;
-    assumption
-    constructor
-    upgrade_ctx assumption
-    assumption
-    assumption
-    assumption
-    assumption
-    apply congr rfl
-    -- TODO: alpha0 equality...
-    sorry
-
-  stop
-
   case app A B _ r HP _ Hr _ _ _ =>
     constructor
     apply subst_sort
@@ -434,6 +382,62 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
     simp only [Annot.subst01, Annot.subst, term]
     apply congr rfl
     exact Term.alpha0_subst01_bin.symm
+
+  case natrec HC Hn _ _ _ _ _ _ => 
+    constructor
+    apply HasType.subst0_sort
+    apply HC.sub
+    constructor
+    apply Context.is_sub.refl
+    constructor
+    constructor
+    assumption
+
+  case natrec_zero => 
+    constructor
+    constructor
+    apply downgrade
+    apply subst0_sort
+    upgrade_ctx assumption
+    constructor
+    constructor
+    upgrade_ctx assumption
+    constructor
+    assumption
+    upgrade_ctx assumption
+    assumption
+
+  case natrec_succ => 
+    constructor
+    constructor
+    apply downgrade
+    apply subst0_sort
+    upgrade_ctx assumption
+    focus repeat constructor
+    assumption
+    constructor
+    upgrade_ctx assumption
+    focus repeat constructor
+    assumption
+    assumption
+    assumption
+    apply subst01_gen_gst;
+    assumption
+    constructor
+    upgrade_ctx assumption
+    assumption
+    assumption
+    assumption
+    assumption
+    apply congr rfl
+    simp only [
+      Term.subst01, Term.wknth, Term.alpha0, Term.subst0,
+      <-Subst.subst_wk_compat,
+      Term.subst_composes
+    ]
+    apply congr rfl;
+    funext n;
+    cases n <;> rfl
 
   case succ => repeat constructor
 
