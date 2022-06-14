@@ -1067,7 +1067,30 @@ def Term.subst01 (e u v: Term): Term := e.subst (u.to_subst01 v)
 theorem Subst.subst01_subst {e u v: Term} (σ: Subst):
   (e.subst01 u v).subst σ 
   = (e.subst (σ.liftn 2)).subst01 (u.subst σ) (v.subst σ)
-  := sorry
+  := by {
+    simp only [
+      Term.subst01, Term.wk1, Term.subst0, 
+      <-Subst.subst_wk_compat,
+      Term.subst_composes
+    ]
+    apply congr rfl;
+    funext n;
+    cases n with
+    | zero => rfl
+    | succ n => 
+      cases n with
+      | zero => rfl
+      | succ n =>
+        simp [Subst.comp, Term.subst, wk1]
+        simp only [
+          Term.subst01, Term.wk1, Term.subst0, 
+          <-Subst.subst_wk_compat,
+          Term.subst_composes
+        ]
+        conv =>
+          lhs
+          rw [<-(σ n).subst_id]
+  }
 
 theorem Wk.subst01_wk {e u v: Term} (ρ: Wk):
   (e.subst01 u v).wk ρ 
