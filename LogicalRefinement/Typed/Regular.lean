@@ -241,7 +241,16 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
           exact Hf.upgrade
           exact Hy.upgrade.upgrade
 
-  case prir => sorry   
+  case prir => 
+    constructor
+    constructor
+    apply subst0_sort
+    assumption
+    assumption
+    apply wk1_sort
+    apply subst0_sort
+    assumption
+    assumption
 
   case cases_left => 
     constructor

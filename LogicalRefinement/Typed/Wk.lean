@@ -166,3 +166,5 @@ theorem IsCtx.var {Γ} (H: IsCtx Γ) (Hv: HasVar Γ n (HypKind.val s) A)
 --       | gst => 
 --         constructor
 --   }
+
+--TODO: pseudo-constructors for HasType.arrow, etc...
