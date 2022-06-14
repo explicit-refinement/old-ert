@@ -72,6 +72,12 @@ theorem HasVar.wk:
         assumption
   } 
 
+
+theorem Term.alpha0_natrec_wk_helper {C: Term} {ρ: Wk}:
+  ((C.wk ρ.lift).wknth 1).alpha0 (Term.app (Term.arrow Term.nats Term.nats) Term.succ (Term.var 1))
+  = ((C.wknth 1).alpha0 (Term.app (Term.arrow Term.nats Term.nats) Term.succ (Term.var 1))).wk (ρ.liftn 2)
+  := sorry
+
 theorem HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
   {ρ: Wk} -> {Γ: Context} -> WkCtx ρ Γ Δ ->
   (Γ ⊢ (a.wk ρ): (A.wk ρ)) := by {
@@ -84,10 +90,6 @@ theorem HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
       apply HasVar.wk
       repeat assumption
 
-    case natrec => sorry
-    case natrec_zero => sorry
-    case natrec_succ => sorry
-
     all_goals (
       intro ρ Γ R;
       rename_i' I5 I4 I3 I2 I1 I0;
@@ -95,11 +97,15 @@ theorem HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
         Annot.sym_ty_wk,
         Annot.trans_ty_wk
       ]
-      simp only [Annot.wk, term, proof, implies_wk, const_arrow_wk, assume_wf_wk] at *
+      simp only [
+        Annot.wk, term, proof, implies_wk, const_arrow_wk, assume_wf_wk
+      ] at *
       try rw [eta_ex_eq_wk]
       try rw [irir_ex_eq_wk]
       try rw [prir_ex_eq_wk]
-      simp only [Term.wk, Term.subst0_wk, Wk.subst01_wk, Term.wk1] at *
+      simp only [
+        Term.wk, Term.subst0_wk, Wk.subst01_wk, Term.wk1
+      ] at *
       constructor <;>
       (try rw [Term.alpha00_wk_comm (by simp)]) <;>
       (try rw [Term.let_bin_ty_alpha_wk_pair]) <;>
@@ -108,6 +114,7 @@ theorem HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
       (try rw [Term.let_bin_ty_alpha_wk_wit]) <;>
       (try rw [Term.var2_var1_alpha_wk]) <;>
       (try rw [Term.let_bin_ty_alpha_wk_conj]) <;>
+      (try rw [Term.alpha0_natrec_wk_helper]) <;>
       (first | apply I0 | apply I1 | apply I2 | apply I3 | apply I4 | apply I5) <;> 
       simp only [<-Hyp.wk_components] <;> 
       first 
