@@ -120,7 +120,6 @@ theorem Term.alpha0_natrec_subst_helper {C: Term} {σ: Subst}:
 theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
   {σ: Subst} -> {Γ: Context} -> SubstCtx σ Γ Δ ->
   (Γ ⊢ (a.subst σ): (A.subst σ)) := by {
-    stop
     induction HΔ;
 
     case var H I =>
