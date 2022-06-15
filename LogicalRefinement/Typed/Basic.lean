@@ -380,7 +380,6 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType Γ e (term nats) ->
     HasType Γ z (term (C.subst0 zero)) ->
     HasType ((Hyp.mk C (HypKind.val k))::(Hyp.mk nats HypKind.gst)::Γ) s
-    --TODO: this is just C.wk1...
     (term ((C.wknth 1).alpha0 (app (arrow nats nats) succ (var 1)))) ->
     HasType Γ (natrec k C e z s) (expr k (C.subst0 e))
   | natrec_zero {Γ: Context} {C z s: Term}:
@@ -388,7 +387,6 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType Γ.upgrade z (term (C.subst0 zero)) ->
     HasType 
     ((Hyp.mk C (HypKind.val type))::(Hyp.mk nats HypKind.gst)::Γ.upgrade) s
-    --TODO: this is just C.wk1...
     (term ((C.wknth 1).alpha0 (app (arrow nats nats) succ (var 1)))) ->
     HasType Γ 
       (natrec_zero C z s) 
@@ -399,18 +397,16 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType Γ.upgrade z (term (C.subst0 zero)) ->
     HasType 
       ((Hyp.mk C (HypKind.val type))::(Hyp.mk nats HypKind.gst)::Γ.upgrade) s
-    --TODO: this is just C.wk1...
     (term ((C.wknth 1).alpha0 (app (arrow nats nats) succ (var 1)))) ->
     HasType Γ 
       (natrec_succ C e z s)
-      --TODO: make succ a builtin operator instead?
+      --ENHANCE: make succ a builtin operator instead?
       (expr prop (eq
         (C.subst0 (app (arrow nats nats) succ e))
         (natrec type C 
           (app (arrow nats nats) succ e) z s)
         (s.subst01 (natrec type C e z s) e)
       ))
-  --TODO: natrec beta...
 
 notation Γ "⊢" a ":" A => HasType Γ a A
 notation Γ "⊢" a "∈" A => HasType Γ a (term A)

@@ -646,6 +646,7 @@ theorem SubstCtx.subst_denot
           exact Hxy
         }
         {
+          --TODO: report spurious unused variable warning
           intro ⟨_, _, Hxy⟩;
           dsimp only [Annot.stlc_ty] at Hxy
           exists Hl.stlc;
@@ -750,7 +751,7 @@ theorem HasType.denote_antisubst0'
   {a': (A.subst0 b).stlc_ty.interp}
   {b' σ}
   (HA: Γ ⊢ A: S)
-  (HS: S = sort s)
+  (_: S = sort s)
   (HΓ: IsCtx Γ)
   (Hσ: σ = Γ.upgrade.sparsity)
   (HG: G ⊧ ✓Γ)
