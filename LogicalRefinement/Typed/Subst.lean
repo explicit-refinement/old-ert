@@ -96,11 +96,31 @@ theorem SubstCtx.upgrade_left (S: SubstCtx ρ Γ Δ): SubstCtx ρ Γ.upgrade Δ
 theorem Term.alpha0_natrec_subst_helper {C: Term} {σ: Subst}:
   ((C.subst σ.lift).wknth 1).alpha0 (Term.app (Term.arrow Term.nats Term.nats) Term.succ (Term.var 1))
     = ((C.wknth 1).alpha0 (Term.app (Term.arrow Term.nats Term.nats) Term.succ (Term.var 1))).subst (σ.liftn 2)
-  := sorry
+  := by {
+    simp only [
+      subst01, wknth, alpha0, subst0,
+      <-Subst.subst_wk_compat,
+      subst_composes
+    ]
+    apply congr rfl;
+    funext n;
+    cases n with
+    | zero => rfl
+    | succ n => 
+      simp only [
+        Subst.comp, Subst.subst_wk_compat, Subst.lift, Subst.wk1, subst, 
+        Wk.var, Nat.succ, Nat.add, Subst.liftn, wk1
+        ]
+      simp only [<-Subst.subst_wk_compat, subst_composes]
+      apply congr rfl;
+      funext n;
+      cases n <;> rfl
+  }
 
 theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
   {σ: Subst} -> {Γ: Context} -> SubstCtx σ Γ Δ ->
   (Γ ⊢ (a.subst σ): (A.subst σ)) := by {
+    stop
     induction HΔ;
 
     case var H I =>
