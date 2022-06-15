@@ -93,6 +93,11 @@ theorem SubstCtx.upgrade_left (S: SubstCtx ρ Γ Δ): SubstCtx ρ Γ.upgrade Δ
     exact SubstVar.var Hv HΓ.upgrade_weak
 }
 
+theorem Term.alpha0_natrec_subst_helper {C: Term} {σ: Subst}:
+  ((C.subst σ.lift).wknth 1).alpha0 (Term.app (Term.arrow Term.nats Term.nats) Term.succ (Term.var 1))
+    = ((C.wknth 1).alpha0 (Term.app (Term.arrow Term.nats Term.nats) Term.succ (Term.var 1))).subst (σ.liftn 2)
+  := sorry
+
 theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
   {σ: Subst} -> {Γ: Context} -> SubstCtx σ Γ Δ ->
   (Γ ⊢ (a.subst σ): (A.subst σ)) := by {
@@ -106,10 +111,6 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
         dsimp only [Term.subst]
         rw [Hv]
         exact HasType.var (I S) HΓ
-
-    case natrec => sorry
-    case natrec_zero => sorry
-    case natrec_succ => sorry
 
     all_goals (
       intro σ Γ S;
@@ -131,6 +132,7 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
         try rw [Term.let_bin_ty_alpha_repr]
         try rw [Term.let_bin_ty_alpha_wit]
         try rw [Term.let_bin_ty_alpha_conj]
+        try rw [Term.alpha0_natrec_subst_helper]
         try rw [Term.var2_var1_alpha]
         first | apply I0 | apply I1 | apply I2 | apply I3 | apply I4 | apply I5 | constructor
         first
