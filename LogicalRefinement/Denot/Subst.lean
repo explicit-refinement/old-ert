@@ -236,7 +236,7 @@ theorem SubstCtx.subst_denot
       rw [rec_to_cast']
       rw [cast_not_none_is_not_none]
       apply equiv_and_split;
-      intro Ha;
+      intro _;
       have Iφ' := 
         interp_eq_none ▸ @Iφ Γ σ G none prop S IΓ IΔ HG Hφ rfl;
       apply equiv_arrow_helper';
@@ -299,7 +299,7 @@ theorem SubstCtx.subst_denot
       rw [rec_to_cast']
       rw [cast_not_none_is_not_none]
       apply equiv_and_split;
-      intro Ha;
+      intro _;
       apply propext;
       apply Iff.intro <;> intro H x Hx;
       {
@@ -356,7 +356,7 @@ theorem SubstCtx.subst_denot
       rw [rec_to_cast']
       rw [cast_not_none_is_not_none]
       apply equiv_and_split;
-      intro Hann;
+      intro _;
       apply propext;
       apply Iff.intro <;> intro ⟨x, Hx, Ha⟩;
       {
@@ -630,14 +630,14 @@ theorem SubstCtx.subst_denot
           }
         }
       | some a => cases a
-    | @eq Δ A l r HA' Hl Hr IA Il Ir =>
+    | @eq Δ A l r _ Hl Hr _ _ _ =>
       cases a with
       | none => 
         dsimp only [Term.denote_ty];
         apply propext;
         apply Iff.intro
         {
-          intro ⟨px, py, Hxy⟩;
+          intro ⟨_, _, Hxy⟩;
           exists (Hl.subst S.upgrade).stlc;
           exists (Hr.subst S.upgrade).stlc;
           rw [Hl.subst_stlc_interp_up_commute S IΔ G]
@@ -646,7 +646,7 @@ theorem SubstCtx.subst_denot
           exact Hxy
         }
         {
-          intro ⟨px, py, Hxy⟩;
+          intro ⟨_, _, Hxy⟩;
           dsimp only [Annot.stlc_ty] at Hxy
           exists Hl.stlc;
           exists Hr.stlc;
