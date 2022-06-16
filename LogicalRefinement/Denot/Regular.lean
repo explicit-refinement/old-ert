@@ -348,15 +348,18 @@ theorem HasType.denote
     | disj_l He HB Ie IB => exact Or.inl (Ie HΓ G HG)
     | disj_r He HB Ie IB => exact Or.inr (Ie HΓ G HG)
     | case_pr He HA HB HC Hl Hr Ie IA IB IC Il Ir => 
-      stop
       dsimp only [
         denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
         Term.denote_ty', Term.denote_ty
-      ]
+      ] at *
       have Ie' := Ie HΓ G HG;
       cases Ie' with
-      | inl Ie' => sorry
-      | inr Ie' => sorry
+      | inl Ie' => 
+        have Il' := Il (IsCtx.cons_val HΓ HA) G ⟨Ie', HG⟩;
+        sorry
+      | inr Ie' =>  
+        have Ir' := Ir (IsCtx.cons_val HΓ HB) G ⟨Ie', HG⟩;
+        sorry
     | imp => sorry
     | mp => sorry
     | general => sorry
