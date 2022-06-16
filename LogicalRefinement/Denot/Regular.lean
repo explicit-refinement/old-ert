@@ -190,6 +190,7 @@ theorem HasType.denote
     induction H with
     | var HA Hv IA => exact Hv.denote_annot HΓ G HG
     | lam Hs HA Is IA => 
+      stop
       intro x Hx
       cases x with
       | some x => 
@@ -207,6 +208,7 @@ theorem HasType.denote
         exact ⟨Hx, HG⟩
       | none => exact False.elim (HA.denote_ty_non_null Hx)
     | @app Γ A B l r HAB Hl Hr IA Il Ir =>
+      stop
       dsimp only [Annot.denote]
       dsimp only [
         Annot.stlc_ty, term, Term.stlc_ty, Term.stlc, 
@@ -239,6 +241,7 @@ theorem HasType.denote
         | none => exact False.elim (HA.denote_ty_non_null Ir')
       | none => exact False.elim (HAB.denote_ty_non_null Il')
     | @pair Γ A B l r HAB Hl Hr IAB Il Ir => 
+      stop
       dsimp only [denote', Term.denote_ty', Term.denote_ty, 
         Stlc.HasType.interp, Term.stlc, stlc_ty, term, Term.stlc_ty, 
         Ty.interp.pair]
@@ -261,10 +264,12 @@ theorem HasType.denote
           exact (interp_eq_none' Hri).symm
       | none => exact Hl.term_regular.denote_ty_non_null Il'
     | @let_pair Γ A B C e e' k He HA HB HC He' Ie IA IB IC Ie' =>
+      stop
       cases k with
       | type => sorry
       | prop => sorry
     | inj_l He HB Ie IB => 
+      stop
       dsimp only [
         denote', Term.denote_ty', Term.denote_ty, Term.stlc, 
         stlc_ty, Term.stlc_ty, Stlc.HasType.interp,
@@ -291,6 +296,7 @@ theorem HasType.denote
         exact Ie'
       | none => exact He.term_regular.denote_ty_non_null Ie'
     | @case Γ A B C e l r k He HA HB HC Hl Hr Ie IA IB IC Il Ir => 
+      stop
       cases k with
       | type => 
         dsimp only [denote']
@@ -320,11 +326,13 @@ theorem HasType.denote
     | let_set => sorry
     | lam_pr => sorry
     | app_pr HφA Hl Hr IφA Il Ir => 
+      stop
       dsimp only [denote', Term.denote_ty, Term.denote_ty']
       sorry
     | lam_irrel => sorry
     | app_irrel => sorry
     | @repr Γ A B l r HAB Hl Hr IAB Il Ir =>
+      stop
       dsimp only [
         denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
         Term.denote_ty', Term.denote_ty
@@ -340,6 +348,7 @@ theorem HasType.denote
     | disj_l He HB Ie IB => exact Or.inl (Ie HΓ G HG)
     | disj_r He HB Ie IB => exact Or.inr (Ie HΓ G HG)
     | case_pr He HA HB HC Hl Hr Ie IA IB IC Il Ir => 
+      stop
       dsimp only [
         denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
         Term.denote_ty', Term.denote_ty
@@ -353,6 +362,7 @@ theorem HasType.denote
     | general => sorry
     | inst => sorry
     | @wit Γ A φ l r HAφ Hl Hr IAφ Il Ir =>
+      stop
       exists Hl.stlc.interp G
       --TODO: upgrade theorems for IsCtx and context denotation
       have Il' := Il HΓ.upgrade (Context.upgrade_idem.symm ▸ G) HG.upgrade;
@@ -365,18 +375,23 @@ theorem HasType.denote
     | sym HA => exact HA.sym_axiom
     | trans HA => exact HA.trans_axiom 
     | cong => 
+      stop
       dsimp only [denote', Annot.denote]
       sorry
     | beta => 
+      stop
       dsimp only [denote', Annot.denote]
       sorry
     | beta_ir => 
+      stop
       dsimp only [denote', Annot.denote]
       sorry
     | beta_pr => 
+      stop
       dsimp only [denote', Annot.denote]
       sorry
     | @eta Γ A B f Hf HA If IA => 
+      stop
       have px
         : Γ.upgrade.stlc ⊧ (Term.eta_ex A B f).stlc Γ.upgrade.sparsity
           : Ty.arrow A.stlc_ty B.stlc_ty 
@@ -403,6 +418,7 @@ theorem HasType.denote
     | let_set_beta => sorry
     | let_repr_beta => sorry
     | succ => 
+      stop
       intro x H;
       cases x with
       | none => cases H
