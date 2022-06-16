@@ -124,7 +124,7 @@ theorem HasVar.denote_annot
             cases HΓ with
             | cons_gst HΓ => 
               let (x, G) := G;
-              have ⟨Hx, HG⟩ := HG;
+              have ⟨_, HG⟩ := HG;
               have I' := I Hv HΓ G HG;
               cases s with
               | type => 
