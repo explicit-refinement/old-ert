@@ -157,7 +157,9 @@ theorem HasType.sym_axiom {Γ A} (HA: Γ ⊢ A: type):
       Subst.lift, Subst.wk1, Term.wk1, Term.to_subst,
       Wk.var, Term.wk
     ]
+    --TODO: var trick
     intro x Hx y Hy ⟨px, py, Hxy⟩;
+    exists sorry, sorry;
     sorry
   }
 
