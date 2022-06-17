@@ -9,7 +9,8 @@ import LogicalRefinement.Stlc.Subst
 open Annot
 open AnnotSort
 
-def Wk.stlc (ρ: Wk) (Γ: Sparsity) (Δ: Sparsity): Stlc.Subst := ρ.to_subst.stlc Γ Δ
+def Wk.stlc (ρ: Wk) (Γ: Sparsity) (Δ: Sparsity): Stlc.Subst 
+  := ρ.to_subst.stlc Γ Δ
 
 theorem Term.wk_stlc_commute {Γ Δ ρ a} 
   (H: Δ ⊢ a: term A) 

@@ -445,7 +445,7 @@ def Stlc.Context.deriv.wk_lift {Γ Δ ρ A} {B: Ty}
   : D.wk R.lift (x, G) = Context.deriv.wk (λD' => D (x, D')) R G
   := rfl
 
---TODO: report spurious unused variable warning...
+--TODO: report spurious unused variable warnings...
 def Stlc.HasVar.interp {Γ A n} (H: HasVar Γ n A): Γ.deriv A :=
   λG =>
   match Γ with
@@ -700,7 +700,7 @@ theorem Stlc.HasType.var_interp_0 {Γ: Context} {a} {A B: Ty}
 
 def Stlc.Context.deriv.step {Γ: Context} {A} (D: Γ.deriv A) (B: Ty)
   : Context.deriv (B::Γ) A
-  := λ(x, G) => D G
+  := λ(_, G) => D G
 
 theorem Stlc.HasType.interp_transport
   {A B: Ty}
@@ -744,7 +744,7 @@ theorem Stlc.HasType.interp_transport_mono
   (G: Γ.interp)
   : @Eq.rec 
     Type 
-    A.interp (λA p => A) (HA.interp G) 
+    A.interp (λA _ => A) (HA.interp G) 
     B.interp H = HB.interp G
   := by {
     cases Hab;

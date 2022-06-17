@@ -460,7 +460,7 @@ theorem HasType.denote
     | let_wit => sorry
     | refl Ha => exact ⟨Ha.stlc, Ha.stlc, rfl⟩
     | sym _ => exact HasType.sym_axiom
-    | trans HA => exact HasType.trans_axiom 
+    | trans HA => exact HasType.trans_axiom
     | cong => 
       stop
       dsimp only [denote', Annot.denote]
