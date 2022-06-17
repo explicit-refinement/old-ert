@@ -497,7 +497,24 @@ theorem HasType.denote
       dsimp only [Term.stlc_ty, Stlc.HasType.interp, Term.stlc]
       simp only []
       sorry
-    | irir => sorry
+    | irir Hf Hx Hy => 
+      exact ⟨
+        by {
+          have Hf' := Hf.stlc;
+          dsimp only 
+            [stlc_ty, Term.const_arrow, Term.wk1, Term.stlc_ty] at Hf'
+          rw [Term.stlc_ty_wk] at Hf'
+          exact Hf'
+        }, 
+        by {
+          have Hf' := Hf.stlc;
+          dsimp only 
+            [stlc_ty, Term.const_arrow, Term.wk1, Term.stlc_ty] at Hf'
+          rw [Term.stlc_ty_wk] at Hf'
+          exact Hf'
+        }, 
+        rfl
+      ⟩
     | prir => sorry
     | cases_left => sorry
     | cases_right => sorry
