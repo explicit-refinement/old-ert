@@ -498,6 +498,7 @@ theorem HasType.denote
       simp only []
       sorry
     | irir Hf Hx Hy => 
+      stop
       exact ⟨
         by {
           have Hf' := Hf.stlc;
@@ -515,7 +516,14 @@ theorem HasType.denote
         }, 
         rfl
       ⟩
-    | prir => sorry
+    | prir _ _ _ _ _  _ Ix Iy => 
+      stop
+      dsimp only [
+        denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
+        Term.denote_ty', Term.denote_ty
+      ]
+      intro Hx;
+      sorry
     | cases_left => sorry
     | cases_right => sorry
     | let_pair_beta => sorry
