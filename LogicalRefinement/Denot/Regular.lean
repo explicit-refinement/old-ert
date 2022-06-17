@@ -535,7 +535,42 @@ theorem HasType.denote
       cases x with
       | none => cases H
       | some x => exact True.intro
-    | @natrec Γ C e z s k HC He Hz Hs IC Ie Iz Is => sorry
+    | @natrec Γ C e z s k HC He Hz Hs IC Ie Iz Is =>
+      cases k with
+      | type =>
+        dsimp only [
+          denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
+          Term.denote_ty', Term.denote_ty
+        ]
+        simp only []
+        generalize Hei:
+          Stlc.HasType.interp
+            (_ : _⊧Term.stlc e _:_)
+            (Stlc.Context.interp.downgrade G) = ei;
+        cases ei with
+        | none => 
+          --TODO: clean this mess up...
+          apply False.elim;
+          have Ie' := Ie HΓ G HG;
+          generalize Hei':
+            Stlc.HasType.interp
+              (_ : _⊧Term.stlc e _:_)
+              (Stlc.Context.interp.downgrade G) = ei;
+          rw [Hei'] at Ie';
+          cases ei with
+          | none => exact Ie'
+          | some n => 
+            have _: some n = none := by {
+              rw [<-Hei]
+              rw [<-Hei']
+              rfl
+            };
+            contradiction
+        | some n => 
+          induction n with
+          | zero => sorry
+          | succ n I => sorry
+      | prop => sorry
     | natrec_zero => sorry
     | natrec_succ => sorry
     | _ => exact True.intro
