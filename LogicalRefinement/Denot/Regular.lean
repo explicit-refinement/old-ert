@@ -145,7 +145,7 @@ theorem HasVar.denote_annot
                     none none (by rw [interp_eq_none]) I';
   }
 
-theorem HasType.sym_axiom {Γ A} (HA: Γ ⊢ A: type):
+theorem HasType.sym_axiom {Γ: Context} {A}:
   ∀{G: Γ.upgrade.stlc.interp}, (Term.sym_ty A).denote_prop' G
   := by {
     intro G;
@@ -157,7 +157,7 @@ theorem HasType.sym_axiom {Γ A} (HA: Γ ⊢ A: type):
       Subst.lift, Subst.wk1, Term.wk1, Term.to_subst,
       Wk.var, Term.wk
     ]
-    intro x Hx y Hy ⟨px, py, Hxy⟩;
+    intro x _ y _ ⟨px, py, Hxy⟩;
     rw [
       Stlc.HasType.var_interp_0 _ _ _ rfl 
       (by simp only [Term.stlc_ty_wk])
@@ -171,7 +171,9 @@ theorem HasType.sym_axiom {Γ A} (HA: Γ ⊢ A: type):
       Stlc.HasType.var_interp_0 _ _ _ rfl 
       (by simp only [Term.stlc_ty_wk])
     ] at Hxy
-    exists sorry, sorry;
+    exists 
+      (by simp only [Term.stlc_ty_wk]; repeat constructor), 
+      (by simp only [Term.stlc_ty_wk]; repeat constructor);
     rw [
       Stlc.HasType.var_interp_0 _ _ _ rfl 
       (by simp only [Term.stlc_ty_wk])
@@ -400,7 +402,7 @@ theorem HasType.denote
       . sorry
     | let_wit => sorry
     | refl Ha => exact ⟨Ha.stlc, Ha.stlc, rfl⟩
-    | sym HA => exact HA.sym_axiom
+    | sym _ => exact HasType.sym_axiom
     | trans HA => exact HA.trans_axiom 
     | cong => 
       stop
