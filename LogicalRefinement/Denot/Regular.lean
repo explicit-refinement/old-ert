@@ -190,7 +190,7 @@ theorem HasType.sym_axiom {Γ: Context} {A}:
     exact cast_gen Hxy.symm
   }
 
-theorem HasType.trans_axiom {Γ A} (HA: Γ ⊢ A: type):
+theorem HasType.trans_axiom {Γ: Context} {A}:
   ∀{G: Γ.upgrade.stlc.interp}, (Term.trans_ty A).denote_prop' G
   := by {
     intro G;
@@ -202,8 +202,65 @@ theorem HasType.trans_axiom {Γ A} (HA: Γ ⊢ A: type):
       Subst.lift, Subst.wk1, Term.wk1, Term.to_subst,
       Wk.var, Term.wk
     ]
-    intro x Hx y Hy z Hz ⟨px, py, Hxy⟩ ⟨py, pz, Hyz⟩;
-    sorry
+    intro x _ y _ z _ ⟨px, py, Hxy⟩ ⟨py, pz, Hyz⟩;
+    --TODO: automate...
+    rw [
+      Stlc.HasType.var_interp_wk1 
+      (by simp only [Term.stlc_ty_wk]; repeat constructor) 
+      _ _ _ rfl rfl
+    ] at Hxy
+    rw [
+      Stlc.HasType.var_interp_wk1 
+      (by simp only [Term.stlc_ty_wk]; repeat constructor) 
+      _ _ _ rfl rfl
+    ] at Hxy
+    rw [
+      Stlc.HasType.var_interp_0 _ _ _ rfl 
+      (by simp only [Term.stlc_ty_wk])
+    ] at Hxy
+    rw [
+      Stlc.HasType.var_interp_wk1 
+      (by simp only [Term.stlc_ty_wk]; repeat constructor) 
+      _ _ _ rfl rfl
+    ] at Hxy
+    rw [
+      Stlc.HasType.var_interp_0 _ _ _ rfl 
+      (by simp only [Term.stlc_ty_wk])
+    ] at Hxy
+    rw [
+      Stlc.HasType.var_interp_0 _ _ _ rfl 
+      (by simp only [Term.stlc_ty_wk])
+    ] at Hyz
+    rw [
+      Stlc.HasType.var_interp_wk1 
+      (by simp only [Term.stlc_ty_wk]; repeat constructor) 
+      _ _ _ rfl rfl
+    ] at Hyz
+    rw [
+      Stlc.HasType.var_interp_0 _ _ _ rfl 
+      (by simp only [Term.stlc_ty_wk])
+    ] at Hyz
+    exists 
+      (by simp only [Term.stlc_ty_wk]; repeat constructor), 
+      (by simp only [Term.stlc_ty_wk]; repeat constructor);
+    rw [
+      Stlc.HasType.var_interp_wk1 (by simp only [Term.stlc_ty_wk]; repeat constructor) 
+      _ _ _ rfl rfl
+    ]
+    rw [
+      Stlc.HasType.var_interp_wk1 (by simp only [Term.stlc_ty_wk]; repeat constructor) 
+      _ _ _ rfl rfl
+    ]
+    rw [
+      Stlc.HasType.var_interp_0 _ _ _ rfl 
+      (by simp only [Term.stlc_ty_wk])
+    ]
+    rw [
+      Stlc.HasType.var_interp_0 _ _ _ rfl 
+      (by simp only [Term.stlc_ty_wk])
+    ]
+    rw [cast_gen Hxy, cast_gen Hyz]
+    simp only [Term.stlc_ty_wk]
   }
 
 theorem HasType.denote
@@ -403,7 +460,7 @@ theorem HasType.denote
     | let_wit => sorry
     | refl Ha => exact ⟨Ha.stlc, Ha.stlc, rfl⟩
     | sym _ => exact HasType.sym_axiom
-    | trans HA => exact HA.trans_axiom 
+    | trans HA => exact HasType.trans_axiom 
     | cong => 
       stop
       dsimp only [denote', Annot.denote]
