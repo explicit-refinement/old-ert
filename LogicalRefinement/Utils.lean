@@ -593,3 +593,15 @@ theorem cast_app
   := by {
     cases HB; rfl
   }
+
+theorem cast_gen {p: A = C} {q: B = C}:
+  cast p x = cast q y ->
+  ∀{C'}, ∀{p: A = C'}, ∀{q: B = C'}, cast p x = cast q y
+  := by {
+    cases p;
+    cases q;
+    intro H;
+    cases H;
+    intros;
+    rfl
+  }

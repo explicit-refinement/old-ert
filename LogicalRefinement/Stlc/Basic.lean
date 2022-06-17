@@ -683,6 +683,20 @@ theorem Stlc.HasType.var_interp_wk1 {Γ a b n} {A B: Ty}
     cases H';
     rfl
   }
+  
+@[simp]
+theorem Stlc.HasType.var_interp_0 {Γ: Context} {a} {A B: Ty}
+  (H: HasType (B::Γ) a A)
+  (x: B.interp)
+  (G: Γ.interp)
+  (Ha: a = Stlc.var 0)
+  (HA)
+  :
+  H.interp (x, G) = cast HA x
+  := by {
+    cases Ha;
+    rfl
+  }
 
 def Stlc.Context.deriv.step {Γ: Context} {A} (D: Γ.deriv A) (B: Ty)
   : Context.deriv (B::Γ) A

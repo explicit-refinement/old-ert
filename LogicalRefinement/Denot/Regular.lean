@@ -157,10 +157,35 @@ theorem HasType.sym_axiom {Γ A} (HA: Γ ⊢ A: type):
       Subst.lift, Subst.wk1, Term.wk1, Term.to_subst,
       Wk.var, Term.wk
     ]
-    --TODO: var trick
     intro x Hx y Hy ⟨px, py, Hxy⟩;
+    rw [
+      Stlc.HasType.var_interp_0 _ _ _ rfl 
+      (by simp only [Term.stlc_ty_wk])
+    ] at Hxy
+    rw [
+      Stlc.HasType.var_interp_wk1 
+      (by simp only [Term.stlc_ty_wk]; repeat constructor) 
+      _ _ _ rfl rfl
+    ] at Hxy
+    rw [
+      Stlc.HasType.var_interp_0 _ _ _ rfl 
+      (by simp only [Term.stlc_ty_wk])
+    ] at Hxy
     exists sorry, sorry;
-    sorry
+    rw [
+      Stlc.HasType.var_interp_0 _ _ _ rfl 
+      (by simp only [Term.stlc_ty_wk])
+    ]
+    rw [
+      Stlc.HasType.var_interp_wk1 
+      (by simp only [Term.stlc_ty_wk]; repeat constructor) 
+      _ _ _ rfl rfl
+    ]
+    rw [
+      Stlc.HasType.var_interp_0 _ _ _ rfl 
+      (by simp only [Term.stlc_ty_wk])
+    ]
+    exact cast_gen Hxy.symm
   }
 
 theorem HasType.trans_axiom {Γ A} (HA: Γ ⊢ A: type):
