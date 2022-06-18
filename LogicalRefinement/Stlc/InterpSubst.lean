@@ -319,13 +319,19 @@ theorem SubstCtx.interp_lift_ty
       cases n with
       | zero =>
         simp only [Stlc.InterpSubst.lift]
-        rw [cast_lam _ _ _ _ _ sorry sorry]
         cases Hv;
+        rw [cast_lam _ _ _ _ _ _
+          (by simp only [Context.stlc]; rw [HA.stlc_ty_subst])]
         rw [
           cast_pair' 
           (by rw [HA.stlc_ty_subst]) 
           rfl _]
         rfl
+        intros;
+        exact 
+          congr 
+            (congr rfl (congr (congr rfl HA.stlc_ty_subst.symm) rfl)) 
+            rfl;
       | succ n => 
         simp only [Stlc.InterpSubst.lift]
         rw [
