@@ -378,12 +378,13 @@ theorem HasType.denote
         dsimp only [Option.map, Option.bind, Function.comp]
         exact Ie'
       | none => exact He.term_regular.denote_ty_non_null Ie'
-    | @case Γ A B C e l r k He HA HB HC Hl Hr Ie IA IB IC Il Ir => 
+    | @case Γ A B C e l r k He HA HB HC Hl Hr Ie IA IB IC Il Ir =>
+      stop 
+      have HAB: Γ ⊢ Term.coprod A B: type := HasType.coprod HA HB;
       cases k with
       | type => 
         dsimp only [denote']
         dsimp only [Term.stlc, Term.stlc_ty, stlc_ty, Stlc.HasType.interp]
-        have HAB: Γ ⊢ Term.coprod A B: type := HasType.coprod HA HB;
         have Ie' := Ie HΓ G HG;
         dsimp only [Term.stlc, Term.stlc_ty, stlc_ty, Stlc.HasType.interp] at Ie';
         generalize Hei: Stlc.HasType.interp (_ : _⊧Term.stlc e _:_) _ = ei;
@@ -415,7 +416,34 @@ theorem HasType.denote
         | none => exact False.elim (HAB.denote_ty_non_null Ie')
       | prop => 
         dsimp only [denote']
-        sorry
+        have Ie' := Ie HΓ G HG;
+        dsimp only [Term.stlc, Term.stlc_ty, stlc_ty, Stlc.HasType.interp] at Ie';
+        generalize Hei: Stlc.HasType.interp (_ : _⊧Term.stlc e _:_) _ = ei;
+        rw [Stlc.HasType.interp_irrel] at Ie'
+        rw [Hei] at Ie'
+        cases ei with
+        | some ei => 
+          cases ei with
+          | inl a => 
+            simp only [Ty.interp.case]
+            have Il' := Il 
+              (HΓ.cons_val HA)
+              (Ty.eager a, G)
+              ⟨Ie', HG⟩
+              ;
+            dsimp only [denote'] at Il';
+            sorry --TODO: appropriate typecasting for Il'
+          | inr b => 
+            simp only [Ty.interp.case]
+            have Ir' := Ir
+              (HΓ.cons_val HB)
+              (Ty.eager b, G)
+              ⟨Ie', HG⟩
+              ;
+            dsimp only [denote'] at Ir';
+            sorry --TODO: appropriate typecasting for Ir'
+        | none => exact False.elim (HAB.denote_ty_non_null Ie')
+        exact He.stlc
     | elem => sorry
     | let_set => sorry
     | lam_pr => sorry
