@@ -848,3 +848,17 @@ theorem interp_congr
     cases p;
     rfl
   }
+  
+theorem Stlc.HasType.interp_wk1' {Γ a a'} {A B: Ty}
+  (H: HasType Γ a A)
+  (H': HasType (B::Γ) a' A)
+  (Ha': a' = a.wk1)
+  (x: B.interp)
+  (G: Γ.interp)
+  :
+  H'.interp (x, G) = H.interp G
+  := by {
+    cases Ha';
+    rw [<-H.interp_wk1 x G]
+    rfl
+  }

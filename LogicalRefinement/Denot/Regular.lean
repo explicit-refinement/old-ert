@@ -541,7 +541,20 @@ theorem HasType.denote
         generalize Hwf: Stlc.HasType.interp 
           (_: _ ⊧ f.wk1.stlc _: _)
           _ = wf;
-        have H: cast sorry wf = some sf := sorry
+        have H: cast 
+          (by simp only [Term.wk1, Term.wknth, Term.stlc_ty_wk]; rfl) wf 
+          = some sf := by {
+            rw [<-Hsf, <-Hwf];
+            rw [Stlc.HasType.interp_wk1']
+            apply Stlc.HasType.interp_transport_cast'';
+            rfl
+            simp only [Term.wk1, Term.wknth, Term.stlc_ty_wk]
+            rfl
+            rfl
+            simp only [Term.wk1, Term.wknth, Term.stlc_ty_wk]
+            exact Hf.stlc;
+            exact Term.stlc_wk1_true
+          }
         cases wf with
         | some wf =>
           simp only [
