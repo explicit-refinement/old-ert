@@ -536,6 +536,7 @@ theorem HasType.denote
       | none => cases H
       | some x => exact True.intro
     | @natrec Γ C e z s k HC He Hz Hs IC Ie Iz Is =>
+      stop
       generalize Hei:
         Stlc.HasType.interp
           He.stlc
@@ -553,34 +554,51 @@ theorem HasType.denote
             denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
             Term.denote_ty', Term.denote_ty
           ]
-          --TODO: use subst0 invariance *here* for n... 
-          stop
-          induction n with
+          simp only []
+          generalize Hei':
+            Stlc.HasType.interp
+              (_: _ ⊧ e.stlc _: _)
+              (Stlc.Context.interp.downgrade G) = ei';
+          induction n generalizing e with
           | zero => 
-            simp only [Ty.interp.natrec_int, Ty.interp.natrec_inner]
-            --TODO: subst0 invariance...
-            sorry
-          | succ n I => 
-            simp only [
-              Ty.interp.natrec_int, Ty.interp.natrec_inner, 
-              Ty.interp.bind_val
-            ]
-            generalize HIi': Ty.interp.natrec_inner n _ _ = Ii;
-            cases Ii with
-            | none => 
-              apply False.elim;
-            | some Ii => 
-              simp only []
-              --TODO: subst0 invariance...
-              sorry
+            cases ei' with
+            | some n' =>
+              cases n' with
+              | zero => 
+                simp only [
+                  Ty.interp.natrec_int, Ty.interp.natrec_inner, 
+                  Ty.interp.bind_val
+                ]
+                --TODO: subst0 invariance
+                sorry
+              | succ n' => sorry
+            | none => sorry
+          | succ n I =>
+            cases ei' with
+            | some n' =>
+              cases n' with
+              | zero => sorry
+              | succ n' => 
+                simp only [
+                  Ty.interp.natrec_int, Ty.interp.natrec_inner, 
+                  Ty.interp.bind_val
+                ]
+                generalize HIi': Ty.interp.natrec_inner n' _ _ = Ii;
+                cases Ii with
+                | none => 
+                  apply False.elim;
+                  sorry
+                | some Ii => 
+                  simp only []
+                  --TODO: subst0 invariance, s application...
+                  sorry
+            | none => sorry
         | prop =>         
           dsimp only [
             denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
             Term.denote_ty', Term.denote_ty
           ]
-          --TODO: use subst0 invariance *here* for n... 
-          stop
-          induction n with
+          induction n generalizing e with
           | zero => 
             --TODO: subst0 invariance...
             sorry
