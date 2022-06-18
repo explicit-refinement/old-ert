@@ -643,7 +643,31 @@ theorem HasType.denote
           | succ n I => 
             --TODO: subst0 invariance...
             sorry
-    | natrec_zero => sorry
+    | @natrec_zero Γ C z s HC Hz Hs IC Iz Is => 
+        dsimp only [
+          denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
+          Term.denote_ty', Term.denote_ty
+        ]
+        simp only []
+        exists by {
+          simp only [if_pos, HC.stlc_ty_subst, Term.subst0]
+          exact 
+            @Stlc.HasType.natrec
+            Γ.upgrade.stlc
+            _ _ _ _
+            Stlc.HasType.zero
+            (HC.stlc_ty_subst ▸ Hz.stlc)
+            (by {
+              have Hs' := Hs.stlc;
+              simp only [
+                Term.alpha0, Term.wknth, stlc_ty
+              ] at Hs';
+              rw [HasType.stlc_ty_subst] at Hs';
+              rw [Term.stlc_ty_wk] at Hs';
+              exact Hs';
+              exact HC.wk_sort (by repeat constructor);
+            })
+        }, Hz.stlc;
     | natrec_succ => sorry
     | _ => exact True.intro
   }
