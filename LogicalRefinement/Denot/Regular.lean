@@ -334,7 +334,6 @@ theorem HasType.denote
       generalize Hri: Stlc.HasType.interp _ _ = ri;
       have HB: (_::Γ) ⊢ B: type := by cases HAB; assumption;
       have Ir' := Ir HΓ G HG;
-      --rw [HasType.stlc_ty_subst0] at Ir';
       cases li with
       | some li => 
         cases ri with
@@ -380,7 +379,6 @@ theorem HasType.denote
         exact Ie'
       | none => exact He.term_regular.denote_ty_non_null Ie'
     | @case Γ A B C e l r k He HA HB HC Hl Hr Ie IA IB IC Il Ir => 
-      stop
       cases k with
       | type => 
         dsimp only [denote']
@@ -394,14 +392,26 @@ theorem HasType.denote
         rw [Stlc.HasType.interp_irrel] at Ie'
         rw [Hei] at Ie'
         cases ei with
-        | some e => 
-          cases e with
+        | some ei => 
+          cases ei with
           | inl a => 
             simp only [Ty.interp.case]
-            sorry --TODO: appropriate typecasting for Il
+            have Il' := Il 
+              (HΓ.cons_val HA)
+              (Ty.eager a, G)
+              ⟨Ie', HG⟩
+              ;
+            dsimp only [denote'] at Il';
+            sorry --TODO: appropriate typecasting for Il'
           | inr b => 
             simp only [Ty.interp.case]
-            sorry --TODO: appropriate typecasting for Il
+            have Ir' := Ir
+              (HΓ.cons_val HB)
+              (Ty.eager b, G)
+              ⟨Ie', HG⟩
+              ;
+            dsimp only [denote'] at Ir';
+            sorry --TODO: appropriate typecasting for Ir'
         | none => exact False.elim (HAB.denote_ty_non_null Ie')
       | prop => 
         dsimp only [denote']
