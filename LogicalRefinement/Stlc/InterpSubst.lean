@@ -327,7 +327,13 @@ theorem SubstCtx.interp_lift_ty
           cast, interp, 
           Stlc.SubstCtx.interp, Stlc.HasType.interp
         ]
-        sorry
+        conv =>
+          rhs
+          rw [<-Stlc.HasType.interp_wk1 sorry x]
+        apply congr _ rfl;
+        apply interp_congr;
+        simp [Subst.stlc_lift_true]
+        rfl
   }
 
 abbrev SubstCtx.interp_up {σ Γ Δ} (S: SubstCtx σ Γ Δ) (IΔ: IsCtx Δ)
