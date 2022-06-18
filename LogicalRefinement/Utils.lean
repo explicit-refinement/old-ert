@@ -641,3 +641,30 @@ theorem cast_app_pull_in
     cases H';
     rfl
   }
+
+theorem cast_app_pull_in_dep
+  (A: Type)
+  (B C: A -> Type)
+  (f: (a: A) -> B a)
+  (a: A)
+  (H: ((a: A) -> B a) = ((a: A) -> C a))
+  (H')
+  (H'': B = C):
+  (@cast ((a: A) -> B a) ((a: A) -> C a) H f) a 
+  = cast H' (f a)
+  := by {
+    cases H'';
+    rfl
+  }
+
+theorem cast_lam
+  (A B C: Type)
+  (f: A -> C)
+  (b: B)
+  (H: (A -> C) = (B -> C))
+  (H': B = A):
+  (cast H f) b = f (cast H' b)
+  := by {
+    cases H';
+    rfl
+  }
