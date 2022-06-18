@@ -34,3 +34,9 @@ theorem HasType.stlc_interp_var {Γ n A} (H: Γ ⊢ Term.var n: term A):
     ]
     rfl
   }
+
+theorem Stlc.Context.interp.downgrade_cast
+  {Γ: _root_.Context} (G: Γ.upgrade.stlc.interp)
+  (p: Γ.upgrade.stlc.interp = Γ.upgrade.upgrade.stlc.interp)
+  : (cast p G).downgrade = G
+  := sorry
