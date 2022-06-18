@@ -304,28 +304,45 @@ theorem SubstCtx.interp_lift_ty
     cases G with
     | mk x G =>
       unfold Stlc.InterpSubst;
-      rw [cast_app_pull_in_dep _ _ _ _ _ sorry sorry sorry]
-      rw [cast_app_pull_in_dep _ _ _ _ _ sorry sorry sorry]
+      rw [
+        cast_app_pull_in_dep _ _ _ _ _ 
+        (by simp only [Context.stlc]; rw [HA.stlc_ty_subst]) 
+        (by simp only [Context.stlc]; rw [HA.stlc_ty_subst]) 
+        (by simp only [Context.stlc]; rw [HA.stlc_ty_subst])
+      ]
+      rw [
+          cast_app_pull_in_dep _ _ _ _ _ 
+          (by simp only [Context.stlc]; rw [HA.stlc_ty_subst]) 
+          (by simp only [Context.stlc]; rw [HA.stlc_ty_subst]) 
+          (by simp only [Context.stlc]; rw [HA.stlc_ty_subst])]
       rw [cast_app_pull_in _ _ _]
       cases n with
       | zero =>
         simp only [Stlc.InterpSubst.lift]
         rw [cast_lam _ _ _ _ _ sorry sorry]
         cases Hv;
-        rw [cast_pair' sorry sorry _]
+        rw [
+          cast_pair' 
+          (by rw [HA.stlc_ty_subst]) 
+          rfl _]
         rfl
       | succ n => 
         simp only [Stlc.InterpSubst.lift]
-        rw [cast_lam _ _ _ _ _ sorry sorry]
+        rw [
+          cast_lam _ _ _ _ _ _ 
+          (by simp only [Context.stlc]; rw [HA.stlc_ty_subst])]
         cases Hv;
-        rw [cast_pair' sorry sorry _]
+        rw [
+          cast_pair' 
+          (by rw [HA.stlc_ty_subst])  
+          rfl _]
         simp only [
           cast, interp, 
           Stlc.SubstCtx.interp, Stlc.HasType.interp
         ]
         conv =>
           rhs
-          rw [<-Stlc.HasType.interp_wk1 sorry x]
+          rw [<-Stlc.HasType.interp_wk1 _ x]
         apply congr _ rfl;
         apply interp_congr;
         simp [Subst.stlc_lift_true]
