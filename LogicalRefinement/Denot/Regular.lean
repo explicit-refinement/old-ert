@@ -548,8 +548,7 @@ theorem HasType.denote
       have pf
         : Γ.upgrade.stlc ⊧ f.stlc Γ.upgrade.sparsity
           : Ty.arrow A.stlc_ty B.stlc_ty 
-        := sorry;
-      stop
+        := Hf.stlc;
       --TODO: get rid of double upgrade...
       have If' := If HΓ.upgrade (Context.upgrade_idem.symm ▸ G) HG.upgrade;
       have HAB := Hf.term_regular;
