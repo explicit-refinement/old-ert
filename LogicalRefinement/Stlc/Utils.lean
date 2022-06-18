@@ -35,8 +35,32 @@ theorem HasType.stlc_interp_var {Γ n A} (H: Γ ⊢ Term.var n: term A):
     rfl
   }
 
+theorem Stlc.Context.thin_upgrade {Γ: _root_.Context}:
+    Γ.upgrade.stlc.thin Γ.upgrade.downgrade_sparsity =
+    Γ.upgrade.stlc
+    := sorry
+  
+theorem Stlc.Context.thin_double_upgrade_helper {Γ: _root_.Context}:
+    Γ.upgrade.upgrade.stlc.thin Γ.upgrade.downgrade_sparsity =
+    Γ.upgrade.upgrade.stlc
+    := sorry
+
+theorem Stlc.Context.thin_upgrade_cast
+  {Γ: _root_.Context} (G: Γ.upgrade.upgrade.stlc.interp)
+  : G.thin Γ.upgrade.downgrade_sparsity
+  = cast (by rw [thin_double_upgrade_helper]) G
+  := sorry
+
 theorem Stlc.Context.interp.downgrade_cast
   {Γ: _root_.Context} (G: Γ.upgrade.stlc.interp)
   (p: Γ.upgrade.stlc.interp = Γ.upgrade.upgrade.stlc.interp)
   : (cast p G).downgrade = G
-  := sorry
+  := by {
+    unfold downgrade
+    unfold Eq.mpr
+    rw [rec_to_cast']
+    rw [thin_upgrade_cast]
+    rw [cast_merge]
+    rw [cast_merge]
+    rfl
+  }
