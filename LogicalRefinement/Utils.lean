@@ -346,7 +346,16 @@ theorem rec_to_cast
   cast p' D 
   := by {
     cases p;
-    simp [cast]
+    rfl
+  }
+
+theorem mp_to_cast
+  : 
+  Eq.mp p D =
+  cast p D 
+  := by {
+    cases p;
+    rfl
   }
 
 theorem rec_to_cast'
@@ -603,5 +612,13 @@ theorem cast_gen {p: A = C} {q: B = C}:
     intro H;
     cases H;
     intros;
+    rfl
+  }
+
+theorem some_eq_helper:
+  some x = some y -> x = y
+  := by {
+    intro H;
+    cases H;
     rfl
   }

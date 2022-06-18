@@ -541,14 +541,21 @@ theorem HasType.denote
         generalize Hwf: Stlc.HasType.interp 
           (_: _ ⊧ f.wk1.stlc _: _)
           _ = wf;
+        have H: cast sorry wf = some sf := sorry
         cases wf with
         | some wf =>
           simp only [
             Ty.interp.app, Sparsity.ix, Stlc.HasVar.interp, Ty.eager,
-            Ty.interp.bind_val, pure
+            Ty.interp.bind_val, pure, mp_to_cast
           ]
-          --TODO: more cast craft...
-          sorry
+          rw [cast_some]
+          simp only []
+          rw [cast_tri']
+          apply congr _ rfl;
+          simp only [Term.wk1, Term.stlc_ty_wk]
+          simp only [Term.wknth, Term.stlc_ty_wk]
+          rw [cast_some] at H;
+          apply some_eq_helper H;
         | none => sorry
       | none => sorry
     | irir Hf Hx Hy => 
