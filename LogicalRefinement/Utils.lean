@@ -629,3 +629,15 @@ theorem some_eq_helper:
     cases H;
     rfl
   }
+
+theorem cast_app_pull_in 
+  (f: A -> B)
+  (a: A)
+  (H: (A -> B) = (A -> C))
+  (H': B = C):
+  (@cast (A -> B) (A -> C) H f) a 
+  = cast H' (f a)
+  := by {
+    cases H';
+    rfl
+  }

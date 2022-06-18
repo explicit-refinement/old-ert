@@ -287,6 +287,31 @@ abbrev SubstCtx.interp {σ Γ Δ} (S: SubstCtx σ Γ Δ) (IΔ: IsCtx Δ)
   : Stlc.InterpSubst Γ.stlc Δ.stlc
   := Stlc.SubstCtx.interp (S.stlc IΔ)
 
+theorem SubstCtx.interp_lift_ty_cast
+  {σ: Subst} {Γ Δ: Context} {A}
+  (S: SubstCtx σ Γ Δ)
+  (S': 
+    SubstCtx σ.lift 
+      ({ ty := A.subst σ, kind := HypKind.val type }::Γ) 
+      ({ ty := A, kind := HypKind.val type }::Δ))
+  (IΔ: IsCtx Δ)
+  (HA: Δ ⊢ A: type)
+  : 
+  cast 
+  (by simp only [Context.stlc]; rw [<-HA.stlc_ty_subst]) 
+  (S'.interp (IsCtx.cons_val IΔ HA)) 
+  = @Stlc.InterpSubst.lift A.stlc_ty Γ.stlc Δ.stlc (S.interp IΔ)
+  := by {
+    funext n;
+    cases n with
+    | zero => 
+      simp only [Stlc.InterpSubst.lift]
+      sorry
+    | succ n => 
+      simp only [Stlc.InterpSubst.lift]
+      sorry
+  }
+
 theorem SubstCtx.interp_lift_ty 
   {σ: Subst} {Γ Δ: Context} {A}
   (S: SubstCtx σ Γ Δ)
@@ -300,16 +325,11 @@ theorem SubstCtx.interp_lift_ty
   = cast (by simp only [Context.stlc]; rw [HA.stlc_ty_subst])
     (@Stlc.InterpSubst.lift A.stlc_ty Γ.stlc Δ.stlc (S.interp IΔ))
   := by {
-    funext n A' Hv;
-    cases n with
-    | zero => 
-      simp only [
-        interp, Stlc.SubstCtx.interp, Subst.stlc, Sparsity.ix_inv,
-        Subst.lift
-        ]
-      dsimp only [Term.stlc]
-      sorry
-    | succ n => sorry
+    rw [<-interp_lift_ty_cast]
+    rw [cast_merge]
+    rfl
+    assumption
+    assumption
   }
 
 abbrev SubstCtx.interp_up {σ Γ Δ} (S: SubstCtx σ Γ Δ) (IΔ: IsCtx Δ)

@@ -10,19 +10,17 @@ def Stlc.InterpSubst.pop {H Γ Δ} (S: InterpSubst Γ (H::Δ))
   : InterpSubst Γ Δ
   := λ_ _ Hv => S _ _ Hv.succ
 
+--TODO: report spurious unused variable warning...
 def Stlc.InterpSubst.lift {H Γ Δ} (S: InterpSubst Γ Δ)
   : InterpSubst (H::Γ) (H::Δ)
-  := by {
-    intro n A Hv G;
-    cases n with
-    | zero => 
+  := λ n A Hv G =>
+    match n with
+    | 0 => 
       have P: A = H := by cases Hv; rfl;
-      rw [P];
-      exact HasVar.zero.interp G
-    | succ n =>
+      P ▸ HasVar.zero.interp G
+    | n + 1 =>
       let (_, G) := G;
-      exact S _ _ (by cases Hv; assumption) G
-  }
+      S _ _ (by cases Hv; assumption) G
 
 def Stlc.InterpSubst.lift2 {A B Γ Δ} (S: InterpSubst Γ Δ)
   : InterpSubst (A::B::Γ) (A::B::Δ)
