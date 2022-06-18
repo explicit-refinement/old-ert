@@ -49,7 +49,35 @@ theorem Stlc.Context.thin_upgrade_cast
   {Γ: _root_.Context} (G: Γ.upgrade.upgrade.stlc.interp)
   : G.thin Γ.upgrade.downgrade_sparsity
   = cast (by rw [thin_double_upgrade_helper]) G
-  := sorry
+  := by {
+    induction Γ with
+    | nil => rfl
+    | cons H Γ I => 
+      cases H with
+      | mk A k => 
+        cases k with
+        | val s =>
+          cases s with
+          | type =>
+            cases G with
+            | mk x G => 
+              simp only [interp.thin, Context.downgrade_sparsity]
+              rw [cast_pair']
+              apply congr rfl;
+              exact I G
+              rfl
+          | prop => 
+              simp only [interp.thin, Context.downgrade_sparsity]
+              exact I G
+        | gst => 
+          cases G with
+          | mk x G => 
+            simp only [interp.thin, Context.downgrade_sparsity]
+            rw [cast_pair']
+            apply congr rfl;
+            exact I G
+            rfl
+  }
 
 theorem Stlc.Context.interp.downgrade_cast
   {Γ: _root_.Context} (G: Γ.upgrade.stlc.interp)
