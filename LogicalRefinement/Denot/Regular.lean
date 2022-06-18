@@ -644,11 +644,11 @@ theorem HasType.denote
             --TODO: subst0 invariance...
             sorry
     | @natrec_zero Γ C z s HC Hz Hs IC Iz Is => 
+        stop
         dsimp only [
           denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
           Term.denote_ty', Term.denote_ty
         ]
-        simp only []
         exists by {
           simp only [if_pos, HC.stlc_ty_subst, Term.subst0]
           exact 
@@ -668,6 +668,34 @@ theorem HasType.denote
               exact HC.wk_sort (by repeat constructor);
             })
         }, Hz.stlc;
-    | natrec_succ => sorry
+    | @natrec_succ Γ C e z s HC He Hz Hs IC Ie Iz Is => 
+        dsimp only [
+          denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
+          Term.denote_ty', Term.denote_ty
+        ]
+        simp only []
+        exists sorry, sorry;
+        simp only [
+          Eq.mp, Ty.interp.app, Ty.interp.bind_val, Ty.interp.natrec_int
+        ]
+        split
+        {
+          rename_i n Hm;
+          cases n with
+          | zero => sorry
+          | succ n =>
+            simp only [Ty.interp.natrec_inner, Ty.interp.bind_val]
+            split
+            {
+              --TODO: subst0 lemma...
+              sorry
+            }
+            {
+              sorry
+            }
+        }
+        {
+          sorry
+        }
     | _ => exact True.intro
   }
