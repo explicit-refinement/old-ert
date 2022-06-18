@@ -315,9 +315,9 @@ theorem SubstCtx.interp_lift_ty
         rw [cast_pair' sorry sorry _]
         simp only [
           cast, interp, 
-          Stlc.SubstCtx.interp, Stlc.HasType.interp
+          Stlc.SubstCtx.interp, Stlc.HasType.interp,
+          Stlc.HasVar.interp, Sparsity.ix, Eq.mp
         ]
-        sorry
       | succ n => 
         simp only [Stlc.InterpSubst.lift]
         rw [cast_lam _ _ _ _ _ sorry sorry]
