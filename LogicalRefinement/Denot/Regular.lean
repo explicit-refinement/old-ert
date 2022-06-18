@@ -519,11 +519,37 @@ theorem HasType.denote
       have pe
         : Γ.upgrade.stlc ⊧ (Term.eta_ex A B f).stlc Γ.upgrade.sparsity
           : Ty.arrow A.stlc_ty B.stlc_ty 
-        := sorry;
+        := by {
+          constructor
+          dsimp only [Term.stlc]
+          have H: 
+            Term.stlc 
+              (Term.app (Term.pi (Term.wk1 A) (Term.wknth B 1)) 
+                (Term.wk1 f) (Term.var 0)) 
+              (true :: Context.sparsity (Context.upgrade Γ)) 
+          = Stlc.app (Ty.arrow A.stlc_ty B.stlc_ty) 
+            (f.wk1.stlc (true :: Context.sparsity (Context.upgrade Γ)))
+            (Stlc.var 0)
+          := by {
+            dsimp only [Term.stlc];
+            apply congr _ rfl;
+            apply congr _ rfl;
+            simp only [Term.stlc_ty, Term.wk1, Term.wknth, Term.stlc_ty_wk]
+          };
+          rw [H]
+          constructor
+          have Hf': ((Hyp.val A type)::Γ.upgrade) ⊢ f.wk1: _ := Hf.wk1;
+          have Hf'' := Hf'.stlc;
+          simp only [stlc_ty, Annot.wk1, term, Term.stlc_ty_wk, Annot.wk] at Hf'';
+          exact Hf'';
+          constructor
+          constructor
+        };
       have pf
         : Γ.upgrade.stlc ⊧ f.stlc Γ.upgrade.sparsity
           : Ty.arrow A.stlc_ty B.stlc_ty 
         := sorry;
+      stop
       --TODO: get rid of double upgrade...
       have If' := If HΓ.upgrade (Context.upgrade_idem.symm ▸ G) HG.upgrade;
       have HAB := Hf.term_regular;
