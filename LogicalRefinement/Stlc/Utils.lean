@@ -38,12 +38,27 @@ theorem HasType.stlc_interp_var {Γ n A} (H: Γ ⊢ Term.var n: term A):
 theorem Stlc.Context.thin_upgrade {Γ: _root_.Context}:
     Γ.upgrade.stlc.thin Γ.upgrade.downgrade_sparsity =
     Γ.upgrade.stlc
-    := sorry
+    := by {
+      induction Γ with
+      | nil => rfl
+      | cons H Γ I =>
+        cases H with
+        | mk A k =>
+          cases k with
+          | val s => 
+            cases s with
+            | type => exact congr rfl I
+            | prop => exact I
+          | gst => exact congr rfl I
+    }
   
 theorem Stlc.Context.thin_double_upgrade_helper {Γ: _root_.Context}:
     Γ.upgrade.upgrade.stlc.thin Γ.upgrade.downgrade_sparsity =
     Γ.upgrade.upgrade.stlc
-    := sorry
+    := by {
+      rw [Context.upgrade_idem]
+      exact thin_upgrade
+    }
 
 theorem Stlc.Context.thin_upgrade_cast
   {Γ: _root_.Context} (G: Γ.upgrade.upgrade.stlc.interp)
