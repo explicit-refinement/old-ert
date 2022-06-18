@@ -520,6 +520,7 @@ theorem HasType.denote
         : Γ.upgrade.stlc ⊧ (Term.eta_ex A B f).stlc Γ.upgrade.sparsity
           : Ty.arrow A.stlc_ty B.stlc_ty 
         := by {
+          stop
           constructor
           dsimp only [Term.stlc]
           have H: 
@@ -569,6 +570,7 @@ theorem HasType.denote
         have H: cast 
           (by simp only [Term.wk1, Term.wknth, Term.stlc_ty_wk]; rfl) wf 
           = some sf := by {
+            stop
             rw [<-Hsf, <-Hwf];
             rw [Stlc.HasType.interp_wk1']
             apply Stlc.HasType.interp_transport_cast'';
@@ -582,6 +584,7 @@ theorem HasType.denote
           }
         cases wf with
         | some wf =>
+          stop
           simp only [
             Ty.interp.app, Sparsity.ix, Stlc.HasVar.interp, Ty.eager,
             Ty.interp.bind_val, pure, mp_to_cast
@@ -594,8 +597,26 @@ theorem HasType.denote
           simp only [Term.wknth, Term.stlc_ty_wk]
           rw [cast_some] at H;
           apply some_eq_helper H;
-        | none => sorry
-      | none => sorry
+        | none => 
+          stop
+          rw [cast_none'] at H;
+          contradiction
+          simp only [Term.wk1, Term.wknth, Term.stlc_ty_wk]
+      | none => 
+        dsimp only [Term.denote_ty', Term.denote_ty] at If'
+        simp only [Eq.rec] at If';
+        generalize Hsf': Stlc.HasType.interp _ _ = sf';
+        rw [Hsf'] at If';
+        cases sf' with
+        | some sf' => 
+          have C: some sf' = none := by {
+            rw [<-Hsf]
+            rw [<-Hsf']
+            --TODO: nested downgrade lemma...
+            sorry
+          };
+          contradiction
+        | none => exact If'.elim
     | irir Hf Hx Hy => 
       stop
       exact ⟨

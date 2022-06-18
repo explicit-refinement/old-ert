@@ -421,6 +421,13 @@ theorem cast_none (p: A = B)
     cases p;
     rfl
   }
+
+theorem cast_none' (p: A = B) (q)
+  : cast q (@none A) = @none B
+  := by {
+    cases p;
+    rfl
+  }
  
 theorem cast_inl {A B C D: Type} {a: A} (p: A = C) (p': B = D)
   : cast (by rw [p, p']) (@Sum.inl A B a) = @Sum.inl C D (cast p a)
