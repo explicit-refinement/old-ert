@@ -516,12 +516,11 @@ theorem HasType.denote
       dsimp only [denote', Annot.denote]
       sorry
     | @eta Γ A B f Hf HA If IA => 
-      stop
-      have px
+      have pe
         : Γ.upgrade.stlc ⊧ (Term.eta_ex A B f).stlc Γ.upgrade.sparsity
           : Ty.arrow A.stlc_ty B.stlc_ty 
         := sorry;
-      have py
+      have pf
         : Γ.upgrade.stlc ⊧ f.stlc Γ.upgrade.sparsity
           : Ty.arrow A.stlc_ty B.stlc_ty 
         := sorry;
@@ -530,11 +529,28 @@ theorem HasType.denote
       have HAB := Hf.term_regular;
       have ⟨yi, Hyi⟩ := HAB.denote_ty_some If';
       dsimp only [denote'] at If';
-      exists px, py;
+      exists pe, pf;
       unfold Term.eta_ex
       dsimp only [Term.stlc_ty, Stlc.HasType.interp, Term.stlc]
       simp only []
-      sorry
+      generalize Hsf: Stlc.HasType.interp pf G = sf;
+      cases sf with
+      | some sf => 
+        apply congr rfl;
+        funext x;
+        generalize Hwf: Stlc.HasType.interp 
+          (_: _ ⊧ f.wk1.stlc _: _)
+          _ = wf;
+        cases wf with
+        | some wf =>
+          simp only [
+            Ty.interp.app, Sparsity.ix, Stlc.HasVar.interp, Ty.eager,
+            Ty.interp.bind_val, pure
+          ]
+          --TODO: more cast craft...
+          sorry
+        | none => sorry
+      | none => sorry
     | irir Hf Hx Hy => 
       stop
       exact ⟨
@@ -669,33 +685,34 @@ theorem HasType.denote
             })
         }, Hz.stlc;
     | @natrec_succ Γ C e z s HC He Hz Hs IC Ie Iz Is => 
-        dsimp only [
-          denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
-          Term.denote_ty', Term.denote_ty
-        ]
-        simp only []
-        exists sorry, sorry;
-        simp only [
-          Eq.mp, Ty.interp.app, Ty.interp.bind_val, Ty.interp.natrec_int
-        ]
-        split
-        {
-          rename_i n Hm;
-          cases n with
-          | zero => sorry
-          | succ n =>
-            simp only [Ty.interp.natrec_inner, Ty.interp.bind_val]
-            split
-            {
-              --TODO: subst0 lemma...
-              sorry
-            }
-            {
-              sorry
-            }
-        }
-        {
-          sorry
-        }
+      stop
+      dsimp only [
+        denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
+        Term.denote_ty', Term.denote_ty
+      ]
+      simp only []
+      exists sorry, sorry;
+      simp only [
+        Eq.mp, Ty.interp.app, Ty.interp.bind_val, Ty.interp.natrec_int
+      ]
+      split
+      {
+        rename_i n Hm;
+        cases n with
+        | zero => sorry
+        | succ n =>
+          simp only [Ty.interp.natrec_inner, Ty.interp.bind_val]
+          split
+          {
+            --TODO: subst0 lemma...
+            sorry
+          }
+          {
+            sorry
+          }
+      }
+      {
+        sorry
+      }
     | _ => exact True.intro
   }
