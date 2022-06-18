@@ -310,7 +310,8 @@ theorem HasType.denote
         (Stlc.Context.interp.downgrade G) = ri;
       have Ir' := Hrg ▸ (Ir HΓ G HG);
       have HA: Γ ⊢ A: type := by cases HAB; assumption;
-      have HB: ((Hyp.val A type)::Γ) ⊢ B: type := by cases HAB; assumption;
+      have HB: ((Hyp.val A type)::Γ) ⊢ B: type := 
+        by cases HAB; assumption;
       cases li with
       | some li => 
         cases ri with
@@ -465,11 +466,22 @@ theorem HasType.denote
         sorry
     | let_repr => sorry
     | abort Hp HA Ip IA => exact False.elim (Ip HΓ G HG)
-    | dconj => sorry
+    | dconj HAB Hl Hr IAB Il Ir => 
+      stop
+      dsimp only [
+        denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
+        Term.denote_ty', Term.denote_ty
+      ] at *
+      apply And.intro
+      exact Il HΓ G HG
+      have Ir' := Ir HΓ G HG;
+      --TODO: subst0 for prop
+      sorry
     | let_conj => sorry
     | disj_l He HB Ie IB => exact Or.inl (Ie HΓ G HG)
     | disj_r He HB Ie IB => exact Or.inr (Ie HΓ G HG)
     | case_pr He HA HB HC Hl Hr Ie IA IB IC Il Ir => 
+      stop
       dsimp only [
         denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
         Term.denote_ty', Term.denote_ty
