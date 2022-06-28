@@ -260,17 +260,18 @@ inductive HasType: Context -> Term -> Annot -> Prop
   -- Theory of equality
   | refl {Γ: Context} {A a: Term}:
     HasType Γ.upgrade a (term A) -> HasType Γ (refl a) (proof (eq A a a))
-  | sym {Γ: Context} {A: Term}:
-    HasType Γ A type 
-    -> HasType Γ (sym A) (proof (sym_ty A))
-  | trans {Γ: Context} {A: Term}:
-    HasType Γ A type 
-    -> HasType Γ (trans A) (proof (trans_ty A))
-  | cong {Γ: Context} {A P p x y: Term}:
+  | cong {Γ: Context} {A P p e x y: Term}:
     HasType ((Hyp.mk A (HypKind.val type))::Γ) P prop -> 
     HasType Γ A type ->
     HasType Γ p (proof (eq A x y)) ->
-    HasType Γ (cong p P) (proof (implies (P.subst0 x) (P.subst0 y)))
+    HasType Γ e (proof (P.subst0 x)) ->
+    HasType Γ (cong p e P) (proof (P.subst0 y))
+  -- | trans {Γ: Context} {A B p e x y: Term}:
+  --   HasType ((Hyp.mk A (HypKind.val type))::Γ) B type -> 
+  --   HasType Γ A type ->
+  --   HasType Γ p (proof (eq A x y)) ->
+  --   HasType Γ e (term (B.subst0 x)) ->
+  --   HasType Γ (trans p e B) (term (B.subst0 y))
   | beta {Γ: Context} {A B s t: Term}:
     HasType ((Hyp.mk A (HypKind.val type))::Γ) s (term B) ->
     HasType Γ A type ->
@@ -308,33 +309,33 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType Γ x (proof A) ->
     HasType Γ y (proof A) ->
     HasType Γ (prir x y P) (proof (implies (P.subst0 x) (P.subst0 y)))
-  | cases_left {Γ: Context} {A B C e l r: Term}:
+  | beta_left {Γ: Context} {A B C e l r: Term}:
     HasType Γ.upgrade e (term A) ->
     HasType Γ A type ->
     HasType Γ B type ->
     HasType ((Hyp.mk (coprod A B) (HypKind.val type))::Γ) C type ->
     HasType ((Hyp.mk A (HypKind.val type))::Γ.upgrade) l (expr type (C.alpha0 (inj 0 (var 0)))) ->
     HasType ((Hyp.mk B (HypKind.val type))::Γ.upgrade) r (expr type (C.alpha0 (inj 1 (var 0)))) ->
-    HasType Γ (cases_left (coprod A B) (inj 0 e) l r) 
+    HasType Γ (beta_left (coprod A B) (inj 0 e) l r) 
     (proof 
       (eq 
         (C.subst0 (inj 0 e)) 
         (case (coprod A B) (inj 0 e) l r) 
         (l.subst0 e)))
-  | cases_right {Γ: Context} {A B C e l r: Term}:
+  | beta_right {Γ: Context} {A B C e l r: Term}:
     HasType Γ.upgrade e (term B) ->
     HasType Γ A type ->
     HasType Γ B type ->
     HasType ((Hyp.mk (coprod A B) (HypKind.val type))::Γ) C type ->
     HasType ((Hyp.mk A (HypKind.val type))::Γ.upgrade) l (expr type (C.alpha0 (inj 0 (var 0)))) ->
     HasType ((Hyp.mk B (HypKind.val type))::Γ.upgrade) r (expr type (C.alpha0 (inj 1 (var 0)))) ->
-    HasType Γ (cases_right (coprod A B) (inj 1 e) l r) 
+    HasType Γ (beta_right (coprod A B) (inj 1 e) l r) 
     (proof 
       (eq 
         (C.subst0 (inj 1 e)) 
         (case (coprod A B) (inj 1 e) l r) 
         (r.subst0 e)))
-  | let_pair_beta {Γ: Context} {A B C l r e: Term}:
+  | beta_pair {Γ: Context} {A B C l r e: Term}:
     HasType Γ l (term A) ->
     HasType Γ r (term (B.subst0 l)) ->
     HasType Γ A type ->
@@ -344,9 +345,9 @@ inductive HasType: Context -> Term -> Annot -> Prop
     ((Hyp.mk B (HypKind.val type))::(Hyp.mk A (HypKind.val type))::Γ) 
     e (expr type ((C.wknth 1).alpha0 (pair (var 1) (var 0)))) ->
     HasType Γ 
-      (let_pair_beta (sigma A B) l r e)
+      (beta_pair (sigma A B) l r e)
       (expr prop (eq (C.subst0 (pair l r)) (let_pair (sigma A B) (pair l r) e) (e.subst01 r l)))
-  | let_set_beta {Γ: Context} {A φ C l r e: Term}:
+  | beta_set {Γ: Context} {A φ C l r e: Term}:
     HasType Γ l (term A) ->
     HasType Γ r (proof (φ.subst0 l)) ->
     HasType Γ A type ->
@@ -356,9 +357,9 @@ inductive HasType: Context -> Term -> Annot -> Prop
     ((Hyp.mk φ (HypKind.val prop))::(Hyp.mk A (HypKind.val type))::Γ) 
     e (expr type ((C.wknth 1).alpha0 (elem (var 1) (var 0)))) ->
     HasType Γ 
-      (let_set_beta (set A φ) l r e)
+      (beta_set (set A φ) l r e)
       (expr prop (eq (C.subst0 (elem l r)) (let_set (set A φ) (elem l r) e) (e.subst01 r l)))
-  | let_repr_beta {Γ: Context} {A B C l r e: Term}:
+  | beta_repr {Γ: Context} {A B C l r e: Term}:
     HasType Γ.upgrade l (term A) ->
     HasType Γ r (term (B.subst0 l)) ->
     HasType Γ A type ->
@@ -368,7 +369,7 @@ inductive HasType: Context -> Term -> Annot -> Prop
     ((Hyp.mk B (HypKind.val type))::(Hyp.mk A HypKind.gst)::Γ) 
     e (expr type ((C.wknth 1).alpha0 (repr (var 1) (var 0)))) ->
     HasType Γ 
-      (let_repr_beta (union A B) l r e)
+      (beta_repr (union A B) l r e)
       (expr prop (eq (C.subst0 (repr l r)) (let_repr (union A B) (repr l r) e) (e.subst01 r l)))
 
   -- Natural numbers
@@ -382,16 +383,16 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType ((Hyp.mk C (HypKind.val k))::(Hyp.mk nats HypKind.gst)::Γ) s
     (term ((C.wknth 1).alpha0 (app (arrow nats nats) succ (var 1)))) ->
     HasType Γ (natrec k C e z s) (expr k (C.subst0 e))
-  | natrec_zero {Γ: Context} {C z s: Term}:
+  | beta_zero {Γ: Context} {C z s: Term}:
     HasType ((Hyp.mk nats HypKind.gst)::Γ) C type ->
     HasType Γ.upgrade z (term (C.subst0 zero)) ->
     HasType 
     ((Hyp.mk C (HypKind.val type))::(Hyp.mk nats HypKind.gst)::Γ.upgrade) s
     (term ((C.wknth 1).alpha0 (app (arrow nats nats) succ (var 1)))) ->
     HasType Γ 
-      (natrec_zero C z s) 
+      (beta_zero C z s) 
       (expr prop (eq (C.subst0 zero) (natrec type C zero z s) z))
-  | natrec_succ {Γ: Context} {C e z s: Term}:
+  | beta_succ {Γ: Context} {C e z s: Term}:
     HasType ((Hyp.mk nats HypKind.gst)::Γ) C type ->
     HasType Γ.upgrade e (term nats) ->
     HasType Γ.upgrade z (term (C.subst0 zero)) ->
@@ -399,7 +400,7 @@ inductive HasType: Context -> Term -> Annot -> Prop
       ((Hyp.mk C (HypKind.val type))::(Hyp.mk nats HypKind.gst)::Γ.upgrade) s
     (term ((C.wknth 1).alpha0 (app (arrow nats nats) succ (var 1)))) ->
     HasType Γ 
-      (natrec_succ C e z s)
+      (beta_succ C e z s)
       --ENHANCE: make succ a builtin operator instead?
       (expr prop (eq
         (C.subst0 (app (arrow nats nats) succ e))
@@ -566,14 +567,17 @@ theorem HasType.to_var {s A n} (H: Γ ⊢ Term.var n: expr s A):
   HasVar Γ n (HypKind.val s) A := by cases H <;> assumption
 
 --TODO: ask about weird goal hints here...
-syntax "upgrade_ctx" tactic: tactic
+
+syntax "upgrade_ctx_helper" tactic: tactic
+
 
 macro_rules
-  | `(tactic| upgrade_ctx $t) => `(tactic|
-      simp only [Context.upgrade_idem];
-      apply HasType.sub <;>
-      repeat first 
-        | $t
+  | `(tactic| upgrade_ctx_helper $t) => `(tactic| $t)
+
+
+macro_rules
+  | `(tactic| upgrade_ctx_helper $_) => `(tactic|
+      first 
         | apply Context.is_sub.refl 
         | apply Context.is_sub.upgrade 
         | apply Context.is_sub.cons
@@ -582,4 +586,13 @@ macro_rules
         | apply Hyp.is_sub.refl_ty
         | apply HypKind.is_sub.refl
         | apply HypKind.is_sub.gst
+  )
+
+syntax "upgrade_ctx" tactic: tactic
+
+macro_rules
+  | `(tactic| upgrade_ctx $t) => `(tactic|
+      simp only [Context.upgrade_idem];
+      apply HasType.sub <;>
+      repeat upgrade_ctx_helper $t
   )

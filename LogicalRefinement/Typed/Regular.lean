@@ -11,6 +11,8 @@ open Term
 open Annot
 open AnnotSort
 
+--TODO: report invalid environment extension
+
 theorem HasType.no_poly {Γ v s}: ¬(HasType Γ (Term.var v) (sort s)) := by {
   intro H; cases H
 }
@@ -103,33 +105,21 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
     apply HasType.upgrade
     assumption
 
-  case sym HA IA => 
-    cases IA;
-    constructor
-    apply HasType.sym_ty
-    assumption
-
-  case trans HA IA => 
-    cases IA;
-    constructor
-    apply HasType.trans_ty
-    assumption
-
-  case cong HP _ _ _ _ Ip => 
-    constructor
+  case cong _ _ _ _ _ Ip _ => 
     constructor
     apply HasType.downgrade
     apply HasType.subst0_sort
-    exact HP.upgrade
+    upgrade_ctx assumption
     cases Ip with
     | expr Ip => cases Ip; assumption
-    apply HasType.downgrade
-    apply HasType.wk_sort
-    apply HasType.subst0_sort
-    exact HP.upgrade
-    cases Ip with
-    | expr Ip => cases Ip; assumption
-    repeat constructor
+
+  -- case trans _ _ _ _ _ Ip _ => 
+  --   constructor
+  --   apply HasType.downgrade
+  --   apply HasType.subst0_sort
+  --   upgrade_ctx assumption
+  --   cases Ip with
+  --   | expr Ip => cases Ip; assumption
 
   case beta Hs HA Ht Is _ _ => 
     cases Is with
@@ -252,7 +242,7 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
     assumption
     assumption
 
-  case cases_left => 
+  case beta_left => 
     constructor
     constructor
     apply downgrade
@@ -277,7 +267,7 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
     rw [Term.alpha0_inj_subst]
     rfl
 
-  case cases_right => 
+  case beta_right => 
     constructor
     constructor
     apply downgrade
@@ -302,7 +292,7 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
     rw [Term.alpha0_inj_subst]
     rfl
 
-  case let_pair_beta => 
+  case beta_pair => 
     constructor
     constructor
     apply subst0_sort
@@ -332,7 +322,7 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
     apply congr rfl
     exact Term.alpha0_subst01_bin.symm
 
-  case let_set_beta => 
+  case beta_set => 
     constructor
     constructor
     apply subst0_sort
@@ -362,7 +352,7 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
     apply congr rfl
     exact Term.alpha0_subst01_bin.symm
 
-  case let_repr_beta => 
+  case beta_repr => 
     constructor
     constructor
     apply subst0_sort
@@ -402,7 +392,7 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
     constructor
     assumption
 
-  case natrec_zero => 
+  case beta_zero => 
     constructor
     constructor
     apply downgrade
@@ -416,7 +406,7 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
     upgrade_ctx assumption
     assumption
 
-  case natrec_succ => 
+  case beta_succ => 
     constructor
     constructor
     apply downgrade

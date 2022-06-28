@@ -7,6 +7,7 @@ open Annot
 
 -- NOTE: this can't be an inductive type as far as I can tell, since'
 -- the type former for pi is not strictly positive.
+-- TODO: report spurious unused variable warning...
 def Term.denote_ty (A: Term) 
   {Γ: Stlc.Context}
   (σ: Sparsity)

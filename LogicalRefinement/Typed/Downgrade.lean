@@ -17,7 +17,7 @@ theorem HasType.downgrade_helper {Δ Γ: Context} {a A s}
   := by {
     intro H;
     induction H generalizing s Γ;
-    case eq HA Hl Hr IA Il Ir => 
+    case eq _ Hl Hr IA _ _ => 
       intro HΓΔ Hs;
       rw [<-Hs]
       rw [<-HΓΔ.upgrade_eq] at Hl

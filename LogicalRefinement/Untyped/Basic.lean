@@ -81,17 +81,17 @@ inductive TermKind: List Nat -> Type
   -- Theory of equality
   | eq: TermKind [0, 0, 0]
   | refl: TermKind [0]
-  | sym: TermKind [0]
-  | trans: TermKind [0]
-  | cong: TermKind [0, 1]
+  | cong: TermKind [0, 0, 1]
+  | trans: TermKind [0, 0, 1]
   | beta: TermKind [0, 1]
+  | beta_trans: TermKind [0, 0, 1]
   | beta_pr: TermKind [0, 1]
   | beta_ir: TermKind [0, 1]
-  | cases_left: TermKind [0, 0, 1, 1]
-  | cases_right: TermKind [0, 0, 1, 1]
-  | let_pair_beta: TermKind [0, 0, 0, 2]
-  | let_set_beta: TermKind [0, 0, 0, 2]
-  | let_repr_beta: TermKind [0, 0, 0, 2]
+  | beta_left: TermKind [0, 0, 1, 1]
+  | beta_right: TermKind [0, 0, 1, 1]
+  | beta_pair: TermKind [0, 0, 0, 2]
+  | beta_set: TermKind [0, 0, 0, 2]
+  | beta_repr: TermKind [0, 0, 0, 2]
   | eta: TermKind [0, 0]
   | irir: TermKind [0, 0, 0]
   | prir: TermKind [0, 0, 1]
@@ -101,8 +101,8 @@ inductive TermKind: List Nat -> Type
   | zero: TermKind []
   | succ: TermKind []
   | natrec: AnnotSort -> TermKind [1, 0, 0, 2]
-  | natrec_zero: TermKind [1, 0, 2]
-  | natrec_succ: TermKind [1, 0, 0, 2]
+  | beta_zero: TermKind [1, 0, 2]
+  | beta_succ: TermKind [1, 0, 0, 2]
   
 inductive Term: Type
   | var (v: Nat)
@@ -173,27 +173,27 @@ abbrev Term.let_wit := let_bin TermKind.let_wit
 
 -- Theory of equality
 abbrev Term.refl := unary TermKind.refl
-abbrev Term.sym := unary TermKind.sym
-abbrev Term.trans := unary TermKind.trans
-abbrev Term.cong := abs TermKind.cong
+abbrev Term.cong := ir TermKind.cong
+abbrev Term.trans := ir TermKind.trans
 abbrev Term.beta := abs TermKind.beta
+abbrev Term.beta_trans := ir TermKind.beta_trans
 abbrev Term.beta_pr := abs TermKind.beta_pr
 abbrev Term.beta_ir := abs TermKind.beta_ir
 abbrev Term.eta := bin TermKind.eta
 abbrev Term.irir := tri TermKind.irir
 abbrev Term.prir := ir TermKind.prir
-abbrev Term.cases_left := cases TermKind.cases_left
-abbrev Term.cases_right := cases TermKind.cases_right
-abbrev Term.let_pair_beta := let_bin_beta TermKind.let_pair_beta
-abbrev Term.let_set_beta := let_bin_beta TermKind.let_set_beta
-abbrev Term.let_repr_beta := let_bin_beta TermKind.let_repr_beta
+abbrev Term.beta_left := cases TermKind.beta_left
+abbrev Term.beta_right := cases TermKind.beta_right
+abbrev Term.beta_pair := let_bin_beta TermKind.beta_pair
+abbrev Term.beta_set := let_bin_beta TermKind.beta_set
+abbrev Term.beta_repr := let_bin_beta TermKind.beta_repr
 
 -- Natural numbers
 abbrev Term.zero := const TermKind.zero
 abbrev Term.succ := const TermKind.succ
 abbrev Term.natrec (k) := nr (TermKind.natrec k)
-abbrev Term.natrec_zero := nz TermKind.natrec_zero
-abbrev Term.natrec_succ := nr TermKind.natrec_succ
+abbrev Term.beta_zero := nz TermKind.beta_zero
+abbrev Term.beta_succ := nr TermKind.beta_succ
 
 @[simp] def Term.fv: Term -> Nat
   | var v => Nat.succ v

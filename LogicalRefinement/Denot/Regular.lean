@@ -273,8 +273,7 @@ theorem HasType.denote
     --TODO: replace with a recursive match?
     induction H with
     | var HA Hv IA => exact Hv.denote_annot HΓ G HG
-    | lam Hs HA Is IA => 
-      stop
+    | lam Hs HA Is IA =>
       intro x Hx
       cases x with
       | some x => 
@@ -509,8 +508,6 @@ theorem HasType.denote
       . sorry
     | let_wit => sorry
     | refl Ha => exact ⟨Ha.stlc, Ha.stlc, rfl⟩
-    | sym _ => exact HasType.sym_axiom
-    | trans HA => exact HasType.trans_axiom
     | cong => 
       stop
       dsimp only [denote', Annot.denote]
@@ -655,11 +652,11 @@ theorem HasType.denote
       ]
       intro Hx;
       sorry
-    | cases_left => sorry
-    | cases_right => sorry
-    | let_pair_beta => sorry
-    | let_set_beta => sorry
-    | let_repr_beta => sorry
+    | beta_left => sorry
+    | beta_right => sorry
+    | beta_pair => sorry
+    | beta_set => sorry
+    | beta_repr => sorry
     | succ => 
       stop
       intro x H;
@@ -736,7 +733,7 @@ theorem HasType.denote
           | succ n I => 
             --TODO: subst0 invariance...
             sorry
-    | @natrec_zero Γ C z s HC Hz Hs IC Iz Is => 
+    | @beta_zero Γ C z s HC Hz Hs IC Iz Is => 
         stop
         dsimp only [
           denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
@@ -761,7 +758,7 @@ theorem HasType.denote
               exact HC.wk_sort (by repeat constructor);
             })
         }, Hz.stlc;
-    | @natrec_succ Γ C e z s HC He Hz Hs IC Ie Iz Is => 
+    | @beta_succ Γ C e z s HC He Hz Hs IC Ie Iz Is => 
       stop
       dsimp only [
         denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
