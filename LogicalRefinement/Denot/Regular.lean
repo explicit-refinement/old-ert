@@ -325,7 +325,6 @@ theorem HasType.denote
         | none => exact False.elim (HA.denote_ty_non_null Ir')
       | none => exact False.elim (HAB.denote_ty_non_null Il')
     | @pair Γ A B l r HAB Hl Hr IAB Il Ir => 
-      stop
       dsimp only [denote', Term.denote_ty', Term.denote_ty, 
         Stlc.HasType.interp, Term.stlc, stlc_ty, term, Term.stlc_ty, 
         Ty.interp.pair]
@@ -337,7 +336,29 @@ theorem HasType.denote
       cases li with
       | some li => 
         cases ri with
-        | some ri => sorry
+        | some ri => 
+          simp only [Ty.eager, pure]
+          apply And.intro;
+          {
+            exact Il'
+          }
+          {
+            simp only [<-Hli, <-Hri]
+            simp only [denote'] at Ir';
+            rw [denote_subst0]
+            exact Ir';
+            assumption
+            assumption
+            rfl
+            assumption
+            assumption
+            rw [HB.stlc_ty_subst0]
+            rw [rec_to_cast']
+            rw [Stlc.HasType.interp_transport_cast']
+            rfl
+            rw [HB.stlc_ty_subst0]
+            rfl
+          }
         | none => 
           apply Hr.term_regular.denote_ty_non_null
           dsimp only [denote'] at Ir'
@@ -379,7 +400,7 @@ theorem HasType.denote
         exact Ie'
       | none => exact He.term_regular.denote_ty_non_null Ie'
     | @case Γ A B C e l r k He HA HB HC Hl Hr Ie IA IB IC Il Ir =>
-      stop 
+      stop
       have HAB: Γ ⊢ Term.coprod A B: type := HasType.coprod HA HB;
       cases k with
       | type => 
@@ -402,7 +423,7 @@ theorem HasType.denote
               (Ty.eager a, G)
               ⟨Ie', HG⟩
               ;
-            dsimp only [denote'] at Il';
+            simp only [denote'] at Il';
             sorry --TODO: appropriate typecasting for Il'
           | inr b => 
             simp only [Ty.interp.case]
