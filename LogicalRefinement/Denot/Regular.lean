@@ -439,7 +439,9 @@ theorem HasType.denote
       | prop => 
         dsimp only [denote']
         have Ie' := Ie HΓ G HG;
-        dsimp only [Term.stlc, Term.stlc_ty, stlc_ty, Stlc.HasType.interp] at Ie';
+        dsimp only [
+          Term.stlc, Term.stlc_ty, stlc_ty, Stlc.HasType.interp] 
+          at Ie';
         generalize Hei: Stlc.HasType.interp (_ : _⊧Term.stlc e _:_) _ = ei;
         rw [Stlc.HasType.interp_irrel] at Ie'
         rw [Hei] at Ie'
@@ -466,15 +468,62 @@ theorem HasType.denote
             sorry --TODO: appropriate typecasting for Ir'
         | none => exact False.elim (HAB.denote_ty_non_null Ie')
         exact He.stlc
-    | elem => sorry
-    | let_set => sorry
-    | lam_pr => sorry
+    | elem =>
+      stop 
+      dsimp only [
+        denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
+        Term.denote_ty', Term.denote_ty
+      ]
+      apply And.intro;
+      {
+        sorry
+      }
+      {
+        sorry
+      }
+    | let_set => 
+      stop
+      dsimp only [
+        denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
+        Term.denote_ty', Term.denote_ty
+      ]
+    | lam_pr => 
+      stop
+      dsimp only [
+        denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
+        Term.denote_ty', Term.denote_ty
+      ]
+      apply And.intro
+      {
+        sorry
+      }
+      {
+        sorry
+      }
     | app_pr HφA Hl Hr IφA Il Ir => 
       stop
       dsimp only [denote', Term.denote_ty, Term.denote_ty']
       sorry
-    | lam_irrel => sorry
-    | app_irrel => sorry
+    | lam_irrel => 
+      stop
+      dsimp only [
+        denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
+        Term.denote_ty', Term.denote_ty
+      ]
+      apply And.intro
+      {
+        sorry
+      }
+      {
+        sorry
+      }
+    | app_irrel =>
+      stop  
+      dsimp only [
+        denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
+        Term.denote_ty', Term.denote_ty
+      ]
+      sorry
     | @repr Γ A B l r HAB Hl Hr IAB Il Ir =>
       stop
       dsimp only [
@@ -485,7 +534,12 @@ theorem HasType.denote
       . sorry -- not_none + Ir?
       . exists Hl.stlc.interp G
         sorry
-    | let_repr => sorry
+    | let_repr =>
+      stop  
+      dsimp only [
+        denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
+        Term.denote_ty', Term.denote_ty
+      ]
     | abort Hp HA Ip IA => exact False.elim (Ip HΓ G HG)
     | dconj HAB Hl Hr IAB Il Ir => 
       stop
@@ -498,7 +552,12 @@ theorem HasType.denote
       have Ir' := Ir HΓ G HG;
       --TODO: subst0 for prop
       sorry
-    | let_conj => sorry
+    | let_conj =>  
+      stop
+      dsimp only [
+        denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
+        Term.denote_ty', Term.denote_ty
+      ]
     | disj_l He HB Ie IB => exact Or.inl (Ie HΓ G HG)
     | disj_r He HB Ie IB => exact Or.inr (Ie HΓ G HG)
     | case_pr He HA HB HC Hl Hr Ie IA IB IC Il Ir => 
@@ -574,11 +633,36 @@ theorem HasType.denote
       ]
       intro Hx;
       sorry
-    | beta_left => sorry
-    | beta_right => sorry
-    | beta_pair => sorry
-    | beta_set => sorry
-    | beta_repr => sorry
+    | beta_left =>  
+      stop
+      dsimp only [
+        denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
+        Term.denote_ty', Term.denote_ty
+      ]
+    | beta_right =>   
+      stop
+      dsimp only [
+        denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
+        Term.denote_ty', Term.denote_ty
+      ]
+    | beta_pair =>   
+      stop
+      dsimp only [
+        denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
+        Term.denote_ty', Term.denote_ty
+      ]
+    | beta_set =>   
+      stop
+      dsimp only [
+        denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
+        Term.denote_ty', Term.denote_ty
+      ]
+    | beta_repr =>   
+      stop
+      dsimp only [
+        denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
+        Term.denote_ty', Term.denote_ty
+      ]
     | succ => 
       stop
       intro x H;
