@@ -1,6 +1,11 @@
 import Lake
 open Lake DSL
 
-package LogicalRefinement {
+package logicalrefinement {
+  -- add configuration options here
+}
+
+@[defaultTarget]
+lean_lib LogicalRefinement {
   -- add configuration options here
 }

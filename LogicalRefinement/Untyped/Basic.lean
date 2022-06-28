@@ -92,7 +92,7 @@ inductive TermKind: List Nat -> Type
   | beta_pair: TermKind [0, 0, 0, 2]
   | beta_set: TermKind [0, 0, 0, 2]
   | beta_repr: TermKind [0, 0, 0, 2]
-  | eta: TermKind [0, 0]
+  | funext: TermKind [0, 0, 1]
   | irir: TermKind [0, 0, 0]
   | prir: TermKind [0, 0, 1]
 
@@ -179,7 +179,7 @@ abbrev Term.beta := abs TermKind.beta
 abbrev Term.beta_trans := ir TermKind.beta_trans
 abbrev Term.beta_pr := abs TermKind.beta_pr
 abbrev Term.beta_ir := abs TermKind.beta_ir
-abbrev Term.eta := bin TermKind.eta
+abbrev Term.funext := ir TermKind.funext
 abbrev Term.irir := tri TermKind.irir
 abbrev Term.prir := ir TermKind.prir
 abbrev Term.beta_left := cases TermKind.beta_left
