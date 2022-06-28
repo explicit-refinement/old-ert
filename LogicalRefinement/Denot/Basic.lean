@@ -125,11 +125,11 @@ theorem HasType.denote_ty_non_null
     generalize HS: sort type = S;
     intro HA;
     induction HA with
-    | set _ _ IA Iφ => 
+    | set _ _ IA _ => 
       dsimp only [Term.denote_ty]
-      intro ⟨HA, Hφ⟩;
+      intro ⟨HA, _⟩;
       exact IA rfl HA
-    | assume _ _ Iφ IA => 
+    | assume => 
       intro ⟨H, _⟩;
       exact H rfl
     | intersect => 
@@ -140,7 +140,8 @@ theorem HasType.denote_ty_non_null
       exact H rfl
     | _ => cases HS <;> intro H <;> cases H
   }
-  
+
+--TODO: report spurious unused variable warning
 theorem HasType.denote_ty_some {Δ: Stlc.Context} {G: Δ.interp}
   (H: Γ ⊢ A: type)
   (D: A.denote_ty σ G a)
@@ -149,12 +150,13 @@ theorem HasType.denote_ty_some {Δ: Stlc.Context} {G: Δ.interp}
     | some a => ⟨a, rfl⟩
     | none => False.elim (H.denote_ty_non_null D)
 
+--TODO: report spurious unused variable warning
 abbrev Annot.denote (A: Annot) {Γ: Stlc.Context}
   (σ: Sparsity)
   (G: Γ.interp)
   (a: A.stlc_ty.interp): Prop
   := match A with
-  | sort s => True
+  | sort _ => True
   | expr type A => A.denote_ty σ G a
   | expr prop A => A.denote_ty σ G none
 
