@@ -19,9 +19,10 @@ theorem SubstCtx.subst_denot
   (HG: G ⊧ ✓Γ)
   (HA: Δ ⊢ A: sort s)
   : 
-    A.denote_ty Δ.upgrade.sparsity (S.transport_interp_up IΔ G) a =
-    (A.subst σ).denote_ty Γ.upgrade.sparsity G (HA.stlc_ty_subst ▸ a)
+    A.denote_ty (S.transport_interp_up IΔ G) a =
+    (A.subst σ).denote_ty G (HA.stlc_ty_subst ▸ a)
   := by {
+    stop
     generalize HK: sort s = K;
     rw [HK] at HA;
     induction HA generalizing σ Γ s with
@@ -65,7 +66,6 @@ theorem SubstCtx.subst_denot
               rfl;
           dsimp only 
             [Context.upgrade, Hyp.upgrade, HypKind.upgrade] at IB';
-          simp only [Context.sparsity_ty] at IB';
           rw [<-IB']
           rw [
             S.transport_interp_up_lift_ty S' IΔ 
@@ -114,7 +114,6 @@ theorem SubstCtx.subst_denot
               rfl;
           dsimp only 
             [Context.upgrade, Hyp.upgrade, HypKind.upgrade] at IB';
-          simp only [Context.sparsity_ty] at IB';
           rw [
             <-S.transport_interp_up_lift_ty S' IΔ 
             (by assumption)
@@ -171,7 +170,7 @@ theorem SubstCtx.subst_denot
           have HGa' := Ha' ▸ cast_some ▸ HGa;
           simp only [rec_to_cast'] at IB;
           rw [<-
-            transport_interp_up_lift_ty S S'
+            transport_interp_up_lift S S'
             IΔ HA' G (some a) (some a')
             (by
               rw [rec_to_cast']
@@ -252,7 +251,7 @@ theorem SubstCtx.subst_denot
             (IsCtx.cons_val IΔ Hφ) 
             ⟨Iφ' ▸ Hφ', HG⟩ HA' rfl);
         {
-          rw [transport_interp_up_lift_prop]
+          rw [transport_interp_up_lift]
           rfl
           exact Hφ
         }
@@ -280,7 +279,7 @@ theorem SubstCtx.subst_denot
         --TODO: this really shouldn't be using set, but eh it works
         cases s with
         | type => 
-          rw [<-transport_interp_up_lift_ty]
+          rw [<-transport_interp_up_lift]
           rfl
           exact S.lift_type HA;
           exact HA;
@@ -448,7 +447,7 @@ theorem SubstCtx.subst_denot
           apply equiv_prop_split Iψ';
           {
             rw [
-              <-transport_interp_up_lift_prop
+              <-transport_interp_up_lift
                 S S' IΔ Hφ G
             ]
             rfl
@@ -678,8 +677,8 @@ theorem SubstCtx.subst_denot'
   (HG': G' = S.transport_interp_up IΔ G)
   (Ha': a' = HA.stlc_ty_subst ▸ a)
   : 
-    A.denote_ty Δ.upgrade.sparsity G' a =
-    (A.subst σ).denote_ty Γ.upgrade.sparsity G a'
+    A.denote_ty G' a =
+    (A.subst σ).denote_ty G a'
   := by {
     rw [HG', Ha']
     apply subst_denot <;> assumption
@@ -693,12 +692,11 @@ theorem SubstCtx.subst_denot''
   (HA: Δ ⊢ A: sort s)
   (HG': G' = S.transport_interp_up IΔ G)
   (Ha': a' = HA.stlc_ty_subst ▸ a)
-  (HUS: US = Γ.upgrade.sparsity)
   : 
-    A.denote_ty Δ.upgrade.sparsity G' a =
-    (A.subst σ).denote_ty US G a'
+    A.denote_ty G' a =
+    (A.subst σ).denote_ty G a'
   := by {
-    rw [HG', Ha', HUS]
+    rw [HG', Ha']
     apply subst_denot <;> assumption
   }
 
@@ -706,17 +704,16 @@ theorem HasType.denote_ty_subst0
   {A: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} {a: A.stlc_ty.interp}
   {B: Term} {b: Term}
   {a': (A.subst0 b).stlc_ty.interp}
-  {b' σ s}
+  {b' s}
   (Hb: Γ ⊢ b: term B)
   (HΓ: IsCtx Γ)
-  (Hσ: σ = Γ.upgrade.sparsity)
   (HG: G ⊧ ✓Γ)
   (HA: ({ ty := B, kind := HypKind.val type } :: Γ) ⊢ A: sort s)
   (HAA': A.stlc_ty = (A.subst0 b).stlc_ty)
   (Haa': a' = HAA' ▸ a)
-  (Hbb': b' = Hb.stlc.interp G.downgrade)
-  : @Term.denote_ty A (B.stlc_ty::Γ.upgrade.stlc) (true::σ) (b', G) a =
-    @Term.denote_ty (A.subst0 b) Γ.upgrade.stlc σ G a'
+  (Hbb': b' = Hb.stlc.interp sorry) --G.downgrade
+  : @Term.denote_ty A (B.stlc_ty::Γ.upgrade.stlc) (b', G) a =
+    @Term.denote_ty (A.subst0 b) Γ.upgrade.stlc G a'
   := by {
     have I := 
       @SubstCtx.subst_denot 
@@ -726,11 +723,7 @@ theorem HasType.denote_ty_subst0
     apply equiv_prop_split I;
     {
       apply congr _ rfl;
-      apply congr;
-      {
-        rw [Hσ]
-        rfl
-      }
+      apply congr rfl;
       {
         simp only [
           SubstCtx.transport_interp_up, 
@@ -754,7 +747,6 @@ theorem HasType.denote_ty_subst0
     }
     {
       rw [Haa']
-      rw [Hσ]
       rfl
     }
   }
@@ -763,16 +755,15 @@ theorem HasType.denote_prop_subst0
   {A: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} {a: A.stlc_ty.interp}
   {B: Term} {b: Term}
   {a': (A.subst0 b).stlc_ty.interp}
-  {σ s}
+  {s}
   (Hb: Γ ⊢ b: proof B)
   (HΓ: IsCtx Γ)
-  (Hσ: σ = Γ.upgrade.sparsity)
   (HG: G ⊧ ✓Γ)
   (HA: ({ ty := B, kind := HypKind.val prop } :: Γ) ⊢ A: sort s)
   (HAA': A.stlc_ty = (A.subst0 b).stlc_ty)
   (Haa': a' = HAA' ▸ a)
-  : @Term.denote_ty A Γ.upgrade.stlc (false::σ) G a =
-    @Term.denote_ty (A.subst0 b) Γ.upgrade.stlc σ G a'
+  : @Term.denote_ty A Γ.upgrade.stlc G a =
+    @Term.denote_ty (A.subst0 b) Γ.upgrade.stlc G a'
   := by {
     have I := 
       @SubstCtx.subst_denot 
@@ -782,6 +773,7 @@ theorem HasType.denote_prop_subst0
     apply equiv_prop_split I;
     {
       apply congr _ rfl;
+      stop
       apply congr;
       {
         rw [Hσ]
@@ -801,7 +793,6 @@ theorem HasType.denote_prop_subst0
     }
     {
       rw [Haa']
-      rw [Hσ]
       rfl
     }
   }
@@ -811,17 +802,16 @@ theorem HasType.denote_ty_subst0'
   {A: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} {a: A.stlc_ty.interp}
   {B: Term} {b: Term}
   {a': (A.subst0 b).stlc_ty.interp}
-  {b' σ}
+  {b'}
   (Hb: Γ ⊢ b: term B)
   (HΓ: IsCtx Γ)
-  (Hσ: σ = Γ.upgrade.sparsity)
   (HG: G ⊧ ✓Γ)
   (HA: ({ ty := B, kind := HypKind.val type } :: Γ) ⊢ A: type)
   (HAA': A.stlc_ty = (A.subst0 b).stlc_ty)
   (Haa': a' = HAA' ▸ a)
-  (Hbb': b' = Hb.stlc.interp G.downgrade)
-  (H: @Term.denote_ty A (B.stlc_ty::Γ.upgrade.stlc) (true::σ) (b', G) a)
-  : @Term.denote_ty (A.subst0 b) Γ.upgrade.stlc σ G a'
+  (Hbb': b' = Hb.stlc.interp sorry) --G.downgrade
+  (H: @Term.denote_ty A (B.stlc_ty::Γ.upgrade.stlc) (b', G) a)
+  : @Term.denote_ty (A.subst0 b) Γ.upgrade.stlc G a'
   := by 
     rw [<-HasType.denote_ty_subst0]
     exact H
@@ -831,19 +821,18 @@ theorem HasType.denote_ty_antisubst0'
   {A: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} {a: A.stlc_ty.interp}
   {B: Term} {b: Term}
   {a': (A.subst0 b).stlc_ty.interp}
-  {b' σ}
+  {b'}
   (HA: Γ ⊢ A: S)
   (_: S = sort s)
   (HΓ: IsCtx Γ)
-  (Hσ: σ = Γ.upgrade.sparsity)
   (HG: G ⊧ ✓Γ)
   (Hb: Γ ⊢ b: term B)
   (HA: ({ ty := B, kind := HypKind.val type } :: Γ) ⊢ A: type)
   (HAA': A.stlc_ty = (A.subst0 b).stlc_ty)
   (Haa': a' = HAA' ▸ a)
-  (Hbb': b' = Hb.stlc.interp G.downgrade)
-  (H: @Term.denote_ty (A.subst0 b) Γ.upgrade.stlc σ G a')
-  : @Term.denote_ty A (B.stlc_ty::Γ.upgrade.stlc) (true::σ) (b', G) a
+  (Hbb': b' = Hb.stlc.interp sorry) --G.downgrade
+  (H: @Term.denote_ty (A.subst0 b) Γ.upgrade.stlc G a')
+  : @Term.denote_ty A (B.stlc_ty::Γ.upgrade.stlc) (b', G) a
   := by 
     rw [HasType.denote_ty_subst0]
     exact H

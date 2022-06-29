@@ -274,7 +274,6 @@ theorem HasType.denote
     induction H with
     | var HA Hv IA => exact Hv.denote_annot HΓ G HG
     | lam Hs HA Is IA =>
-      stop
       intro x Hx
       cases x with
       | some x => 
@@ -285,11 +284,7 @@ theorem HasType.denote
           Ty.interp.app, Ty.interp.bind_val
         ]
         rw [<-Stlc.Context.interp.downgrade_ty]
-        apply Is
-        constructor
-        exact HΓ
-        exact HA
-        exact ⟨Hx, HG⟩
+        exact Is (HΓ.cons_val HA) _ ⟨Hx, HG⟩
       | none => exact False.elim (HA.denote_ty_non_null Hx)
     | @app Γ A B l r HAB Hl Hr IA Il Ir =>
       stop
@@ -488,12 +483,12 @@ theorem HasType.denote
         denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
         Term.denote_ty', Term.denote_ty
       ]
-    | lam_pr => 
-      stop
+    | lam_pr Hϕ Hs _Iϕ Is => 
       dsimp only [
         denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
         Term.denote_ty', Term.denote_ty
-      ]
+      ] at *
+      let Is' := Is (HΓ.cons_val Hϕ) G ⟨sorry, HG⟩;
       apply And.intro
       {
         sorry
