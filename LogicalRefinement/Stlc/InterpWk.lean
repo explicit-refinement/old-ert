@@ -14,7 +14,6 @@ theorem Term.wk_stlc_commute {Γ Δ ρ a}
   = a.stlc.wk ρ
   := by {
     rw [<-Subst.subst_wk_compat]
-    --TODO: this rw [<-Stlc.Subst.subst_wk_compat]
-    --apply Term.term_subst_stlc_commute H R.to_subst
-    sorry
+    rw [<-Stlc.Subst.subst_wk_compat]
+    exact Term.term_subst_stlc_commute H R.to_subst
   }

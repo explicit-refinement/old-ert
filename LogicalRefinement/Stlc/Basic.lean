@@ -862,3 +862,53 @@ theorem Stlc.HasType.interp_wk1' {Γ a a'} {A B: Ty}
     rw [<-H.interp_wk1 x G]
     rfl
   }
+
+def Stlc.Subst.wk1 (σ: Subst): Subst :=
+  λv => (σ v).wk1
+
+@[simp]
+def Wk.to_stlc_subst (ρ: Wk): Stlc.Subst :=
+  λv => Stlc.var (ρ.var v)
+
+instance Wk.wk_stlc_subst_coe: Coe Wk Stlc.Subst where
+  coe := Wk.to_stlc_subst
+
+def Wk.to_stlc_subst_lift {ρ: Wk}: 
+  ρ.to_stlc_subst.lift = ρ.lift.to_stlc_subst := by {
+  funext v;
+  cases v <;> rfl
+}
+
+
+theorem Stlc.Subst.liftn_lift_commute {σ: Stlc.Subst} {n}
+  : σ.lift.liftn n = (σ.liftn n).lift 
+  := by {
+    induction n generalizing σ with
+    | zero => rfl
+    | succ n I =>
+      simp only [liftn]
+      rw [I]
+  }
+
+def Wk.to_stlc_subst_liftn {n: Nat} {ρ: Wk}:
+  ρ.to_stlc_subst.liftn n = (ρ.liftn n).to_stlc_subst := by {
+    induction n generalizing ρ with
+    | zero => rfl
+    | succ n I =>
+      simp only [liftn, Stlc.Subst.liftn]
+      rw [<-to_stlc_subst_lift]
+      rw [<-I]
+      exact Stlc.Subst.liftn_lift_commute
+}
+
+theorem Stlc.Subst.subst_wk_compat {u: Stlc} {ρ: Wk}:
+  u.subst ρ = u.wk ρ := by { 
+  induction u generalizing ρ <;> {
+    intros;
+    simp only [
+      Stlc.subst, 
+      Wk.to_stlc_subst_lift, Wk.to_stlc_subst_liftn, 
+      *]
+    rfl
+  }
+}
