@@ -747,6 +747,7 @@ theorem HasType.denote_ty_subst0
           sorry
         }
         {
+          --TODO: factor out as helper...
           sorry
         }
       }

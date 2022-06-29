@@ -274,6 +274,7 @@ theorem HasType.denote
     induction H with
     | var HA Hv IA => exact Hv.denote_annot HΓ G HG
     | lam Hs HA Is IA =>
+      stop
       intro x Hx
       cases x with
       | some x => 
@@ -291,6 +292,7 @@ theorem HasType.denote
         exact ⟨Hx, HG⟩
       | none => exact False.elim (HA.denote_ty_non_null Hx)
     | @app Γ A B l r HAB Hl Hr IA Il Ir =>
+      stop
       dsimp only [Annot.denote]
       dsimp only [
         Annot.stlc_ty, term, Term.stlc_ty, Term.stlc, 
@@ -324,6 +326,7 @@ theorem HasType.denote
         | none => exact False.elim (HA.denote_ty_non_null Ir')
       | none => exact False.elim (HAB.denote_ty_non_null Il')
     | @pair Γ A B l r HAB Hl Hr IAB Il Ir =>
+      stop
       dsimp only [denote', Term.denote_ty', Term.denote_ty, 
         Stlc.HasType.interp, Term.stlc, stlc_ty, term, Term.stlc_ty, 
         Ty.interp.pair]
