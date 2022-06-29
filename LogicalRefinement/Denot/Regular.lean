@@ -627,6 +627,7 @@ theorem HasType.denote
         rfl
       ⟩
     | prir HP HA Hx Hy _  _ Ix Iy =>
+      stop
       dsimp only [
         denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
         Term.denote_ty', Term.denote_ty
@@ -656,12 +657,16 @@ theorem HasType.denote
         denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
         Term.denote_ty', Term.denote_ty
       ]
-    | beta_right =>   
+      exists sorry, sorry;
+      sorry
+    | beta_right =>
       stop
       dsimp only [
         denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
         Term.denote_ty', Term.denote_ty
       ]
+      exists sorry, sorry;
+      sorry
     | beta_pair =>   
       stop
       dsimp only [
