@@ -578,6 +578,7 @@ theorem HasType.denote
     | imp Hϕ Hs Iϕ Is => exact λDϕ => Is (IsCtx.cons_val HΓ Hϕ) G ⟨Dϕ, HG⟩;
     --TODO: why is mp's result upgraded?
     | mp Hϕψ Hl Hr _ Il Ir => 
+      stop
       dsimp only [
         denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
         Term.denote_ty', Term.denote_ty
@@ -592,7 +593,8 @@ theorem HasType.denote
         )
       ]
       exact Il HΓ G HG (Ir HΓ G HG)
-    | general => sorry
+    | general HA Hs IA Is => 
+      exact λx Dx => Is (IsCtx.cons_val HΓ HA) (x, G) ⟨Dx, HG⟩;
     | inst => sorry
     | @wit Γ A φ l r HAφ Hl Hr IAφ Il Ir =>
       stop
