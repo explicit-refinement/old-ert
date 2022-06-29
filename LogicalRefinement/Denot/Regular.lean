@@ -291,7 +291,6 @@ theorem HasType.denote
         exact ⟨Hx, HG⟩
       | none => exact False.elim (HA.denote_ty_non_null Hx)
     | @app Γ A B l r HAB Hl Hr IA Il Ir =>
-      stop
       dsimp only [Annot.denote]
       dsimp only [
         Annot.stlc_ty, term, Term.stlc_ty, Term.stlc, 
@@ -319,13 +318,12 @@ theorem HasType.denote
           simp only []
           dsimp only [Annot.denote, Term.denote_ty, denote', Term.denote_ty'] at Il'
           dsimp only [Annot.denote, Term.denote_ty, denote']
-          apply HasType.denote_subst0' Hr HΓ rfl HG HB HB.stlc_ty_subst.symm _ Hrg.symm Ilr
+          apply HasType.denote_ty_subst0' Hr HΓ rfl HG HB HB.stlc_ty_subst.symm _ Hrg.symm Ilr
           rw [monorecursor]
           rfl
         | none => exact False.elim (HA.denote_ty_non_null Ir')
       | none => exact False.elim (HAB.denote_ty_non_null Il')
-    | @pair Γ A B l r HAB Hl Hr IAB Il Ir => 
-      stop
+    | @pair Γ A B l r HAB Hl Hr IAB Il Ir =>
       dsimp only [denote', Term.denote_ty', Term.denote_ty, 
         Stlc.HasType.interp, Term.stlc, stlc_ty, term, Term.stlc_ty, 
         Ty.interp.pair]
@@ -346,7 +344,7 @@ theorem HasType.denote
           {
             simp only [<-Hli, <-Hri]
             simp only [denote'] at Ir';
-            rw [denote_subst0]
+            rw [denote_ty_subst0]
             exact Ir';
             assumption
             assumption
@@ -625,13 +623,12 @@ theorem HasType.denote
         }, 
         rfl
       ⟩
-    | prir _ _ _ _ _  _ Ix Iy => 
+    | prir HP HA Hx Hy _  _ Ix Iy =>
       stop
       dsimp only [
         denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
         Term.denote_ty', Term.denote_ty
       ]
-      intro Hx;
       sorry
     | beta_left =>  
       stop

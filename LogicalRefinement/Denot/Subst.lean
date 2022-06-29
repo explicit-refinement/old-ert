@@ -305,7 +305,8 @@ theorem SubstCtx.subst_denot
       {
         have IA' := 
           interp_eq_collapse ▸
-          @IA Γ σ G (HA'.stlc_ty_subst ▸ x) type S IΓ IΔ HG HA' rfl;          have S' := S.lift_type HA'
+          @IA Γ σ G (HA'.stlc_ty_subst ▸ x) type S IΓ IΔ HG HA' rfl;          
+        have S' := S.lift_type HA'
         have IB' := @IB 
           ((Hyp.mk _ (HypKind.val type))::Γ) 
           σ.lift (x, G) a type 
@@ -668,7 +669,40 @@ theorem SubstCtx.subst_denot
   }
 
 
-theorem HasType.denote_subst0
+theorem SubstCtx.subst_denot'
+  {Γ Δ: Context} {σ} {G: Γ.upgrade.stlc.interp} {G'} {A: Term} {a a' s}
+  (S: SubstCtx σ Γ Δ)
+  (IΓ: IsCtx Γ) (IΔ: IsCtx Δ)
+  (HG: G ⊧ ✓Γ)
+  (HA: Δ ⊢ A: sort s)
+  (HG': G' = S.transport_interp_up IΔ G)
+  (Ha': a' = HA.stlc_ty_subst ▸ a)
+  : 
+    A.denote_ty Δ.upgrade.sparsity G' a =
+    (A.subst σ).denote_ty Γ.upgrade.sparsity G a'
+  := by {
+    rw [HG', Ha']
+    apply subst_denot <;> assumption
+  }
+
+theorem SubstCtx.subst_denot''
+  {Γ Δ: Context} {σ} {G: Γ.upgrade.stlc.interp} {G'} {A: Term} {a a' s}
+  (S: SubstCtx σ Γ Δ)
+  (IΓ: IsCtx Γ) (IΔ: IsCtx Δ)
+  (HG: G ⊧ ✓Γ)
+  (HA: Δ ⊢ A: sort s)
+  (HG': G' = S.transport_interp_up IΔ G)
+  (Ha': a' = HA.stlc_ty_subst ▸ a)
+  (HUS: US = Γ.upgrade.sparsity)
+  : 
+    A.denote_ty Δ.upgrade.sparsity G' a =
+    (A.subst σ).denote_ty US G a'
+  := by {
+    rw [HG', Ha', HUS]
+    apply subst_denot <;> assumption
+  }
+
+theorem HasType.denote_ty_subst0
   {A: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} {a: A.stlc_ty.interp}
   {B: Term} {b: Term}
   {a': (A.subst0 b).stlc_ty.interp}
@@ -725,7 +759,7 @@ theorem HasType.denote_subst0
   }
     
 
-theorem HasType.denote_subst0'
+theorem HasType.denote_ty_subst0'
   {A: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} {a: A.stlc_ty.interp}
   {B: Term} {b: Term}
   {a': (A.subst0 b).stlc_ty.interp}
@@ -741,11 +775,11 @@ theorem HasType.denote_subst0'
   (H: @Term.denote_ty A (B.stlc_ty::Γ.upgrade.stlc) (true::σ) (b', G) a)
   : @Term.denote_ty (A.subst0 b) Γ.upgrade.stlc σ G a'
   := by 
-    rw [<-HasType.denote_subst0]
+    rw [<-HasType.denote_ty_subst0]
     exact H
     repeat assumption
 
-theorem HasType.denote_antisubst0'
+theorem HasType.denote_ty_antisubst0'
   {A: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} {a: A.stlc_ty.interp}
   {B: Term} {b: Term}
   {a': (A.subst0 b).stlc_ty.interp}
@@ -763,6 +797,6 @@ theorem HasType.denote_antisubst0'
   (H: @Term.denote_ty (A.subst0 b) Γ.upgrade.stlc σ G a')
   : @Term.denote_ty A (B.stlc_ty::Γ.upgrade.stlc) (true::σ) (b', G) a
   := by 
-    rw [HasType.denote_subst0]
+    rw [HasType.denote_ty_subst0]
     exact H
     repeat assumption
