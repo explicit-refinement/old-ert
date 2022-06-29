@@ -595,7 +595,16 @@ theorem HasType.denote
       exact Il HΓ G HG (Ir HΓ G HG)
     | general HA Hs IA Is => 
       exact λx Dx => Is (IsCtx.cons_val HΓ HA) (x, G) ⟨Dx, HG⟩;
-    | inst => sorry
+    | inst HAϕ Hl Hr _ Il Ir => 
+      dsimp only [
+        denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
+        Term.denote_ty', Term.denote_ty
+      ] at *
+      rw [<-HasType.denote_ty_subst0]
+      apply Il HΓ G HG;
+      -- Double upgrade
+      sorry
+      repeat sorry
     | @wit Γ A φ l r HAφ Hl Hr IAφ Il Ir =>
       stop
       exists Hl.stlc.interp G
