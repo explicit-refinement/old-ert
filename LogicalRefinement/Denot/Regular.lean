@@ -575,7 +575,7 @@ theorem HasType.denote
       | inr Ie' =>  
         have Ir' := Ir (IsCtx.cons_val HΓ HB) G ⟨Ie', HG⟩;
         sorry
-    | imp => sorry
+    | imp Hϕ Hs Iϕ Is => exact λDϕ => Is (IsCtx.cons_val HΓ Hϕ) G ⟨Dϕ, HG⟩;
     | mp => sorry
     | general => sorry
     | inst => sorry
