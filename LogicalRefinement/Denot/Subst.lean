@@ -758,6 +758,53 @@ theorem HasType.denote_ty_subst0
       rfl
     }
   }
+  
+theorem HasType.denote_prop_subst0
+  {A: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} {a: A.stlc_ty.interp}
+  {B: Term} {b: Term}
+  {a': (A.subst0 b).stlc_ty.interp}
+  {σ}
+  (Hb: Γ ⊢ b: proof B)
+  (HΓ: IsCtx Γ)
+  (Hσ: σ = Γ.upgrade.sparsity)
+  (HG: G ⊧ ✓Γ)
+  (HA: ({ ty := B, kind := HypKind.val prop } :: Γ) ⊢ A: type)
+  (HAA': A.stlc_ty = (A.subst0 b).stlc_ty)
+  (Haa': a' = HAA' ▸ a)
+  : @Term.denote_ty A Γ.upgrade.stlc (false::σ) G a =
+    @Term.denote_ty (A.subst0 b) Γ.upgrade.stlc σ G a'
+  := by {
+    have I := 
+      @SubstCtx.subst_denot 
+      _ _ _ _ _ a _
+      Hb.to_subst HΓ 
+      (IsCtx.cons_val HΓ Hb.proof_regular) HG HA;
+    apply equiv_prop_split I;
+    {
+      apply congr _ rfl;
+      apply congr;
+      {
+        rw [Hσ]
+        rfl
+      }
+      {
+        simp only [
+          SubstCtx.transport_interp_up, 
+          SubstCtx.transport_interp,
+          SubstCtx.interp,
+          Stlc.SubstCtx.interp,
+          Stlc.InterpSubst.transport_ctx
+        ]
+        --TODO: same factored lemma from denote_ty_subst0...
+        sorry
+      }
+    }
+    {
+      rw [Haa']
+      rw [Hσ]
+      rfl
+    }
+  }
     
 
 theorem HasType.denote_ty_subst0'
