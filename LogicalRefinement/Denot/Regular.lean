@@ -658,7 +658,19 @@ theorem HasType.denote
         Term.denote_ty', Term.denote_ty
       ]
       exists sorry, sorry;
-      sorry
+      simp only [Ty.interp.case];
+      split
+      {
+        sorry
+      }
+      {
+        sorry
+      }
+      {
+        unfold Ty.abort;
+        --TODO: subst0 none lemma
+        sorry
+      }
     | beta_right =>
       stop
       dsimp only [
