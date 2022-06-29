@@ -543,22 +543,31 @@ theorem HasType.denote
       ]
     | abort Hp HA Ip IA => exact False.elim (Ip HΓ G HG)
     | dconj HAB Hl Hr IAB Il Ir => 
-      stop
       dsimp only [
         denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
         Term.denote_ty', Term.denote_ty
       ] at *
       apply And.intro
-      exact Il HΓ G HG
+      exact Il HΓ G HG;
       have Ir' := Ir HΓ G HG;
-      --TODO: subst0 for prop
-      sorry
-    | let_conj =>  
+      apply equiv_prop_helper Ir';
+      rw [
+        Hl.denote_prop_subst0 HΓ rfl HG 
+        (by cases HAB; assumption)
+        (by rw [HasType.stlc_ty_subst0]; cases HAB; assumption)
+        rfl
+      ];
+      rw [rec_to_cast']
+      rw [cast_none']
+      rw [HasType.stlc_ty_subst0]; cases HAB; assumption
+    | let_conj He HA HB HC He' Ie _IA _IB _IC Ie' =>
       stop
       dsimp only [
         denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
         Term.denote_ty', Term.denote_ty
-      ]
+      ] at *
+      --TODO: alpha0 theorems...
+      sorry
     | disj_l He HB Ie IB => exact Or.inl (Ie HΓ G HG)
     | disj_r He HB Ie IB => exact Or.inr (Ie HΓ G HG)
     | case_pr He HA HB HC Hl Hr Ie IA IB IC Il Ir => 
@@ -596,6 +605,7 @@ theorem HasType.denote
     | general HA Hs IA Is => 
       exact λx Dx => Is (IsCtx.cons_val HΓ HA) (x, G) ⟨Dx, HG⟩;
     | inst HAϕ Hl Hr _ Il Ir => 
+      stop
       dsimp only [
         denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
         Term.denote_ty', Term.denote_ty
