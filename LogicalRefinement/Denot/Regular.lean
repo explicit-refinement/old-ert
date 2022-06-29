@@ -576,7 +576,22 @@ theorem HasType.denote
         have Ir' := Ir (IsCtx.cons_val HΓ HB) G ⟨Ie', HG⟩;
         sorry
     | imp Hϕ Hs Iϕ Is => exact λDϕ => Is (IsCtx.cons_val HΓ Hϕ) G ⟨Dϕ, HG⟩;
-    | mp => sorry
+    --TODO: why is mp's result upgraded?
+    | mp Hϕψ Hl Hr _ Il Ir => 
+      dsimp only [
+        denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
+        Term.denote_ty', Term.denote_ty
+      ] at *
+      rw [<-Hr.denote_prop_subst0 HΓ rfl HG 
+        (by cases Hϕψ; assumption)
+        (by rw [HasType.stlc_ty_subst0] <;> cases Hϕψ; assumption)
+        (by 
+          rw [rec_to_cast, cast_none];
+          rw [HasType.stlc_ty_subst0]
+          cases Hϕψ; assumption
+        )
+      ]
+      exact Il HΓ G HG (Ir HΓ G HG)
     | general => sorry
     | inst => sorry
     | @wit Γ A φ l r HAφ Hl Hr IAφ Il Ir =>
