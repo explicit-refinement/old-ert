@@ -706,12 +706,12 @@ theorem HasType.denote_ty_subst0
   {A: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} {a: A.stlc_ty.interp}
   {B: Term} {b: Term}
   {a': (A.subst0 b).stlc_ty.interp}
-  {b' σ}
+  {b' σ s}
   (Hb: Γ ⊢ b: term B)
   (HΓ: IsCtx Γ)
   (Hσ: σ = Γ.upgrade.sparsity)
   (HG: G ⊧ ✓Γ)
-  (HA: ({ ty := B, kind := HypKind.val type } :: Γ) ⊢ A: type)
+  (HA: ({ ty := B, kind := HypKind.val type } :: Γ) ⊢ A: sort s)
   (HAA': A.stlc_ty = (A.subst0 b).stlc_ty)
   (Haa': a' = HAA' ▸ a)
   (Hbb': b' = Hb.stlc.interp G.downgrade)
@@ -763,12 +763,12 @@ theorem HasType.denote_prop_subst0
   {A: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} {a: A.stlc_ty.interp}
   {B: Term} {b: Term}
   {a': (A.subst0 b).stlc_ty.interp}
-  {σ}
+  {σ s}
   (Hb: Γ ⊢ b: proof B)
   (HΓ: IsCtx Γ)
   (Hσ: σ = Γ.upgrade.sparsity)
   (HG: G ⊧ ✓Γ)
-  (HA: ({ ty := B, kind := HypKind.val prop } :: Γ) ⊢ A: type)
+  (HA: ({ ty := B, kind := HypKind.val prop } :: Γ) ⊢ A: sort s)
   (HAA': A.stlc_ty = (A.subst0 b).stlc_ty)
   (Haa': a' = HAA' ▸ a)
   : @Term.denote_ty A Γ.upgrade.stlc (false::σ) G a =
