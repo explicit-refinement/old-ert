@@ -59,22 +59,22 @@ def Term.stlc: Term -> Stlc
 | unary (TermKind.inj i) e => Stlc.inj i e.stlc
 | cases TermKind.case P d l r => 
   Stlc.case P.stlc_ty d.stlc l.stlc r.stlc
-| abs TermKind.lam_pr _ x => x.stlc
-| tri TermKind.app_pr _ e _ => e.stlc
+| abs TermKind.lam_pr _ x => Stlc.lam Ty.unit x.stlc
+| tri TermKind.app_pr A e _ => Stlc.app A.stlc_ty e.stlc Stlc.nil
 | bin TermKind.elem e _ => e.stlc
 | let_bin TermKind.let_set P e e' =>
-  Stlc.let_in P.stlc_ty e.stlc (Stlc.let_in Ty.unit Stlc.nil e'.stlc)
-| abs TermKind.lam_irrel _ x => x.stlc
-| tri TermKind.app_irrel _ l _ => l.stlc
+  Stlc.let_pair (Ty.prod P.stlc_ty Ty.unit) 
+    (Stlc.pair e.stlc Stlc.nil) e'.stlc
+| abs TermKind.lam_irrel _ x => Stlc.lam Ty.unit x.stlc
+| tri TermKind.app_irrel A l _ => Stlc.app A.stlc_ty l.stlc Stlc.nil
 | bin TermKind.repr _ r => r.stlc
 | let_bin TermKind.let_repr P e e' => 
-  Stlc.let_in Ty.unit Stlc.nil (Stlc.let_in P.stlc_ty e.stlc e'.stlc)
+  Stlc.let_pair (Ty.prod Ty.unit P.stlc_ty) 
+    (Stlc.pair Stlc.nil e.stlc) e'.stlc
 | const TermKind.zero => Stlc.zero
 | const TermKind.succ => Stlc.succ
 | nr (TermKind.natrec type) K n z s 
-  => Stlc.natrec K.stlc_ty n.stlc z.stlc 
-    (Stlc.let_in Ty.unit Stlc.nil 
-      (Stlc.let_in K.stlc_ty (Stlc.var 1) s.stlc))
+  => Stlc.natrec K.stlc_ty n.stlc z.stlc s.stlc
 | unary TermKind.abort _ => Stlc.abort
 | _ => Stlc.abort
 
@@ -187,31 +187,22 @@ theorem HasType.stlc {Γ a A}:
       cases k with
       | type =>
         dsimp only [
-          Term.stlc, Term.stlc_ty, Term.subst0
+          Term.stlc, Term.stlc_ty, Term.subst0, Term.alpha0,
+          wknth
         ] at *;
-        rw [Annot.stlc_ty_subst] at *
+        repeat rw [Annot.stlc_ty_subst] at *
+        repeat rw [Annot.stlc_ty_wk] at *
         apply Stlc.HasType.natrec;
         assumption
         assumption
-        constructor
-        constructor
-        constructor
-        constructor
-        constructor
-        constructor
-        --TODO: fix this...
-        sorry
+        apply Is
         assumption
+        apply HasType.wk_sort
+        assumption
+        repeat constructor
         assumption
       | prop => exact Stlc.HasType.abort
-    | lam_pr => sorry
-    | app_pr => sorry
-    | let_set => sorry
-    | lam_irrel => sorry
-    | app_irrel => sorry
-    | let_repr => sorry
     | _ =>
-      stop
       first
       | exact Stlc.HasType.abort
       | assumption
@@ -220,12 +211,15 @@ theorem HasType.stlc {Γ a A}:
         simp only [
           Term.alpha0, Term.subst0, Annot.subst0,
           Annot.stlc_ty_subst, Annot.stlc_ty_wk,
-          Term.stlc_ty_wk, wknth,
+          Term.stlc_ty_wk, wknth, Context.stlc,
           term, proof
         ] at *
         repeat rw [Annot.stlc_ty_subst] at *
         repeat rw [Annot.stlc_ty_wk] at *
-        first | assumption | (constructor <;> assumption)
+        repeat rw [HasType.prop_is_unit (by assumption)] at *
+        first 
+          | assumption 
+          | (constructor <;> first | assumption | constructor)
         repeat first
         | assumption
         | (
@@ -239,6 +233,14 @@ theorem HasType.stlc {Γ a A}:
         cases Habs <;> assumption
         )
       )
+      --TODO: sort this mess out
+      try constructor
+      try apply HasType.wk_sort 
+        <;> first | assumption | repeat constructor
+      try assumption
+      try apply HasType.wk_sort 
+        <;> first | assumption | repeat constructor
+      try assumption
   }
 
 -- theorem HasType.stlc_prop_is_none {Γ a A G} (H: Γ ⊢ a: expr prop A)

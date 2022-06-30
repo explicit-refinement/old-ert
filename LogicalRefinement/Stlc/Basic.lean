@@ -131,13 +131,11 @@ def Stlc.wk: Stlc -> Wk -> Stlc
 | let_pair P e e', ρ => let_pair P (e.wk ρ) (e'.wk (ρ.liftn 2))
 | inj i e, ρ => inj i (e.wk ρ)
 | case P d l r, ρ => case P (d.wk ρ) (l.wk ρ.lift) (r.wk ρ.lift)
-| natrec A n z s, ρ => natrec A (n.wk ρ) (z.wk ρ) (s.wk ρ.lift)
+| natrec A n z s, ρ => natrec A (n.wk ρ) (z.wk ρ) (s.wk (ρ.liftn 2))
 | c, _ => c
 
 def Stlc.wk1 (s: Stlc): Stlc := s.wk Wk.wk1
 def Stlc.wknth (s: Stlc) (n: Nat): Stlc := s.wk (Wk.wknth n)
-def Stlc.let_natrec (e: Stlc) (C: Ty): Stlc
-  := ((e.wknth 2).let_one C).let_prop
 
 def Stlc.Context := List Ty
 
@@ -200,7 +198,7 @@ inductive Stlc.HasType: Context -> Stlc -> Ty -> Prop
 | natrec {Γ C n z s}:
   HasType Γ n nats ->
   HasType Γ z C ->
-  HasType (C::Γ) s C ->
+  HasType (C::Ty.unit::Γ) s C ->
   HasType Γ (natrec C n z s) C
 
 notation Γ "⊧" x ":" A => Stlc.HasType Γ x A
@@ -256,15 +254,6 @@ theorem Stlc.HasType.wk {Δ a A} (H: HasType Δ a A):
     exact R
   )
 }
-
-theorem Stlc.HasType.let_natrec
-  : HasType (C::Ty.unit::Γ) e A -> HasType (C::Γ) (e.let_natrec C) A
-  := by {
-    intro H;
-    repeat constructor
-    apply wk H;
-    repeat constructor
-  }
 
 --TODO: report spurious unused variable warning...
 def Stlc.Context.interp.wk {Γ Δ ρ} 
@@ -335,7 +324,7 @@ def Stlc.subst: Stlc -> Subst -> Stlc
 | let_pair P e e', σ => let_pair P (e.subst σ) (e'.subst (σ.liftn 2))
 | inj i e, σ => inj i (e.subst σ)
 | case P d l r, σ => case P (d.subst σ) (l.subst σ.lift) (r.subst σ.lift)
-| natrec C n z s, σ => natrec C (n.subst σ) (z.subst σ) (s.subst σ.lift)
+| natrec C n z s, σ => natrec C (n.subst σ) (z.subst σ) (s.subst (σ.liftn 2))
 | c, _ => c
 
 def Stlc.subst_var: (Stlc.var n).subst σ = σ n := rfl
@@ -541,11 +530,11 @@ def Stlc.HasType.interp {Γ a A} (H: HasType Γ a A): Γ.deriv A :=
         := by cases H; assumption;
       have Hz: HasType Γ z A
         := by cases H; assumption;
-      have Hs: HasType (A::Γ) s A
+      have Hs: HasType (A::Ty.unit::Γ) s A
         := by cases H; assumption;
       let In := Hn.interp G;
       let Iz := Hz.interp G;
-      let Is := λc => Hs.interp (return c, G);
+      let Is := λc => Hs.interp (return c, return (), G);
       exact Ty.interp.natrec_int In Iz Is
 
 def Stlc.HasType.interp_var {Γ n A} (H: Stlc.HasType Γ (Stlc.var n) A)
