@@ -249,3 +249,13 @@ theorem HasType.stlc {Γ a A}:
 --     | some x => cases x
 --     | none => rfl
 --   }
+
+
+def Stlc.Context.interp.downgrade 
+  {Γ: _root_.Context} (G: Γ.upgrade.stlc.interp)
+  : Γ.stlc.interp
+  :=
+  match Γ, G with
+  | [], () => ()
+  | (Hyp.mk _ (HypKind.val _))::_, (x, G) => (x, G.downgrade)
+  | (Hyp.mk _ HypKind.gst)::_, (_, G) => (none, G.downgrade)

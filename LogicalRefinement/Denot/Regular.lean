@@ -13,7 +13,7 @@ theorem HasVar.denote_annot
   (HΓ: IsCtx Γ)
   (G: Γ.upgrade.stlc.interp)
   (HG: G ⊧ ✓Γ)
-  : (expr s A).denote' Γ G ((HΓ.var Hv).stlc.interp G.downgrade)
+  : (expr s A).denote G ((HΓ.var Hv).stlc.interp G.downgrade)
   := by {
     induction Γ generalizing s n A with
     | nil => cases Hv
@@ -30,8 +30,8 @@ theorem HasVar.denote_annot
             | zero Hk => 
               cases Hk;
               simp only [denote, Context.stlc]
-              apply Term.denote_wk1_ty _ _ Γ x G _ _ _ Hx
-              rw [Stlc.Context.interp.downgrade_ty]
+              apply Term.denote_wk1 _ _ Γ x G _ _ _ Hx
+              rw [Stlc.Context.interp.downgrade]
               rw [Stlc.HasType.interp_var]
               dsimp only [Stlc.HasVar.interp, Sparsity.ix]
               simp only [Eq.mp, Eq.mpr]
@@ -44,79 +44,65 @@ theorem HasVar.denote_annot
               cases HΓ with
               | cons_val HΓ =>
                 have I' := I Hv HΓ G HG;
-                cases s with
-                | type =>
+                cases s <;> (
                   simp only [denote, Context.stlc]
-                  apply Term.denote_wk1_ty _ _ Γ x G _ _ _ I'
+                  apply Term.denote_wk1 _ _ Γ x G _ _ _ I'
                   rw [monorecursor]
                   rename Nat => n;
                   rw [Stlc.HasType.interp_transport_mono]
-                  rw [Stlc.Context.interp.downgrade_ty]
+                  rw [Stlc.Context.interp.downgrade]
                   rw [Stlc.HasType.var_interp_wk1]
                   rfl
                   rw [Term.stlc_var]
-                  dsimp only [Sparsity.stlc]
-                  split
-                  . rfl
-                  . have s := Hv.sigma_ty;
-                    contradiction
-                  rw [Term.stlc_ty_wk1]
                   constructor
+                  rw [Term.stlc_ty_wk1]
                   exact Hv.stlc
                   rw [Term.stlc_var]
-                  dsimp only [Sparsity.stlc]
-                  split
-                  . rfl
-                  . have s := Hv.sigma_ty;
-                    contradiction
                   rw [Term.stlc_ty_wk1]
                   rfl
                   rw [Term.stlc_ty_wk1]
                   rfl
-                | prop => 
-                  simp only [denote]
-                  exact 
-                    Term.denote_wk1_ty _ _ Γ x G 
-                      none none (by rw [interp_eq_none]) I';
+                )
           | prop => 
+            let (x, G) := G;
             have ⟨Hx, HG⟩ := HG;
             cases Hv with
             | zero Hk => 
               cases Hk;
               simp only [denote, Context.stlc]
-              apply Term.denote_wk1_prop _ _ Γ G _ _ _ Hx
-              rw [interp_eq_none]
+              apply Term.denote_wk1 _ _ Γ x G _ _ _ Hx
+              rw [Stlc.Context.interp.downgrade]
+              rw [Stlc.HasType.interp_var]
+              dsimp only [Stlc.HasVar.interp]
+              simp only [Eq.mp, Eq.mpr]
+              conv =>
+                rhs
+                rw [monorecursor]
+                skip
+                rw [<-A.stlc_ty_wk1]
             | succ Hv => 
               cases HΓ with
               | cons_val HΓ =>
-                have I' := I Hv HΓ G HG;
-                cases s with
-                | type =>                   
+                have I' := I Hv HΓ G HG; -- HG
+                cases s <;> (
                   simp only [denote, Context.stlc]
-                  apply Term.denote_wk1_prop _ _ Γ G _ _ _ I'
+                  apply Term.denote_wk1 _ _ Γ x G _ _ _ I'
                   rw [monorecursor]
                   rename Nat => n;
                   rw [Stlc.HasType.interp_transport_mono]
+                  rw [Stlc.Context.interp.downgrade]
+                  rw [Stlc.HasType.var_interp_wk1]
                   rfl
                   rw [Term.stlc_var]
-                  dsimp only [Sparsity.stlc]
-                  split
-                  . dsimp only [Term.stlc, Sparsity.stlc]
-                    split
-                    . rfl
-                    . have s := Hv.sigma_ty;
-                      contradiction
-                  . have s := Hv.sigma_ty;
-                    contradiction
-                  rw [Term.stlc_ty_wk1]
                   constructor
                   rw [Term.stlc_ty_wk1]
+                  exact Hv.stlc
+                  rw [Term.stlc_var]
+                  rw [Term.stlc_ty_wk1]
                   rfl
-                | prop => 
-                  simp only [denote]
-                  exact 
-                    Term.denote_wk1_prop _ _ Γ G 
-                      none none (by rw [interp_eq_none]) I';
+                  rw [Term.stlc_ty_wk1]
+                  rfl
+                )
         | gst => 
           cases Hv with
           | zero Hk => cases Hk
@@ -126,31 +112,33 @@ theorem HasVar.denote_annot
               let (x, G) := G;
               have ⟨_, HG⟩ := HG;
               have I' := I Hv HΓ G HG;
-              cases s with
-              | type => 
-                simp only [denote, Context.stlc]
-                apply Term.denote_wk1_gst _ _ Γ x G _ _ _ I'
-                rw [monorecursor]
-                rw [Stlc.HasType.interp_transport_mono]
-                rw [Stlc.Context.interp.downgrade_gst]
-                rfl
-                rw [Term.stlc_ty_wk1]
-                rfl
-                rw [Term.stlc_ty_wk1]
-                rfl
-              | prop => 
-                simp only [denote]
-                exact 
-                  Term.denote_wk1_gst _ _ Γ x G 
-                    none none (by rw [interp_eq_none]) I';
+              cases s <;> (
+                  simp only [denote, Context.stlc]
+                  apply Term.denote_wk1 _ _ Γ x G _ _ _ I'
+                  rw [monorecursor]
+                  rename Nat => n;
+                  rw [Stlc.HasType.interp_transport_mono]
+                  rw [Stlc.Context.interp.downgrade]
+                  rw [Stlc.HasType.var_interp_wk1]
+                  rfl
+                  rw [Term.stlc_var]
+                  constructor
+                  rw [Term.stlc_ty_wk1]
+                  exact Hv.stlc
+                  rw [Term.stlc_var]
+                  rw [Term.stlc_ty_wk1]
+                  rfl
+                  rw [Term.stlc_ty_wk1]
+                  rfl
+                )
   }
 
 theorem HasType.sym_axiom {Γ: Context} {A}:
-  ∀{G: Γ.upgrade.stlc.interp}, (Term.sym_ty A).denote_prop' G
+  ∀{G: Γ.upgrade.stlc.interp}, (Term.sym_ty A).denote_prop G
   := by {
+    stop
     intro G;
     dsimp only [
-      Term.denote_prop', 
       Term.denote_prop,
       Term.denote_ty,
       Term.sym_ty, Term.sym_ty_tmp, Term.subst0, Term.subst,
@@ -191,11 +179,12 @@ theorem HasType.sym_axiom {Γ: Context} {A}:
   }
 
 theorem HasType.trans_axiom {Γ: Context} {A}:
-  ∀{G: Γ.upgrade.stlc.interp}, (Term.trans_ty A).denote_prop' G
+  ∀{G: Γ.upgrade.stlc.interp}, (Term.trans_ty A).denote_prop G
   := by {
+    stop
     intro G;
     dsimp only [
-      Term.denote_prop', 
+      Term.denote_prop, 
       Term.denote_prop,
       Term.denote_ty,
       Term.sym_ty, Term.sym_ty_tmp, Term.subst0, Term.subst,
@@ -268,23 +257,16 @@ theorem HasType.denote
   (HΓ: IsCtx Γ)
   (G: Γ.upgrade.stlc.interp)
   (HG: Γ.denote G)
-  : A.denote' Γ G (H.stlc.interp G.downgrade)
+  : A.denote G (H.stlc.interp G.downgrade)
   := by {
     --TODO: replace with a recursive match?
     induction H with
     | var HA Hv IA => exact Hv.denote_annot HΓ G HG
     | lam Hs HA Is IA =>
+      stop
       intro x Hx
       cases x with
-      | some x => 
-        --TODO: make this a simp attribute mmkay...
-        dsimp only [
-          Annot.stlc_ty, term, Term.stlc_ty, Term.stlc, 
-          Stlc.HasType.interp, 
-          Ty.interp.app, Ty.interp.bind_val
-        ]
-        rw [<-Stlc.Context.interp.downgrade_ty]
-        exact Is (HΓ.cons_val HA) _ ⟨Hx, HG⟩
+      | some x => exact Is (HΓ.cons_val HA) _ ⟨Hx, HG⟩
       | none => exact False.elim (HA.denote_ty_non_null Hx)
     | @app Γ A B l r HAB Hl Hr IA Il Ir =>
       stop
@@ -296,12 +278,12 @@ theorem HasType.denote
       ]
       generalize Hlg:
         Stlc.HasType.interp
-        (_ : _⊧Term.stlc l _:_)
+        (_ : _⊧Term.stlc l:_)
         (Stlc.Context.interp.downgrade G) = li;
       have Il' := Hlg ▸ (Il HΓ G HG);
       generalize Hrg:
         Stlc.HasType.interp
-        (_ : _⊧Term.stlc r _:_)
+        (_ : _⊧Term.stlc r:_)
         (Stlc.Context.interp.downgrade G) = ri;
       have Ir' := Hrg ▸ (Ir HΓ G HG);
       have HA: Γ ⊢ A: type := by cases HAB; assumption;
@@ -313,16 +295,15 @@ theorem HasType.denote
         | some ri => 
           have Ilr := Il' (some ri) Ir';
           simp only []
-          dsimp only [Annot.denote, Term.denote_ty, denote', Term.denote_ty'] at Il'
-          dsimp only [Annot.denote, Term.denote_ty, denote']
-          apply HasType.denote_ty_subst0' Hr HΓ rfl HG HB HB.stlc_ty_subst.symm _ Hrg.symm Ilr
+          dsimp only [Annot.denote, Term.denote_ty] at Il'
+          dsimp only [Annot.denote, Term.denote_ty]
+          apply HasType.denote_ty_subst0' Hr HΓ HG HB HB.stlc_ty_subst.symm _ Hrg.symm Ilr
           rw [monorecursor]
           rfl
         | none => exact False.elim (HA.denote_ty_non_null Ir')
       | none => exact False.elim (HAB.denote_ty_non_null Il')
     | @pair Γ A B l r HAB Hl Hr IAB Il Ir =>
-      stop
-      dsimp only [denote', Term.denote_ty', Term.denote_ty, 
+      dsimp only [Term.denote_ty, 
         Stlc.HasType.interp, Term.stlc, stlc_ty, term, Term.stlc_ty, 
         Ty.interp.pair]
       generalize Hli: Stlc.HasType.interp _ _ = li;
@@ -334,23 +315,22 @@ theorem HasType.denote
       | some li => 
         cases ri with
         | some ri => 
-          simp only [Ty.eager, pure]
+          simp only [pure]
           apply And.intro;
           {
             exact Il'
           }
           {
             simp only [<-Hli, <-Hri]
-            simp only [denote'] at Ir';
             rw [denote_ty_subst0]
             exact Ir';
             assumption
             assumption
-            rfl
             assumption
             assumption
             rw [HB.stlc_ty_subst0]
             rw [rec_to_cast']
+            stop
             rw [Stlc.HasType.interp_transport_cast']
             rfl
             rw [HB.stlc_ty_subst0]
@@ -358,7 +338,6 @@ theorem HasType.denote
           }
         | none => 
           apply Hr.term_regular.denote_ty_non_null
-          dsimp only [denote'] at Ir'
           apply Term.denote_ty_transport rfl rfl rfl _ Ir'
           simp only []
           rw [<-Stlc.HasType.interp_transport_inner _ _ rfl HB.stlc_ty_subst.symm]
@@ -385,7 +364,7 @@ theorem HasType.denote
       | none => exact He.term_regular.denote_ty_non_null Ie'
     | inj_r He HA Ie IA => 
       dsimp only [
-        denote', Term.denote_ty', Term.denote_ty, Term.stlc, 
+        Term.denote_ty, Term.stlc, 
         stlc_ty, Term.stlc_ty, Stlc.HasType.interp,
         Ty.interp.inl
       ]
@@ -397,15 +376,13 @@ theorem HasType.denote
         exact Ie'
       | none => exact He.term_regular.denote_ty_non_null Ie'
     | @case Γ A B C e l r k He HA HB HC Hl Hr Ie IA IB IC Il Ir =>
-      stop
       have HAB: Γ ⊢ Term.coprod A B: type := HasType.coprod HA HB;
       cases k with
       | type => 
-        dsimp only [denote']
         dsimp only [Term.stlc, Term.stlc_ty, stlc_ty, Stlc.HasType.interp]
         have Ie' := Ie HΓ G HG;
         dsimp only [Term.stlc, Term.stlc_ty, stlc_ty, Stlc.HasType.interp] at Ie';
-        generalize Hei: Stlc.HasType.interp (_ : _⊧Term.stlc e _:_) _ = ei;
+        generalize Hei: Stlc.HasType.interp (_ : _⊧Term.stlc e:_) _ = ei;
         --TODO: wait for Zulip to answer regarding the requirement to have
         -- Stlc.HasType.interp_irrel here.
         rw [Stlc.HasType.interp_irrel] at Ie'
@@ -417,28 +394,25 @@ theorem HasType.denote
             simp only [Ty.interp.case]
             have Il' := Il 
               (HΓ.cons_val HA)
-              (Ty.eager a, G)
+              (return a, G)
               ⟨Ie', HG⟩
               ;
-            simp only [denote'] at Il';
             sorry --TODO: appropriate typecasting for Il'
           | inr b => 
             simp only [Ty.interp.case]
             have Ir' := Ir
               (HΓ.cons_val HB)
-              (Ty.eager b, G)
+              (return b, G)
               ⟨Ie', HG⟩
               ;
-            dsimp only [denote'] at Ir';
             sorry --TODO: appropriate typecasting for Ir'
         | none => exact False.elim (HAB.denote_ty_non_null Ie')
       | prop => 
-        dsimp only [denote']
         have Ie' := Ie HΓ G HG;
         dsimp only [
           Term.stlc, Term.stlc_ty, stlc_ty, Stlc.HasType.interp] 
           at Ie';
-        generalize Hei: Stlc.HasType.interp (_ : _⊧Term.stlc e _:_) _ = ei;
+        generalize Hei: Stlc.HasType.interp (_ : _⊧Term.stlc e:_) _ = ei;
         rw [Stlc.HasType.interp_irrel] at Ie'
         rw [Hei] at Ie'
         cases ei with
@@ -448,19 +422,17 @@ theorem HasType.denote
             simp only [Ty.interp.case]
             have Il' := Il 
               (HΓ.cons_val HA)
-              (Ty.eager a, G)
+              (return a, G)
               ⟨Ie', HG⟩
               ;
-            dsimp only [denote'] at Il';
             sorry --TODO: appropriate typecasting for Il'
           | inr b => 
             simp only [Ty.interp.case]
             have Ir' := Ir
               (HΓ.cons_val HB)
-              (Ty.eager b, G)
+              (return b, G)
               ⟨Ie', HG⟩
               ;
-            dsimp only [denote'] at Ir';
             sorry --TODO: appropriate typecasting for Ir'
         | none => exact False.elim (HAB.denote_ty_non_null Ie')
         exact He.stlc
@@ -485,20 +457,13 @@ theorem HasType.denote
       ]
     | lam_pr Hϕ Hs _Iϕ Is => 
       dsimp only [
-        denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
-        Term.denote_ty', Term.denote_ty
+        Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
+        Term.denote_ty
       ] at *
-      let Is' := Is (HΓ.cons_val Hϕ) G ⟨sorry, HG⟩;
-      apply And.intro
-      {
-        sorry
-      }
-      {
-        sorry
-      }
-    | app_pr HφA Hl Hr IφA Il Ir => 
-      stop
-      dsimp only [denote', Term.denote_ty, Term.denote_ty']
+      let Is' := Is (HΓ.cons_val Hϕ) (none, G) ⟨sorry, HG⟩;
+      sorry
+    | app_pr HφA Hl Hr IφA Il Ir =>
+      dsimp only [Term.denote_ty]
       sorry
     | lam_irrel => 
       stop
@@ -539,21 +504,24 @@ theorem HasType.denote
     | abort Hp HA Ip IA => exact False.elim (Ip HΓ G HG)
     | dconj HAB Hl Hr IAB Il Ir => 
       dsimp only [
-        denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
-        Term.denote_ty', Term.denote_ty
+        Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
+        Term.denote_ty
       ] at *
       apply And.intro
+      apply HasType.denote_prop_none;
+      cases HAB; assumption
       exact Il HΓ G HG;
       have Ir' := Ir HΓ G HG;
       apply equiv_prop_helper Ir';
       rw [
-        Hl.denote_prop_subst0 HΓ rfl HG 
+        Hl.denote_prop_subst0 HΓ HG 
         (by cases HAB; assumption)
         (by rw [HasType.stlc_ty_subst0]; cases HAB; assumption)
         rfl
       ];
       rw [rec_to_cast']
       rw [cast_none']
+      stop
       rw [HasType.stlc_ty_subst0]; cases HAB; assumption
     | let_conj He HA HB HC He' Ie _IA _IB _IC Ie' =>
       stop
@@ -563,8 +531,10 @@ theorem HasType.denote
       ] at *
       --TODO: alpha0 theorems...
       sorry
-    | disj_l He HB Ie IB => exact Or.inl (Ie HΓ G HG)
-    | disj_r He HB Ie IB => exact Or.inr (Ie HΓ G HG)
+    | disj_l He _ Ie _ => 
+      exact Or.inl (He.proof_regular.denote_prop_none (Ie HΓ G HG))
+    | disj_r He _ Ie _ => 
+      exact Or.inr (He.proof_regular.denote_prop_none (Ie HΓ G HG))
     | case_pr He HA HB HC Hl Hr Ie IA IB IC Il Ir => 
       stop
       dsimp only [
@@ -579,15 +549,16 @@ theorem HasType.denote
       | inr Ie' =>  
         have Ir' := Ir (IsCtx.cons_val HΓ HB) G ⟨Ie', HG⟩;
         sorry
-    | imp Hϕ Hs Iϕ Is => exact λDϕ => Is (IsCtx.cons_val HΓ Hϕ) G ⟨Dϕ, HG⟩;
-    --TODO: why is mp's result upgraded?
+    | imp Hϕ Hs Iϕ Is => 
+      stop --TODO: prop transport...
+      exact λDϕ => Is (IsCtx.cons_val HΓ Hϕ) (none, G) ⟨Dϕ, HG⟩;
     | mp Hϕψ Hl Hr _ Il Ir => 
       stop
       dsimp only [
-        denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
-        Term.denote_ty', Term.denote_ty
+        Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
+        Term.denote_ty
       ] at *
-      rw [<-Hr.denote_prop_subst0 HΓ rfl HG 
+      rw [<-Hr.denote_prop_subst0 HΓ HG 
         (by cases Hϕψ; assumption)
         (by rw [HasType.stlc_ty_subst0] <;> cases Hϕψ; assumption)
         (by 
@@ -598,7 +569,8 @@ theorem HasType.denote
       ]
       exact Il HΓ G HG (Ir HΓ G HG)
     | general HA Hs IA Is => 
-      exact λx Dx => Is (IsCtx.cons_val HΓ HA) (x, G) ⟨Dx, HG⟩;
+      exact λx Dx => Hs.proof_regular.denote_prop_none 
+        (Is (IsCtx.cons_val HΓ HA) (x, G) ⟨Dx, HG⟩);
     | inst HAϕ Hl Hr _ Il Ir => 
       stop
       dsimp only [

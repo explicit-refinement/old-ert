@@ -3,6 +3,7 @@ import LogicalRefinement.Sparsity
 
 import LogicalRefinement.Wk
 import LogicalRefinement.Tactics
+import LogicalRefinement.Utils
 
 inductive Ty
 | bot
@@ -14,81 +15,69 @@ inductive Ty
 
 open Ty
 
-def Ty.interp_val_in (A: Ty) (M: Type -> Type): Type 
+def Ty.interp_in (A: Ty) (M: Type -> Type): Type 
   :=
     match A with
     | bot => Empty
     | unit => Unit
     | nats => Nat
-    | arrow A B => A.interp_val_in M -> M (B.interp_val_in M)
-    | prod A B => Prod (A.interp_val_in M) (B.interp_val_in M)
-    | coprod A B => Sum (A.interp_val_in M) (B.interp_val_in M)
+    | arrow A B => A.interp_in M -> M (B.interp_in M)
+    | prod A B => Prod (A.interp_in M) (B.interp_in M)
+    | coprod A B => Sum (A.interp_in M) (B.interp_in M)
 
-def Ty.interp_in (A: Ty) (M: Type -> Type) := M (A.interp_val_in M)
-theorem Ty.interp_val_in_char {A: Ty} {M}
-  : A.interp_in M = M (A.interp_val_in M) 
-  := rfl
-
-def Ty.eager {A: Ty} {M: Type -> Type} [Monad M]: A.interp_val_in M -> A.interp_in M := pure
-
-def Ty.interp (A: Ty): Type := A.interp_in Option
-def Ty.interp_val (A: Ty): Type := A.interp_val_in Option
-theorem Ty.interp_val_char {A: Ty}
-  : A.interp = Option A.interp_val
-  := rfl
-
-def Ty.abort (A: Ty): A.interp := none
+abbrev Ty.interp (A: Ty): Type := A.interp_in Option
+abbrev Ty.abort (A: Ty): Option A.interp := none
 
 @[simp]
-def Ty.interp.bind_val {A B: Ty} 
-  (l: A.interp_val -> B.interp): A.interp -> B.interp
-  | some r => l r
-  | none => B.abort
+abbrev Ty.interp.app {A B} (l: Option (arrow A B).interp) (r: Option A.interp): Option B.interp 
+  := l.bind (λl => r.bind l)
+
 @[simp]
-def Ty.interp.app {A B} (l: (arrow A B).interp) (r: A.interp): B.interp :=
-  match l with
-  | some l => bind_val l r
-  | none => B.abort
+abbrev Ty.interp.pair {A B} (l: Option A.interp) (r: Option B.interp): Option (prod A B).interp 
+  := l.bind (λl => r.bind (λr => return (l, r)))
+
 @[simp]
-def Ty.interp.pair {A B} (l: A.interp) (r: B.interp): (prod A B).interp := 
-  match l, r with
-  | some l, some r => some (l, r)
-  | _, _ => none
+abbrev Ty.interp.let_pair {A B C: Ty} 
+  (e: Option (prod A B).interp) 
+  (e': B.interp -> A.interp -> Option C.interp)
+  : Option C.interp 
+  := e.bind (λ(a, b) => e' b a)
+
 @[simp]
-def Ty.interp.let_pair {A B C: Ty} 
-  (e: (prod A B).interp) 
-  (e': B.interp_val -> A.interp_val -> C.interp)
-  : C.interp 
-  := match e with
-  | some (a, b) => e' b a
-  | none => C.abort
+def Ty.interp.inl {A B} (e: Option A.interp): Option (coprod A B).interp := 
+  e.bind (λe => return Sum.inl e)
+
 @[simp]
-def Ty.interp.inl {A B} (e: A.interp): (coprod A B).interp := 
-  e.map Sum.inl
+def Ty.interp.inr {A B} (e: Option B.interp): Option (coprod A B).interp := 
+  e.bind (λe => return Sum.inr e)
+
 @[simp]
-def Ty.interp.inr {A B} (e: B.interp): (coprod A B).interp := 
-  e.map Sum.inr
-@[simp]
-def Ty.interp.case {A B C: Ty} 
+def Ty.interp.case_inner {A B C: Ty} 
   (d: (coprod A B).interp) 
-  (l: A.interp_val -> C.interp) (r: B.interp_val -> C.interp)
-  : C.interp
+  (l: A.interp -> Option C.interp) (r: B.interp -> Option C.interp)
+  : Option C.interp
   := match d with
-  | some (Sum.inl a) => l a
-  | some (Sum.inr b) => r b
-  | none => C.abort
-def Ty.interp.natrec_inner {C: Ty} (n: Nat) 
-  (z: C.interp) (s: C.interp_val -> C.interp)
-  : C.interp
+  | Sum.inl a => l a
+  | Sum.inr b => r b
+
+@[simp]
+abbrev Ty.interp.case {A B C: Ty} 
+  (d: Option (coprod A B).interp) 
+  (l: A.interp -> Option C.interp) (r: B.interp -> Option C.interp)
+  : Option C.interp
+  := d.bind (λd => d.case_inner l r)
+
+abbrev Ty.interp.natrec_inner {C: Ty} (n: Nat) 
+  (z: Option C.interp) (s: C.interp -> Option C.interp)
+  : Option C.interp
   := match n with
   | 0 => z
-  | n + 1 => bind_val s (natrec_inner n z s)
-def Ty.interp.natrec_int {C: Ty} (n: nats.interp)
-  (z: C.interp) (s: C.interp_val -> C.interp)
-  : C.interp
-  := match n with
-  | some n => natrec_inner n z s
-  | none => C.abort
+  | n + 1 => (natrec_inner n z s).bind s
+
+abbrev Ty.interp.natrec_int {C: Ty} (n: Option nats.interp)
+  (z: Option C.interp) (s: C.interp -> Option C.interp)
+  : Option C.interp
+  := n.bind (λn => Ty.interp.natrec_inner n z s)
 
 inductive Stlc
   -- Basic
@@ -157,7 +146,7 @@ abbrev Stlc.Context.thin (Γ: Context) (Δ: Sparsity): Context := Δ.thin Γ
 
 def Stlc.Context.interp: Context -> Type
 | [] => Unit
-| A::As => Prod A.interp (interp As)
+| A::As => Prod (Option A.interp) (interp As)
 
 def Stlc.Context.interp.thin: {Γ: Context} -> Γ.interp -> (Δ: Sparsity) -> (Γ.thin Δ).interp
 | [], (), S => by {
@@ -430,18 +419,18 @@ theorem Stlc.HasType.lower1 {Γ a A B P} (H: HasType (P::B::Γ) a A)
   := H.subst1 abort
 
 def Stlc.Context.deriv (Γ: Context) (A: Ty): Type 
-  := Γ.interp -> A.interp
+  := Γ.interp -> Option A.interp
 
 def Stlc.Context.deriv.wk {Γ Δ ρ A} (D: Δ.deriv A) (R: WkCtx ρ Γ Δ): Γ.deriv A
   := λG => D (Stlc.Context.interp.wk G R)
 
 def Stlc.Context.deriv.wk_step {Γ Δ ρ A} {B: Ty} 
-  (D: Δ.deriv A) (R: WkCtx ρ Γ Δ) (x: B.interp) (G: Γ.interp)
+  (D: Δ.deriv A) (R: WkCtx ρ Γ Δ) (x: Option B.interp) (G: Γ.interp)
   : D.wk R.step (x, G) = D.wk R G
   := rfl
 
 def Stlc.Context.deriv.wk_lift {Γ Δ ρ A} {B: Ty} 
-  (D: Context.deriv (B::Δ) A) (R: WkCtx ρ Γ Δ) (x: B.interp) (G: Γ.interp)
+  (D: Context.deriv (B::Δ) A) (R: WkCtx ρ Γ Δ) (x: Option B.interp) (G: Γ.interp)
   : D.wk R.lift (x, G) = Context.deriv.wk (λD' => D (x, D')) R G
   := rfl
 
@@ -469,7 +458,7 @@ def Stlc.HasType.interp {Γ a A} (H: HasType Γ a A): Γ.deriv A :=
   | Stlc.lam X s => by cases A with
     | arrow A B =>
       have H: HasType (A::Γ) s B := by cases H; assumption;
-      exact some (λx => H.interp (Ty.eager x, G))
+      exact some (λx => H.interp (x, G))
     | _ => apply False.elim; cases H
   | Stlc.app P l r => 
     by 
@@ -480,7 +469,7 @@ def Stlc.HasType.interp {Γ a A} (H: HasType Γ a A): Γ.deriv A :=
       have Hr: HasType Γ r A' := by cases H; assumption;
       let Il := Hl.interp G;
       let Ir := Hr.interp G;
-      let I := Il.app Ir;
+      let I := Ty.interp.app Il Ir;
       rw [HA] at I;
       exact I
     | _ => apply False.elim; cases H
@@ -489,14 +478,14 @@ def Stlc.HasType.interp {Γ a A} (H: HasType Γ a A): Γ.deriv A :=
       by cases H; assumption;
     have He': HasType (A'::Γ) e' A :=
       by cases H; assumption;
-    exact (He.interp G).bind_val (λv => He'.interp (Ty.eager v, G))
+    exact (He.interp G).bind (λv => He'.interp (v, G))
   | Stlc.pair l r => by cases A with
     | prod A B =>
       have Hl: HasType Γ l A := by cases H; assumption;
       have Hr: HasType Γ r B := by cases H; assumption;
       let Il := Hl.interp G;
       let Ir := Hr.interp G;
-      exact Il.pair Ir
+      exact Ty.interp.pair Il Ir
     | _ => apply False.elim; cases H
   | Stlc.let_pair P e e' => by cases P with
     | prod A' B' =>
@@ -505,17 +494,17 @@ def Stlc.HasType.interp {Γ a A} (H: HasType Γ a A): Γ.deriv A :=
       have He':HasType (B'::A'::Γ) e' A
         := by cases H; assumption;
       let Ie := He.interp G;
-      let Ie' := λ b a => He'.interp (Ty.eager b, (Ty.eager a, G));
-      exact Ie.let_pair Ie'
+      let Ie' := λ b a => He'.interp (return b, return a, G);
+      exact Ty.interp.let_pair Ie Ie'
     | _ => apply False.elim; cases H
   | Stlc.inj i e => by cases A with
     | coprod A B => match i with
       | 0 =>
         have He: HasType Γ e A := by cases H; assumption;
-        exact (He.interp G).inl
+        exact Ty.interp.inl (He.interp G)
       | 1 =>
         have He: HasType Γ e B := by cases H; assumption;
-        exact (He.interp G).inr
+        exact Ty.interp.inr (He.interp G)
     | _ => apply False.elim; cases H
   | Stlc.case P d l r => by cases P with
     | coprod A' B' =>
@@ -526,9 +515,9 @@ def Stlc.HasType.interp {Γ a A} (H: HasType Γ a A): Γ.deriv A :=
       have Hr: HasType (B'::Γ) r A :=
         by cases H; assumption;
       let Id := Hd.interp G;
-      let Il := λa => Hl.interp (Ty.eager a, G);
-      let Ir := λb => Hr.interp (Ty.eager b, G);
-      exact Id.case Il Ir
+      let Il := λa => Hl.interp (return a, G);
+      let Ir := λb => Hr.interp (return b, G);
+      exact Ty.interp.case Id Il Ir
     | _ => apply False.elim; cases H
   | Stlc.nil => by cases A with 
     | unit => exact some () 
@@ -548,16 +537,16 @@ def Stlc.HasType.interp {Γ a A} (H: HasType Γ a A): Γ.deriv A :=
   --TODO: report that; if the "by", "exact", and "have" are removed, this breaks, to Zulip/GitHub. Fascinating!
   | Stlc.natrec C n z s =>
     by
-    have Hn: HasType Γ n nats
-      := by cases H; assumption;
-    have Hz: HasType Γ z A
-      := by cases H; assumption;
-    have Hs: HasType (A::Γ) s A
-      := by cases H; assumption;
-    let In := Hn.interp G;
-    let Iz := Hz.interp G;
-    let Is := λc => Hs.interp (Ty.eager c, G);
-    exact In.natrec_int Iz Is
+      have Hn: HasType Γ n nats
+        := by cases H; assumption;
+      have Hz: HasType Γ z A
+        := by cases H; assumption;
+      have Hs: HasType (A::Γ) s A
+        := by cases H; assumption;
+      let In := Hn.interp G;
+      let Iz := Hz.interp G;
+      let Is := λc => Hs.interp (return c, G);
+      exact Ty.interp.natrec_int In Iz Is
 
 def Stlc.HasType.interp_var {Γ n A} (H: Stlc.HasType Γ (Stlc.var n) A)
   : H.interp = H.has_var.interp
@@ -610,8 +599,8 @@ theorem Stlc.HasVar.interp_wk {Γ Δ ρ n A}
 theorem option_helper {a b: A}: a = b -> some a = some b := by intros; simp [*]
 def eq_mp_helper {p: A = A}: Eq.mp p = id := rfl
 def eq_mp_helper' {p: A = A}: Eq.mp p x = x := rfl
-def bind_val_helper (p: a = b) (p': c = d)
-  : Ty.interp.bind_val a c = Ty.interp.bind_val b d
+def bind_helper (p: a = b) (p': c = d)
+  : Option.bind a c = Option.bind b d
   := by simp [p, p']
 def let_pair_helper (p: a = b) (p': c = d)
   : Ty.interp.let_pair a c = Ty.interp.let_pair b d
@@ -655,7 +644,7 @@ theorem Stlc.HasType.interp_wk {Γ Δ ρ a A}
 
 theorem Stlc.HasType.interp_wk1 {Γ a} {A B: Ty}
   (H: HasType Γ a A)
-  (x: B.interp)
+  (x: Option B.interp)
   (G: Γ.interp)
   :
   (H.wk (B.to_wk)).interp (x, G) = H.interp G
@@ -670,7 +659,7 @@ theorem Stlc.HasType.interp_wk1 {Γ a} {A B: Ty}
 theorem Stlc.HasType.var_interp_wk1 {Γ a b n} {A B: Ty}
   (H: HasType Γ a A)
   (H': HasType (B::Γ) b A)
-  (x: B.interp)
+  (x: Option B.interp)
   (G: Γ.interp)
   (Ha: a = Stlc.var n)
   (Hb: b = Stlc.var (n + 1))
@@ -687,7 +676,7 @@ theorem Stlc.HasType.var_interp_wk1 {Γ a b n} {A B: Ty}
 @[simp]
 theorem Stlc.HasType.var_interp_0 {Γ: Context} {a} {A B: Ty}
   (H: HasType (B::Γ) a A)
-  (x: B.interp)
+  (x: Option B.interp)
   (G: Γ.interp)
   (Ha: a = Stlc.var 0)
   (HA)
@@ -733,26 +722,6 @@ theorem Stlc.HasType.interp_transport_inner
     cases HA <;> cases HB <;> rfl 
   }
 
-theorem Stlc.HasType.interp_transport_mono
-  {A B: Ty}
-  {a b: Stlc}
-  (HA: HasType Γ a A)
-  (HB: HasType Γ b B)
-  (Hab: a = b)
-  (HAB: A = B)
-  (H)
-  (G: Γ.interp)
-  : @Eq.rec 
-    Type 
-    A.interp (λA _ => A) (HA.interp G) 
-    B.interp H = HB.interp G
-  := by {
-    cases Hab;
-    cases HAB;
-    cases H;
-    cases HA <;> cases HB <;> rfl 
-  }
-
 theorem Stlc.HasType.interp_transport_cast
   {Γ}
   {A B: Ty}
@@ -777,7 +746,7 @@ theorem Stlc.HasType.interp_transport_cast'
   (Hab: a = b)
   (HAB: A = B)
   (G: Γ.interp)
-  : @cast A.interp B.interp (by rw [HAB]) (HA.interp G) = HB.interp G
+  : @cast (Option A.interp) (Option B.interp) (by rw [HAB]) (HA.interp G) = HB.interp G
   := by {
     cases Hab;
     cases HAB;
@@ -796,7 +765,7 @@ theorem Stlc.HasType.interp_transport_cast''
   (G: Γ.interp)
   (D: Δ.interp)
   (HGD: G = HΓΔ ▸ D)
-  : @cast A.interp B.interp (by rw [HAB]) (HA.interp G) = HB.interp D
+  : @cast (Option A.interp) (Option B.interp) (by rw [HAB]) (HA.interp G) = HB.interp D
   := by {
     cases HΓΔ;
     cases Hab;
@@ -810,23 +779,6 @@ theorem Stlc.HasType.interp_irrel
   (H': Γ ⊧ a: A)
   : H.interp = H'.interp
   := rfl
-
-theorem interp_eq_none
-  : @Eq.rec Ty a (λx _ => Ty.interp x) none x p = none := by {
-    cases p <;> rfl
-  }
-
-theorem interp_eq_none' {n: Ty.interp a}
-  : n = none -> @Eq.rec Ty a (λx _ => Ty.interp x) n x p = none := by {
-    intro H;
-    cases H <;>
-    cases p <;> rfl
-  }
-
-theorem interp_eq_some
-  : @Eq.rec Ty a (λx _ => Ty.interp x) (some v) x p = (some (p ▸ v)) := by {
-    cases p <;> rfl
-  }
 
 theorem interp_eq_collapse
   : 
@@ -853,7 +805,7 @@ theorem Stlc.HasType.interp_wk1' {Γ a a'} {A B: Ty}
   (H: HasType Γ a A)
   (H': HasType (B::Γ) a' A)
   (Ha': a' = a.wk1)
-  (x: B.interp)
+  (x: Option B.interp)
   (G: Γ.interp)
   :
   H'.interp (x, G) = H.interp G
@@ -912,3 +864,35 @@ theorem Stlc.Subst.subst_wk_compat {u: Stlc} {ρ: Wk}:
     rfl
   }
 }
+
+theorem Stlc.HasType.interp_transport_mono
+  {A B: Ty}
+  {a b: Stlc}
+  (HA: HasType Γ a A)
+  (HB: HasType Γ b B)
+  (Hab: a = b)
+  (HAB: A = B)
+  (H)
+  (G: Γ.interp)
+  : @Eq.rec 
+    Type 
+    (Option A.interp) (λA _ => A) (HA.interp G) 
+    (Option B.interp) H = HB.interp G
+  := by {
+    cases Hab;
+    cases HAB;
+    cases H;
+    cases HA <;> cases HB <;> rfl 
+  }
+
+theorem interp_eq_none
+  : @Eq.rec Ty a (λx _ => Option (Ty.interp x)) none x p = none := by {
+    cases p <;> rfl
+  }
+
+theorem interp_eq_none' {n: Option (Ty.interp a)}
+  : n = none -> @Eq.rec Ty a (λx _ => Option (Ty.interp x)) n x p = none := by {
+    intro H;
+    cases H <;>
+    cases p <;> rfl
+  }

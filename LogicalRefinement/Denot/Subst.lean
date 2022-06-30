@@ -701,9 +701,9 @@ theorem SubstCtx.subst_denot''
   }
 
 theorem HasType.denote_ty_subst0
-  {A: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} {a: A.stlc_ty.interp}
+  {A: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} {a: Option A.stlc_ty.interp}
   {B: Term} {b: Term}
-  {a': (A.subst0 b).stlc_ty.interp}
+  {a': Option (A.subst0 b).stlc_ty.interp}
   {b' s}
   (Hb: Γ ⊢ b: term B)
   (HΓ: IsCtx Γ)
@@ -711,7 +711,7 @@ theorem HasType.denote_ty_subst0
   (HA: ({ ty := B, kind := HypKind.val type } :: Γ) ⊢ A: sort s)
   (HAA': A.stlc_ty = (A.subst0 b).stlc_ty)
   (Haa': a' = HAA' ▸ a)
-  (Hbb': b' = Hb.stlc.interp sorry) --G.downgrade
+  (Hbb': b' = Hb.stlc.interp G.downgrade)
   : @Term.denote_ty A (B.stlc_ty::Γ.upgrade.stlc) (b', G) a =
     @Term.denote_ty (A.subst0 b) Γ.upgrade.stlc G a'
   := by {
@@ -752,9 +752,9 @@ theorem HasType.denote_ty_subst0
   }
   
 theorem HasType.denote_prop_subst0
-  {A: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} {a: A.stlc_ty.interp}
+  {A: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} {a: Option A.stlc_ty.interp}
   {B: Term} {b: Term}
-  {a': (A.subst0 b).stlc_ty.interp}
+  {a': Option (A.subst0 b).stlc_ty.interp}
   {s}
   (Hb: Γ ⊢ b: proof B)
   (HΓ: IsCtx Γ)
@@ -799,9 +799,9 @@ theorem HasType.denote_prop_subst0
     
 
 theorem HasType.denote_ty_subst0'
-  {A: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} {a: A.stlc_ty.interp}
+  {A: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} {a: Option A.stlc_ty.interp}
   {B: Term} {b: Term}
-  {a': (A.subst0 b).stlc_ty.interp}
+  {a': Option (A.subst0 b).stlc_ty.interp}
   {b'}
   (Hb: Γ ⊢ b: term B)
   (HΓ: IsCtx Γ)
@@ -809,7 +809,7 @@ theorem HasType.denote_ty_subst0'
   (HA: ({ ty := B, kind := HypKind.val type } :: Γ) ⊢ A: type)
   (HAA': A.stlc_ty = (A.subst0 b).stlc_ty)
   (Haa': a' = HAA' ▸ a)
-  (Hbb': b' = Hb.stlc.interp sorry) --G.downgrade
+  (Hbb': b' = Hb.stlc.interp G.downgrade)
   (H: @Term.denote_ty A (B.stlc_ty::Γ.upgrade.stlc) (b', G) a)
   : @Term.denote_ty (A.subst0 b) Γ.upgrade.stlc G a'
   := by 
@@ -818,9 +818,9 @@ theorem HasType.denote_ty_subst0'
     repeat assumption
 
 theorem HasType.denote_ty_antisubst0'
-  {A: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} {a: A.stlc_ty.interp}
+  {A: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} {a: Option A.stlc_ty.interp}
   {B: Term} {b: Term}
-  {a': (A.subst0 b).stlc_ty.interp}
+  {a': Option (A.subst0 b).stlc_ty.interp}
   {b'}
   (HA: Γ ⊢ A: S)
   (_: S = sort s)
@@ -830,7 +830,7 @@ theorem HasType.denote_ty_antisubst0'
   (HA: ({ ty := B, kind := HypKind.val type } :: Γ) ⊢ A: type)
   (HAA': A.stlc_ty = (A.subst0 b).stlc_ty)
   (Haa': a' = HAA' ▸ a)
-  (Hbb': b' = Hb.stlc.interp sorry) --G.downgrade
+  (Hbb': b' = Hb.stlc.interp G.downgrade)
   (H: @Term.denote_ty (A.subst0 b) Γ.upgrade.stlc G a')
   : @Term.denote_ty A (B.stlc_ty::Γ.upgrade.stlc) (b', G) a
   := by 

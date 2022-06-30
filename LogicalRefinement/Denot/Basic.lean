@@ -11,7 +11,7 @@ open Annot
 def Term.denote_ty (A: Term) 
   {Γ: Stlc.Context}
   (G: Γ.interp)
-  (a: A.stlc_ty.interp): Prop
+  (a: Option A.stlc_ty.interp): Prop
   := match A with
   | const TermKind.unit => 
     match a with
@@ -20,33 +20,37 @@ def Term.denote_ty (A: Term)
   | abs TermKind.pi A B => 
     match a with
     | some a =>
-      ∀x: A.stlc_ty.interp,
+      ∀x: Option A.stlc_ty.interp,
         A.denote_ty G x ->
-        @denote_ty B (A.stlc_ty::Γ) (x, G) (x.bind_val a)
+        @denote_ty B (A.stlc_ty::Γ) (x, G) (x.bind a)
     | none => False
   | abs TermKind.sigma A B => 
     match a with
     | some (a, b) => 
-      let a := Ty.eager a;
-      let b := Ty.eager b;
+      let a := return a;
+      let b := return b;
       A.denote_ty G a ∧ @denote_ty B (A.stlc_ty::Γ) (a, G) b
     | none => False
   | bin TermKind.coprod A B =>
     match a with
     | some a => 
       match a with
-      | Sum.inl a => A.denote_ty G (Ty.eager a)
-      | Sum.inr b => B.denote_ty G (Ty.eager b)
+      | Sum.inl a => A.denote_ty G (return a)
+      | Sum.inr b => B.denote_ty G (return b)
     | none => False
-  | abs TermKind.assume φ A => (φ.denote_ty G none) -> (A.denote_ty G sorry)
+  | abs TermKind.assume φ A =>
+    a ≠ none ∧ 
+    (φ.denote_ty G none -> A.denote_ty G (a.bind (λa => a ())))
   | abs TermKind.set A φ => 
     A.denote_ty G a ∧ @denote_ty φ (A.stlc_ty::Γ) (a, G) none
   | abs TermKind.intersect A B =>
-    ∀x: A.stlc_ty.interp,
+    a ≠ none ∧
+    ∀x: Option A.stlc_ty.interp,
       A.denote_ty G x ->
-      @denote_ty B (A.stlc_ty::Γ) (x, G) sorry
+      @denote_ty B (A.stlc_ty::Γ) (x, G) (a.bind (λa => a ()))
   | abs TermKind.union A B => 
-    ∃x: A.stlc_ty.interp,
+    a ≠ none ∧
+    ∃x: Option A.stlc_ty.interp,
       A.denote_ty G x ∧
       @denote_ty B (A.stlc_ty::Γ) (x, G) a
   | const TermKind.top => True
@@ -60,11 +64,11 @@ def Term.denote_ty (A: Term)
   | bin TermKind.or A B => 
     A.denote_ty G none ∨ B.denote_ty G none
   | abs TermKind.forall_ A φ => 
-    ∀x: A.stlc_ty.interp,
+    ∀x: Option A.stlc_ty.interp,
       A.denote_ty G x ->
       @denote_ty φ (A.stlc_ty::Γ) (x, G) none
   | abs TermKind.exists_ A φ => 
-    ∃x: A.stlc_ty.interp,
+    ∃x: Option A.stlc_ty.interp,
       A.denote_ty G x ∧
       @denote_ty φ (A.stlc_ty::Γ) (x, G) none
   | tri TermKind.eq A x y => 
@@ -83,11 +87,28 @@ abbrev Term.denote_prop (A: Term)
   (G: Γ.interp): Prop
   := A.denote_ty G none
 
-notation G "⊧" a "↓" σ "∈" A => Term.denote_ty A σ G a
-notation G "⊧" a "∈" A => Term.denote_ty' A G a
+theorem HasType.denote_prop_eq {Γ Γs G} {A: Term} {a}
+  (HA: HasType Γ A prop)
+  : @Term.denote_ty A Γs G a = A.denote_prop G
+  := by {
+    generalize Hs: sort prop = s;
+    rw [Hs] at HA;
+    induction HA with
+    | _ => first | rfl | cases Hs
+  }
+  
+theorem HasType.denote_prop_none {Γ Γs G} {A: Term} {a}
+  (HA: HasType Γ A prop)
+  : @Term.denote_ty A Γs G a -> A.denote_prop G
+  := by {
+    rw [HA.denote_prop_eq]
+    exact λx => x
+  }
+
+notation G "⊧" a "∈" A => Term.denote_ty A G a
 
 theorem Term.denote_ty_transport 
-  {A: Term} {Γ G} {a: A.stlc_ty.interp}
+  {A: Term} {Γ G} {a: Option A.stlc_ty.interp}
   {A' Γ' G' a'}
   (HA: A = A')
   (HΓ: Γ = Γ')
@@ -114,9 +135,15 @@ theorem HasType.denote_ty_non_null
       dsimp only [Term.denote_ty]
       intro ⟨HA, _⟩;
       exact IA rfl HA
-    | assume => sorry
-    | intersect => sorry
-    | union => sorry
+    | assume => 
+      intro ⟨Hn, _⟩
+      contradiction
+    | intersect => 
+      intro ⟨Hn, _⟩
+      contradiction
+    | union => 
+      intro ⟨Hn, _⟩
+      contradiction
     | _ => cases HS <;> intro H <;> cases H
   }
 
@@ -124,20 +151,19 @@ theorem HasType.denote_ty_non_null
 theorem HasType.denote_ty_some {Δ: Stlc.Context} {G: Δ.interp}
   (H: Γ ⊢ A: type)
   (D: A.denote_ty G a)
-  : ∃a': A.stlc_ty.interp_val, a = some a'
+  : ∃a': Option A.stlc_ty.interp, a = some a'
   := match a with
     | some a => ⟨a, rfl⟩
     | none => False.elim (H.denote_ty_non_null D)
 
 --TODO: report spurious unused variable warning
 abbrev Annot.denote (A: Annot) {Γ: Stlc.Context}
-  (σ: Sparsity)
   (G: Γ.interp)
-  (a: A.stlc_ty.interp): Prop
+  (a: Option A.stlc_ty.interp): Prop
   := match A with
   | sort _ => True
   | expr type A => A.denote_ty G a
-  | expr prop A => A.denote_ty G none
+  | expr prop A => A.denote_ty G a
 
 notation G "⊧" a "∈" A => Annot.denote A G a
 
@@ -146,7 +172,7 @@ def Context.denote: (Γ: Context) -> Γ.upgrade.stlc.interp -> Prop
 | (Hyp.mk A (HypKind.val type))::Γ, (a, G) => 
   A.denote_ty G a ∧ denote Γ G
 | (Hyp.mk φ (HypKind.val prop))::Γ, (a, G) =>
-  φ.denote_ty G none ∧ denote Γ sorry
+  φ.denote_ty G a ∧ denote Γ G
 | (Hyp.mk A HypKind.gst)::Γ, (a, G) =>
   A.denote_ty G a ∧ denote Γ G
 

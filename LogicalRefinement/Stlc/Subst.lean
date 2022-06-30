@@ -116,7 +116,7 @@ theorem Stlc.InterpSubst.transport_helper {Γ Δ: Context} {H: Ty}
   := by rfl
 
 def Stlc.InterpSubst.transport_step {Γ Δ: Context} {H: Ty} (S: InterpSubst Γ Δ)
-  (G: Γ.interp) (x: H.interp)
+  (G: Γ.interp) (x: Option H.interp)
   : transport_ctx (@InterpSubst.step H Γ Δ S) (x, G)
   = S.transport_ctx G
   := by {
@@ -132,7 +132,7 @@ def Stlc.InterpSubst.transport_step {Γ Δ: Context} {H: Ty} (S: InterpSubst Γ 
   }
 
 def Stlc.InterpSubst.transport_pop_lift {Γ Δ: Context} {H: Ty} (S: InterpSubst Γ Δ)
-  (G: Γ.interp) (x: H.interp)
+  (G: Γ.interp) (x: Option H.interp)
   : transport_ctx (@InterpSubst.lift H Γ Δ S).pop (x, G) 
   = S.transport_ctx G
   := by {
@@ -170,7 +170,7 @@ theorem Stlc.InterpSubst.pop_cast {Γ Δ Γ' Δ': Context}
   }
 
 theorem Stlc.InterpSubst.transport_lift {Γ Δ: Context} {H: Ty} (S: InterpSubst Γ Δ)
-  (G: Γ.interp) (x: H.interp)
+  (G: Γ.interp) (x: Option H.interp)
   : transport_ctx (Stlc.InterpSubst.lift S) (x, G) = (x, S.transport_ctx G)
   := by {
     simp only [transport_ctx]
@@ -179,7 +179,7 @@ theorem Stlc.InterpSubst.transport_lift {Γ Δ: Context} {H: Ty} (S: InterpSubst
   }
   
 theorem Stlc.InterpSubst.transport_lift2 {Γ Δ: Context} {A B: Ty} (S: InterpSubst Γ Δ)
-  (G: Γ.interp) (a: A.interp) (b: B.interp)
+  (G: Γ.interp) (a: Option A.interp) (b: Option B.interp)
   : transport_ctx (Stlc.InterpSubst.lift2 S) (a, b, G) = (a, b, S.transport_ctx G)
   := by {
     simp only [transport_ctx]
@@ -199,7 +199,7 @@ def Stlc.Context.deriv.subst {Γ Δ: Context} {A} (D: Δ.deriv A) (S: InterpSubs
 theorem Stlc.Context.deriv.subst_lift {Γ Δ: Context} {A B} 
   (D: Context.deriv (B::Δ) A) 
   (S: InterpSubst Γ Δ)
-  (x: B.interp)
+  (x: Option B.interp)
   (G: Γ.interp)
   : D.subst S.lift (x, G) = D (x, S.transport_ctx G)
   := by {
@@ -210,8 +210,8 @@ theorem Stlc.Context.deriv.subst_lift {Γ Δ: Context} {A B}
 theorem Stlc.Context.deriv.subst_lift2 {Γ Δ: Context} {A B C} 
   (D: Context.deriv (B::C::Δ) A) 
   (S: InterpSubst Γ Δ)
-  (b: B.interp)
-  (c: C.interp)
+  (b: Option B.interp)
+  (c: Option C.interp)
   (G: Γ.interp)
   : D.subst S.lift2 (b, c, G) = D (b, c, S.transport_ctx G)
   := by {
@@ -280,15 +280,15 @@ theorem Stlc.HasType.subst_interp_dist {Γ Δ σ A a}
 
     case let_in Ie Ie' => 
       simp only [interp, Context.deriv.subst]
-      apply bind_val_helper
+      apply bind_helper;
+      rw [Ie S]
+      rfl
       funext x
       conv =>
         lhs
         rw [Ie' S.lift]
         rw [Stlc.SubstCtx.lift_interp S]
         rw [Stlc.Context.deriv.subst_lift]
-      rw [Ie S]
-      rfl
 
     case pair Il Ir =>
       simp only [interp]
