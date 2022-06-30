@@ -345,7 +345,7 @@ theorem Stlc.HasType.subst_interp_dist {Γ Δ σ A a}
       funext x
       conv =>
         lhs
-        rw [Is S.lift]
-        rw [Stlc.SubstCtx.lift_interp S]
-        rw [Stlc.Context.deriv.subst_lift]
+        rw [Is S.lift2]
+        rw [Stlc.SubstCtx.lift2_interp S]
+        rw [Stlc.Context.deriv.subst_lift2]
   }
