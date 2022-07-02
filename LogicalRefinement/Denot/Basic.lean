@@ -41,7 +41,7 @@ def Term.denote_ty (A: Term)
   | abs TermKind.assume φ A =>
     match a with
     | some a =>
-      (φ.denote_ty G none -> A.denote_ty G (a ()))
+      (φ.denote_ty G none -> @denote_ty A (φ.stlc_ty::Γ) (none, G) (a ()))
     | none => False
   | abs TermKind.set A φ => 
     A.denote_ty G a ∧ @denote_ty φ (A.stlc_ty::Γ) (a, G) none

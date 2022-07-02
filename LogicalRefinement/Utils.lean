@@ -668,3 +668,10 @@ theorem cast_lam
     cases H';
     rfl
   }
+
+theorem arrow_equivalence {A B C D: Prop}:
+  A = B -> C = D -> (A -> C) = (B -> D)
+  := by {
+    intros;
+    simp only [*]
+  }

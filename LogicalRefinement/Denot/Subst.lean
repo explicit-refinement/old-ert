@@ -231,7 +231,7 @@ theorem SubstCtx.subst_denot
           rw [cast_some]
           rw [HB.stlc_ty_subst]
           rw [HA'.stlc_ty_subst]
-    | @assume Γ ϕ A' Hφ HA' Iφ IA => 
+    | @assume Γ ϕ A' Hφ HA' Iφ IA =>
       cases a with
       | none => 
         dsimp only [Term.denote_ty]
@@ -240,7 +240,32 @@ theorem SubstCtx.subst_denot
         dsimp only [Term.denote_ty]
         rw [interp_eq_some]
         simp only []
-        sorry
+        have Hhelp: 
+          ϕ.denote_ty (transport_interp_up S IΔ G) none
+          = (Term.subst ϕ σ).denote_ty G none
+          := by
+            rw [Iφ S IΓ IΔ HG Hφ]
+            rw [interp_eq_none]
+            rfl
+        apply equiv_arrow_helper' Hhelp;
+        {
+          intro Dφ;
+          have S' := S.lift_delta' (HypKind.val prop) Hφ;
+          rw [<-transport_interp_up_lift S S' IΔ Hφ _ none none]
+          rw [
+            @IA 
+            ((Hyp.mk (ϕ.subst σ) (HypKind.val prop))::Γ) _ 
+            (none, G) (a ()) type
+            S' 
+            (IΓ.cons_val (Hφ.subst S)) 
+            (IΔ.cons_val Hφ) 
+            ⟨Hhelp ▸ Dφ, HG⟩
+            HA' rfl
+          ]
+          apply congr rfl _;
+          sorry -- TODO: cast conversion...
+          rw [interp_eq_none]
+        }
       -- dsimp only [Term.denote_ty]
       -- rw [rec_to_cast']
       -- rw [cast_not_none_is_not_none]
