@@ -307,6 +307,7 @@ theorem SubstCtx.subst_denot
         rfl
       }
     | @intersect Γ A B HA' HB IA IB => 
+      stop
       cases a with
       | none => 
         dsimp only [Term.denote_ty]
@@ -498,7 +499,9 @@ theorem SubstCtx.subst_denot
             transport_interp_up_lift
               S S' IΔ Hφ G
           ]
-          sorry
+          rw [rec_to_cast]
+          rw [cast_none]
+          rw [Hφ.stlc_ty_subst]
         }
         rfl
       }
@@ -525,7 +528,9 @@ theorem SubstCtx.subst_denot
             <-transport_interp_up_lift
               S S' IΔ Hφ G
           ]
-          sorry
+          rw [rec_to_cast]
+          rw [cast_none]
+          rw [Hφ.stlc_ty_subst]
       }
       rfl
     | or Hφ Hψ Iφ Iψ => 
