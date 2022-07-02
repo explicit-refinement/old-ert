@@ -39,15 +39,19 @@ def Term.denote_ty (A: Term)
       | Sum.inr b => B.denote_ty G (return b)
     | none => False
   | abs TermKind.assume φ A =>
-    a ≠ none ∧ 
-    (φ.denote_ty G none -> A.denote_ty G (a.bind (λa => a ())))
+    match a with
+    | some a =>
+      (φ.denote_ty G none -> A.denote_ty G (a ()))
+    | none => False
   | abs TermKind.set A φ => 
     A.denote_ty G a ∧ @denote_ty φ (A.stlc_ty::Γ) (a, G) none
   | abs TermKind.intersect A B =>
-    a ≠ none ∧
-    ∀x: Option A.stlc_ty.interp,
-      A.denote_ty G x ->
-      @denote_ty B (A.stlc_ty::Γ) (x, G) (a.bind (λa => a ()))
+    match a with
+    | some a =>
+      ∀x: Option A.stlc_ty.interp,
+        A.denote_ty G x ->
+        @denote_ty B (A.stlc_ty::Γ) (x, G) (a ())
+    | none => False
   | abs TermKind.union A B => 
     a ≠ none ∧
     ∃x: Option A.stlc_ty.interp,
@@ -56,11 +60,9 @@ def Term.denote_ty (A: Term)
   | const TermKind.top => True
   | const TermKind.bot => False
   | abs TermKind.dimplies A B => 
-    --TODO: think about this...
-    (A.denote_ty G none) -> (B.denote_ty G none)
+    (A.denote_ty G none) -> (@denote_ty B (A.stlc_ty::Γ) (none, G) none)
   | abs TermKind.dand A B =>
-    --TODO: think about this...
-    A.denote_ty G none ∧ B.denote_ty G none
+    A.denote_ty G none ∧ @denote_ty B (A.stlc_ty::Γ) (none, G) none
   | bin TermKind.or A B => 
     A.denote_ty G none ∨ B.denote_ty G none
   | abs TermKind.forall_ A φ => 
@@ -90,6 +92,16 @@ abbrev Term.denote_prop (A: Term)
 theorem HasType.denote_prop_eq {Γ Γs G} {A: Term} {a}
   (HA: HasType Γ A prop)
   : @Term.denote_ty A Γs G a = A.denote_prop G
+  := by {
+    generalize Hs: sort prop = s;
+    rw [Hs] at HA;
+    induction HA with
+    | _ => first | rfl | cases Hs
+  }
+
+theorem HasType.denote_prop_eq' {Γ Γs G} {A: Term} {a a'}
+  (HA: HasType Γ A prop)
+  : @Term.denote_ty A Γs G a =  @Term.denote_ty A Γs G a'
   := by {
     generalize Hs: sort prop = s;
     rw [Hs] at HA;
@@ -135,12 +147,6 @@ theorem HasType.denote_ty_non_null
       dsimp only [Term.denote_ty]
       intro ⟨HA, _⟩;
       exact IA rfl HA
-    | assume => 
-      intro ⟨Hn, _⟩
-      contradiction
-    | intersect => 
-      intro ⟨Hn, _⟩
-      contradiction
     | union => 
       intro ⟨Hn, _⟩
       contradiction

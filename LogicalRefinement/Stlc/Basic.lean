@@ -772,8 +772,8 @@ theorem Stlc.HasType.interp_irrel
 theorem interp_eq_collapse
   : 
   @Eq.rec Ty b 
-    (λx _ => Ty.interp x) 
-    (@Eq.rec Ty a (λx _ => Ty.interp x) v b p) a p' 
+    (λx _ => Option (Ty.interp x)) 
+    (@Eq.rec Ty a (λx _ => Option (Ty.interp x)) v b p) a p' 
   = v
   := by {
     cases p;
@@ -883,5 +883,10 @@ theorem interp_eq_none' {n: Option (Ty.interp a)}
   : n = none -> @Eq.rec Ty a (λx _ => Option (Ty.interp x)) n x p = none := by {
     intro H;
     cases H <;>
+    cases p <;> rfl
+  }
+
+theorem interp_eq_some
+  : @Eq.rec Ty a (λx _ => Option (Ty.interp x)) (some v) x p = (some (p ▸ v)) := by {
     cases p <;> rfl
   }

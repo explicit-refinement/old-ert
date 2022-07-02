@@ -22,11 +22,11 @@ theorem SubstCtx.subst_denot
     A.denote_ty (S.transport_interp_up IΔ G) a =
     (A.subst σ).denote_ty G (HA.stlc_ty_subst ▸ a)
   := by {
-    stop
     generalize HK: sort s = K;
     rw [HK] at HA;
     induction HA generalizing σ Γ s with
     | pi HA' HB IA IB =>
+      stop
       cases a with
       | none => 
         dsimp only [Term.denote_ty]
@@ -38,7 +38,7 @@ theorem SubstCtx.subst_denot
         apply propext
         apply Iff.intro <;>
         intro H x xin <;>
-        generalize Hb: Ty.interp.bind_val _ _ = b;
+        generalize Hb: Option.bind _ _ = b;
         {
           generalize Hx': 
             ((HasType.stlc_ty_subst (by assumption)) ▸ x) = x';
@@ -68,18 +68,18 @@ theorem SubstCtx.subst_denot
             [Context.upgrade, Hyp.upgrade, HypKind.upgrade] at IB';
           rw [<-IB']
           rw [
-            S.transport_interp_up_lift_ty S' IΔ 
+            S.transport_interp_up_lift S' IΔ 
             (by assumption)
             G x' x Hx'.symm
           ]
           have Hbind: 
             ((HasType.stlc_ty_subst (by assumption)) ▸ b) 
-            = Ty.interp.bind_val a x' := by {
+            = Option.bind x' a := by {
               rw [<-Hb]
               rw [<-Hx']
               cases x with
               | none => 
-                simp [Ty.abort, interp_eq_none]
+                simp [Ty.abort, interp_eq_none, Option.bind]
               | some x => 
                 simp [interp_eq_some]
                 rw [rec_to_cast']
@@ -115,7 +115,7 @@ theorem SubstCtx.subst_denot
           dsimp only 
             [Context.upgrade, Hyp.upgrade, HypKind.upgrade] at IB';
           rw [
-            <-S.transport_interp_up_lift_ty S' IΔ 
+            <-S.transport_interp_up_lift S' IΔ 
             (by assumption)
             G x x' 
             (by
@@ -131,9 +131,9 @@ theorem SubstCtx.subst_denot
           rw [<-Hb]
           rw [<-Hx']
           cases x with
-          | none => simp [interp_eq_none, Ty.abort, Ty.interp.bind_val]
+          | none => simp [interp_eq_none, Ty.abort, Option.bind]
           | some x => 
-            unfold Ty.interp.bind_val
+            unfold Option.bind
             rw [interp_eq_some]
             simp only []
             rw [rec_to_cast']
@@ -144,7 +144,8 @@ theorem SubstCtx.subst_denot
             rw [cast_dist]
             rfl
         }
-    | sigma HA' HB IA IB => 
+    | sigma HA' HB IA IB =>
+      stop
       cases a with
       | none => 
         dsimp only [Term.denote_ty]
@@ -159,7 +160,7 @@ theorem SubstCtx.subst_denot
             (by rw [HA'.stlc_ty_subst]) 
             (by rw [HB.stlc_ty_subst])
           ]
-          simp only [Ty.eager, pure]
+          simp only [pure]
           rw [<-@cast_some _ _ (by rw [HA'.stlc_ty_subst])]
           simp only [rec_to_cast'] at IA;
           rw [IA _ IΓ IΔ HG HA' rfl]
@@ -199,8 +200,8 @@ theorem SubstCtx.subst_denot
           . generalize Hsa': cast _ (some a) = sa';
             have H: sa' = some a' := by rw [<-Hsa', <-Ha', cast_some]
             rw [H, cast_some]
-            rfl
     | coprod HA' HB IA IB =>
+      stop
       cases a with
       | none => 
         dsimp only [Term.denote_ty]
@@ -213,7 +214,7 @@ theorem SubstCtx.subst_denot
         | inl a => 
           rw [rec_to_cast']
           rw [cast_inl']
-          simp only [Ty.eager, pure]
+          simp only [pure]
           apply equiv_prop_split (IA S IΓ IΔ HG HA' rfl)
           rfl
           rw [rec_to_cast']
@@ -223,14 +224,15 @@ theorem SubstCtx.subst_denot
         | inr a => 
           rw [rec_to_cast']
           rw [cast_inr']
-          simp only [Ty.eager, pure]
+          simp only [pure]
           apply equiv_prop_split (IB S IΓ IΔ HG HB rfl)
           rfl
           rw [rec_to_cast']
           rw [cast_some]
           rw [HB.stlc_ty_subst]
           rw [HA'.stlc_ty_subst]
-    | assume Hφ HA' Iφ IA => 
+    | @assume Γ ϕ A' Hφ HA' Iφ IA => 
+      stop
       dsimp only [Term.denote_ty]
       rw [rec_to_cast']
       rw [cast_not_none_is_not_none]
@@ -245,23 +247,26 @@ theorem SubstCtx.subst_denot
       {
         intro Hφ';
         apply equiv_prop_split 
-          (IA 
+          (@IA 
+            ((Hyp.mk (ϕ.subst σ) (HypKind.val prop))::Γ) 
+            σ.lift (none, G) _ _
             (S.lift_prop Hφ) 
             (IsCtx.cons_val IΓ (Hφ.subst S)) 
             (IsCtx.cons_val IΔ Hφ) 
             ⟨Iφ' ▸ Hφ', HG⟩ HA' rfl);
         {
           rw [transport_interp_up_lift]
-          rfl
-          exact Hφ
+          repeat sorry
+          --exact Hφ
         }
         {
           rw [rec_to_cast']
-          rfl
+          repeat sorry
         }
       }
       rw [HA.stlc_ty_subst]
     | @set Γ A B  HA' Hφ IA Iφ =>
+      stop
       dsimp only [Term.denote_ty]
       have IA' := @IA Γ σ G a type S IΓ IΔ HG HA' rfl;
       rw [IA']
@@ -294,64 +299,69 @@ theorem SubstCtx.subst_denot
         rfl
       }
     | @intersect Γ A B HA' HB IA IB => 
+      stop
       dsimp only [Term.denote_ty]
       rw [rec_to_cast']
-      rw [cast_not_none_is_not_none]
-      apply equiv_and_split;
-      intro _;
-      apply propext;
-      apply Iff.intro <;> intro H x Hx;
-      {
-        have IA' := 
-          interp_eq_collapse ▸
-          @IA Γ σ G (HA'.stlc_ty_subst ▸ x) type S IΓ IΔ HG HA' rfl;          
-        have S' := S.lift_type HA'
-        have IB' := @IB 
-          ((Hyp.mk _ (HypKind.val type))::Γ) 
-          σ.lift (x, G) a type 
-          S'
-          (IsCtx.cons_val IΓ (HA'.subst S)) (IsCtx.cons_val IΔ HA') 
-          ⟨Hx, HG⟩ HB rfl;
-        simp [
-          Context.sparsity, Context.upgrade, 
-          Hyp.sparsity, Hyp.upgrade, HypKind.upgrade] at IB';
-        rw [rec_to_cast'] at IB';
-        dsimp only [Term.stlc_ty];
-        rw [<-IB']
-        rw [transport_interp_up_lift_ty]
-        exact H (HA'.stlc_ty_subst ▸ x) (IA'.symm ▸ Hx);
-        exact HA';
-        rfl
-      }
-      {
-        have IA' := 
-          @IA Γ σ G x type S IΓ IΔ HG HA' rfl;
-        have S' := S.lift_type HA'
-        have IB' := @IB 
-          ((Hyp.mk _ (HypKind.val type))::Γ) 
-          σ.lift (HA'.stlc_ty_subst ▸ x, G) a type 
-          S'
-          (IsCtx.cons_val IΓ (HA'.subst S)) (IsCtx.cons_val IΔ HA') 
-          ⟨IA' ▸ Hx, HG⟩ HB rfl;
-        simp [
-          Context.sparsity, Context.upgrade, 
-          Hyp.sparsity, Hyp.upgrade, HypKind.upgrade] at IB';
-        rw [<-
-          transport_interp_up_lift_ty S S'
-          IΔ HA' G x (HA'.stlc_ty_subst ▸ x)
-        ]
-        rw [IB']
-        rw [rec_to_cast']
-        rw [rec_to_cast']
-        dsimp only [Term.stlc_ty] at H;
-        apply H;
-        rw [rec_to_cast'] at IA';
-        rw [<-IA']
-        exact Hx;
-        rw [interp_eq_collapse]
-      }
-      rw [HA.stlc_ty_subst]
+      match a with
+      | none => sorry
+      | some a => sorry
+      -- rw [cast_not_none_is_not_none]
+      -- apply equiv_and_split;
+      -- intro _;
+      -- apply propext;
+      -- apply Iff.intro <;> intro H x Hx;
+      -- {
+      --   have IA' := 
+      --     interp_eq_collapse ▸
+      --     @IA Γ σ G (HA'.stlc_ty_subst ▸ x) type S IΓ IΔ HG HA' rfl;          
+      --   have S' := S.lift_type HA'
+      --   have IB' := @IB 
+      --     ((Hyp.mk _ (HypKind.val type))::Γ) 
+      --     σ.lift (x, G) a type 
+      --     S'
+      --     (IsCtx.cons_val IΓ (HA'.subst S)) (IsCtx.cons_val IΔ HA') 
+      --     ⟨Hx, HG⟩ HB rfl;
+      --   simp [
+      --     Context.upgrade, 
+      --     Hyp.upgrade, HypKind.upgrade] at IB';
+      --   rw [rec_to_cast'] at IB';
+      --   dsimp only [Term.stlc_ty];
+      --   rw [<-IB']
+      --   rw [transport_interp_up_lift_ty]
+      --   exact H (HA'.stlc_ty_subst ▸ x) (IA'.symm ▸ Hx);
+      --   exact HA';
+      --   rfl
+      -- }
+      -- {
+      --   have IA' := 
+      --     @IA Γ σ G x type S IΓ IΔ HG HA' rfl;
+      --   have S' := S.lift_type HA'
+      --   have IB' := @IB 
+      --     ((Hyp.mk _ (HypKind.val type))::Γ) 
+      --     σ.lift (HA'.stlc_ty_subst ▸ x, G) a type 
+      --     S'
+      --     (IsCtx.cons_val IΓ (HA'.subst S)) (IsCtx.cons_val IΔ HA') 
+      --     ⟨IA' ▸ Hx, HG⟩ HB rfl;
+      --   simp [
+      --     Context.upgrade, 
+      --     Hyp.upgrade, HypKind.upgrade] at IB';
+      --   rw [<-
+      --     transport_interp_up_lift S S'
+      --     IΔ HA' G x (HA'.stlc_ty_subst ▸ x)
+      --   ]
+      --   rw [IB']
+      --   rw [rec_to_cast']
+      --   rw [rec_to_cast']
+      --   dsimp only [Term.stlc_ty] at H;
+      --   apply H;
+      --   rw [rec_to_cast'] at IA';
+      --   rw [<-IA']
+      --   exact Hx;
+      --   rw [interp_eq_collapse]
+      -- }
+      -- rw [HA.stlc_ty_subst]
     | @union Γ A B HA' HB IA IB =>
+      stop
       dsimp only [Term.denote_ty]
       rw [rec_to_cast']
       rw [cast_not_none_is_not_none]
@@ -371,8 +381,7 @@ theorem SubstCtx.subst_denot
           (IsCtx.cons_val IΓ (HA'.subst S)) (IsCtx.cons_val IΔ HA') 
           ⟨IA' ▸ Hx, HG⟩ HB rfl;
         simp [
-          Context.sparsity, Context.upgrade, 
-          Hyp.sparsity, Hyp.upgrade, HypKind.upgrade] at IB';
+          Context.upgrade, Hyp.upgrade, HypKind.upgrade] at IB';
         rw [rec_to_cast'] at IB';
         rw [rec_to_cast'] at IB';
         apply And.intro;
@@ -384,7 +393,7 @@ theorem SubstCtx.subst_denot
             rw [rec_to_cast']
             dsimp only [Term.stlc_ty];
             rw [<-IB']
-            rw [transport_interp_up_lift_ty]
+            rw [transport_interp_up_lift]
             exact Ha;
             assumption
             rw [rec_to_cast']
@@ -404,8 +413,7 @@ theorem SubstCtx.subst_denot
           (IsCtx.cons_val IΓ (HA'.subst S)) (IsCtx.cons_val IΔ HA') 
           ⟨Hx, HG⟩ HB rfl;
         simp [
-          Context.sparsity, Context.upgrade, 
-          Hyp.sparsity, Hyp.upgrade, HypKind.upgrade] at IB';
+          Context.upgrade, Hyp.upgrade, HypKind.upgrade] at IB';
         rw [rec_to_cast'] at IB';
         apply And.intro;
         {
@@ -416,7 +424,7 @@ theorem SubstCtx.subst_denot
           rw [rec_to_cast']
           dsimp only [Term.stlc_ty];
           rw [<-
-            transport_interp_up_lift_ty S S'
+            transport_interp_up_lift S S'
           ]
           rw [IB']
           exact Ha;
@@ -426,244 +434,230 @@ theorem SubstCtx.subst_denot
       }
       rw [HA.stlc_ty_subst]
     | dimplies Hφ Hψ Iφ Iψ => 
-      cases a with
-      | none => 
-        dsimp only [Term.denote_ty];
-        have Iφ' := 
-          interp_eq_none ▸ @Iφ Γ σ G none prop S IΓ IΔ HG Hφ rfl;
-        apply equiv_arrow_helper';
-        rw [Iφ']
-        {
-          intro HGφ;
-          have S' := (S.lift_prop Hφ) 
-          have Iψ' := 
-            interp_eq_none ▸ 
-            @Iψ 
-            ((Hyp.mk _ (HypKind.val prop))::Γ)  
-            σ.lift G none prop S'
-            (IsCtx.cons_val IΓ (Hφ.subst S)) 
-            (IsCtx.cons_val IΔ Hφ) 
-            ⟨Iφ' ▸ HGφ, HG⟩ Hψ rfl;
-          apply equiv_prop_split Iψ';
-          {
-            rw [
-              <-transport_interp_up_lift
-                S S' IΔ Hφ G
-            ]
-            rfl
-          }
-          rfl
-        }
-      | some a => cases a
-    | dand Hφ Hψ Iφ Iψ => 
-      cases a with
-      | none => 
-        dsimp only [Term.denote_ty];
-        have Iφ' := 
-          interp_eq_none ▸ @Iφ Γ σ G none prop S IΓ IΔ HG Hφ rfl;
-        rw [Iφ']
-        apply equiv_and_split;
+      stop
+      dsimp only [Term.denote_ty];
+      have Iφ' := 
+        interp_eq_none ▸ @Iφ Γ σ G none prop S IΓ IΔ HG Hφ rfl;
+      apply equiv_arrow_helper';
+      rw [Iφ']
+      {
         intro HGφ;
         have S' := (S.lift_prop Hφ) 
         have Iψ' := 
           interp_eq_none ▸ 
           @Iψ 
           ((Hyp.mk _ (HypKind.val prop))::Γ)  
-          σ.lift G none prop S'
+          σ.lift (none, G) none prop S'
           (IsCtx.cons_val IΓ (Hφ.subst S)) 
           (IsCtx.cons_val IΔ Hφ) 
           ⟨Iφ' ▸ HGφ, HG⟩ Hψ rfl;
         apply equiv_prop_split Iψ';
         {
-            rw [
-              <-transport_interp_up_lift_prop
-                S S' IΔ Hφ G
-            ]
-            rfl
+          rw [
+            transport_interp_up_lift
+              S S' IΔ Hφ G
+          ]
+          sorry
         }
         rfl
-      | some a => cases a
+      }
+    | dand Hφ Hψ Iφ Iψ => 
+      stop
+      dsimp only [Term.denote_ty];
+      have Iφ' := 
+        interp_eq_none ▸ @Iφ Γ σ G none prop S IΓ IΔ HG Hφ rfl;
+      rw [Iφ']
+      apply equiv_and_split;
+      intro HGφ;
+      have S' := (S.lift_prop Hφ) 
+      have Iψ' := 
+        interp_eq_none ▸ 
+        @Iψ 
+        ((Hyp.mk _ (HypKind.val prop))::Γ)  
+        σ.lift (none, G) none prop S'
+        (IsCtx.cons_val IΓ (Hφ.subst S)) 
+        (IsCtx.cons_val IΔ Hφ) 
+        ⟨Iφ' ▸ HGφ, HG⟩ Hψ rfl;
+      apply equiv_prop_split Iψ';
+      {
+          rw [
+            <-transport_interp_up_lift
+              S S' IΔ Hφ G
+          ]
+          sorry
+      }
+      rfl
     | or Hφ Hψ Iφ Iψ => 
-      cases a with
-      | none => 
-        dsimp only [Term.denote_ty];
-        apply equiv_or_split;
-        {
-          rw [Iφ]
-          rw [interp_eq_none]
-          exact prop;
-          assumption
-          assumption
-          assumption
-          rfl
-        }
-        {
-          rw [Iψ]
-          rw [interp_eq_none]
-          exact prop;
-          assumption
-          assumption
-          assumption
-          rfl
-        }
-      | some a => cases a
+      stop
+      dsimp only [Term.denote_ty];
+      apply equiv_or_split;
+      {
+        rw [Iφ]
+        rw [interp_eq_none]
+        exact prop;
+        assumption
+        assumption
+        assumption
+        rfl
+      }
+      {
+        rw [Iψ]
+        rw [interp_eq_none]
+        exact prop;
+        assumption
+        assumption
+        assumption
+        rfl
+      }
     | @forall_ Γ A φ HA' Hφ IA Iφ => 
-      cases a with
-      | none => 
-        dsimp only [Term.denote_ty];
-        apply propext;
-        apply Iff.intro <;>
-        intro H x Hx;
+      stop
+      dsimp only [Term.denote_ty];
+      apply propext;
+      apply Iff.intro <;>
+      intro H x Hx;
+      {
+        have IA' := 
+          interp_eq_collapse ▸
+          @IA Γ σ G (HA'.stlc_ty_subst ▸ x) type S IΓ IΔ HG HA' rfl;
+        have S' := S.lift_type HA'
+        have Iφ' := @Iφ 
+          ((Hyp.mk _ (HypKind.val type))::Γ) 
+          σ.lift (x, G) none prop 
+          S'
+          (IsCtx.cons_val IΓ (HA'.subst S)) (IsCtx.cons_val IΔ HA') 
+          ⟨Hx, HG⟩ Hφ rfl;
+        rw[interp_eq_none] at Iφ';
+        simp [
+          Context.upgrade, 
+          Hyp.upgrade, HypKind.upgrade] at Iφ';
+        rw [<-Iφ']
+        rw [transport_interp_up_lift]
+        exact H (HA'.stlc_ty_subst ▸ x) (IA'.symm ▸ Hx);
+        exact HA';
+        rfl
+      }
+      {
+        have IA' := 
+          @IA Γ σ G x type S IΓ IΔ HG HA' rfl;
+        have S' := S.lift_type HA'
+        have Iφ' := @Iφ 
+          ((Hyp.mk _ (HypKind.val type))::Γ) 
+          σ.lift (HA'.stlc_ty_subst ▸ x, G) none prop 
+          S'
+          (IsCtx.cons_val IΓ (HA'.subst S)) (IsCtx.cons_val IΔ HA') 
+          ⟨IA' ▸ Hx, HG⟩ Hφ rfl;
+        rw[interp_eq_none] at Iφ';
+        simp [
+          Context.upgrade, 
+          Hyp.upgrade, HypKind.upgrade] at Iφ';
+        rw [<-
+          transport_interp_up_lift S S'
+          IΔ HA' G x (HA'.stlc_ty_subst ▸ x)
+        ]
+        rw [Iφ']
+        exact H (HA'.stlc_ty_subst ▸ x) (IA' ▸ Hx);
+        rw [interp_eq_collapse]
+      }
+    | @exists_ Γ A φ HA' Hφ IA Iφ =>
+      stop
+      dsimp only [Term.denote_ty];
+      apply propext;
+      apply Iff.intro <;>
+      intro ⟨x, ⟨Hx, HGφ⟩⟩;
+      {
+        let x': Option (A.subst σ).stlc_ty.interp := 
+          HA'.stlc_ty_subst.symm ▸ x;
+        exists x';
+        have IA' := 
+          @IA Γ σ G x type S IΓ IΔ HG HA' rfl;
+        have S' := S.lift_type HA'
+        have Iφ' := @Iφ 
+          ((Hyp.mk (A.subst σ) (HypKind.val type))::Γ) 
+          σ.lift (x', G) none prop 
+          S'
+          (IsCtx.cons_val IΓ (HA'.subst S)) (IsCtx.cons_val IΔ HA') 
+          ⟨IA' ▸ Hx, HG⟩ Hφ rfl;
+        rw[interp_eq_none] at Iφ';
+        simp [
+          Context.upgrade, Hyp.upgrade, HypKind.upgrade] at Iφ';
+        apply And.intro;
         {
-          have IA' := 
-            interp_eq_collapse ▸
-            @IA Γ σ G (HA'.stlc_ty_subst ▸ x) type S IΓ IΔ HG HA' rfl;
-          have S' := S.lift_type HA'
-          have Iφ' := @Iφ 
-            ((Hyp.mk _ (HypKind.val type))::Γ) 
-            σ.lift (x, G) none prop 
-            S'
-            (IsCtx.cons_val IΓ (HA'.subst S)) (IsCtx.cons_val IΔ HA') 
-            ⟨Hx, HG⟩ Hφ rfl;
-          rw[interp_eq_none] at Iφ';
-          simp [
-            Context.sparsity, Context.upgrade, 
-            Hyp.sparsity, Hyp.upgrade, HypKind.upgrade] at Iφ';
-          rw [<-Iφ']
-          rw [transport_interp_up_lift_ty]
-          exact H (HA'.stlc_ty_subst ▸ x) (IA'.symm ▸ Hx);
-          exact HA';
-          rfl
+          rw [<-IA']
+          exact Hx
         }
         {
-          have IA' := 
-            @IA Γ σ G x type S IΓ IΔ HG HA' rfl;
-          have S' := S.lift_type HA'
-          have Iφ' := @Iφ 
-            ((Hyp.mk _ (HypKind.val type))::Γ) 
-            σ.lift (HA'.stlc_ty_subst ▸ x, G) none prop 
-            S'
-            (IsCtx.cons_val IΓ (HA'.subst S)) (IsCtx.cons_val IΔ HA') 
-            ⟨IA' ▸ Hx, HG⟩ Hφ rfl;
-          rw[interp_eq_none] at Iφ';
-          simp [
-            Context.sparsity, Context.upgrade, 
-            Hyp.sparsity, Hyp.upgrade, HypKind.upgrade] at Iφ';
-          rw [<-
-            transport_interp_up_lift_ty S S'
+          rw [<-Iφ']
+          rw [
+            transport_interp_up_lift S S'
             IΔ HA' G x (HA'.stlc_ty_subst ▸ x)
           ]
-          rw [Iφ']
-          exact H (HA'.stlc_ty_subst ▸ x) (IA' ▸ Hx);
+          exact HGφ;
           rw [interp_eq_collapse]
         }
-      | some a => cases a
-    | @exists_ Γ A φ HA' Hφ IA Iφ =>
-      cases a with
-      | none => 
-        dsimp only [Term.denote_ty];
-        apply propext;
-        apply Iff.intro <;>
-        intro ⟨x, ⟨Hx, HGφ⟩⟩;
+      }
+      {
+        let x': Option A.stlc_ty.interp := 
+          HA'.stlc_ty_subst.symm ▸ x;
+        exists x';
+        have IA' := 
+          @IA Γ σ G x' type S IΓ IΔ HG HA' rfl;
+        have S' := S.lift_type HA'
+        have Iφ' := @Iφ 
+          ((Hyp.mk _ (HypKind.val type))::Γ) 
+          σ.lift (HA'.stlc_ty_subst ▸ x, G) none prop 
+          S'
+          (IsCtx.cons_val IΓ (HA'.subst S)) (IsCtx.cons_val IΔ HA') 
+          ⟨interp_eq_collapse ▸ Hx, HG⟩ Hφ rfl;
+        rw[interp_eq_none] at Iφ';
+        simp [
+          Context.upgrade, Hyp.upgrade, HypKind.upgrade] at Iφ';
+        apply And.intro;
         {
-          let x': (A.subst σ).stlc_ty.interp := 
-            HA'.stlc_ty_subst.symm ▸ x;
-          exists x';
-          have IA' := 
-            @IA Γ σ G x type S IΓ IΔ HG HA' rfl;
-          have S' := S.lift_type HA'
-          have Iφ' := @Iφ 
-            ((Hyp.mk (A.subst σ) (HypKind.val type))::Γ) 
-            σ.lift (x', G) none prop 
-            S'
-            (IsCtx.cons_val IΓ (HA'.subst S)) (IsCtx.cons_val IΔ HA') 
-            ⟨IA' ▸ Hx, HG⟩ Hφ rfl;
-          rw[interp_eq_none] at Iφ';
-          simp [
-            Context.sparsity, Context.upgrade, 
-            Hyp.sparsity, Hyp.upgrade, HypKind.upgrade] at Iφ';
-          apply And.intro;
-          {
-            rw [<-IA']
-            exact Hx
-          }
-          {
-            rw [<-Iφ']
-            rw [
-              transport_interp_up_lift_ty S S'
-              IΔ HA' G x (HA'.stlc_ty_subst ▸ x)
-            ]
-            exact HGφ;
-            rw [interp_eq_collapse]
-          }
+          rw [IA']
+          exact interp_eq_collapse ▸ Hx
         }
         {
-          let x': A.stlc_ty.interp := 
-            HA'.stlc_ty_subst.symm ▸ x;
-          exists x';
-          have IA' := 
-            @IA Γ σ G x' type S IΓ IΔ HG HA' rfl;
-          have S' := S.lift_type HA'
-          have Iφ' := @Iφ 
-            ((Hyp.mk _ (HypKind.val type))::Γ) 
-            σ.lift (HA'.stlc_ty_subst ▸ x, G) none prop 
-            S'
-            (IsCtx.cons_val IΓ (HA'.subst S)) (IsCtx.cons_val IΔ HA') 
-            ⟨interp_eq_collapse ▸ Hx, HG⟩ Hφ rfl;
-          rw[interp_eq_none] at Iφ';
-          simp [
-            Context.sparsity, Context.upgrade, 
-            Hyp.sparsity, Hyp.upgrade, HypKind.upgrade] at Iφ';
-          apply And.intro;
-          {
-            rw [IA']
-            exact interp_eq_collapse ▸ Hx
-          }
-          {
-            rw [<-
-              transport_interp_up_lift_ty S S'
-              IΔ HA' G x' (HA'.stlc_ty_subst ▸ x)
-            ]
-            rw [Iφ']
-            exact interp_eq_collapse ▸ HGφ;
-            rw [interp_eq_collapse]
-          }
+          rw [<-
+            transport_interp_up_lift S S'
+            IΔ HA' G x' (HA'.stlc_ty_subst ▸ x)
+          ]
+          rw [Iφ']
+          exact interp_eq_collapse ▸ HGφ;
+          rw [interp_eq_collapse]
         }
-      | some a => cases a
+      }
     | @eq Δ A l r _ Hl Hr _ _ _ =>
-      cases a with
-      | none => 
-        dsimp only [Term.denote_ty];
-        apply propext;
-        apply Iff.intro
-        {
-          intro ⟨_, _, Hxy⟩;
-          exists (Hl.subst S.upgrade).stlc;
-          exists (Hr.subst S.upgrade).stlc;
-          rw [Hl.subst_stlc_interp_up_commute S IΔ G]
-          rw [Hr.subst_stlc_interp_up_commute S IΔ G]
-          rw [rec_down]
-          exact Hxy
-        }
-        {
-          --TODO: report spurious unused variable warning
-          intro ⟨_, _, Hxy⟩;
-          dsimp only [Annot.stlc_ty] at Hxy
-          exists Hl.stlc;
-          exists Hr.stlc;
-          have R := @HasType.subst_stlc_interp_up_commute';
-          dsimp only [Stlc.Context.deriv.subst] at R;
-          unfold transport_interp_up
-          rw [<-R Hl]
-          rw [<-R Hr]
-          rw [rec_down]
-          exact Hxy;
-          assumption
-          assumption
-          assumption
-          assumption
-        }
-      | some a => cases a
+      stop
+      dsimp only [Term.denote_ty];
+      apply propext;
+      apply Iff.intro
+      {
+        intro ⟨_, _, Hxy⟩;
+        exists (Hl.subst S.upgrade).stlc;
+        exists (Hr.subst S.upgrade).stlc;
+        rw [Hl.subst_stlc_interp_up_commute S IΔ G]
+        rw [Hr.subst_stlc_interp_up_commute S IΔ G]
+        rw [rec_down]
+        exact Hxy
+      }
+      {
+        --TODO: report spurious unused variable warning
+        intro ⟨_, _, Hxy⟩;
+        dsimp only [Annot.stlc_ty] at Hxy
+        exists Hl.stlc;
+        exists Hr.stlc;
+        have R := @HasType.subst_stlc_interp_up_commute';
+        dsimp only [Stlc.Context.deriv.subst] at R;
+        unfold transport_interp_up
+        rw [<-R Hl]
+        rw [<-R Hr]
+        rw [rec_down]
+        exact Hxy;
+        assumption
+        assumption
+        assumption
+        assumption
+      }
     | _ => cases HK <;> cases a <;> rfl
   }
 
