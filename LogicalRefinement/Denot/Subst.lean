@@ -232,6 +232,7 @@ theorem SubstCtx.subst_denot
           rw [HB.stlc_ty_subst]
           rw [HA'.stlc_ty_subst]
     | @assume Γ ϕ A' Hφ HA' Iφ IA =>
+      stop
       cases a with
       | none => 
         dsimp only [Term.denote_ty]
@@ -271,38 +272,6 @@ theorem SubstCtx.subst_denot
           constructor <;> assumption
           rw [interp_eq_none]
         }
-      -- dsimp only [Term.denote_ty]
-      -- rw [rec_to_cast']
-      -- rw [cast_not_none_is_not_none]
-      -- apply equiv_and_split;
-      -- intro _;
-      -- have Iφ' := 
-      --   interp_eq_none ▸ @Iφ Γ σ G none prop S IΓ IΔ HG Hφ rfl;
-      -- apply equiv_arrow_helper';
-      -- {
-      --  exact Iφ'
-      -- }
-      -- {
-      --   intro Hφ';
-      --   apply equiv_prop_split 
-      --     (@IA 
-      --       ((Hyp.mk (ϕ.subst σ) (HypKind.val prop))::Γ) 
-      --       σ.lift (none, G) _ _
-      --       (S.lift_prop Hφ) 
-      --       (IsCtx.cons_val IΓ (Hφ.subst S)) 
-      --       (IsCtx.cons_val IΔ Hφ) 
-      --       ⟨Iφ' ▸ Hφ', HG⟩ HA' rfl);
-      --   {
-      --     rw [transport_interp_up_lift]
-      --     repeat sorry
-      --     --exact Hφ
-      --   }
-      --   {
-      --     rw [rec_to_cast']
-      --     repeat sorry
-      --   }
-      -- }
-      -- rw [HA.stlc_ty_subst]
     | @set Γ A B  HA' Hφ IA Iφ =>
       stop
       dsimp only [Term.denote_ty]
@@ -337,7 +306,6 @@ theorem SubstCtx.subst_denot
         rfl
       }
     | @intersect Γ A B HA' HB IA IB => 
-      stop
       cases a with
       | none => 
         dsimp only [Term.denote_ty]
@@ -419,7 +387,13 @@ theorem SubstCtx.subst_denot
           rw [<-Hb]
           rw [<-Hx']
           cases x with
-          | none => sorry
+          | none => 
+            rw [interp_eq_none]
+            rw [rec_to_cast]
+            rw [rec_to_cast]
+            rw [cast_app_pull_in]
+            rw [HB.stlc_ty_subst]
+            rw [HB.stlc_ty_subst]
           | some x => 
             rw [interp_eq_some]
             simp only []
