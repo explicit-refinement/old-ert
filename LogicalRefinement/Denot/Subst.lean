@@ -263,7 +263,12 @@ theorem SubstCtx.subst_denot
             HA' rfl
           ]
           apply congr rfl _;
-          sorry -- TODO: cast conversion...
+          rw [rec_to_cast]
+          rw [rec_to_cast]
+          rw [<-cast_app_pull_in]
+          rw [HA'.stlc_ty_subst]
+          rw [HasType.stlc_ty_subst]
+          constructor <;> assumption
           rw [interp_eq_none]
         }
       -- dsimp only [Term.denote_ty]
