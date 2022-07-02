@@ -26,7 +26,6 @@ theorem SubstCtx.subst_denot
     rw [HK] at HA;
     induction HA generalizing σ Γ s with
     | pi HA' HB IA IB =>
-      stop
       cases a with
       | none => 
         dsimp only [Term.denote_ty]
@@ -145,7 +144,6 @@ theorem SubstCtx.subst_denot
             rfl
         }
     | sigma HA' HB IA IB =>
-      stop
       cases a with
       | none => 
         dsimp only [Term.denote_ty]
@@ -201,7 +199,6 @@ theorem SubstCtx.subst_denot
             have H: sa' = some a' := by rw [<-Hsa', <-Ha', cast_some]
             rw [H, cast_some]
     | coprod HA' HB IA IB =>
-      stop
       cases a with
       | none => 
         dsimp only [Term.denote_ty]
@@ -232,7 +229,6 @@ theorem SubstCtx.subst_denot
           rw [HB.stlc_ty_subst]
           rw [HA'.stlc_ty_subst]
     | @assume Γ ϕ A' Hφ HA' Iφ IA =>
-      stop
       cases a with
       | none => 
         dsimp only [Term.denote_ty]
@@ -273,7 +269,6 @@ theorem SubstCtx.subst_denot
           rw [interp_eq_none]
         }
     | @set Γ A B  HA' Hφ IA Iφ =>
-      stop
       dsimp only [Term.denote_ty]
       have IA' := @IA Γ σ G a type S IΓ IΔ HG HA' rfl;
       rw [IA']
@@ -344,7 +339,19 @@ theorem SubstCtx.subst_denot
               rfl;
           dsimp only 
             [Context.upgrade, Hyp.upgrade, HypKind.upgrade] at IB';
-          sorry
+          rw [<-Hb] at IB';
+          rw [rec_to_cast] at IB';
+          rw [rec_to_cast]
+          rw [cast_app_pull_in]
+          rw [<-IB']
+          rw [
+            S.transport_interp_up_lift S' IΔ 
+            (by assumption)
+            G x' x Hx'.symm
+          ]
+          exact H';
+          rw [HB.stlc_ty_subst]
+          rw [HB.stlc_ty_subst]
         }
         {
           generalize Hx': 
@@ -407,7 +414,6 @@ theorem SubstCtx.subst_denot
             rfl
         }
     | @union Γ A B HA' HB IA IB =>
-      stop
       dsimp only [Term.denote_ty]
       rw [rec_to_cast']
       rw [cast_not_none_is_not_none]
@@ -480,7 +486,6 @@ theorem SubstCtx.subst_denot
       }
       rw [HA.stlc_ty_subst]
     | dimplies Hφ Hψ Iφ Iψ => 
-      stop
       dsimp only [Term.denote_ty];
       have Iφ' := 
         interp_eq_none ▸ @Iφ Γ σ G none prop S IΓ IΔ HG Hφ rfl;
@@ -510,7 +515,6 @@ theorem SubstCtx.subst_denot
         rfl
       }
     | dand Hφ Hψ Iφ Iψ => 
-      stop
       dsimp only [Term.denote_ty];
       have Iφ' := 
         interp_eq_none ▸ @Iφ Γ σ G none prop S IΓ IΔ HG Hφ rfl;
@@ -538,7 +542,6 @@ theorem SubstCtx.subst_denot
       }
       rfl
     | or Hφ Hψ Iφ Iψ => 
-      stop
       dsimp only [Term.denote_ty];
       apply equiv_or_split;
       {
@@ -560,7 +563,6 @@ theorem SubstCtx.subst_denot
         rfl
       }
     | @forall_ Γ A φ HA' Hφ IA Iφ => 
-      stop
       dsimp only [Term.denote_ty];
       apply propext;
       apply Iff.intro <;>
@@ -609,7 +611,6 @@ theorem SubstCtx.subst_denot
         rw [interp_eq_collapse]
       }
     | @exists_ Γ A φ HA' Hφ IA Iφ =>
-      stop
       dsimp only [Term.denote_ty];
       apply propext;
       apply Iff.intro <;>
@@ -677,7 +678,6 @@ theorem SubstCtx.subst_denot
         }
       }
     | @eq Δ A l r _ Hl Hr _ _ _ =>
-      stop
       dsimp only [Term.denote_ty];
       apply propext;
       apply Iff.intro
