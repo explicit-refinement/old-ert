@@ -112,7 +112,24 @@ theorem Stlc.HasType.eq_mod
       rw [Ir]
       intro n Ht; exact H _ (Or.inr Ht);
       intro n Hs; exact H _ (Or.inl Hs);
-    | let_pair He He' Ie Ie' => sorry
+    | let_pair He He' Ie Ie' => 
+      cases Ha';
+      dsimp only [interp]
+      apply congr _ rfl;
+      apply congr _ rfl;
+      apply congr;
+      apply congr rfl _;
+      apply Ie;
+      intro n He; exact H _ (Or.inl He);
+      funext v;
+      apply Ie';
+      intro n He';
+      cases n with
+      | zero => exact ⟨rfl, rfl⟩
+      | succ n => 
+        cases n with
+        | zero => exact ⟨rfl, rfl⟩
+        | succ n => exact H _ (Or.inr He')
     | inj0 He Ie => 
       cases Ha';
       dsimp only [interp]
