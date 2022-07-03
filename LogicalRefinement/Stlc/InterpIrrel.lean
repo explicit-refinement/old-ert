@@ -115,19 +115,22 @@ theorem HasType.interp_irrel_dep {Γ a A}
       cases Ha with
       | inl Ha => exact Il n Ha rfl
       | inr Ha => exact Ir n Ha rfl
-    | pair => sorry
+    | pair _ _ _ _ Il Ir => 
+      cases Ha with
+      | inl Ha => exact Il n Ha rfl
+      | inr Ha => exact Ir n Ha rfl
     | let_pair => sorry
-    | inj_l => sorry
-    | inj_r => sorry
+    | inj_l _ _ Ie _ => exact Ie n Ha rfl
+    | inj_r _ _ Ie _ => exact Ie n Ha rfl
     | case => sorry
-    | elem => sorry
+    | elem _ _ _ _ Il _ => exact Il n Ha rfl
     | let_set => sorry
     | lam_pr _ _ _ Is => 
       cases Is (n + 1) Ha rfl with
       | intro A Hv => 
         cases Hv;
         exact ⟨_, by assumption⟩
-    | app_pr _ _ _ _ Il Ir => 
+    | app_pr _ _ _ _ Il _ => 
       cases Ha with
       | inl Ha => exact Il n Ha rfl
       | inr Ha => cases Ha
@@ -137,11 +140,11 @@ theorem HasType.interp_irrel_dep {Γ a A}
       | intro A Hv => 
         cases Hv;
         exact ⟨_, by assumption⟩
-    | app_irrel _ _ _ _ Il Ir => 
+    | app_irrel _ _ _ _ Il _ => 
       cases Ha with
       | inl Ha => exact Il n Ha rfl
       | inr Ha => cases Ha
-    | repr => sorry
+    | repr _ _ _ _ _ Ir => exact Ir n Ha rfl
     | let_repr => sorry
     | natrec => sorry
     | _ => cases HA' <;> cases Ha
