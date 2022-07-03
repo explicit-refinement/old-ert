@@ -83,7 +83,13 @@ theorem Stlc.HasType.eq_mod
       cases n with
       | zero => exact ⟨rfl, rfl⟩
       | succ n => exact H _ Hn;
-    | app Hl Hr Il Ir => sorry
+    | app Hl Hr Il Ir => 
+      cases Ha';
+      dsimp only [interp]
+      rw [Il]
+      rw [Ir]
+      intro n Ht; exact H _ (Or.inr Ht);
+      intro n Hs; exact H _ (Or.inl Hs);
     | let_in He He' Ie Ie' => sorry
     | pair Hl Hr Il Ir => sorry
     | let_pair He He' Ie Ie' => sorry
