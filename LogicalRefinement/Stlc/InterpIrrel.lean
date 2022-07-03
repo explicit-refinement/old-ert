@@ -96,6 +96,46 @@ theorem Stlc.Context.interp.eq_mod_lrt_refl
     G.eq_mod_lrt G Γ Δ
   := λn _ => G.eq_at_refl n 
 
+theorem Stlc.Context.interp.eq_mod_lrt_downgrade
+    (Γ Δ: _root_.Context) (G: Γ.upgrade.stlc.interp) :
+    G.eq_mod_lrt G.downgrade Γ Δ
+  := by {
+    induction Γ generalizing Δ with
+    | nil => intro _ ⟨⟨_, HΓ⟩, _⟩; cases HΓ
+    | cons H Γ I =>
+      intro n ⟨⟨A, HΓ⟩, ⟨B, HΔ⟩⟩;
+      cases n with
+      | zero => 
+        cases H with
+        | mk A k =>
+          cases k with
+          | val s =>
+            cases s with
+            | type => exact ⟨rfl, rfl⟩
+            --TODO: make a tactic for this?
+            | prop => cases HΓ with | zero Hk => cases Hk 
+          | gst => cases HΓ with | zero Hk => cases Hk
+      | succ n =>
+        cases H with
+        | mk A k =>
+          cases k <;> (
+            cases G;
+            unfold eq_at;
+            simp only [
+              Context.upgrade, Context.stlc, Hyp.upgrade,
+              downgrade
+            ]
+            cases HΓ;
+            cases HΔ;
+            apply I;
+            constructor
+            constructor
+            assumption
+            constructor
+            assumption
+          )
+  } 
+
 theorem HasType.interp_irrel_dep {Γ a A} 
   (H: Γ ⊢ a: expr type A) (n: Nat)
   (Ha: a.stlc.has_dep n): Γ.is_rel n := by {
