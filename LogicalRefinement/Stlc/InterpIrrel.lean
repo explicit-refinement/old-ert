@@ -40,6 +40,62 @@ theorem Stlc.Context.interp.eq_mod_lrt.extend
       assumption
   }
 
+theorem Stlc.Context.interp.eq_mod_lrt.extend_prop
+    {Γ' Δ': Stlc.Context} 
+    {A: Term} {x y: Option A.stlc_ty.interp} 
+    {G: Γ'.interp} {D: Δ'.interp} {Γ Δ: _root_.Context}:
+  G.eq_mod_lrt D Γ Δ -> 
+  @eq_mod_lrt (_::Γ') (_::Δ') (x, G) (y, D) ((Hyp.mk A (HypKind.val prop))::Γ) ((Hyp.mk A (HypKind.val prop))::Δ)
+  := by {
+    intro HGG' n Hn;
+    cases n with
+    | zero =>
+      have ⟨⟨_, HA⟩, _⟩ := Hn;
+      cases HA with
+      | zero Hk => cases Hk
+    | succ n => 
+      apply HGG' n;
+      have ⟨⟨A, HAn⟩, ⟨A', HAn'⟩⟩ := Hn;
+      cases HAn;
+      cases HAn';
+      constructor
+      constructor
+      assumption
+      constructor
+      assumption
+  }
+  
+theorem Stlc.Context.interp.eq_mod_lrt.extend_gst
+    {Γ' Δ': Stlc.Context} 
+    {A: Term} {x y: Option A.stlc_ty.interp} 
+    {G: Γ'.interp} {D: Δ'.interp} {Γ Δ: _root_.Context}:
+  G.eq_mod_lrt D Γ Δ -> 
+  @eq_mod_lrt (_::Γ') (_::Δ') (x, G) (y, D) ((Hyp.mk A HypKind.gst)::Γ) ((Hyp.mk A HypKind.gst)::Δ)
+  := by {
+    intro HGG' n Hn;
+    cases n with
+    | zero =>
+      have ⟨⟨_, HA⟩, _⟩ := Hn;
+      cases HA with
+      | zero Hk => cases Hk
+    | succ n => 
+      apply HGG' n;
+      have ⟨⟨A, HAn⟩, ⟨A', HAn'⟩⟩ := Hn;
+      cases HAn;
+      cases HAn';
+      constructor
+      constructor
+      assumption
+      constructor
+      assumption
+  }
+
+
+theorem Stlc.Context.interp.eq_mod_lrt_refl
+    {Γ': Stlc.Context} (G: Γ'.interp) (Γ Δ: _root_.Context):
+    G.eq_mod_lrt G Γ Δ
+  := λn _ => G.eq_at_refl n 
+
 theorem HasType.interp_irrel_dep {Γ a A} 
   (H: Γ ⊢ a: expr type A) (n: Nat):
   a.stlc.has_dep n -> Γ.is_rel n := by {

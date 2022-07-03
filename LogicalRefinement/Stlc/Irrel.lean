@@ -24,6 +24,18 @@ open AnnotSort
   | (_::_), (_::_), (_, G), (_, G'), n + 1 => G.eq_at G' n
   | _, _, _, _, _ => False
 
+@[simp] def Stlc.Context.interp.eq_at_refl  
+  {Γ: Stlc.Context} (G: Γ.interp) (n: Nat):
+  G.eq_at G n
+  := by {
+    induction Γ generalizing n with
+    | nil => exact True.intro
+    | cons H Γ I =>
+      cases n with
+      | zero => exact ⟨rfl, rfl⟩
+      | succ n => exact I _ _
+  }
+
 def Stlc.Context.interp.eq_mod 
   {Γ Δ: Stlc.Context} (G: Γ.interp) (D: Δ.interp) (a: Stlc): Prop
   := ∀n: Nat, a.has_dep n -> G.eq_at D n
