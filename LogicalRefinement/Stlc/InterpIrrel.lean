@@ -279,3 +279,10 @@ theorem HasType.interp_upgrade {Γ a A}
   : HΓ.stlc.interp G.downgrade = HΔ.stlc.interp G
   := HΓ.stlc.eq_mod HΔ.stlc 
     (HΓ.interp_irrel_eq HΔ (G.eq_mod_lrt_downgrade _))
+
+theorem HasType.interp_upgrade' {Γ a A} 
+  {G: Γ.upgrade.stlc.interp}
+  (HΓ: Γ ⊢ a: expr type A)
+  : HΓ.stlc.interp G.downgrade = HΓ.upgrade.stlc.interp G
+  := HΓ.stlc.eq_mod HΓ.upgrade.stlc 
+    (HΓ.interp_irrel_eq HΓ.upgrade (G.eq_mod_lrt_downgrade _))
