@@ -105,7 +105,13 @@ theorem Stlc.HasType.eq_mod
       cases n with
       | zero => exact ⟨rfl, rfl⟩
       | succ n => exact H _ (Or.inr He')
-    | pair Hl Hr Il Ir => sorry
+    | pair Hl Hr Il Ir => 
+      cases Ha';
+      dsimp only [interp]
+      rw [Il]
+      rw [Ir]
+      intro n Ht; exact H _ (Or.inr Ht);
+      intro n Hs; exact H _ (Or.inl Hs);
     | let_pair He He' Ie Ie' => sorry
     | inj0 He Ie => sorry
     | inj1 He Ie => sorry
