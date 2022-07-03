@@ -97,22 +97,35 @@ theorem Stlc.Context.interp.eq_mod_lrt_refl
   := λn _ => G.eq_at_refl n 
 
 theorem HasType.interp_irrel_dep {Γ a A} 
-  (H: Γ ⊢ a: expr type A) (n: Nat):
-  a.stlc.has_dep n -> Γ.is_rel n := by {
+  (H: Γ ⊢ a: expr type A) (n: Nat)
+  (Ha: a.stlc.has_dep n): Γ.is_rel n := by {
     generalize HA': expr type A = A';
     rw [HA'] at H;
     induction H generalizing A with
     | var HA Hv _IA =>
-      intro H;
-      cases H; 
+      cases Ha; 
       cases HA';
       exact ⟨_, Hv⟩
+    | lam => sorry
     | app _ _ _ _ Il Ir => 
-      intro Ha;
       cases Ha with
-      | inl Ha => exact Il rfl Ha
-      | inr Ha => exact Ir rfl Ha
-    | _ => cases HA' <;> sorry
+      | inl Ha => exact Il Ha rfl
+      | inr Ha => exact Ir Ha rfl
+    | pair => sorry
+    | let_pair => sorry
+    | inj_l => sorry
+    | inj_r => sorry
+    | case => sorry
+    | elem => sorry
+    | let_set => sorry
+    | lam_pr => sorry
+    | app_pr => sorry
+    | lam_irrel => sorry
+    | app_irrel => sorry
+    | repr => sorry
+    | let_repr => sorry
+    | natrec => sorry
+    | _ => cases HA' <;> cases Ha
   }
 
 theorem HasType.interp_irrel_eq {Γ Δ a A} 
