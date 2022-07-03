@@ -7,15 +7,19 @@ open AnnotSort
 open Annot
 
 theorem HasType.eq_lrt_ty_denot
-  {Γ: Context} {A a s} {G G': Γ.upgrade.stlc.interp}
-  (H: Γ ⊢ A: sort s)
-  (HGG': G.eq_mod_lrt G' Γ.upgrade)
-  : A.denote_ty G a = A.denote_ty G' a
+  {Γ Δ: Context} {A a s} 
+  {G: Γ.upgrade.stlc.interp}
+  {D: Δ.upgrade.stlc.interp}
+  (HΓ: Γ ⊢ A: sort s)
+  (HΔ: Δ ⊢ A: sort s)
+  (HGD: G.eq_mod_lrt D Γ.upgrade Δ.upgrade)
+  : A.denote_ty G a = A.denote_ty D a
   := by {
     generalize HS: sort s = S;
-    rw [HS] at H;
-    induction H generalizing s with
-    | pi HA HB IA IB => 
+    rw [HS] at HΓ;
+    induction HΓ generalizing Δ with
+    | pi HA HB IA IB =>
+      cases HΔ; 
       cases a with
       | none => rfl
       | some a => 
@@ -24,10 +28,14 @@ theorem HasType.eq_lrt_ty_denot
         intro x;
         apply arrow_equivalence;
         apply IA;
-        apply HGG';
+        assumption
+        exact HGD;
         rfl
-        apply IB;
-        exact HGG'.extend
+        apply @IB 
+          ((Hyp.mk _ (HypKind.val type))::Δ) 
+          (x.bind a) (x, G) (x, D);
+        assumption
+        exact HGD.extend
         rfl
     | sigma => sorry
     | coprod => sorry
@@ -43,15 +51,24 @@ theorem HasType.eq_lrt_ty_denot
     | forall_ => sorry
     | exists_ => sorry
     | eq HA Hl Hr => 
-      dsimp only [Term.denote_ty]
-      apply existential_helper;
-      apply Or.inr;
-      funext Hx';
-      apply existential_helper;
-      apply Or.inr;
-      funext Hy';
-      exact congr 
-        (congr rfl (Hl.interp_irrel HGG')) 
-        (Hr.interp_irrel HGG')
+      cases HΔ with
+      | eq HA' Hl' Hr' =>
+        dsimp only [Term.denote_ty]
+        apply propext;
+        apply Iff.intro;
+        {
+          intro ⟨px, py, HG⟩;
+          exists Hl'.stlc, Hr'.stlc;
+          rw [<-Hl.interp_irrel Hl' HGD]
+          rw [<-Hr.interp_irrel Hr' HGD]
+          exact HG
+        }
+        {
+          intro ⟨px, py, HG⟩;
+          exists Hl.stlc, Hr.stlc;
+          rw [Hl.interp_irrel Hl' HGD]
+          rw [Hr.interp_irrel Hr' HGD]
+          exact HG
+        }
     | _ => cases HS <;> rfl
   }

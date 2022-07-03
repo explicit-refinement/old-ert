@@ -18,46 +18,58 @@ open AnnotSort
   | _, _ => False
 
 @[simp] def Stlc.Context.interp.eq_at:  
-  {Γ: Stlc.Context} -> (G G': Γ.interp) -> Nat -> Prop
-  | [], (), (), _ => True
-  | (_::_), (x, _), (x', _), 0 => x = x'
-  | (_::_), (_, G), (_, G'), n + 1 => G.eq_at G' n
+  {Γ Δ: Stlc.Context} -> (G: Γ.interp) -> (D: Δ.interp) -> Nat -> Prop
+  | [], [], (), (), _ => True
+  | (A::_), (B::_), (x, _), (x', _), 0 => ∃p: A = B, p ▸ x = x'
+  | (_::_), (_::_), (_, G), (_, G'), n + 1 => G.eq_at G' n
+  | _, _, _, _, _ => False
 
 def Stlc.Context.interp.eq_mod 
-  {Γ: Stlc.Context} (G G': Γ.interp) (a: Stlc): Prop
-  := ∀n: Nat, a.has_dep n -> G.eq_at G' n
+  {Γ Δ: Stlc.Context} (G: Γ.interp) (D: Δ.interp) (a: Stlc): Prop
+  := ∀n: Nat, a.has_dep n -> G.eq_at D n
 
 theorem Stlc.HasVar.interp_eq_mod
-  {Γ: Stlc.Context} {n: Nat} {A: Ty} {G G': Γ.interp}
+  {Γ Δ: Stlc.Context} {n: Nat} {A: Ty} {G: Γ.interp} {D: Δ.interp}
   (Hv: HasVar Γ n A)
-  (H: G.eq_at G' n)
-  : Hv.interp G = Hv.interp G'
+  (Hv': HasVar Δ n A)
+  (H: G.eq_at D n)
+  : Hv.interp G = Hv'.interp D
   := by {
-    induction Hv with
-    | zero => cases G; cases G'; rw [H]; rfl
+    induction Hv generalizing Δ with
+    | zero => 
+      cases Hv'; 
+      cases G; 
+      cases D; 
+      have ⟨HAB, Hxy⟩ := H;
+      cases HAB;
+      cases Hxy;
+      rfl
     | succ Hv I =>
-      cases G; cases G'; 
+      cases Hv'; cases G; cases D; 
       dsimp only [interp]
       rw [I]
       exact H
   }
 
 theorem Stlc.HasType.eq_mod
-  {Γ: Stlc.Context} {a: Stlc} {A: Ty} {G G': Γ.interp}
+  {Γ Δ: Stlc.Context} {a: Stlc} {A: Ty} 
+  {G: Γ.interp} {D: Δ.interp}
   (Ha: Γ ⊧ a: A)
-  (H: G.eq_mod G' a)
-  : Ha.interp G = Ha.interp G'
+  (Ha': Δ ⊧ a: A)
+  (H: G.eq_mod D a)
+  : Ha.interp G = Ha'.interp D
   := by {
-    induction Ha with
-    | var Hv => exact Hv.interp_eq_mod (H _ rfl)
+    induction Ha generalizing Δ with
+    | var Hv => exact Hv.interp_eq_mod _ (H _ rfl)
     | lam Hs Is =>
+      cases Ha';
       dsimp only [interp]
       apply congr rfl;
       funext x;
       apply Is;
       intro n Hn;
       cases n with
-      | zero => rfl
+      | zero => exact ⟨rfl, rfl⟩
       | succ n => exact H _ Hn;
     | app Hl Hr Il Ir => sorry
     | let_in He He' Ie Ie' => sorry
