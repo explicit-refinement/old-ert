@@ -99,7 +99,7 @@ theorem Stlc.HasType.eq_mod
       apply congr rfl _;
       apply Ie;
       intro n He; exact H _ (Or.inl He);
-      funext v;
+      funext _;
       apply Ie';
       intro n He';
       cases n with
@@ -121,7 +121,7 @@ theorem Stlc.HasType.eq_mod
       apply congr rfl _;
       apply Ie;
       intro n He; exact H _ (Or.inl He);
-      funext v;
+      funext _;
       apply Ie';
       intro n He';
       cases n with
@@ -140,7 +140,30 @@ theorem Stlc.HasType.eq_mod
       dsimp only [interp]
       rw [Ie]
       intro n He; exact H _ He;
-    | case Hd Hl Hr Id Il Ir => sorry
+    | case Hd Hl Hr Id Il Ir => 
+      cases Ha';
+      dsimp only [interp]
+      apply congr _ rfl;
+      apply congr _ rfl;
+      apply congr;
+      apply congr rfl _;
+      apply Id;
+      intro n Hd; exact H _ (Or.inl Hd);
+      funext _;
+      apply congr;
+      apply congr rfl _;
+      funext _;
+      apply Il;
+      intro n He';
+      cases n with
+      | zero => exact ⟨rfl, rfl⟩
+      | succ n => exact H _ (Or.inr (Or.inl He'))
+      funext _;
+      apply Ir;
+      intro n He';
+      cases n with
+      | zero => exact ⟨rfl, rfl⟩
+      | succ n => exact H _ (Or.inr (Or.inr He'))
     | natrec Hn Hz Hs In Iz Is => sorry
     | _ => rfl
   }
