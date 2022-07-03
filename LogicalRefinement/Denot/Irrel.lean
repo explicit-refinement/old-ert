@@ -72,3 +72,11 @@ theorem HasType.eq_lrt_ty_denot
         }
     | _ => cases HS <;> rfl
   }
+
+theorem HasType.eq_lrt_ty_denot'
+  {Γ: Context} {A a s} 
+  {G D: Γ.upgrade.stlc.interp}
+  (HΓ: Γ ⊢ A: sort s)
+  (HGD: G.eq_mod_lrt D Γ.upgrade Γ.upgrade)
+  : A.denote_ty G a = A.denote_ty D a
+  := HΓ.eq_lrt_ty_denot HΓ HGD
