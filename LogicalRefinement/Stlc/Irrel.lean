@@ -113,8 +113,16 @@ theorem Stlc.HasType.eq_mod
       intro n Ht; exact H _ (Or.inr Ht);
       intro n Hs; exact H _ (Or.inl Hs);
     | let_pair He He' Ie Ie' => sorry
-    | inj0 He Ie => sorry
-    | inj1 He Ie => sorry
+    | inj0 He Ie => 
+      cases Ha';
+      dsimp only [interp]
+      rw [Ie]
+      intro n He; exact H _ He;
+    | inj1 He Ie => 
+      cases Ha';
+      dsimp only [interp]
+      rw [Ie]
+      intro n He; exact H _ He;
     | case Hd Hl Hr Id Il Ir => sorry
     | natrec Hn Hz Hs In Iz Is => sorry
     | _ => rfl
