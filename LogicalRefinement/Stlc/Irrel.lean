@@ -164,6 +164,28 @@ theorem Stlc.HasType.eq_mod
       cases n with
       | zero => exact ⟨rfl, rfl⟩
       | succ n => exact H _ (Or.inr (Or.inr He'))
-    | natrec Hn Hz Hs In Iz Is => sorry
+    | natrec Hn Hz Hs In Iz Is =>       
+      cases Ha';
+      dsimp only [interp]
+      apply congr _ rfl;
+      apply congr _ rfl;
+      apply congr;
+      apply congr rfl _;
+      apply In;
+      intro n Hn; exact H _ (Or.inl Hn);
+      funext _;
+      apply congr;
+      apply congr rfl _;
+      apply Iz;
+      intro n Hz; exact H _ (Or.inr (Or.inl Hz));
+      funext _;
+      apply Is;
+      intro n He';
+      cases n with
+      | zero => exact ⟨rfl, rfl⟩
+      | succ n => 
+        cases n with
+        | zero => exact ⟨rfl, rfl⟩
+        | succ n => exact H _ (Or.inr (Or.inr He'))
     | _ => rfl
   }
