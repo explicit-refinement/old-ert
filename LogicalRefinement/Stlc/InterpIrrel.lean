@@ -29,3 +29,15 @@ theorem HasType.interp_irrel_dep {Γ a A} (H: Γ ⊢ a: expr type A) (n: Nat):
       exists A
     | _ => cases HA' <;> sorry
   }
+  
+theorem HasType.interp_irrel_eq {Γ a A} {G G': Γ.stlc.interp} 
+  (H: Γ ⊢ a: expr type A) 
+  (HGG': G.eq_mod_lrt G' Γ)
+  : G.eq_mod G' a.stlc 
+  := λ_ Hn => HGG' _ (H.interp_irrel_dep _ Hn)
+
+theorem HasType.interp_irrel {Γ a A} {G G': Γ.stlc.interp} 
+  (H: Γ ⊢ a: expr type A)
+  (HGG': G.eq_mod_lrt G' Γ)
+  : H.stlc.interp G = H.stlc.interp G'
+  := H.stlc.eq_mod (H.interp_irrel_eq HGG')

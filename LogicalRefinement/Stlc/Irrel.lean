@@ -42,8 +42,8 @@ theorem Stlc.HasVar.interp_eq_mod
       exact H
   }
 
-theorem Stlc.HasType.interp.eq_mod
-  {Γ: Stlc.Context} {a: Stlc} {A: Ty} {G G': Γ.interp} {a: Stlc} 
+theorem Stlc.HasType.eq_mod
+  {Γ: Stlc.Context} {a: Stlc} {A: Ty} {G G': Γ.interp}
   (Ha: Γ ⊧ a: A)
   (H: G.eq_mod G' a)
   : Ha.interp G = Ha.interp G'
