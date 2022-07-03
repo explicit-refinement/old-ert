@@ -297,7 +297,7 @@ theorem HasType.denote
           simp only []
           dsimp only [Annot.denote, Term.denote_ty] at Il'
           dsimp only [Annot.denote, Term.denote_ty]
-          apply HasType.denote_ty_subst0' Hr HΓ HG HB HB.stlc_ty_subst.symm _ Hrg.symm Ilr
+          apply HasType.denote_val_subst0' Hr HΓ HG HB HB.stlc_ty_subst.symm _ Hrg.symm Ilr
           rw [monorecursor]
           rfl
         | none => exact False.elim (HA.denote_ty_non_null Ir')
@@ -322,7 +322,7 @@ theorem HasType.denote
           }
           {
             simp only [<-Hli, <-Hri]
-            rw [denote_ty_subst0]
+            rw [denote_val_subst0]
             exact Ir';
             assumption
             assumption
@@ -376,6 +376,7 @@ theorem HasType.denote
         exact Ie'
       | none => exact He.term_regular.denote_ty_non_null Ie'
     | @case Γ A B C e l r k He HA HB HC Hl Hr Ie IA IB IC Il Ir =>
+      stop
       have HAB: Γ ⊢ Term.coprod A B: type := HasType.coprod HA HB;
       cases k with
       | type => 
@@ -514,7 +515,7 @@ theorem HasType.denote
       have Ir' := Ir HΓ G HG;
       apply equiv_prop_helper Ir';
       rw [
-        Hl.denote_prop_subst0 HΓ HG 
+        Hl.denote_val_subst0 HΓ HG 
         (by cases HAB; assumption)
         (by rw [HasType.stlc_ty_subst0]; cases HAB; assumption)
         rfl
@@ -552,22 +553,18 @@ theorem HasType.denote
     | imp Hϕ Hs Iϕ Is => 
       stop --TODO: prop transport...
       exact λDϕ => Is (IsCtx.cons_val HΓ Hϕ) (none, G) ⟨Dϕ, HG⟩;
-    | mp Hϕψ Hl Hr _ Il Ir => 
-      stop
+    | @mp Γ φ ψ l r Hϕψ Hl Hr _ Il Ir => 
       dsimp only [
         Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
-        Term.denote_ty
+        Term.denote_ty, Ty.abort, Annot.denote
       ] at *
-      rw [<-Hr.denote_prop_subst0 HΓ HG 
-        (by cases Hϕψ; assumption)
-        (by rw [HasType.stlc_ty_subst0] <;> cases Hϕψ; assumption)
-        (by 
-          rw [rec_to_cast, cast_none];
-          rw [HasType.stlc_ty_subst0]
-          cases Hϕψ; assumption
-        )
-      ]
-      exact Il HΓ G HG (Ir HΓ G HG)
+      have Hψ: _ ⊢ ψ: prop := by cases Hϕψ <;> assumption;
+      rw [<-Hr.denote_val_subst0 HΓ HG]
+      exact Il HΓ G HG (Hr.proof_regular.denote_prop_none (Ir HΓ G HG))
+      exact Hψ;
+      rw [Hψ.stlc_ty_subst0]
+      rw [interp_eq_none]
+      sorry
     | general HA Hs IA Is => 
       exact λx Dx => Hs.proof_regular.denote_prop_none 
         (Is (IsCtx.cons_val HΓ HA) (x, G) ⟨Dx, HG⟩);
@@ -577,7 +574,7 @@ theorem HasType.denote
         denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
         Term.denote_ty', Term.denote_ty
       ] at *
-      rw [<-HasType.denote_ty_subst0]
+      rw [<-HasType.denote_val_subst0]
       apply Il HΓ G HG;
       -- Double upgrade
       sorry
