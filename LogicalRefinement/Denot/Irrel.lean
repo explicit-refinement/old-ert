@@ -19,6 +19,7 @@ theorem HasType.eq_lrt_ty_denot
     rw [HS] at HΓ;
     induction HΓ generalizing Δ with
     | pi HA HB IA IB =>
+      stop
       cases HΔ; 
       cases a with
       | none => rfl
@@ -37,7 +38,24 @@ theorem HasType.eq_lrt_ty_denot
         assumption
         exact HGD.extend
         rfl
-    | sigma => sorry
+    | sigma HA HB IA IB => 
+      stop
+      cases HΔ; 
+      cases a with
+      | none => rfl
+      | some a => 
+        cases a with
+        | mk a b =>
+          dsimp only [Term.denote_ty]
+          simp only [pure]
+          apply congr (congr rfl _) _;
+          apply IA <;> assumption
+          apply @IB
+            ((Hyp.mk _ (HypKind.val type))::Δ) 
+            (some b) (some a, G) (some a, D);
+          assumption
+          exact HGD.extend
+          rfl
     | coprod => sorry
     | assume => sorry
     | set => sorry
@@ -51,6 +69,7 @@ theorem HasType.eq_lrt_ty_denot
     | forall_ => sorry
     | exists_ => sorry
     | eq HA Hl Hr => 
+      stop
       cases HΔ with
       | eq HA' Hl' Hr' =>
         dsimp only [Term.denote_ty]
