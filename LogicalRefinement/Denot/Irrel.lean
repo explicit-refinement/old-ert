@@ -56,7 +56,15 @@ theorem HasType.eq_lrt_ty_denot
           assumption
           exact HGD.extend
           rfl
-    | coprod => sorry
+    | coprod HA HB IA IB => 
+      stop
+      cases HΔ; 
+      cases a with
+      | none => rfl
+      | some a => 
+        cases a with
+        | inl a => exact IA (by assumption) HGD rfl
+        | inr a => exact IB (by assumption) HGD rfl
     | assume => sorry
     | set => sorry
     | intersect => sorry
