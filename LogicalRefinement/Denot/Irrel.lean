@@ -17,9 +17,8 @@ theorem HasType.eq_lrt_ty_denot
   := by {
     generalize HS: sort s = S;
     rw [HS] at HΓ;
-    induction HΓ generalizing Δ with
-    | pi HA HB IA IB =>
-      stop
+    induction HΓ generalizing Δ s with
+    | pi _ _ IA IB =>
       cases HΔ; 
       cases a with
       | none => rfl
@@ -34,12 +33,11 @@ theorem HasType.eq_lrt_ty_denot
         rfl
         apply @IB 
           ((Hyp.mk _ (HypKind.val type))::Δ) 
-          (x.bind a) (x, G) (x, D);
+          (x.bind a) _ (x, G) (x, D);
         assumption
         exact HGD.extend
         rfl
-    | sigma HA HB IA IB => 
-      stop
+    | sigma _ _ IA IB => 
       cases HΔ; 
       cases a with
       | none => rfl
@@ -52,12 +50,11 @@ theorem HasType.eq_lrt_ty_denot
           apply IA <;> assumption
           apply @IB
             ((Hyp.mk _ (HypKind.val type))::Δ) 
-            (some b) (some a, G) (some a, D);
+            (some b) _ (some a, G) (some a, D);
           assumption
           exact HGD.extend
           rfl
-    | coprod HA HB IA IB => 
-      stop
+    | coprod _ _ IA IB => 
       cases HΔ; 
       cases a with
       | none => rfl
@@ -65,33 +62,155 @@ theorem HasType.eq_lrt_ty_denot
         cases a with
         | inl a => exact IA (by assumption) HGD rfl
         | inr a => exact IB (by assumption) HGD rfl
-    | assume => sorry
-    | set => sorry
-    | intersect => sorry
-    | union => sorry
-    | top => sorry
-    | bot => sorry
-    | dimplies => sorry
-    | dand => sorry
-    | or => sorry
-    | forall_ => sorry
-    | exists_ => sorry
-    | eq HA Hl Hr => 
-      stop
+    | assume _ _ IA IB => 
+      cases HΔ; 
+      cases a with
+      | none => rfl
+      | some a => 
+        dsimp only [Term.denote_ty]
+        apply arrow_equivalence;
+        apply IA;
+        assumption
+        exact HGD;
+        rfl
+        apply @IB 
+          ((Hyp.mk _ (HypKind.val prop))::Δ) 
+          (a ()) _ (none, G) (none, D);
+        assumption
+        exact HGD.extend
+        rfl
+    | set _ _ IA IB => 
+      cases HΔ; 
+      dsimp only [Term.denote_ty]
+      dsimp only [Term.stlc_ty] at a;
+      apply congr (congr rfl _) _;
+      apply IA <;> assumption
+      apply @IB
+        ((Hyp.mk _ (HypKind.val type))::Δ) 
+        none _ (a, G) (a, D);
+      assumption
+      exact HGD.extend
+      rfl
+    | intersect _ _ IA IB => 
+      cases HΔ; 
+      cases a with
+      | none => rfl
+      | some a => 
+        dsimp only [Term.denote_ty]
+        apply forall_helper;
+        intro x;
+        apply arrow_equivalence;
+        apply IA;
+        assumption
+        exact HGD;
+        rfl
+        apply @IB 
+          ((Hyp.mk _ (HypKind.val type))::Δ) 
+          (a ()) _ (x, G) (x, D);
+        assumption
+        exact HGD.extend
+        rfl
+    | union _ _ IA IB =>  
+      cases HΔ;
+      dsimp only [Term.denote_ty]
+      simp only [pure]
+      apply congr rfl _;
+      apply congr rfl _;
+      funext x;
+      apply congr (congr rfl _) _;
+      apply IA;
+      assumption
+      exact HGD
+      rfl
+      apply @IB 
+        ((Hyp.mk _ (HypKind.val type))::Δ) 
+        a _ (x, G) (x, D);
+      assumption
+      exact HGD.extend
+      rfl
+    | dimplies _ _ IA IB => 
+      cases HΔ;
+      dsimp only [Term.denote_ty]
+      apply arrow_equivalence;
+      apply IA;
+      assumption
+      exact HGD;
+      rfl
+      apply @IB 
+        ((Hyp.mk _ (HypKind.val prop))::Δ) 
+        none _ (none, G) (none, D);
+      assumption
+      exact HGD.extend
+      rfl
+    | dand _ _ IA IB =>  
+      cases HΔ;
+      dsimp only [Term.denote_ty]
+      simp only [pure]
+      apply congr (congr rfl _) _;
+      apply IA;
+      assumption
+      exact HGD
+      rfl
+      apply @IB 
+        ((Hyp.mk _ (HypKind.val prop))::Δ) 
+        none _ (none, G) (none, D);
+      assumption
+      exact HGD.extend
+      rfl
+    | or _ _ IA IB => 
+      cases HΔ;
+      dsimp only [Term.denote_ty]
+      exact congr 
+        (congr rfl (IA (by assumption) HGD rfl)) 
+        (IB (by assumption) HGD rfl);
+    | forall_ _ _ IA IB =>  
+      cases HΔ; 
+      dsimp only [Term.denote_ty]
+      apply forall_helper;
+      intro x;
+      apply arrow_equivalence;
+      apply IA;
+      assumption
+      exact HGD;
+      rfl
+      apply @IB 
+        ((Hyp.mk _ (HypKind.val type))::Δ) 
+        none _ (x, G) (x, D);
+      assumption
+      exact HGD.extend
+      rfl
+    | exists_ _ _ IA IB => 
+      cases HΔ;
+      dsimp only [Term.denote_ty]
+      simp only [pure]
+      apply congr rfl _;
+      funext x;
+      apply congr (congr rfl _) _;
+      apply IA;
+      assumption
+      exact HGD
+      rfl
+      apply @IB 
+        ((Hyp.mk _ (HypKind.val type))::Δ) 
+        none _ (x, G) (x, D);
+      assumption
+      exact HGD.extend
+      rfl
+    | eq _ Hl Hr =>
       cases HΔ with
       | eq HA' Hl' Hr' =>
         dsimp only [Term.denote_ty]
         apply propext;
         apply Iff.intro;
         {
-          intro ⟨px, py, HG⟩;
+          intro ⟨_, _, HG⟩;
           exists Hl'.stlc, Hr'.stlc;
           rw [<-Hl.interp_irrel Hl' HGD]
           rw [<-Hr.interp_irrel Hr' HGD]
           exact HG
         }
         {
-          intro ⟨px, py, HG⟩;
+          intro ⟨_, _, HG⟩;
           exists Hl.stlc, Hr.stlc;
           rw [Hl.interp_irrel Hl' HGD]
           rw [Hr.interp_irrel Hr' HGD]
