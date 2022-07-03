@@ -97,8 +97,8 @@ theorem Stlc.Context.interp.eq_mod_lrt_refl
   := λn _ => G.eq_at_refl n 
 
 theorem Stlc.Context.interp.eq_mod_lrt_downgrade
-    (Γ Δ: _root_.Context) (G: Γ.upgrade.stlc.interp) :
-    G.eq_mod_lrt G.downgrade Γ Δ
+    {Γ: _root_.Context} (G: Γ.upgrade.stlc.interp) (Δ) :
+    G.downgrade.eq_mod_lrt G Γ Δ
   := by {
     induction Γ generalizing Δ with
     | nil => intro _ ⟨⟨_, HΓ⟩, _⟩; cases HΓ
@@ -271,3 +271,11 @@ theorem HasType.interp_irrel {Γ Δ a A}
   (HGD: G.eq_mod_lrt D Γ Δ)
   : HΓ.stlc.interp G = HΔ.stlc.interp D
   := HΓ.stlc.eq_mod HΔ.stlc (HΓ.interp_irrel_eq HΔ HGD)
+
+theorem HasType.interp_upgrade {Γ a A} 
+  {G: Γ.upgrade.stlc.interp}
+  (HΓ: Γ ⊢ a: expr type A)
+  (HΔ: Γ.upgrade ⊢ a: expr type A)
+  : HΓ.stlc.interp G.downgrade = HΔ.stlc.interp G
+  := HΓ.stlc.eq_mod HΔ.stlc 
+    (HΓ.interp_irrel_eq HΔ (G.eq_mod_lrt_downgrade _))
