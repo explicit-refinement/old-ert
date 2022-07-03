@@ -675,3 +675,22 @@ theorem arrow_equivalence {A B C D: Prop}:
     intros;
     simp only [*]
   }
+
+theorem existential_helper {A: Prop} {B C: A -> Prop}
+  (H: ¬A ∨ (B = C)): (∃x: A, B x) = (∃x: A, C x)
+  := by {
+    apply propext;
+    apply Iff.intro;
+    {
+      intro ⟨Ha, Hb⟩;
+      cases H with
+      | inl => contradiction
+      | inr H => rw [<-H]; exact ⟨Ha, Hb⟩ 
+    }
+    {
+      intro ⟨Ha, Hc⟩;
+      cases H with
+      | inl => contradiction
+      | inr H => rw [H]; exact ⟨Ha, Hc⟩ 
+    }
+  }
