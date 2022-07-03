@@ -101,12 +101,17 @@ theorem HasType.interp_irrel_dep {Γ a A}
   a.stlc.has_dep n -> Γ.is_rel n := by {
     generalize HA': expr type A = A';
     rw [HA'] at H;
-    induction H with
+    induction H generalizing A with
     | var HA Hv _IA =>
       intro H;
       cases H; 
       cases HA';
-      exists A
+      exact ⟨_, Hv⟩
+    | app _ _ _ _ Il Ir => 
+      intro Ha;
+      cases Ha with
+      | inl Ha => exact Il rfl Ha
+      | inr Ha => exact Ir rfl Ha
     | _ => cases HA' <;> sorry
   }
 
