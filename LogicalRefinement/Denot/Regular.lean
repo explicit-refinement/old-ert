@@ -303,6 +303,7 @@ theorem HasType.denote
         | none => exact False.elim (HA.denote_ty_non_null Ir')
       | none => exact False.elim (HAB.denote_ty_non_null Il')
     | @pair Γ A B l r HAB Hl Hr IAB Il Ir =>
+      stop
       dsimp only [Term.denote_ty, 
         Stlc.HasType.interp, Term.stlc, stlc_ty, term, Term.stlc_ty, 
         Ty.interp.pair]
@@ -351,7 +352,7 @@ theorem HasType.denote
     | inj_l He HB Ie IB => 
       stop
       dsimp only [
-        denote', Term.denote_ty', Term.denote_ty, Term.stlc, 
+        Term.denote_ty, Term.stlc, 
         stlc_ty, Term.stlc_ty, Stlc.HasType.interp,
         Ty.interp.inl
       ]
@@ -363,6 +364,7 @@ theorem HasType.denote
         exact Ie'
       | none => exact He.term_regular.denote_ty_non_null Ie'
     | inj_r He HA Ie IA => 
+      stop
       dsimp only [
         Term.denote_ty, Term.stlc, 
         stlc_ty, Term.stlc_ty, Stlc.HasType.interp,
@@ -504,6 +506,7 @@ theorem HasType.denote
       ]
     | abort Hp HA Ip IA => exact False.elim (Ip HΓ G HG)
     | dconj HAB Hl Hr IAB Il Ir => 
+      stop
       dsimp only [
         Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
         Term.denote_ty
@@ -559,34 +562,32 @@ theorem HasType.denote
         Term.denote_ty, Ty.abort, Annot.denote
       ] at *
       have Hψ: _ ⊢ ψ: prop := by cases Hϕψ <;> assumption;
-      rw [<-Hr.denote_val_subst0 HΓ HG]
+      rw [<-Hr.denote_prop_subst0 HΓ HG]
       exact Il HΓ G HG (Hr.proof_regular.denote_prop_none (Ir HΓ G HG))
       exact Hψ;
       rw [Hψ.stlc_ty_subst0]
       rw [interp_eq_none]
-      sorry
     | general HA Hs IA Is => 
       exact λx Dx => Hs.proof_regular.denote_prop_none 
         (Is (IsCtx.cons_val HΓ HA) (x, G) ⟨Dx, HG⟩);
     | inst HAϕ Hl Hr _ Il Ir => 
       stop
       dsimp only [
-        denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
-        Term.denote_ty', Term.denote_ty
+        Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
+        Term.denote_ty, Ty.abort, Annot.denote
       ] at *
-      rw [<-HasType.denote_val_subst0]
-      apply Il HΓ G HG;
-      -- Double upgrade
-      sorry
+      --TODO: ghost denotation...
+      -- rw [<-Hr.denote_val_subst0]
+      -- apply Il HΓ G HG;
+      -- -- Double upgrade
+      -- sorry
       repeat sorry
     | @wit Γ A φ l r HAφ Hl Hr IAφ Il Ir =>
       stop
       exists Hl.stlc.interp G
-      --TODO: upgrade theorems for IsCtx and context denotation
       have Il' := Il HΓ.upgrade (Context.upgrade_idem.symm ▸ G) HG.upgrade;
       apply And.intro
-      . dsimp only [denote', Term.denote_ty'] at Il'
-        sorry
+      . sorry
       . sorry
     | let_wit => sorry
     | refl Ha => exact ⟨Ha.stlc, Ha.stlc, rfl⟩
