@@ -694,3 +694,20 @@ theorem existential_helper {A: Prop} {B C: A -> Prop}
       | inr H => rw [H]; exact ⟨Ha, Hc⟩ 
     }
   }
+  
+theorem forall_helper {A: Type} {B C: A -> Prop}
+  (H: ∀x: A, B x = C x): (∀x: A, B x) = (∀x: A, C x)
+  := by {
+    apply propext;
+    apply Iff.intro;
+    {
+      intro Hf x;
+      rw [<-H];
+      exact Hf x
+    }
+    {
+      intro Hf x;
+      rw [H];
+      exact Hf x
+    }
+  }

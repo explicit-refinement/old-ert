@@ -14,8 +14,21 @@ theorem HasType.eq_lrt_ty_denot
   := by {
     generalize HS: sort s = S;
     rw [HS] at H;
-    induction H with
-    | pi => sorry
+    induction H generalizing s with
+    | pi HA HB IA IB => 
+      cases a with
+      | none => rfl
+      | some a => 
+        dsimp only [Term.denote_ty]
+        apply forall_helper;
+        intro x;
+        apply arrow_equivalence;
+        apply IA;
+        apply HGG';
+        rfl
+        apply IB;
+        exact HGG'.extend
+        rfl
     | sigma => sorry
     | coprod => sorry
     | assume => sorry
