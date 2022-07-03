@@ -119,12 +119,50 @@ theorem HasType.interp_irrel_dep {Γ a A}
       cases Ha with
       | inl Ha => exact Il n Ha rfl
       | inr Ha => exact Ir n Ha rfl
-    | let_pair => sorry
+    | let_pair _ _ _ _ _ Ie _ _ _ Ie' => 
+      cases HA';
+      cases Ha with
+      | inl Ha => exact Ie n Ha rfl
+      | inr Ha => 
+        cases Ie' (n + 2) Ha rfl with
+        | intro A Hv =>
+          cases Hv with
+          | succ Hv => 
+            cases Hv;
+            exact ⟨_, by assumption⟩
     | inj_l _ _ Ie _ => exact Ie n Ha rfl
     | inj_r _ _ Ie _ => exact Ie n Ha rfl
-    | case => sorry
+    | case _ _ _ _ _ _ Id _ _ _ Il Ir => 
+      cases HA';
+      cases Ha with
+      | inl Ha => exact Id n Ha rfl
+      | inr Ha =>
+        cases Ha with
+        | inl Ha => 
+          cases Il (n + 1) Ha rfl with
+          | intro A Hv => 
+            cases Hv;
+            exact ⟨_, by assumption⟩
+        | inr Ha => 
+          cases Ir (n + 1) Ha rfl with
+          | intro A Hv => 
+            cases Hv;
+            exact ⟨_, by assumption⟩
     | elem _ _ _ _ Il _ => exact Il n Ha rfl
-    | let_set => sorry
+    | let_set _ _ _ _ _ Ie _ _ _ Ie' =>  
+      cases HA';
+      cases Ha with
+      | inl Ha => 
+        cases Ha with
+        | inl Ha => exact Ie n Ha rfl
+        | inr Ha => cases Ha
+      | inr Ha => 
+        cases Ie' (n + 2) Ha rfl with
+        | intro A Hv =>
+          cases Hv with
+          | succ Hv => 
+            cases Hv;
+            exact ⟨_, by assumption⟩
     | lam_pr _ _ _ Is => 
       cases Is (n + 1) Ha rfl with
       | intro A Hv => 
@@ -145,8 +183,35 @@ theorem HasType.interp_irrel_dep {Γ a A}
       | inl Ha => exact Il n Ha rfl
       | inr Ha => cases Ha
     | repr _ _ _ _ _ Ir => exact Ir n Ha rfl
-    | let_repr => sorry
-    | natrec => sorry
+    | let_repr _ _ _ _ _ Ie _ _ _ Ie' =>  
+      cases HA';
+      cases Ha with
+      | inl Ha => 
+        cases Ha with
+        | inl Ha => cases Ha
+        | inr Ha => exact Ie n Ha rfl
+      | inr Ha => 
+        cases Ie' (n + 2) Ha rfl with
+        | intro A Hv =>
+          cases Hv with
+          | succ Hv => 
+            cases Hv;
+            exact ⟨_, by assumption⟩
+    | natrec _ _ _ _ _ Ie Iz Is => 
+      rename AnnotSort => k;
+      cases HA';
+      cases Ha with
+      | inl Ha => exact Ie n Ha rfl
+      | inr Ha =>
+        cases Ha with
+        | inl Ha => exact Iz n Ha rfl
+        | inr Ha => 
+          cases Is (n + 2) Ha rfl with
+          | intro A Hv =>
+            cases Hv with
+            | succ Hv => 
+              cases Hv;
+              exact ⟨_, by assumption⟩
     | _ => cases HA' <;> cases Ha
   }
 
