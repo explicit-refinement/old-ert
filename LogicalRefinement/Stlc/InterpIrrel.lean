@@ -122,10 +122,25 @@ theorem HasType.interp_irrel_dep {Γ a A}
     | case => sorry
     | elem => sorry
     | let_set => sorry
-    | lam_pr => sorry
-    | app_pr => sorry
-    | lam_irrel => sorry
-    | app_irrel => sorry
+    | lam_pr _ _ _ Is => 
+      cases Is (n + 1) Ha rfl with
+      | intro A Hv => 
+        cases Hv;
+        exact ⟨_, by assumption⟩
+    | app_pr _ _ _ _ Il Ir => 
+      cases Ha with
+      | inl Ha => exact Il n Ha rfl
+      | inr Ha => cases Ha
+    --TODO: Hmm... the fact that the order is swapped for lam is... interesting...
+    | lam_irrel _ _ _ Is => 
+      cases Is (n + 1) Ha rfl with
+      | intro A Hv => 
+        cases Hv;
+        exact ⟨_, by assumption⟩
+    | app_irrel _ _ _ _ Il Ir => 
+      cases Ha with
+      | inl Ha => exact Il n Ha rfl
+      | inr Ha => cases Ha
     | repr => sorry
     | let_repr => sorry
     | natrec => sorry
