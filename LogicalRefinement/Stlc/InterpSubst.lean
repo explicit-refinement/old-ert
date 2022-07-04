@@ -11,7 +11,7 @@ open AnnotSort
 def Subst.stlc (σ: Subst): Stlc.Subst := 
   λv => (σ v).stlc
 
-theorem Subst.stlc_lift {σ: Subst} {Γ Δ: Sparsity}
+theorem Subst.stlc_lift {σ: Subst}
   : σ.lift.stlc = σ.stlc.lift
   := sorry
 
@@ -19,13 +19,29 @@ theorem SubstCtx.stlc {σ Γ Δ} (S: SubstCtx σ Γ Δ) (HΔ: IsCtx Δ)
   : Stlc.SubstCtx σ.stlc Γ.stlc Δ.stlc
   := sorry
 
---TODO: change to HasType...
-theorem Term.term_subst_stlc_commute {Γ Δ σ a} 
-  (H: Δ ⊢ a: term A) 
-  (S: SubstCtx σ Γ Δ)
+theorem HasType.subst_stlc_commute {σ Γ a A}
+  (H: Γ ⊢ a: A)
+  : (a.subst σ).stlc
+  = a.stlc.subst σ.stlc
+  := by {
+    induction H generalizing σ with
+    | var => rfl
+    | _ => 
+      (try rename AnnotSort => k <;> cases k) <;>
+      dsimp only [
+        Term.stlc, Stlc.subst, Stlc.Subst.liftn, Subst.liftn] <;>
+      (try rw [HasType.stlc_ty_subst] 
+        <;> first 
+          | assumption 
+          | (apply HasType.expr_regular <;> assumption) | skip) <;>
+      simp only [*, Subst.stlc_lift]
+  }
+
+theorem HasType.term_subst_stlc_commute {σ a} 
+  (H: Δ ⊢ a: term A)
   : (a.subst σ).stlc
   = (a.stlc).subst σ.stlc
-  := sorry
+  := H.subst_stlc_commute
 
 abbrev SubstCtx.interp {σ Γ Δ} (S: SubstCtx σ Γ Δ) (IΔ: IsCtx Δ)
   : Stlc.InterpSubst Γ.stlc Δ.stlc
@@ -201,8 +217,7 @@ theorem HasType.subst_stlc_interp_commute {Γ Δ σ a}
     rw [<-Stlc.HasType.subst_interp_dist]
     rw [rec_to_cast']
     rw [Stlc.HasType.interp_transport_cast']
-    rw [Term.term_subst_stlc_commute]
-    assumption
+    rw [HasType.term_subst_stlc_commute]
     assumption
     rw [Annot.stlc_ty_subst H.expr_regular]
   }
@@ -218,9 +233,8 @@ theorem HasType.subst_stlc_interp_up_commute {Γ Δ σ a}
     rw [<-Stlc.HasType.subst_interp_dist]
     rw [rec_to_cast']
     rw [Stlc.HasType.interp_transport_cast']
-    rw [Term.term_subst_stlc_commute]
+    rw [HasType.term_subst_stlc_commute]
     assumption
-    apply SubstCtx.upgrade S;
     rw [Annot.stlc_ty_subst H.expr_regular]
   }
 
@@ -235,8 +249,7 @@ theorem HasType.subst_stlc_interp_commute' {Γ Δ σ a}
     rw [<-Stlc.HasType.subst_interp_dist]
     rw [rec_to_cast']
     rw [Stlc.HasType.interp_transport_cast']
-    rw [Term.term_subst_stlc_commute]
-    assumption
+    rw [HasType.term_subst_stlc_commute]
     assumption
     rw [Annot.stlc_ty_subst H.expr_regular]
   }
@@ -252,9 +265,8 @@ theorem HasType.subst_stlc_interp_up_commute' {Γ Δ σ a}
     rw [<-Stlc.HasType.subst_interp_dist]
     rw [rec_to_cast']
     rw [Stlc.HasType.interp_transport_cast']
-    rw [Term.term_subst_stlc_commute]
+    rw [HasType.term_subst_stlc_commute]
     assumption
-    apply SubstCtx.upgrade S;
     rw [Annot.stlc_ty_subst H.expr_regular]
   }
 
