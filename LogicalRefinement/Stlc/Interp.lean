@@ -54,21 +54,21 @@ def Term.stlc: Term -> Stlc
 | abs TermKind.lam A x => Stlc.lam A.stlc_ty x.stlc
 | tri TermKind.app P l r => Stlc.app P.stlc_ty l.stlc r.stlc
 | bin TermKind.pair l r => Stlc.pair l.stlc r.stlc
-| let_bin TermKind.let_pair P e e' => 
+| let_bin (TermKind.let_pair type) P e e' => 
   Stlc.let_pair P.stlc_ty e.stlc e'.stlc
 | unary (TermKind.inj i) e => Stlc.inj i e.stlc
-| cases TermKind.case P d l r => 
+| cases (TermKind.case type) P d l r => 
   Stlc.case P.stlc_ty d.stlc l.stlc r.stlc
 | abs TermKind.lam_pr _ x => Stlc.lam Ty.unit x.stlc
 | tri TermKind.app_pr A e _ => Stlc.app A.stlc_ty e.stlc Stlc.nil
 | bin TermKind.elem e _ => e.stlc
-| let_bin TermKind.let_set P e e' =>
+| let_bin (TermKind.let_set type) P e e' =>
   Stlc.let_pair (Ty.prod P.stlc_ty Ty.unit) 
     (Stlc.pair e.stlc Stlc.nil) e'.stlc
 | abs TermKind.lam_irrel _ x => Stlc.lam Ty.unit x.stlc
 | tri TermKind.app_irrel A l _ => Stlc.app A.stlc_ty l.stlc Stlc.nil
 | bin TermKind.repr _ r => r.stlc
-| let_bin TermKind.let_repr P e e' => 
+| let_bin (TermKind.let_repr type) P e e' => 
   Stlc.let_pair (Ty.prod Ty.unit P.stlc_ty) 
     (Stlc.pair Stlc.nil e.stlc) e'.stlc
 | const TermKind.zero => Stlc.zero
@@ -182,27 +182,9 @@ theorem HasType.stlc {Γ a A}:
     | var _ Hv => 
       constructor
       exact Hv.stlc
-    | natrec HC _ _ Hs IC Ie Iz Is => 
-      rename AnnotSort => k;
-      cases k with
-      | type =>
-        dsimp only [
-          Term.stlc, Term.stlc_ty, Term.subst0, Term.alpha0,
-          wknth
-        ] at *;
-        repeat rw [Annot.stlc_ty_subst] at *
-        repeat rw [Annot.stlc_ty_wk] at *
-        apply Stlc.HasType.natrec;
-        assumption
-        assumption
-        apply Is
-        assumption
-        apply HasType.wk_sort
-        assumption
-        repeat constructor
-        assumption
-      | prop => exact Stlc.HasType.abort
     | _ =>
+      try rename AnnotSort => k;
+      (try cases k) <;>
       first
       | exact Stlc.HasType.abort
       | assumption

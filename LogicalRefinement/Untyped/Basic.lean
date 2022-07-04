@@ -42,21 +42,21 @@ inductive TermKind: List Nat -> Type
   | app: TermKind [0, 0, 0]
   -- Consider merging with intro/elim for (sigma, type, type)
   | pair: TermKind [0, 0]
-  | let_pair: TermKind [0, 0, 2]
+  | let_pair: AnnotSort -> TermKind [0, 0, 2]
   | inj (b: Fin 2): TermKind [0]
-  | case: TermKind [0, 0, 1, 1]
+  | case: AnnotSort -> TermKind [0, 0, 1, 1]
   -- Consider merging with intro/elim for (pi, type, prop)
   | lam_pr: TermKind [0, 1]
   | app_pr: TermKind [0, 0, 0]
   -- Consider merging with intro/elim for (sigma, type, prop)
   | elem: TermKind [0, 0]
-  | let_set: TermKind [0, 0, 2]
+  | let_set: AnnotSort -> TermKind [0, 0, 2]
   -- Consider merging with intro/elim for (pi, ghost, type)
   | lam_irrel: TermKind [0, 1]
   | app_irrel: TermKind [0, 0, 0]
   -- Consider merging with intro/elim for (sigma, ghost, type)
   | repr: TermKind [0, 0]
-  | let_repr: TermKind [0, 0, 2]
+  | let_repr: AnnotSort -> TermKind [0, 0, 2]
 
   -- Proofs
   | triv: TermKind []
@@ -145,17 +145,17 @@ abbrev Term.nil := const TermKind.nil
 abbrev Term.lam := abs TermKind.lam
 abbrev Term.app := tri TermKind.app
 abbrev Term.pair := bin TermKind.pair
-abbrev Term.let_pair := let_bin TermKind.let_pair
+abbrev Term.let_pair := λk => let_bin (TermKind.let_pair k)
 abbrev Term.inj := λb => unary (TermKind.inj b)
-abbrev Term.case := cases TermKind.case
+abbrev Term.case := λk => cases (TermKind.case k)
 abbrev Term.elem := bin TermKind.elem
-abbrev Term.let_set := let_bin TermKind.let_set
+abbrev Term.let_set := λk => let_bin (TermKind.let_set k)
 abbrev Term.lam_pr := abs TermKind.lam_pr
 abbrev Term.app_pr := tri TermKind.app_pr
 abbrev Term.lam_irrel := abs TermKind.lam_irrel
 abbrev Term.app_irrel := tri TermKind.app_irrel
 abbrev Term.repr := bin TermKind.repr
-abbrev Term.let_repr := let_bin TermKind.let_repr
+abbrev Term.let_repr := λk => let_bin (TermKind.let_repr k)
 
 -- Proofs
 abbrev Term.triv := const TermKind.triv

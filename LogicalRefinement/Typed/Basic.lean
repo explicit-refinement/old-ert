@@ -133,7 +133,7 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType 
     ((Hyp.mk B (HypKind.val type))::(Hyp.mk A (HypKind.val type))::Γ) 
     e' (expr k ((C.wknth 1).alpha0 (pair (var 1) (var 0)))) ->
-    HasType Γ (let_pair (sigma A B) e e') (expr k (C.subst0 e))
+    HasType Γ (let_pair k (sigma A B) e e') (expr k (C.subst0 e))
   | inj_l {Γ: Context} {A B e: Term}:
     HasType Γ e (term A) -> HasType Γ B type ->
     HasType Γ (inj 0 e) (term (coprod A B))
@@ -147,7 +147,7 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType ((Hyp.mk (coprod A B) (HypKind.val type))::Γ) C k ->
     HasType ((Hyp.mk A (HypKind.val type))::Γ) l (expr k (C.alpha0 (inj 0 (var 0)))) ->
     HasType ((Hyp.mk B (HypKind.val type))::Γ) r (expr k (C.alpha0 (inj 1 (var 0)))) ->
-    HasType Γ (case (coprod A B) e l r) (expr k (C.subst0 e))
+    HasType Γ (case k (coprod A B) e l r) (expr k (C.subst0 e))
   | elem {Γ: Context} {A φ l r: Term}:
     HasType Γ (set A φ) type ->
     HasType Γ l (term A) -> HasType Γ r (proof (φ.subst0 l)) ->
@@ -160,7 +160,7 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType 
     ((Hyp.mk φ (HypKind.val prop))::(Hyp.mk A (HypKind.val type))::Γ) 
     e' (expr k ((C.wknth 1).alpha0 (elem (var 1) (var 0)))) ->
-    HasType Γ (let_set (set A φ) e e') (expr k (C.subst0 e))
+    HasType Γ (let_set k (set A φ) e e') (expr k (C.subst0 e))
   | lam_pr {Γ: Context} {φ s A: Term}:
     HasType Γ φ prop ->
     HasType ((Hyp.mk φ (HypKind.val prop))::Γ) s (term A) ->
@@ -189,7 +189,7 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType 
     ((Hyp.mk B (HypKind.val type))::(Hyp.mk A HypKind.gst)::Γ) 
     e' (expr k ((C.wknth 1).alpha0 (repr (var 1) (var 0)))) ->
-    HasType Γ (let_repr (union A B) e e') (expr k (C.subst0 e))
+    HasType Γ (let_repr k (union A B) e e') (expr k (C.subst0 e))
 
   -- Basic proof formers
   | triv {Γ}: HasType Γ triv (proof top)
@@ -325,7 +325,7 @@ inductive HasType: Context -> Term -> Annot -> Prop
     (proof 
       (eq 
         (C.subst0 (inj 0 e)) 
-        (case (coprod A B) (inj 0 e) l r) 
+        (case type (coprod A B) (inj 0 e) l r) 
         (l.subst0 e)))
   | beta_right {Γ: Context} {A B C e l r: Term}:
     HasType Γ.upgrade e (term B) ->
@@ -338,7 +338,7 @@ inductive HasType: Context -> Term -> Annot -> Prop
     (proof 
       (eq 
         (C.subst0 (inj 1 e)) 
-        (case (coprod A B) (inj 1 e) l r) 
+        (case type (coprod A B) (inj 1 e) l r) 
         (r.subst0 e)))
   | beta_pair {Γ: Context} {A B C l r e: Term}:
     HasType Γ l (term A) ->
@@ -351,7 +351,7 @@ inductive HasType: Context -> Term -> Annot -> Prop
     e (expr type ((C.wknth 1).alpha0 (pair (var 1) (var 0)))) ->
     HasType Γ 
       (beta_pair (sigma A B) l r e)
-      (expr prop (eq (C.subst0 (pair l r)) (let_pair (sigma A B) (pair l r) e) (e.subst01 r l)))
+      (expr prop (eq (C.subst0 (pair l r)) (let_pair type (sigma A B) (pair l r) e) (e.subst01 r l)))
   | beta_set {Γ: Context} {A φ C l r e: Term}:
     HasType Γ l (term A) ->
     HasType Γ r (proof (φ.subst0 l)) ->
@@ -363,7 +363,7 @@ inductive HasType: Context -> Term -> Annot -> Prop
     e (expr type ((C.wknth 1).alpha0 (elem (var 1) (var 0)))) ->
     HasType Γ 
       (beta_set (set A φ) l r e)
-      (expr prop (eq (C.subst0 (elem l r)) (let_set (set A φ) (elem l r) e) (e.subst01 r l)))
+      (expr prop (eq (C.subst0 (elem l r)) (let_set type (set A φ) (elem l r) e) (e.subst01 r l)))
   | beta_repr {Γ: Context} {A B C l r e: Term}:
     HasType Γ.upgrade l (term A) ->
     HasType Γ r (term (B.subst0 l)) ->
@@ -375,7 +375,7 @@ inductive HasType: Context -> Term -> Annot -> Prop
     e (expr type ((C.wknth 1).alpha0 (repr (var 1) (var 0)))) ->
     HasType Γ 
       (beta_repr (union A B) l r e)
-      (expr prop (eq (C.subst0 (repr l r)) (let_repr (union A B) (repr l r) e) (e.subst01 r l)))
+      (expr prop (eq (C.subst0 (repr l r)) (let_repr type (union A B) (repr l r) e) (e.subst01 r l)))
 
   -- Natural numbers
   | nats {Γ}: HasType Γ nats type

@@ -205,15 +205,15 @@ theorem HasType.eq_lrt_ty_denot
         {
           intro ⟨_, _, HG⟩;
           exists Hl'.stlc, Hr'.stlc;
-          rw [<-Hl.interp_irrel Hl' HGD]
-          rw [<-Hr.interp_irrel Hr' HGD]
+          rw [<-Hl.interp_irrel_ty Hl' HGD]
+          rw [<-Hr.interp_irrel_ty Hr' HGD]
           exact HG
         }
         {
           intro ⟨_, _, HG⟩;
           exists Hl.stlc, Hr.stlc;
-          rw [Hl.interp_irrel Hl' HGD]
-          rw [Hr.interp_irrel Hr' HGD]
+          rw [Hl.interp_irrel_ty Hl' HGD]
+          rw [Hr.interp_irrel_ty Hr' HGD]
           exact HG
         }
     | _ => cases HS <;> rfl
