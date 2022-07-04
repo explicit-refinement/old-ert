@@ -787,6 +787,7 @@ theorem HasType.denote_val_subst0
         }
         {
           clear Hbb' Haa' HAA' HG b' a';
+          apply Eq.trans G.transport_id.symm;
           cases Γ with
           | nil => rfl
           | cons H Γ => 
@@ -795,17 +796,9 @@ theorem HasType.denote_val_subst0
               cases k <;>
               cases G with
               | mk x G => 
-                simp only [Stlc.InterpSubst.transport_ctx, Stlc.InterpSubst.pop]
-                dsimp only [Stlc.HasType.interp, Stlc.HasVar.interp]
-                apply congr rfl _;
-                induction Γ with
-                | nil => rfl
-                | cons H Γ I =>
-                  cases H with
-                  | mk H k =>
-                    cases k <;>
-                    cases G with
-                    | mk x G => sorry
+                apply congr (congr rfl _) rfl;
+                funext n A Hv;
+                cases Hv <;> rfl
         }
       }
     }

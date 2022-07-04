@@ -6,6 +6,9 @@ import LogicalRefinement.Stlc.Interp
 def Stlc.InterpSubst (Γ Δ: Context): Type := 
   ∀n A, Stlc.HasVar Δ n A -> Γ.deriv A
 
+def Stlc.InterpSubst.id {Γ}: InterpSubst Γ Γ
+  := λ_ _ Hv => Hv.interp
+
 def Stlc.InterpSubst.pop {H Γ Δ} (S: InterpSubst Γ (H::Δ))
   : InterpSubst Γ Δ
   := λ_ _ Hv => S _ _ Hv.succ
@@ -29,6 +32,13 @@ def Stlc.InterpSubst.lift2 {A B Γ Δ} (S: InterpSubst Γ Δ)
 def Stlc.InterpSubst.step {H Γ Δ} (S: InterpSubst Γ Δ)
   : InterpSubst (H::Γ) Δ
   := λ_ _ Hv => (S _ _ Hv).step H
+
+theorem Stlc.InterpSubst.lift_id {H Γ}:
+  (@id Γ).lift = @id (H::Γ)
+  := by {
+    funext n A Hv;
+    cases Hv <;> rfl 
+  }
 
 theorem Stlc.InterpSubst.pop_lift_step {H Γ Δ} (S: InterpSubst Γ Δ)
   : @pop H (H::Γ) Δ (@lift H Γ Δ S) = @step H Γ Δ S
@@ -129,6 +139,23 @@ def Stlc.InterpSubst.transport_step {Γ Δ: Context} {H: Ty} (S: InterpSubst Γ 
       apply pair_helper rfl;
       rw [<-pop_step_commute]
       apply I
+  }
+  
+theorem Stlc.Context.interp.transport_id {Γ: Stlc.Context}
+  (G: Γ.interp):
+  Stlc.InterpSubst.id.transport_ctx G = G
+  := by {
+    induction Γ with
+    | nil => rfl
+    | cons H Γ I =>
+      cases G with
+      | mk x G =>
+        simp only [InterpSubst.transport_ctx]
+        apply congr rfl _;
+        rw [<-Stlc.InterpSubst.lift_id]
+        rw [Stlc.InterpSubst.pop_lift_step]
+        rw [Stlc.InterpSubst.transport_step]
+        exact I G
   }
 
 def Stlc.InterpSubst.transport_pop_lift {Γ Δ: Context} {H: Ty} (S: InterpSubst Γ Δ)
