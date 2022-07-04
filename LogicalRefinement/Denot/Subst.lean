@@ -761,12 +761,12 @@ theorem HasType.denote_val_subst0
   : @Term.denote_ty A (B.stlc_ty::Γ.upgrade.stlc) (b', G) a =
     @Term.denote_ty (A.subst0 b) Γ.upgrade.stlc G a'
   := by {
-    have I := 
+    have D := 
       @SubstCtx.subst_denot 
       _ _ _ _ _ a _
       Hb.to_subst HΓ 
       (IsCtx.cons_val HΓ Hb.expr_regular) HG HA;
-    apply equiv_prop_split I;
+    apply equiv_prop_split D;
     {
       apply congr _ rfl;
       apply congr rfl;
@@ -786,8 +786,26 @@ theorem HasType.denote_val_subst0
           rfl
         }
         {
-          --TODO: factor out as helper...
-          sorry
+          clear Hbb' Haa' HAA' HG b' a';
+          cases Γ with
+          | nil => rfl
+          | cons H Γ => 
+            cases H with
+            | mk H k =>
+              cases k <;>
+              cases G with
+              | mk x G => 
+                simp only [Stlc.InterpSubst.transport_ctx, Stlc.InterpSubst.pop]
+                dsimp only [Stlc.HasType.interp, Stlc.HasVar.interp]
+                apply congr rfl _;
+                induction Γ with
+                | nil => rfl
+                | cons H Γ I =>
+                  cases H with
+                  | mk H k =>
+                    cases k <;>
+                    cases G with
+                    | mk x G => sorry
         }
       }
     }
