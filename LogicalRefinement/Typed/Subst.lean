@@ -9,36 +9,103 @@ open Term
 open Annot
 open AnnotSort
 
+inductive SubstVar': Subst -> Context -> Nat -> Term -> HypKind -> Prop
+  | expr {σ Γ n A k}: (Γ ⊢ σ n: expr k.annot (A.subst σ)) -> SubstVar' σ Γ n A k
+  | var {σ Γ n A k m}: σ n = var m 
+    -> HasVar' Γ m k (A.subst σ) -> SubstVar' σ Γ n A k
+
 inductive SubstVar: Subst -> Context -> Nat -> Term -> HypKind -> Prop
   | expr {σ Γ n A k}: (Γ ⊢ σ n: expr k.annot (A.subst σ)) -> SubstVar σ Γ n A k
-  | var {σ Γ n A k m}: σ n = var m -> HasVar Γ m k (A.subst σ) -> SubstVar σ Γ n A k
+  | var {σ Γ n A k m}: σ n = var m 
+    -> (Γ ⊢ A.subst σ: sort k.annot)
+    -> HasVar Γ m k (A.subst σ) -> SubstVar σ Γ n A k
+
+theorem SubstVar'.wk_sort {σ Γ n A k k'} (H: SubstVar' σ Γ n A k) (Hk: k'.is_sub k):
+  SubstVar' σ Γ n A k'
+  := by {
+    cases H with
+    | expr => 
+      cases k <;> cases k' <;> cases Hk <;>
+      apply SubstVar'.expr <;> assumption
+    | var Ha Hv => exact SubstVar'.var Ha (Hv.wk_sort Hk)
+  }
+
+theorem SubstVar.v {σ Γ n A k} (H: SubstVar σ Γ n A k): SubstVar' σ Γ n A k
+  := by {
+    cases H with
+    | expr => apply SubstVar'.expr <;> assumption
+    | var Hn _HA HΓ => exact SubstVar'.var Hn HΓ.v
+  }
+
+def SubstCtx' (σ: Subst) (Γ Δ: Context): Prop :=  
+  ∀n A k, HasVar Δ n k A -> SubstVar' σ Γ n A k
 
 def SubstCtx (σ: Subst) (Γ Δ: Context): Prop :=  
   ∀n A k, HasVar Δ n k A -> SubstVar σ Γ n A k
 
-theorem SubstCtx.id {Γ}: SubstCtx Subst.id Γ Γ := 
-  λ_ _ _ Hv => SubstVar.var rfl (Term.subst_id _ ▸ Hv)
+theorem SubstCtx.v {σ: Subst} {Γ Δ: Context} (S: SubstCtx σ Γ Δ)
+  : SubstCtx' σ Γ Δ := 
+  λn A k Hv => (S n A k Hv).v
 
-theorem SubstCtx.lift_primitive 
+theorem SubstCtx'.id {Γ}: SubstCtx' Subst.id Γ Γ := 
+  λ_ _ _ Hv => SubstVar'.var rfl (Term.subst_id _ ▸ Hv.v)
+
+theorem SubstCtx'.lift_primitive 
   {σ: Subst} {Γ Δ: Context} {A: Term} {k k': HypKind}:
-  SubstCtx σ Γ Δ ->
+  SubstCtx' σ Γ Δ ->
   k.is_sub k' ->
   IsHyp Γ (Hyp.mk (A.subst σ) k') ->
-  SubstCtx σ.lift ((Hyp.mk (A.subst σ) k')::Γ) ((Hyp.mk A k)::Δ) := by {
+  SubstCtx' σ.lift ((Hyp.mk (A.subst σ) k')::Γ) ((Hyp.mk A k)::Δ) := by {
     intro S Hk _ n A k HΔ;
     cases n with
     | zero =>
       simp only [Annot.subst]
       cases HΔ with
-      | zero Hkk' =>
+      | zero =>
+        apply SubstVar'.var
+        rfl
+        simp only [Subst.lift_wk]
+        simp only [Subst.lift]
+        apply HasVar'.zero
+        assumption
+    | succ n =>
+      simp only [Annot.subst, Hyp.annot]
+      cases HΔ;
+      rename_i A n H
+      cases S _ _ _ H with
+      | expr S =>
+        apply SubstVar'.expr
+        simp only [Subst.lift_wk, Nat.add]
+        simp only [Subst.lift, Subst.wk1]
+        rw [<-Annot.wk1_expr_def]
+        exact HasType.wk1 S
+      | var Hv HΓ =>
+        apply SubstVar'.var
+        simp [Subst.wk1, Hv]
+        rfl
+        simp only [Subst.lift_wk]
+        exact HasVar'.succ HΓ
+  }
+
+theorem SubstCtx.lift_primitive 
+  {σ: Subst} {Γ Δ: Context} {A: Term} {k: HypKind}:
+  SubstCtx σ Γ Δ ->
+  IsHyp Γ (Hyp.mk (A.subst σ) k) ->
+  SubstCtx σ.lift ((Hyp.mk (A.subst σ) k)::Γ) ((Hyp.mk A k)::Δ) := by {
+    intro S IH n A k HΔ;
+    cases n with
+    | zero =>
+      simp only [Annot.subst]
+      cases HΔ with
+      | zero =>
         apply SubstVar.var
         rfl
         simp only [Subst.lift_wk]
         simp only [Subst.lift]
-        apply HasVar.zero
-        apply HypKind.is_sub.trans
-        assumption
-        assumption
+        apply HasType.wk1_sort
+        exact IH
+        rw [Subst.lift_wk]
+        constructor
     | succ n =>
       simp only [Annot.subst, Hyp.annot]
       cases HΔ;
@@ -50,47 +117,114 @@ theorem SubstCtx.lift_primitive
         simp only [Subst.lift, Subst.wk1]
         rw [<-Annot.wk1_expr_def]
         exact HasType.wk1 S
-      | var Hv HΓ =>
+      | var Hv _ HΓ =>
         apply SubstVar.var
         simp [Subst.wk1, Hv]
         rfl
         simp only [Subst.lift_wk]
+        apply HasType.wk1_sort
+        assumption
+        simp only [Subst.lift_wk]
         exact HasVar.succ HΓ
   }
 
-theorem SubstCtx.lift_loose
+theorem SubstCtx'.lift_loose
   {σ σ': Subst} {Γ Δ: Context} {A A': Term} {k: HypKind} {s: AnnotSort}:
   σ' = σ.lift ->
   A' = A.subst σ ->
-  SubstCtx σ Γ Δ ->
+  SubstCtx' σ Γ Δ ->
   k.is_sub (HypKind.val s) ->
   IsHyp Γ (Hyp.mk A' (HypKind.val s)) ->
-  SubstCtx σ' ((Hyp.mk A' (HypKind.val s))::Γ) ((Hyp.mk A k)::Δ) := by {
+  SubstCtx' σ' ((Hyp.mk A' (HypKind.val s))::Γ) ((Hyp.mk A k)::Δ) := by {
     intro Hσ HA;
     rw [Hσ, HA];
     apply lift_primitive
   }
 
-theorem SubstCtx.upgrade (S: SubstCtx ρ Γ Δ): SubstCtx ρ Γ.upgrade Δ.upgrade 
+theorem SubstCtx.lift_loose
+  {σ σ': Subst} {Γ Δ: Context} {A A': Term} {s: AnnotSort}:
+  σ' = σ.lift ->
+  A' = A.subst σ ->
+  SubstCtx σ Γ Δ ->
+  IsHyp Γ (Hyp.mk A' (HypKind.val s)) ->
+  SubstCtx σ' ((Hyp.mk A' (HypKind.val s))::Γ) ((Hyp.mk A (HypKind.val s))::Δ) := by {
+    intro Hσ HA;
+    rw [Hσ, HA];
+    apply lift_primitive
+  }
+
+theorem SubstCtx'.upgrade (S: SubstCtx' σ Γ Δ): SubstCtx' σ Γ.upgrade Δ.upgrade 
 := by {
   intro n A k H;
-  have H' := HasVar.downgrade H;
+  have ⟨k', Hk', H'⟩ := HasVar.downgrade H;  
   cases S _ _ _ H' with
   | expr S =>
-    rw [HypKind.annot_downgrade] at S
-    exact SubstVar.expr (HasType.upgrade S)
+    apply SubstVar'.expr;
+    cases k with
+    | val s => cases s <;> cases Hk' <;> exact S.upgrade
+    | gst => cases Hk' <;> exact S.upgrade
   | var Hv HΓ =>
-    exact SubstVar.var Hv (HasVar.upgrade_downgraded HΓ)
+    cases k' with
+    | val s => 
+      cases k with
+      | val s => 
+        cases s <;> cases Hk' <;> exact SubstVar'.var Hv HΓ.upgrade_val
+      | gst => cases H.no_ghosts
+    | gst =>
+      cases k with
+      | val s => cases s <;> cases Hk' <;> 
+        exact SubstVar'.var Hv HΓ.upgrade
+      | gst => cases H.no_ghosts;
 }
 
-theorem SubstCtx.upgrade_left (S: SubstCtx ρ Γ Δ): SubstCtx ρ Γ.upgrade Δ
+theorem SubstCtx.upgrade (S: SubstCtx σ Γ Δ): 
+SubstCtx σ Γ.upgrade Δ.upgrade 
+:= by {
+  intro n A k H;
+  have ⟨k', Hk', H'⟩ := HasVar.downgrade H;
+  cases S _ _ _ H' with
+  | expr S =>
+    apply SubstVar.expr;
+    cases k with
+    | val s => cases s <;> cases Hk' <;> exact S.upgrade
+    | gst => cases Hk' <;> exact S.upgrade
+  | var Hv HA HΓ =>
+    cases k' with
+    | val s => 
+      cases k with
+      | val s => 
+        cases s <;> cases Hk' <;> exact SubstVar.var Hv HA.upgrade HΓ.upgrade_val
+      | gst => cases H.no_ghosts
+    | gst =>
+      cases k with
+      | val s => cases s <;> cases Hk' <;> 
+        exact SubstVar.var Hv HA.upgrade HΓ.ghost_up
+      | gst => cases H.no_ghosts;
+}
+
+theorem SubstCtx'.upgrade_left (S: SubstCtx' ρ Γ Δ): SubstCtx' ρ Γ.upgrade Δ
+:= by {
+  intro n A k H;
+  cases S _ _ _ H with
+  | expr S =>
+    exact SubstVar'.expr (HasType.upgrade S)
+  | var Hv HΓ =>
+    exact SubstVar'.var Hv HΓ.upgrade_weak
+}
+
+theorem SubstCtx.upgrade_left (S: SubstCtx σ Γ Δ): SubstCtx σ Γ.upgrade Δ
 := by {
   intro n A k H;
   cases S _ _ _ H with
   | expr S =>
     exact SubstVar.expr (HasType.upgrade S)
-  | var Hv HΓ =>
-    exact SubstVar.var Hv HΓ.upgrade_weak
+  | var Hv HA HΓ =>
+    apply SubstVar.expr;
+    rw [Hv];
+    constructor;
+    exact HA.upgrade;
+    rw [HasVar.v_eq]
+    exact HΓ.v.upgrade;
 }
 
 theorem Term.alpha0_natrec_subst_helper {C: Term} {σ: Subst}:
@@ -117,24 +251,21 @@ theorem Term.alpha0_natrec_subst_helper {C: Term} {σ: Subst}:
       cases n <;> rfl
   }
 
-theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
-  {σ: Subst} -> {Γ: Context} -> SubstCtx σ Γ Δ ->
+theorem HasType.subst' {σ Γ Δ a A} (HΔ: Δ ⊢ a: A) (S: SubstCtx' σ Γ Δ):
   (Γ ⊢ (a.subst σ): (A.subst σ)) := by {
-    induction HΔ;
+    induction HΔ generalizing σ Γ;
 
     case var H I =>
-      intros σ Γ S;
       cases S _ _ _ H with
       | expr E => exact E
       | var Hv HΓ =>
         dsimp only [Term.subst]
         rw [Hv]
-        exact HasType.var (I S) HΓ
+        exact HasType.var (I S) HΓ.v
 
     case funext => sorry
 
     all_goals (
-      intro σ Γ S;
       rename_i' I5 I4 I3 I2 I1 I0;
       simp only [
         Annot.sym_ty_subst,
@@ -158,65 +289,74 @@ theorem HasType.subst {Δ a A} (HΔ: Δ ⊢ a: A):
         first | apply I0 | apply I1 | apply I2 | apply I3 | apply I4 | apply I5 | constructor
         first
         | exact S
-        | exact SubstCtx.upgrade S
-        | exact SubstCtx.upgrade_left S
+        | exact SubstCtx'.upgrade S
+        | exact SubstCtx'.upgrade_left S
         | repeat any_goals (
-          apply SubstCtx.lift_primitive _ (by constructor <;> simp only [HypKind, Hyp.subst]) <;>
+          apply SubstCtx'.lift_primitive _ (by constructor <;> simp only [HypKind, Hyp.subst]) <;>
           first 
           | exact S 
-          | exact SubstCtx.upgrade S 
-          | exact SubstCtx.upgrade_left S
+          | exact SubstCtx'.upgrade S 
+          | exact SubstCtx'.upgrade_left S
           | skip
         )
       )
     )
   }
 
+
+theorem HasType.subst {σ Γ Δ a A} (HΔ: Δ ⊢ a: A) (S: SubstCtx σ Γ Δ):
+  (Γ ⊢ (a.subst σ): (A.subst σ))
+  := HΔ.subst' S.v
+
+theorem HasType.subst_sort' {Γ Δ σ a k} 
+  (HΔ: Δ ⊢ a: sort k) (S: SubstCtx' σ Γ Δ):
+  (Γ ⊢ (a.subst σ): sort k) := HΔ.subst' S
+
 theorem HasType.subst_sort {Γ Δ σ a k} 
   (HΔ: Δ ⊢ a: sort k) (S: SubstCtx σ Γ Δ):
   (Γ ⊢ (a.subst σ): sort k) := HΔ.subst S
 
-theorem HasType.to_subst {Γ a s A} (H: HasType Γ a (expr s A)):
-  SubstCtx a.to_subst Γ ((Hyp.mk A (HypKind.val s))::Γ) := by {
+theorem HasType.to_subst' {Γ a s A} (H: HasType Γ a (expr s A)):
+  SubstCtx' a.to_subst Γ ((Hyp.mk A (HypKind.val s))::Γ) := by {
     intro n A k Hv;
     cases Hv with
-    | zero Hs => 
-      apply SubstVar.expr
+    | zero => 
+      apply SubstVar'.expr
       rw [<-Term.subst0_def]
       rw [Term.subst0_wk1]
-      cases Hs <;> exact H
+      exact H
     | succ Hv => 
-      apply SubstVar.var
+      apply SubstVar'.var
       rfl
       rw [<-Term.subst0_def]
       rw [Term.subst0_wk1]
-      exact Hv
+      exact Hv.v
   }
 
 theorem HasType.subst0 {Γ e B t s A} 
   (He: HasType ((Hyp.mk A (HypKind.val s))::Γ) e B)
   (Ht: HasType Γ t (expr s A))
   : Γ ⊢ (e.subst0 t): (B.subst0 t) 
-  := He.subst Ht.to_subst
+  := He.subst' Ht.to_subst'
 
 theorem HasType.subst0_expr {Γ e s' t s A B} 
   (He: HasType ((Hyp.mk A (HypKind.val s))::Γ) e (expr s' B))
   (Ht: HasType Γ t (expr s A))
   : Γ ⊢ (e.subst0 t): expr s' (B.subst0 t)
-  := He.subst Ht.to_subst
+  := He.subst' Ht.to_subst'
 
 theorem HasType.subst0_sort {Γ e s' t s A} 
   (He: HasType ((Hyp.mk A (HypKind.val s))::Γ) e (sort s'))
   (Ht: HasType Γ t (expr s A))
   : Γ ⊢ (e.subst0 t): sort s'
-  := He.subst Ht.to_subst
+  := He.subst' Ht.to_subst'
 
 theorem HasType.subst0_gen {Γ e B t s A B'} 
   (He: HasType ((Hyp.mk A (HypKind.val s))::Γ) e B)
   (Ht: HasType Γ t (expr s A))
   (HBB': B' = B.subst0 t)
   : Γ ⊢ (e.subst0 t): (B') 
-  := HBB' ▸ He.subst Ht.to_subst
+  := HBB' ▸ He.subst' Ht.to_subst'
 
 theorem HasType.subst01 {Γ e C l r sl sr A B} 
   (He: HasType 
@@ -228,16 +368,15 @@ theorem HasType.subst01 {Γ e C l r sl sr A B}
   := by {
     unfold Term.subst01;
     unfold Annot.subst01;
-    apply subst;
+    apply subst';
     exact He;
     intro n;
     cases n with
     | zero =>
       intro n A Hv;
       cases Hv with
-      | zero HA =>
-        cases HA <;>
-        apply SubstVar.expr <;>
+      | zero =>
+        apply SubstVar'.expr <;>
         rw [<-Term.subst01_wk1] at Hl <;>
         exact Hl
     | succ n => 
@@ -247,21 +386,20 @@ theorem HasType.subst01 {Γ e C l r sl sr A B}
         cases Hv with
         | succ Hv =>
           cases Hv with
-          | zero HA =>
-            cases HA <;>
-            apply SubstVar.expr <;>
+          | zero =>
+            apply SubstVar'.expr <;>
             rw [Term.subst01_def, Term.subst01_wk1_wk1] <;>
             exact Hr
       | succ n => 
         intro n A Hv;
-        apply SubstVar.var;
+        apply SubstVar'.var;
         rfl
         cases Hv with
         | succ Hv =>
           cases Hv with
           | succ Hv => 
             rw [Term.subst01_def, Term.subst01_wk1_wk1]
-            exact Hv
+            exact Hv.v
   }
 
 theorem HasType.subst01_gen {Γ e C l r sl sr A B} 
@@ -311,8 +449,7 @@ theorem HasType.sym_ty (H: Γ ⊢ A: type): Γ ⊢ A.sym_ty: prop
     exact H.upgrade.wk1_sort.wk1_sort;
     constructor
     constructor
-    simp only [Term.subst, Wk.var, Subst.lift, Subst.wk1]
-    constructor
+    simp only [Term.subst, Wk.var, Subst.lift, Subst.wk1, Context.upgrade]
     exact H.wk1_sort.wk1_sort.wk1_sort;
     constructor
     exact H.upgrade.wk1_sort.wk1_sort.wk1_sort;
@@ -369,7 +506,6 @@ theorem SubstCtx.lift_delta {σ Γ Δ A k}
     -- failing to infer an appropriate constructor due to being confused by the
     -- additional constraints induced by the `HA.subst S` argument
     apply S.lift_primitive;
-    constructor
     exact HA.subst S
   }
 
@@ -404,5 +540,5 @@ theorem SubstCtx.lift_delta' {σ Γ Δ A}
   SubstCtx σ.lift ((Hyp.mk (A.subst σ) k)::Γ) ((Hyp.mk A k)::Δ)
   := S.lift_delta HA
 
-theorem WkCtx.to_subst {ρ Γ Δ} (R: WkCtx ρ Γ Δ): SubstCtx ρ Γ Δ
-  := λ_ _ _ Hv => SubstVar.var rfl (Subst.subst_wk_compat.symm ▸ Hv.wk R)
+theorem WkCtx.to_subst {ρ Γ Δ} (R: WkCtx ρ Γ Δ): SubstCtx' ρ Γ Δ
+  := λ_ _ _ Hv => SubstVar'.var rfl (Subst.subst_wk_compat.symm ▸ Hv.wk R).v

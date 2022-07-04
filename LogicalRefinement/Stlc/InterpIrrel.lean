@@ -83,8 +83,7 @@ theorem Stlc.Context.interp.eq_mod_lrt.extend_prop
     cases n with
     | zero =>
       have ⟨⟨_, HA⟩, _⟩ := Hn;
-      cases HA with
-      | zero Hk => cases Hk
+      cases HA
     | succ n => 
       apply HGG' n;
       have ⟨⟨A, HAn⟩, ⟨A', HAn'⟩⟩ := Hn;
@@ -108,8 +107,7 @@ theorem Stlc.Context.interp.eq_mod_lrt.extend_gst
     cases n with
     | zero =>
       have ⟨⟨_, HA⟩, _⟩ := Hn;
-      cases HA with
-      | zero Hk => cases Hk
+      cases HA
     | succ n => 
       apply HGG' n;
       have ⟨⟨A, HAn⟩, ⟨A', HAn'⟩⟩ := Hn;
@@ -133,8 +131,7 @@ theorem Stlc.Context.interp.eq_mod_lrt_val.extend_gst
     cases n with
     | zero =>
       have ⟨⟨_, _, HA⟩, _⟩ := Hn;
-      cases HA with
-      | zero Hk => cases Hk
+      cases HA
     | succ n => 
       apply HGG' n;
       have ⟨⟨A, s, HAn⟩, ⟨A', s', HAn'⟩⟩ := Hn;
@@ -177,8 +174,8 @@ theorem Stlc.Context.interp.eq_mod_lrt_downgrade
             cases s with
             | type => exact ⟨rfl, rfl⟩
             --TODO: make a tactic for this?
-            | prop => cases HΓ with | zero Hk => cases Hk 
-          | gst => cases HΓ with | zero Hk => cases Hk
+            | prop => cases HΓ
+          | gst => cases HΓ
       | succ n =>
         cases H with
         | mk A k =>
@@ -214,7 +211,7 @@ theorem Stlc.Context.interp.eq_mod_lrt_val_downgrade
         | mk A k =>
           cases k with
           | val s => exact ⟨rfl, rfl⟩
-          | gst => cases HΓ with | zero Hk => cases Hk
+          | gst => cases HΓ
       | succ n =>
         cases H with
         | mk A k =>

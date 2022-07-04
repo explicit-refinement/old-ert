@@ -34,17 +34,17 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
 
   case app A B _ r HP _ Hr _ _ _ =>
     constructor
-    apply subst_sort
+    apply subst_sort'
     cases HP <;> assumption
     intro n A k;
-    apply Hr.to_subst
+    apply Hr.to_subst'
 
   case app_pr A B _ r HP _ Hr _ _ _ =>
     constructor
-    apply subst_sort
+    apply subst_sort'
     cases HP <;> assumption
     intro n A k;
-    apply Hr.to_subst
+    apply Hr.to_subst'
 
   case lam_irrel _ _ _ IB => 
     constructor
@@ -60,14 +60,19 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
   case app_irrel A B _ r HP _ Hr _ _ _ =>
     constructor
     apply HasType.downgrade
-    apply subst_sort
+    apply subst_sort'
     cases HP <;> assumption
     intro n A k Hv;
-    apply Hr.to_subst
-    apply Hv.sub
-    constructor
-    apply Context.is_sub.upgrade
-    repeat constructor
+    cases k with
+    | val s => 
+      apply Hr.to_subst'
+      rw [HasVar.v_eq]
+      exact Hv.v.upgrade
+    | gst => 
+      apply SubstVar'.wk_sort
+      apply Hr.to_subst'
+      apply Hv.ghost_up
+      constructor
 
   case dconj HD _ _ _ IA _ => 
     constructor

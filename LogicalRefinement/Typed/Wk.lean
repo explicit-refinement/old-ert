@@ -59,7 +59,6 @@ theorem HasVar.wk:
           Wk.var, Term.lift_wk1
         ]
         apply HasVar.zero
-        assumption
       | succ =>
         simp only [
           Wk.lift,
@@ -67,6 +66,43 @@ theorem HasVar.wk:
           Wk.var, Nat.add, Term.lift_wk1
         ]
         apply HasVar.succ
+        apply I
+        apply R
+        assumption
+  }
+
+theorem HasVar'.wk:
+  {ρ: Wk} -> {Γ Δ: Context} -> (Hs: WkCtx ρ Γ Δ) ->
+  {n: Nat} -> {A: Term} -> {s: HypKind} ->
+  HasVar' Δ n s A -> HasVar' Γ (ρ.var n) s (A.wk ρ) 
+  := by {
+    intros ρ;
+    induction ρ <;> intro Γ Δ R <;> cases R;
+    case id => 
+      intros n A s H;
+      simp [H] 
+    case step ρ I Γ H R =>
+      intros n A s HΔ;
+      simp only [Term.step_wk1]
+      exact HasVar'.succ (I R HΔ)
+    case lift ρ I Γ Δ k A R =>
+      intros n A s HΔ;
+      cases HΔ with
+      | zero =>
+        simp only [
+          Wk.lift,
+          Term.wk_composes,
+          Wk.var, Term.lift_wk1
+        ]
+        apply HasVar'.zero
+        assumption
+      | succ =>
+        simp only [
+          Wk.lift,
+          Term.wk_composes,
+          Wk.var, Nat.add, Term.lift_wk1
+        ]
+        apply HasVar'.succ
         apply I
         apply R
         assumption
@@ -149,8 +185,8 @@ theorem HasType.wk1 {H} (Ha: Γ ⊢ a: A): (H::Γ) ⊢ a.wk1: A.wk1
 theorem HasType.wk1_sort {H} (Ha: Γ ⊢ a: sort s): (H::Γ) ⊢ a.wk1: sort s 
 := wk Ha WkCtx.wk1
 
-theorem IsCtx.var_valid {Γ} (H: IsCtx Γ)
-  : HasVar Γ n k A -> Γ ⊢ A: k.annot
+theorem IsCtx.var_valid' {Γ} (H: IsCtx Γ)
+  : HasVar' Γ n k A -> Γ ⊢ A: k.annot
   := by {
     intro Hv;
     induction Hv with
@@ -165,6 +201,10 @@ theorem IsCtx.var_valid {Γ} (H: IsCtx Γ)
       apply Hv
       cases H <;> assumption
   }
+
+theorem IsCtx.var_valid {Γ} (H: IsCtx Γ) (Hv: HasVar Γ n k A): 
+  Γ ⊢ A: k.annot
+  := H.var_valid' Hv.v
   
 theorem IsCtx.var {Γ} (H: IsCtx Γ) (Hv: HasVar Γ n (HypKind.val s) A)
   : Γ ⊢ var n: expr s A

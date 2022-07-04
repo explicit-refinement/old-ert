@@ -163,8 +163,7 @@ theorem HasVar.stlc {Γ A n}:
     | zero => 
       intro Γ A Hv;
       cases Hv with
-      | zero Hk =>
-        cases Hk;
+      | zero =>
         simp only [Term.wk1, Term.stlc_ty_wk]
         exact Stlc.HasVar.zero
     | succ n I => 

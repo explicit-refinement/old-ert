@@ -9,10 +9,70 @@ open AnnotSort
 
 
 inductive HasVar: Context -> Nat -> HypKind -> Term -> Prop
-  | zero {Γ: Context} {A: Term} {k k': HypKind}:
-    k'.is_sub k -> HasVar ((Hyp.mk A k)::Γ) 0 k' A.wk1 
+  | zero {Γ: Context} {A: Term} {k: HypKind}:
+    HasVar ((Hyp.mk A k)::Γ) 0 k A.wk1 
   | succ {Γ: Context} {A: Term} {k: HypKind} {H: Hyp} {n: Nat}:
     HasVar Γ n k A -> HasVar (H::Γ) (n + 1) k A.wk1
+
+inductive HasVar': Context -> Nat -> HypKind -> Term -> Prop
+  | zero {Γ: Context} {A: Term} {k k': HypKind}:
+    k'.is_sub k -> HasVar' ((Hyp.mk A k)::Γ) 0 k' A.wk1 
+  | succ {Γ: Context} {A: Term} {k: HypKind} {H: Hyp} {n: Nat}:
+    HasVar' Γ n k A -> HasVar' (H::Γ) (n + 1) k A.wk1
+
+theorem HasVar.sub' {k k': HypKind} 
+  (H: HasVar Γ n k A) 
+  (Hk: k'.is_sub k): HasVar' Γ n k' A := by {
+  induction H with
+  | zero => 
+    constructor
+    assumption
+  | succ _ I => 
+    constructor
+    exact I Hk
+}
+
+theorem HasVar.v 
+  (H: HasVar Γ n k A): HasVar' Γ n k A := 
+  H.sub' HypKind.is_sub.refl
+
+theorem HasVar'.v 
+  (H: HasVar' Γ n (HypKind.val s) A): HasVar Γ n (HypKind.val s) A := 
+  by {
+    generalize Hk: HypKind.val s = k;
+    rw [Hk] at H;
+    induction H with
+    | zero Hk' =>
+      cases Hk;
+      cases Hk';
+      constructor
+    | succ _ I =>
+      constructor;
+      exact I Hk;
+  }
+
+theorem HasVar.v_eq {Γ n s A}:
+  HasVar Γ n (HypKind.val s) A = HasVar' Γ n (HypKind.val s) A := 
+  propext (Iff.intro HasVar.v HasVar'.v)
+
+
+theorem HasVar'.e_eq {Γ n k A}:
+  HasVar' Γ n k A = ∃k', k.is_sub k' ∧ HasVar Γ n k' A := 
+  by {
+    apply propext; apply Iff.intro;
+    {
+      intro Hv';
+      induction Hv' with
+      | zero Hk' => exact ⟨_, Hk', HasVar.zero⟩
+      | succ _ I =>
+        have ⟨k', Hk', I⟩ := I;
+        exact ⟨k', Hk', I.succ⟩
+    }
+    {
+      intro ⟨k', Hk', Hv⟩;
+      exact Hv.sub' Hk'
+    }
+  }
 
 theorem HasVar.fv (H: HasVar Γ n s A): n < Γ.length := by {
   induction H with
@@ -25,7 +85,19 @@ theorem HasVar.fv (H: HasVar Γ n s A): n < Γ.length := by {
     assumption
 }
 
-theorem HasVar.sub (HΓ: HasVar Γ A s n): Γ.is_sub Δ -> HasVar Δ A s n := by {
+theorem HasVar'.fv (H: HasVar' Γ n s A): n < Γ.length := by {
+  induction H with
+  | zero =>
+    apply Nat.succ_le_succ
+    apply Nat.zero_le
+  | succ =>
+    simp only [List.length]
+    apply Nat.succ_le_succ
+    assumption
+}
+
+theorem HasVar'.sub (HΓ: HasVar' Γ A s n): 
+  Γ.is_sub Δ -> HasVar' Δ A s n := by {
   revert Γ n s A Δ;
   intro Γ;
   induction Γ with
@@ -42,6 +114,12 @@ theorem HasVar.sub (HΓ: HasVar Γ A s n): Γ.is_sub Δ -> HasVar Δ A s n := by
       | succ =>
         apply succ
         apply I <;> assumption
+}
+
+theorem HasVar.sub (HΓ: HasVar Γ A (HypKind.val s) n) (HΓΔ: Γ.is_sub Δ)
+: HasVar Δ A (HypKind.val s) n := by {
+  simp only [HasVar.v_eq] at *;
+  apply HasVar'.sub <;> assumption
 }
 
 -- Notes:
@@ -442,8 +520,8 @@ theorem HasType.fv {Γ a A} (P: Γ ⊢ a: A): a.fv ≤ Γ.length := by {
   )
 }
 
-theorem HasVar.upgrade (p: HasVar Γ A k n): 
-  HasVar Γ.upgrade A (HypKind.val k.annot) n := by {
+theorem HasVar'.upgrade (p: HasVar' Γ A k n): 
+  HasVar' Γ.upgrade A (HypKind.val k.annot) n := by {
   induction p with
   | zero H => 
     rename_i k k';
@@ -455,8 +533,8 @@ theorem HasVar.upgrade (p: HasVar Γ A k n):
   | succ => apply succ; assumption
 }
 
-theorem HasVar.wk_sort {k k'} (Hk: k.is_sub k') (p: HasVar Γ A k' n): 
-  HasVar Γ A k n := by {
+theorem HasVar'.wk_sort {k k'} (Hk: k.is_sub k') (p: HasVar' Γ A k' n): 
+  HasVar' Γ A k n := by {
   induction p with
   | zero H => 
     rename_i k k';
@@ -472,8 +550,8 @@ theorem HasVar.wk_sort {k k'} (Hk: k.is_sub k') (p: HasVar Γ A k' n):
     apply Hk
 }
 
-theorem HasVar.upgrade_weak (p: HasVar Γ A k n): 
-  HasVar Γ.upgrade A k n := by {
+theorem HasVar'.upgrade_weak (p: HasVar' Γ A k n): 
+  HasVar' Γ.upgrade A k n := by {
   induction p with
   | zero H => 
     rename_i k k';
@@ -485,8 +563,8 @@ theorem HasVar.upgrade_weak (p: HasVar Γ A k n):
   | succ => apply succ; assumption
 }
 
-theorem HasVar.downgrade_helper: {Γ Γ': Context} -> Γ' = Γ.upgrade -> 
-  ∀ {n A k}, HasVar Γ' A k n -> HasVar Γ A k.downgrade n := by {
+theorem HasVar'.downgrade_helper: {Γ Γ': Context} -> Γ' = Γ.upgrade -> 
+  ∀ {n A k}, HasVar' Γ' A k n -> HasVar' Γ A k.downgrade n := by {
   intro Γ;
   induction Γ with
   | nil => 
@@ -509,24 +587,88 @@ theorem HasVar.downgrade_helper: {Γ Γ': Context} -> Γ' = Γ.upgrade ->
       assumption
   }
 
-theorem HasVar.downgrade {Γ n A k}: 
-  HasVar Γ.upgrade A k n -> HasVar Γ A k.downgrade n :=
+theorem HasVar'.downgrade {Γ n A k}: 
+  HasVar' Γ.upgrade A k n -> HasVar' Γ A k.downgrade n :=
   downgrade_helper rfl
 
-theorem HasVar.upgrade_val (p: HasVar Γ A (HypKind.val s) n): 
-  HasVar Γ.upgrade A (HypKind.val s) n := HasVar.upgrade p
+theorem HasVar.downgrade {Γ n A k}: 
+  HasVar Γ.upgrade A k n -> 
+    ∃k', k.downgrade.is_sub k' ∧ HasVar Γ A k' n :=
+  by {
+    intro Hv;
+    have Hv' := Hv.v.downgrade;
+    rw [HasVar'.e_eq] at Hv';
+    exact Hv';
+  }
 
-theorem HasVar.upgrade_upgraded:
-  k.is_sub k' -> HasVar Γ A k n -> HasVar Γ.upgrade A k' n := by {
+theorem HasVar'.upgrade_val (p: HasVar' Γ n (HypKind.val s) A): 
+  HasVar' Γ.upgrade n (HypKind.val s) A := HasVar'.upgrade p
+
+theorem HasVar.upgrade_val (p: HasVar Γ n (HypKind.val s) A): 
+  HasVar Γ.upgrade n (HypKind.val s) A := 
+  HasVar.v_eq ▸ HasVar'.upgrade (HasVar.v_eq ▸ p)
+
+theorem HasVar'.upgrade_upgraded:
+  k.is_sub k' -> HasVar' Γ n k A -> HasVar' Γ.upgrade n k' A := by {
   intro Hk HΓ;
   have Hv := upgrade HΓ;
   cases k <;> cases Hk <;> try exact Hv
-  exact HasVar.wk_sort HypKind.is_sub.gst Hv
+  exact HasVar'.wk_sort HypKind.is_sub.gst Hv
 }
 
-theorem HasVar.upgrade_downgraded:
-  HasVar Γ A k.downgrade n -> HasVar Γ.upgrade A k n 
+theorem HasVar'.upgrade_downgraded:
+  HasVar' Γ n k.downgrade A -> HasVar' Γ.upgrade n k A 
   := upgrade_upgraded HypKind.downgrade_is_sub
+
+theorem HasVar.ghost_up:
+  HasVar Γ n HypKind.gst A -> HasVar Γ.upgrade n (HypKind.val type) A 
+  := by {
+    intro Hv;
+    generalize Hk': HypKind.gst = k';
+    rw [Hk'] at Hv;
+    induction Hv with
+    | zero => cases Hk'; constructor
+    | succ _ I => constructor; exact I Hk'
+  }
+
+theorem HasVar.uniq {Γ: Context} {n k k' A A'}
+  (H: HasVar Γ n k A)
+  (H': HasVar Γ n k' A')
+  : k = k' ∧ A = A'
+  := by {
+    induction H generalizing k' A' with
+    | zero => cases H'; exact ⟨rfl, rfl⟩
+    | succ _ I => 
+      cases H' with
+      | succ H' =>
+        have ⟨Hk, HA⟩ := I H';
+        constructor;
+        exact Hk;
+        rw [HA]
+  }
+
+theorem HasVar.no_ghosts {Γ: Context} {A n}:
+  ¬HasVar Γ.upgrade A HypKind.gst n
+  := by {
+    generalize HΓ: Γ.upgrade = Γ';
+    generalize Hk: HypKind.gst = k;
+    intro H;
+    induction H generalizing Γ with
+    | zero =>
+      cases Γ with
+      | nil => cases HΓ
+      | cons H Γ =>
+        cases HΓ;
+        cases H with
+        | mk A k =>
+          cases k <;> cases Hk
+    | succ _ I => 
+      cases Γ with
+      | nil => cases HΓ
+      | cons H Γ =>
+        cases HΓ;
+        exact I rfl Hk
+  }
 
 theorem HasType.sub (p: Γ ⊢ a: A): ∀{Δ}, Γ.is_sub Δ -> Δ ⊢ a: A := by {
   induction p;
