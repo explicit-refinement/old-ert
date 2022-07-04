@@ -780,10 +780,10 @@ theorem HasType.denote_val_subst0
         ]
         apply congr;
         {
-          --TODO: upgrade lemma...
           apply congr rfl _;
           rw [Hbb'];
-          sorry
+          rw [Hb.interp_upgrade]
+          rfl
         }
         {
           --TODO: factor out as helper...
