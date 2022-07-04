@@ -91,10 +91,6 @@ def Term.stlc: Term -> Stlc
 
 theorem Term.stlc_var: (Term.var v).stlc = Stlc.var v := rfl
 
--- theorem Context.stlc_subst_ctx {Γ: Context}
---   : Stlc.SubstCtx Γ.stlc_subst Γ.stlc_strict Γ.stlc
---   := by sorry
-
 set_option maxHeartbeats 10000000
 
 theorem HasType.stlc_ty_subst {Γ A σ s} (H: Γ ⊢ A: sort s):

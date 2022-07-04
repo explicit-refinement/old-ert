@@ -894,23 +894,6 @@ theorem Term.tmp_fill_wk {A T: Term} {ρ: Wk} (H: T.fv ≤ 1):
     exact tmp_fill H
   }
 
--- theorem Term.alpha0_fv {u v: Term}: (u.alpha0 v).fv ≤ Nat.max u.fv v.fv := by {
---   revert v;
---   induction u;
---   case var m =>
---     intro v;
---     cases m with
---     | zero => exact Nat.max_le_r
---     | succ m => exact Nat.max_le_l
-
---   case cases =>
---     intro v;
---     --TODO: alphanth!
---     sorry
-
---   repeat sorry
--- }
-
 theorem Term.var2_alpha_subst {σ: Subst} {u: Term}:
   u.fv ≤ 2 ->
   u.to_alpha.comp ((Wk.wknth 1).to_subst.comp σ.lift) =
