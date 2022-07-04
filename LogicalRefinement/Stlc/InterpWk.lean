@@ -28,6 +28,12 @@ theorem Term.wk_stlc_commute {ρ}
       simp only [Term.stlc_ty_wk, *]
   }
 
+theorem Term.wk1_stlc_commute
+  (a: Term)
+  : a.wk1.stlc
+  = a.stlc.wk1
+  := a.wk_stlc_commute
+
 theorem WkCtx.stlc {ρ Γ Δ} (R: WkCtx ρ Γ Δ): Stlc.WkCtx ρ Γ.stlc Δ.stlc
   := by {
     induction R with

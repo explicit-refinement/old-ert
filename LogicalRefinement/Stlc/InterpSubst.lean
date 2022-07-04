@@ -13,11 +13,20 @@ def Subst.stlc (σ: Subst): Stlc.Subst :=
 
 theorem Subst.stlc_lift {σ: Subst}
   : σ.lift.stlc = σ.stlc.lift
-  := sorry
+  := by {
+    funext v;
+    cases v with
+    | zero => rfl
+    | succ v => exact (σ v).wk1_stlc_commute
+  }
 
 theorem SubstCtx.stlc {σ Γ Δ} (S: SubstCtx σ Γ Δ) (HΔ: IsCtx Δ)
   : Stlc.SubstCtx σ.stlc Γ.stlc Δ.stlc
-  := sorry
+  := by {
+    intro n A Hv;
+    --TODO: antiHv lemma
+    sorry
+  }
 
 theorem HasType.subst_stlc_commute {σ Γ a A}
   (H: Γ ⊢ a: A)
