@@ -27,3 +27,17 @@ theorem Term.wk_stlc_commute {ρ}
       dsimp only [stlc, Stlc.wk, Wk.liftn] <;>
       simp only [Term.stlc_ty_wk, *]
   }
+
+theorem WkCtx.stlc {ρ Γ Δ} (R: WkCtx ρ Γ Δ): Stlc.WkCtx ρ Γ.stlc Δ.stlc
+  := by {
+    induction R with
+    | id => constructor
+    | step => simp [Context.stlc_hyp]; constructor <;> assumption
+    | lift => 
+      --TODO: clean?
+      rename HypKind => k;
+      cases k <;>
+      simp [Context.stlc_hyp, Hyp.stlc, Term.stlc_ty_wk] <;>
+      apply Stlc.WkCtx.lift <;>
+      assumption
+  }
