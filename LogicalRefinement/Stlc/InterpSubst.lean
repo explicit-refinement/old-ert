@@ -94,9 +94,8 @@ theorem SubstCtx.interp_lift
           rw [<-Stlc.HasType.interp_wk1 _ x]
         apply congr _ rfl;
         apply interp_congr;
-        simp [Subst.stlc_lift, Subst.stlc]
-        --TODO: fix this...
-        sorry
+        simp [Subst.stlc_lift, Subst.stlc, Subst.wk1]
+        rw [Term.wk_stlc_commute]
   }
 
 abbrev SubstCtx.interp_up {σ Γ Δ} (S: SubstCtx σ Γ Δ) (IΔ: IsCtx Δ)
