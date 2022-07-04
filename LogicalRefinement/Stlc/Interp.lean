@@ -43,10 +43,21 @@ theorem Annot.sort_case {Γ A s} (H: Γ ⊢ A: sort s):
     | prop => rw [Annot.prop_is_unit H, HasType.prop_is_unit H]
   }
 
+def Hyp.stlc: Hyp -> Ty
+| (Hyp.mk A (HypKind.val _)) => A.stlc_ty
+| (Hyp.mk _ HypKind.gst) => Ty.unit
+
 def Context.stlc: Context -> Stlc.Context
 | [] => []
 | (Hyp.mk A (HypKind.val _))::Hs => A.stlc_ty::(stlc Hs)
 | (Hyp.mk _ HypKind.gst)::Hs => Ty.unit::(stlc Hs)
+
+theorem Context.stlc_hyp {Γ: Context} {H}:
+  Context.stlc (H::Γ) = H.stlc::Γ.stlc
+  := by {
+    cases H with
+    | mk A k => cases k <;> rfl
+  }
 
 def Term.stlc: Term -> Stlc
 | var n => Stlc.var n
