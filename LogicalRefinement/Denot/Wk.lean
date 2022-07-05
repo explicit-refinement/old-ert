@@ -45,58 +45,62 @@ theorem HasType.wk_eq
         cases a with
         | mk a b =>
           rw [rec_to_cast']
-          rw [cast_pair']
+          rw [cast_pair' (by rw [Term.stlc_ty_wk]) (by rw [Term.stlc_ty_wk])]
           dsimp only [Term.denote_ty, pure]
           apply congr (congr rfl _) _;
-          rw [Term.stlc_ty_wk]
-          rw [Term.stlc_ty_wk]
-          rw [IA]
-          sorry
-          exact R;
-          rfl
-          rw [@IB
-            ((Hyp.mk _ (HypKind.val type))::Γ)
-            _ _ _ 
-            (some a, G) R.lift rfl];
-          simp only [Context.stlc, Context.upgrade]
-          apply congr (congr rfl _) _;
           {
-            rw [<-Stlc.Context.interp.wk_lift]
-            let Δ'' := Term.stlc_ty A :: Context.stlc (Context.upgrade Δ');
-            let f: 
-              (Γ: Stlc.Context) -> Γ.interp 
-              -> Stlc.WkCtx ρ.lift Γ Δ'' -> (Stlc.Context.interp Δ'')
-              := λΓ => @Stlc.Context.interp.wk Γ Δ'' ρ.lift;
-            have Hf: ∀Γ, @Stlc.Context.interp.wk Γ Δ'' ρ.lift = f Γ 
-              := by intros; rfl;
-            rw [Hf]
-            rw [Hf]
-            apply cast_app_dep_two f;
+            rw [IA R]
+            {
+              rw [interp_eq_some]
+              rw [rec_to_cast']
+            }
             rfl
-            {
-              simp only [
-                Context.upgrade, Hyp.upgrade, A.stlc_ty_wk, Context.stlc
-              ]
-            }
-            {
-              rw [cast_pair']
-              {
-                {
-                  apply congr (congr rfl _) rfl;
-                  rw [A.stlc_ty_wk]
-                  rw [cast_some]
-                  apply congr rfl;
-                  rw [cast_merge]
-                  rfl
-                  rw [A.stlc_ty_wk]
-                }
-              }
-              rfl
-            }
           }
           {
-            rw [interp_eq_some]
-            rw [rec_to_cast']
+            rw [@IB
+              ((Hyp.mk _ (HypKind.val type))::Γ)
+              _ _ _ 
+              (some a, G) R.lift rfl];
+            simp only [Context.stlc, Context.upgrade]
+            apply congr (congr rfl _) _;
+            {
+              rw [<-Stlc.Context.interp.wk_lift]
+              let Δ'' := Term.stlc_ty A :: Context.stlc (Context.upgrade Δ');
+              let f: 
+                (Γ: Stlc.Context) -> Γ.interp 
+                -> Stlc.WkCtx ρ.lift Γ Δ'' -> (Stlc.Context.interp Δ'')
+                := λΓ => @Stlc.Context.interp.wk Γ Δ'' ρ.lift;
+              have Hf: ∀Γ, @Stlc.Context.interp.wk Γ Δ'' ρ.lift = f Γ 
+                := by intros; rfl;
+              rw [Hf]
+              rw [Hf]
+              apply cast_app_dep_two f;
+              rfl
+              {
+                simp only [
+                  Context.upgrade, Hyp.upgrade, A.stlc_ty_wk, Context.stlc
+                ]
+              }
+              {
+                rw [cast_pair']
+                {
+                  {
+                    apply congr (congr rfl _) rfl;
+                    rw [A.stlc_ty_wk]
+                    rw [cast_some]
+                    apply congr rfl;
+                    rw [cast_merge]
+                    rfl
+                    rw [A.stlc_ty_wk]
+                  }
+                }
+                rfl
+              }
+            }
+            {
+              rw [interp_eq_some]
+              rw [rec_to_cast']
+            }
           }
     | coprod _ _ IA IB => 
       stop
