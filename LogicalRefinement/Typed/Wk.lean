@@ -123,12 +123,10 @@ theorem Term.alpha0_natrec_wk_helper {C: Term} {ρ: Wk}:
     cases n <;> rfl
   }
 
-theorem HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
-  {ρ: Wk} -> {Γ: Context} -> WkCtx ρ Γ Δ ->
+theorem HasType.wk {ρ Γ Δ a A} (HΔ: Δ ⊢ a: A) (R: WkCtx ρ Γ Δ):
   (Γ ⊢ (a.wk ρ): (A.wk ρ)) := by {
-    induction HΔ;
+    induction HΔ generalizing ρ Γ;
     case var I =>
-      intros
       apply var
       apply I
       assumption
@@ -138,7 +136,6 @@ theorem HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
     case funext => sorry
 
     all_goals (
-      intro ρ Γ R;
       rename_i' I5 I4 I3 I2 I1 I0;
       simp only [
         Annot.sym_ty_wk,
@@ -174,10 +171,9 @@ theorem HasType.wk {Δ a A} (HΔ: Δ ⊢ a: A):
     )
   }
 
-theorem HasType.wk_sort {Δ a s}: 
-  (Δ ⊢ a: sort s) ->
-  {ρ: Wk} -> {Γ: Context} -> WkCtx ρ Γ Δ ->
-  (Γ ⊢ (a.wk ρ): sort s) := wk
+theorem HasType.wk_sort {ρ Γ Δ a s} 
+  (H: Δ ⊢ a: sort s) (R: WkCtx ρ Γ Δ):
+  (Γ ⊢ (a.wk ρ): sort s) := H.wk R
 
 theorem HasType.wk1 {H} (Ha: Γ ⊢ a: A): (H::Γ) ⊢ a.wk1: A.wk1 
 := wk Ha WkCtx.wk1
