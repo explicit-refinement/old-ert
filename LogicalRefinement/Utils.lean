@@ -712,12 +712,40 @@ theorem forall_helper {A: Type} {B C: A -> Prop}
     }
   }
 
+theorem existential_forall_helper {A: Type} {B C: A -> Prop}
+  (H: ∀x: A, B x = C x): (∃x: A, B x) = (∃x: A, C x)
+  := by {
+    apply propext;
+    apply Iff.intro;
+    {
+      intro ⟨x, Hb⟩;
+      exists x;
+      rw [<-H];
+      exact Hb
+    }
+    {
+      intro ⟨x, Hc⟩;
+      exists x;
+      rw [H];
+      exact Hc
+    }
+  }
+
 theorem forall_helper_dep {A B: Type} {F: A -> Prop} {G: B -> Prop}
   (HAB: A = B)
   (H: ∀x: A, F x = G (HAB ▸ x)): (∀x: A, F x) = (∀x: B, G x)
   := by {
     cases HAB;
     exact forall_helper H;
+  }
+
+
+theorem existential_forall_helper_dep {A B: Type} {C: A -> Prop} {D: B -> Prop}
+  (HAB: A = B)
+  (H: ∀x: A, C x = D (HAB ▸ x)): (∃x: A, C x) = (∃x: B, D x)
+  := by {
+    cases HAB;
+    exact existential_forall_helper H;
   }
 
   theorem cast_app_prop

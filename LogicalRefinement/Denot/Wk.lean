@@ -325,26 +325,70 @@ theorem HasType.wk_eq
             rw [cast_app_pull_in]
           }
         }
-    | union _ _ IA IB =>
-      stop 
+    | @union Δ' A B _ _ IA IB =>
       dsimp only [Term.denote_ty]
       simp only [pure]
       apply congr (congr rfl _) _;
-      . sorry
       {
-        --TODO: generalized extential helper
-        stop
-        apply congr rfl _;
-        funext x;
+        --TODO: clean this mess up...
+        simp only [Ne]
+        apply arrow_equivalence _ rfl;
+        apply propext; apply Iff.intro;
+        {
+          intro Ha; rw [Ha]; exact interp_eq_none
+        }
+        {
+          intro Ha;
+          cases a with
+          | none => rfl
+          | some a => rw [interp_eq_some] at Ha; contradiction
+        }
+      }
+      {
+        apply existential_forall_helper_dep (by rw [Term.stlc_ty_wk]);
+        intro x;
         apply congr (congr rfl _) _;
-        apply IA;
-        assumption
-        rfl
-        rw [@IB 
-          ((Hyp.mk _ (HypKind.val type))::Δ) 
-          _ _ _ (x, G) (x, D) R.lift];
-        rfl
-        rfl
+        {
+          rw [IA R rfl]
+          rw [rec_to_cast']
+          rw [rec_to_cast']
+        }
+        {
+          rw [@IB 
+            ((Hyp.mk _ (HypKind.val type))::Γ) 
+            _ _ _ (x, G) R.lift rfl];            
+          apply congr (congr rfl _) rfl;
+          rw [<-Stlc.Context.interp.wk_lift]
+          let Δ'' := Term.stlc_ty A :: Context.stlc (Context.upgrade Δ');
+          let f: 
+            (Γ: Stlc.Context) -> Γ.interp 
+            -> Stlc.WkCtx ρ.lift Γ Δ'' -> (Stlc.Context.interp Δ'')
+            := λΓ => @Stlc.Context.interp.wk Γ Δ'' ρ.lift;
+          have Hf: ∀Γ, @Stlc.Context.interp.wk Γ Δ'' ρ.lift = f Γ 
+            := by intros; rfl;
+          rw [Hf]
+          rw [Hf]
+          apply cast_app_dep_two f;
+          rfl
+          {
+            simp only [
+              Context.upgrade, Hyp.upgrade, A.stlc_ty_wk, Context.stlc
+            ]
+          }
+          {
+            rw [cast_pair']
+            {
+              {
+                apply congr (congr rfl _) rfl;
+                rw [A.stlc_ty_wk]
+                rw [rec_to_cast']
+                rw [cast_merge]
+                rfl
+              }
+            }
+            rfl
+          }
+        }
       }
     | @dimplies Δ' A B _ _ IA IB => 
       stop
