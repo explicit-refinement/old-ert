@@ -630,7 +630,7 @@ theorem some_eq_helper:
     rfl
   }
 
-theorem cast_app_pull_in 
+theorem cast_app_pull_in {A B C}
   (f: A -> B)
   (a: A)
   (H: (A -> B) = (A -> C))
@@ -733,6 +733,19 @@ theorem forall_helper {A: Type} {B C: A -> Prop}
   (p: a = a')
   (p': B a = B a'):
   f a' (cast p' b) = f a b
+  := by {
+    cases p; cases p'; rfl
+  }
+
+theorem cast_app_dep_bin
+  {A: Sort u} {B: A -> Sort v} {C: (a: A) -> B a -> Sort w}
+  (f: (a: A) -> (b: B a) -> C a b)
+  (a a': A)
+  (b: B a)
+  (p: a = a')
+  (p': B a = B a')
+  (p'': C a' (cast p' b) = C a b):
+  cast p'' (f a' (cast p' b)) = f a b
   := by {
     cases p; cases p'; rfl
   }

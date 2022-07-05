@@ -193,7 +193,13 @@ theorem HasType.wk_eq
       {
         intro ⟨Hl', Hr', HG⟩;
         exists (Hl.wk R).stlc, (Hr.wk R).stlc;
-        sorry
+        rw [Hl.wk_stlc_interp_commute_cast_erased Hl']
+        rw [Hr.wk_stlc_interp_commute_cast_erased Hr']
+        rw [rec_to_cast']
+        rw [rec_to_cast']
+        apply congr rfl HG;
+        assumption
+        assumption
       }
     | _ => cases HS <;> rfl
   }
