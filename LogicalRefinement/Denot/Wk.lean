@@ -101,6 +101,7 @@ theorem HasType.wk_eq
             }
           }
     | coprod _ _ IA IB => 
+      stop
       cases a with
       | none => rw [interp_eq_none] rfl
       | some a => 
@@ -132,37 +133,41 @@ theorem HasType.wk_eq
           rw [Term.stlc_ty_wk]
           rw [Term.stlc_ty_wk]
     | assume _ _ IA IB => 
-      stop
       cases a with
-      | none => rfl
+      | none => rw [interp_eq_none] rfl
       | some a => 
         dsimp only [Term.denote_ty]
+        rw [interp_eq_some]
         apply arrow_equivalence;
-        apply IA;
-        assumption
-        rfl
-        rw [@IB 
-          ((Hyp.mk _ (HypKind.val prop))::Δ) 
-          _ _ _ (none, G) (none, D) R.lift];
-        rfl
-        rfl
+        {
+          rw [IA R rfl];
+          sorry
+        }
+        {
+          rw [@IB 
+            ((Hyp.mk _ (HypKind.val prop))::Γ) 
+            _ _ _ (none, G) R.lift rfl];
+          sorry
+        }
     | set _ _ IA IB => 
-      stop
       dsimp only [Term.denote_ty]
       dsimp only [Term.stlc_ty] at a;
       apply congr (congr rfl _) _;
-      apply IA <;> assumption
-      rw [@IB
-        ((Hyp.mk _ (HypKind.val type))::Δ) 
-        _ _ _ (Term.stlc_ty_wk _ _ ▸ a, G) (a, D) R.lift];
-      rfl
-      rfl
+      . apply IA <;> assumption
+      {
+        rw [@IB
+          ((Hyp.mk _ (HypKind.val type))::Γ) 
+          _ _ _ (_, G) R.lift rfl]
+        sorry
+      }
     | intersect _ _ IA IB => 
-      stop
       cases a with
-      | none => rfl
+      | none => rw [interp_eq_none] rfl
       | some a => 
+        rw [interp_eq_some]
         dsimp only [Term.denote_ty]
+        --TODO: generalized forall helper
+        stop
         apply forall_helper;
         intro x;
         apply arrow_equivalence;
@@ -174,57 +179,68 @@ theorem HasType.wk_eq
           _ _ _ (x, G) (x, D) R.lift];
         rfl
         rfl
-    | union _ _ IA IB =>  
-      stop
+    | union _ _ IA IB => 
       dsimp only [Term.denote_ty]
       simp only [pure]
-      apply congr rfl _;
-      apply congr rfl _;
-      funext x;
       apply congr (congr rfl _) _;
-      apply IA;
-      assumption
-      rfl
-      rw [@IB 
-        ((Hyp.mk _ (HypKind.val type))::Δ) 
-        _ _ _ (x, G) (x, D) R.lift];
-      rfl
-      rfl
+      . sorry
+      {
+        --TODO: generalized extential helper
+        stop
+        apply congr rfl _;
+        funext x;
+        apply congr (congr rfl _) _;
+        apply IA;
+        assumption
+        rfl
+        rw [@IB 
+          ((Hyp.mk _ (HypKind.val type))::Δ) 
+          _ _ _ (x, G) (x, D) R.lift];
+        rfl
+        rfl
+      }
     | dimplies _ _ IA IB => 
-      stop
       dsimp only [Term.denote_ty]
       apply arrow_equivalence;
-      apply IA;
-      assumption
-      rfl
-      rw [@IB 
-        ((Hyp.mk _ (HypKind.val prop))::Δ) 
-        _ _ _ (none, G) (none, D) R.lift];
-      rfl
-      rfl
+      {
+        rw [IA R rfl]
+        sorry
+      }
+      {
+        rw [@IB 
+          ((Hyp.mk _ (HypKind.val prop))::Γ) 
+          _ _ _ (none, G) R.lift rfl];
+        sorry
+      }
     | dand _ _ IA IB =>  
-      stop
       dsimp only [Term.denote_ty]
       simp only [pure]
       apply congr (congr rfl _) _;
-      apply IA;
-      assumption
-      rfl
-      rw[@IB 
-        ((Hyp.mk _ (HypKind.val prop))::Δ) 
-        _ _ _ (none, G) (none, D) R.lift]
-      rfl
-      rfl
+      {
+        rw [IA R rfl]
+        sorry
+      }
+      {
+        rw[@IB 
+          ((Hyp.mk _ (HypKind.val prop))::Γ) 
+          _ _ _ (none, G) R.lift rfl]
+        sorry
+      }
     | or _ _ IA IB =>
-      stop
       dsimp only [Term.denote_ty]
-      rw [IA R rfl]
-      rw [IB R rfl]
-      exact D
-      exact D
+      apply congr (congr rfl _) _;
+      {
+        rw [IA R rfl]
+        sorry
+      }
+      {
+        rw [IB R rfl]
+        sorry
+      }
     | forall_ _ _ IA IB =>  
-      stop
       dsimp only [Term.denote_ty]
+      --TODO: generalized forall helper
+      stop
       apply forall_helper;
       intro x;
       apply arrow_equivalence;
@@ -237,9 +253,10 @@ theorem HasType.wk_eq
       rfl
       rfl
     | exists_ _ _ IA IB => 
-      stop
       dsimp only [Term.denote_ty]
       simp only [pure]
+      --TODO: generalized existential helper
+      stop
       apply congr rfl _;
       funext x;
       apply congr (congr rfl _) _;
