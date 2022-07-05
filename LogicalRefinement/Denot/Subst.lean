@@ -764,7 +764,7 @@ theorem HasType.denote_val_subst0
     have D := 
       @SubstCtx.subst_denot 
       _ _ _ _ _ a _
-      Hb.to_subst HΓ 
+      (Hb.to_subst HΓ) HΓ 
       (IsCtx.cons_val HΓ Hb.expr_regular) HG HA;
     apply equiv_prop_split D;
     {

@@ -27,8 +27,7 @@ theorem HasVar.denote_annot
             let (x, G) := G;
             have ⟨Hx, HG⟩ := HG;
             cases Hv with
-            | zero Hk => 
-              cases Hk;
+            | zero =>
               simp only [denote, Context.stlc]
               apply Term.denote_wk1 _ _ Γ x G _ _ _ Hx
               rw [Stlc.Context.interp.downgrade]
@@ -67,8 +66,7 @@ theorem HasVar.denote_annot
             let (x, G) := G;
             have ⟨Hx, HG⟩ := HG;
             cases Hv with
-            | zero Hk => 
-              cases Hk;
+            | zero =>
               simp only [denote, Context.stlc]
               apply Term.denote_wk1 _ _ Γ x G _ _ _ Hx
               rw [Stlc.Context.interp.downgrade]
@@ -105,7 +103,6 @@ theorem HasVar.denote_annot
                 )
         | gst => 
           cases Hv with
-          | zero Hk => cases Hk
           | succ Hv => 
             cases HΓ with
             | cons_gst HΓ => 
