@@ -712,6 +712,14 @@ theorem forall_helper {A: Type} {B C: A -> Prop}
     }
   }
 
+theorem forall_helper_dep {A B: Type} {F: A -> Prop} {G: B -> Prop}
+  (HAB: A = B)
+  (H: ∀x: A, F x = G (HAB ▸ x)): (∀x: A, F x) = (∀x: B, G x)
+  := by {
+    cases HAB;
+    exact forall_helper H;
+  }
+
   theorem cast_app_prop
   (A B: Sort u) 
   (f: A -> Prop)

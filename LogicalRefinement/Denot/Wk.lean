@@ -23,20 +23,23 @@ theorem HasType.wk_eq
       | some a => 
         rw [interp_eq_some]
         dsimp only [Term.denote_ty]
-        --TODO: generalized forall_helper
-        stop
-        apply forall_helper;
-        intro x;
-        apply arrow_equivalence;
-        apply IA;
-        assumption
-        rfl
-        rw[
-          @IB 
-          ((Hyp.mk _ (HypKind.val type))::Δ)
-          _ _ _ (x, G) (x, D) R.lift rfl
-        ];
-        rfl
+        apply forall_helper_dep (by rw [Term.stlc_ty_wk]);
+        {
+          intro x;
+          apply arrow_equivalence;
+          {
+            rw [IA R rfl]
+            sorry
+          }
+          {
+            rw[
+              @IB 
+              ((Hyp.mk _ (HypKind.val type))::Γ)
+              _ _ _ (x, G) R.lift rfl
+            ];
+            sorry
+          }
+        }
     | @sigma Δ' A B _ _ IA IB =>
       stop
       cases a with
@@ -231,19 +234,19 @@ theorem HasType.wk_eq
       | some a => 
         rw [interp_eq_some]
         dsimp only [Term.denote_ty]
-        --TODO: generalized forall helper
-        stop
-        apply forall_helper;
+        apply forall_helper_dep (by rw [Term.stlc_ty_wk]);
         intro x;
         apply arrow_equivalence;
-        apply IA;
-        assumption
-        rfl
-        rw [@IB 
-          ((Hyp.mk _ (HypKind.val type))::Δ) 
-          _ _ _ (x, G) (x, D) R.lift];
-        rfl
-        rfl
+        {
+          rw [IA R rfl]
+          sorry
+        }
+        {
+          rw [@IB 
+            ((Hyp.mk _ (HypKind.val type))::Γ) 
+            _ _ _ (x, G) R.lift rfl];
+          sorry
+        }
     | union _ _ IA IB =>
       stop 
       dsimp only [Term.denote_ty]
@@ -359,6 +362,7 @@ theorem HasType.wk_eq
         rw [interp_eq_none]
       }
     | or _ _ IA IB =>
+      stop
       dsimp only [Term.denote_ty]
       rw [IA R rfl]
       rw [interp_eq_none]
@@ -367,19 +371,19 @@ theorem HasType.wk_eq
     | forall_ _ _ IA IB =>  
       stop
       dsimp only [Term.denote_ty]
-      --TODO: generalized forall helper
-      stop
-      apply forall_helper;
+      apply forall_helper_dep (by rw [Term.stlc_ty_wk]);
       intro x;
       apply arrow_equivalence;
-      apply IA;
-      assumption
-      rfl
-      rw [@IB 
-        ((Hyp.mk _ (HypKind.val type))::Δ) 
-        _ _ _ (x, G) (x, D) R.lift];
-      rfl
-      rfl
+      {
+        rw [IA R rfl]
+        sorry
+      }
+      {
+        rw [@IB 
+          ((Hyp.mk _ (HypKind.val type))::Γ) 
+          _ _ _ (x, G) R.lift rfl];
+        sorry
+      }
     | exists_ _ _ IA IB => 
       stop
       dsimp only [Term.denote_ty]
