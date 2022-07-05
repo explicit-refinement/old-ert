@@ -17,6 +17,7 @@ theorem HasType.wk_eq
     rw [HS] at HΓ;
     induction HΓ generalizing ρ Γ s with
     | @pi Δ' A B _ _ IA IB =>
+      stop
       cases a with
       | none => rw [interp_eq_none] rfl
       | some a => 
@@ -408,21 +409,56 @@ theorem HasType.wk_eq
       rw [interp_eq_none]
       rw [IB R rfl]
       rw [interp_eq_none]
-    | forall_ _ _ IA IB =>  
-      stop
+    | @forall_ Δ' A B _ _ IA IB =>  
       dsimp only [Term.denote_ty]
       apply forall_helper_dep (by rw [Term.stlc_ty_wk]);
       intro x;
       apply arrow_equivalence;
       {
         rw [IA R rfl]
-        sorry
+        rw [rec_to_cast']
+        rw [rec_to_cast']
       }
       {
         rw [@IB 
           ((Hyp.mk _ (HypKind.val type))::Γ) 
           _ _ _ (x, G) R.lift rfl];
-        sorry
+        apply congr (congr rfl _) _;
+        {
+          rw [<-Stlc.Context.interp.wk_lift]
+          let Δ'' := Term.stlc_ty A :: Context.stlc (Context.upgrade Δ');
+          let f: 
+            (Γ: Stlc.Context) -> Γ.interp 
+            -> Stlc.WkCtx ρ.lift Γ Δ'' -> (Stlc.Context.interp Δ'')
+            := λΓ => @Stlc.Context.interp.wk Γ Δ'' ρ.lift;
+          have Hf: ∀Γ, @Stlc.Context.interp.wk Γ Δ'' ρ.lift = f Γ 
+            := by intros; rfl;
+          rw [Hf]
+          rw [Hf]
+          apply cast_app_dep_two f;
+          rfl
+          {
+            simp only [
+              Context.upgrade, Hyp.upgrade, A.stlc_ty_wk, Context.stlc
+            ]
+          }
+          {
+            rw [cast_pair']
+            {
+              {
+                apply congr (congr rfl _) rfl;
+                rw [A.stlc_ty_wk]
+                rw [rec_to_cast']
+                rw [cast_merge]
+                rfl
+              }
+            }
+            rfl
+          }
+        }
+        {
+          rw [interp_eq_none]
+        }
       }
     | exists_ _ _ IA IB => 
       stop
