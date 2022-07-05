@@ -223,6 +223,10 @@ inductive Stlc.WkCtx: Wk -> Context -> Context -> Prop
   | step {A ρ Γ Δ}: WkCtx ρ Γ Δ -> WkCtx ρ.step (A::Γ) Δ 
   | lift {A ρ Γ Δ}: WkCtx ρ Γ Δ -> WkCtx ρ.lift (A::Γ) (A::Δ)
 
+theorem Stlc.WkCtx.lift2 {ρ Γ Δ A B} (R: WkCtx ρ Γ Δ):
+  WkCtx (ρ.liftn 2) (A::B::Γ) (A::B::Δ)
+  := R.lift.lift
+
 theorem Ty.to_wk {Γ} (B: Ty): Stlc.WkCtx Wk.wk1 (B::Γ) Γ 
   := Stlc.WkCtx.step Stlc.WkCtx.id
 

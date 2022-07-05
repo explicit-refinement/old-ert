@@ -177,7 +177,7 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
       exact Hp.upgrade
       exact Hs.upgrade.upgrade.subst0 Hp.upgrade
 
-  case funext A B f g _ Hf Hg _ If _ _ => 
+  case funext Γ A B f g _ _ Hf Hg _ _ If _ _ => 
     constructor
     apply HasType.downgrade
     constructor

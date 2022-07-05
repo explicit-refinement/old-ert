@@ -1,7 +1,4 @@
-import LogicalRefinement.Untyped
-import LogicalRefinement.Typed
 import LogicalRefinement.Stlc.Basic
-import LogicalRefinement.Stlc.Interp
 
 def Stlc.InterpSubst (Γ Δ: Context): Type := 
   ∀n A, Stlc.HasVar Δ n A -> Γ.deriv A
@@ -259,13 +256,10 @@ theorem Stlc.HasVar.subst_interp_dist {Γ Δ σ A n}
   (G: Γ.interp)
   : H.interp G = Hv.interp (Stlc.InterpSubst.transport_ctx S.interp G)
   := by {
-    revert Γ Δ σ A Hv S H G;
-    induction n with
+    induction n generalizing Δ σ with
     | zero =>
-      intro Γ Δ σ A Hv S H G;
       cases Δ <;> cases Hv <;> rfl
     | succ n I =>
-      intro Γ Δ σ A Hv S H G;
       cases Δ with
       | nil => cases Hv
       | cons B Δ =>
@@ -281,8 +275,8 @@ theorem Stlc.HasType.subst_interp_dist {Γ Δ σ A a}
   (S: SubstCtx σ Γ Δ)
   : (H.subst S).interp = H.interp.subst S.interp
   := by {
-    revert σ Γ S;
-    induction H <;> intro Γ σ S <;> funext G
+    induction H generalizing Γ σ 
+    <;> funext G
     <;> try rfl;
 
     case var Hv =>
@@ -381,4 +375,36 @@ theorem Stlc.HasType.wk_interp_dist {Γ Δ ρ A a}
   (H: HasType Δ a A) 
   (R: WkCtx ρ Γ Δ)
   : (H.wk R).interp = H.interp.wk R
-  := sorry
+  := by {
+    induction H generalizing Γ ρ with
+    | var => 
+      funext G;
+      simp only [Stlc.wk, interp, Context.deriv.wk]
+      sorry
+    | lam _ Is => 
+      simp only [Stlc.wk, interp, Context.deriv.wk, Is R.lift]
+      rfl
+    | app _ _ Il Ir => 
+      simp only [
+        Stlc.wk, interp, Context.deriv.wk, eq_mp_helper', Il R, Ir R
+      ]
+    | let_in _ _ Ie Ie' => 
+      simp only [interp, Context.deriv.wk, Ie R, Ie' R.lift]
+      rfl
+    | pair _ _ Il Ir => 
+      simp only [
+        Stlc.wk, interp, Context.deriv.wk, eq_mp_helper', Il R, Ir R
+      ]
+    | let_pair _ _ Ie Ie' => 
+      simp only [interp, Context.deriv.wk, Ie R, Ie' R.lift2]
+      rfl
+    | inj0 _ Ie => simp only [interp, Ie R] rfl
+    | inj1 _ Ie => simp only [interp, Ie R] rfl
+    | case _ _ _ Id Il Ir =>
+      simp only [interp, Context.deriv.wk, Id R, Il R.lift, Ir R.lift]
+      rfl
+    | natrec _ _ _ In Iz Is => 
+      simp only [interp, Context.deriv.wk, In R, Iz R, Is R.lift2]
+      rfl
+    | _ => rfl
+  }
