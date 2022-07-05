@@ -431,6 +431,12 @@ def Stlc.Context.deriv (Γ: Context) (A: Ty): Type
 def Stlc.Context.deriv.wk {Γ Δ ρ A} (D: Δ.deriv A) (R: WkCtx ρ Γ Δ): Γ.deriv A
   := λG => D (Stlc.Context.interp.wk G R)
 
+def Stlc.Context.deriv.wk_def {Γ Δ ρ A} 
+  (D: Δ.deriv A) 
+  (R: WkCtx ρ Γ Δ)
+  (G: Γ.interp): (D.wk R) G = D (Stlc.Context.interp.wk G R)
+  := rfl
+
 def Stlc.Context.deriv.wk_step {Γ Δ ρ A} {B: Ty} 
   (D: Δ.deriv A) (R: WkCtx ρ Γ Δ) (x: Option B.interp) (G: Γ.interp)
   : D.wk R.step (x, G) = D.wk R G
@@ -908,3 +914,10 @@ theorem interp_eq_some
   : @Eq.rec Ty a (λx _ => Option (Ty.interp x)) (some v) x p = (some (p ▸ v)) := by {
     cases p <;> rfl
   }
+
+
+def Stlc.HasType.wk_def {Γ Δ ρ a A} 
+  (H: Δ ⊧ a: A) 
+  (R: WkCtx ρ Γ Δ)
+  (G: Γ.interp): (H.interp.wk R) G = H.interp (Stlc.Context.interp.wk G R)
+  := rfl

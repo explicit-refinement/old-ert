@@ -188,9 +188,21 @@ theorem HasType.wk_eq
       {
         intro ⟨Hl', Hr', HG⟩;
         exists Hl.stlc, Hr.stlc;
-        sorry
+        --TODO: report this "this pattern is a metavariable trash"
+        rw [<-Hl.stlc.wk_def]
+        rw [<-Hr.stlc.wk_def]
+        rw [HasType.wk_stlc_interp_commute]
+        rw [HasType.wk_stlc_interp_commute]
+        rw [rec_to_cast']
+        rw [rec_to_cast']
+        apply congr rfl HG;
+        assumption
+        assumption
+        assumption
+        assumption
       }
       {
+        stop
         intro ⟨Hl', Hr', HG⟩;
         exists (Hl.wk R).stlc, (Hr.wk R).stlc;
         rw [Hl.wk_stlc_interp_commute_cast_erased Hl']
