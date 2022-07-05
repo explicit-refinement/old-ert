@@ -22,30 +22,29 @@ theorem HasVar.denote_annot
       | mk A k =>
         cases k with
         | val s => 
-          cases s with
-          | type => 
-            let (x, G) := G;
-            have ⟨Hx, HG⟩ := HG;
-            cases Hv with
-            | zero =>
-              simp only [denote, Context.stlc]
-              apply Term.denote_wk1 _ _ Γ x G _ _ _ Hx
-              rw [Stlc.Context.interp.downgrade]
-              rw [Stlc.HasType.interp_var]
-              dsimp only [Stlc.HasVar.interp, Sparsity.ix]
-              simp only [Eq.mp, Eq.mpr]
-              conv =>
-                rhs
-                rw [monorecursor]
-                skip
-                rw [<-A.stlc_ty_wk1]
-            | succ Hv => 
-              cases HΓ with
-              | cons_val HΓ =>
+          cases HΓ with
+          | cons_val HΓ HA =>
+            cases s <;> (
+              let (x, G) := G;
+              have ⟨Hx, HG⟩ := HG;
+              cases Hv with
+              | zero =>
+                simp only [denote, Context.stlc]
+                apply Term.denote_wk1 HA _ x G _ _ _ Hx
+                rw [Stlc.Context.interp.downgrade]
+                rw [Stlc.HasType.interp_var]
+                dsimp only [Stlc.HasVar.interp, Sparsity.ix]
+                simp only [Eq.mp, Eq.mpr]
+                conv =>
+                  rhs
+                  rw [monorecursor]
+                  skip
+                  rw [<-A.stlc_ty_wk1]
+              | succ Hv => 
                 have I' := I Hv HΓ G HG;
                 cases s <;> (
                   simp only [denote, Context.stlc]
-                  apply Term.denote_wk1 _ _ Γ x G _ _ _ I'
+                  apply Term.denote_wk1 (HΓ.var_valid Hv) _ x G _ _ _ I';
                   rw [monorecursor]
                   rename Nat => n;
                   rw [Stlc.HasType.interp_transport_mono]
@@ -62,45 +61,7 @@ theorem HasVar.denote_annot
                   rw [Term.stlc_ty_wk1]
                   rfl
                 )
-          | prop => 
-            let (x, G) := G;
-            have ⟨Hx, HG⟩ := HG;
-            cases Hv with
-            | zero =>
-              simp only [denote, Context.stlc]
-              apply Term.denote_wk1 _ _ Γ x G _ _ _ Hx
-              rw [Stlc.Context.interp.downgrade]
-              rw [Stlc.HasType.interp_var]
-              dsimp only [Stlc.HasVar.interp]
-              simp only [Eq.mp, Eq.mpr]
-              conv =>
-                rhs
-                rw [monorecursor]
-                skip
-                rw [<-A.stlc_ty_wk1]
-            | succ Hv => 
-              cases HΓ with
-              | cons_val HΓ =>
-                have I' := I Hv HΓ G HG; -- HG
-                cases s <;> (
-                  simp only [denote, Context.stlc]
-                  apply Term.denote_wk1 _ _ Γ x G _ _ _ I'
-                  rw [monorecursor]
-                  rename Nat => n;
-                  rw [Stlc.HasType.interp_transport_mono]
-                  rw [Stlc.Context.interp.downgrade]
-                  rw [Stlc.HasType.var_interp_wk1]
-                  rfl
-                  rw [Term.stlc_var]
-                  constructor
-                  rw [Term.stlc_ty_wk1]
-                  exact Hv.stlc
-                  rw [Term.stlc_var]
-                  rw [Term.stlc_ty_wk1]
-                  rfl
-                  rw [Term.stlc_ty_wk1]
-                  rfl
-                )
+            )
         | gst => 
           cases Hv with
           | succ Hv => 
@@ -110,143 +71,24 @@ theorem HasVar.denote_annot
               have ⟨_, HG⟩ := HG;
               have I' := I Hv HΓ G HG;
               cases s <;> (
-                  simp only [denote, Context.stlc]
-                  apply Term.denote_wk1 _ _ Γ x G _ _ _ I'
-                  rw [monorecursor]
-                  rename Nat => n;
-                  rw [Stlc.HasType.interp_transport_mono]
-                  rw [Stlc.Context.interp.downgrade]
-                  rw [Stlc.HasType.var_interp_wk1]
-                  rfl
-                  rw [Term.stlc_var]
-                  constructor
-                  rw [Term.stlc_ty_wk1]
-                  exact Hv.stlc
-                  rw [Term.stlc_var]
-                  rw [Term.stlc_ty_wk1]
-                  rfl
-                  rw [Term.stlc_ty_wk1]
-                  rfl
-                )
-  }
-
-theorem HasType.sym_axiom {Γ: Context} {A}:
-  ∀{G: Γ.upgrade.stlc.interp}, (Term.sym_ty A).denote_prop G
-  := by {
-    stop
-    intro G;
-    dsimp only [
-      Term.denote_prop,
-      Term.denote_ty,
-      Term.sym_ty, Term.sym_ty_tmp, Term.subst0, Term.subst,
-      Subst.lift, Subst.wk1, Term.wk1, Term.to_subst,
-      Wk.var, Term.wk
-    ]
-    intro x _ y _ ⟨px, py, Hxy⟩;
-    rw [
-      Stlc.HasType.var_interp_0 _ _ _ rfl 
-      (by simp only [Term.stlc_ty_wk])
-    ] at Hxy
-    rw [
-      Stlc.HasType.var_interp_wk1 
-      (by simp only [Term.stlc_ty_wk]; repeat constructor) 
-      _ _ _ rfl rfl
-    ] at Hxy
-    rw [
-      Stlc.HasType.var_interp_0 _ _ _ rfl 
-      (by simp only [Term.stlc_ty_wk])
-    ] at Hxy
-    exists 
-      (by simp only [Term.stlc_ty_wk]; repeat constructor), 
-      (by simp only [Term.stlc_ty_wk]; repeat constructor);
-    rw [
-      Stlc.HasType.var_interp_0 _ _ _ rfl 
-      (by simp only [Term.stlc_ty_wk])
-    ]
-    rw [
-      Stlc.HasType.var_interp_wk1 
-      (by simp only [Term.stlc_ty_wk]; repeat constructor) 
-      _ _ _ rfl rfl
-    ]
-    rw [
-      Stlc.HasType.var_interp_0 _ _ _ rfl 
-      (by simp only [Term.stlc_ty_wk])
-    ]
-    exact cast_gen Hxy.symm
-  }
-
-theorem HasType.trans_axiom {Γ: Context} {A}:
-  ∀{G: Γ.upgrade.stlc.interp}, (Term.trans_ty A).denote_prop G
-  := by {
-    stop
-    intro G;
-    dsimp only [
-      Term.denote_prop, 
-      Term.denote_prop,
-      Term.denote_ty,
-      Term.sym_ty, Term.sym_ty_tmp, Term.subst0, Term.subst,
-      Subst.lift, Subst.wk1, Term.wk1, Term.to_subst,
-      Wk.var, Term.wk
-    ]
-    intro x _ y _ z _ ⟨px, py, Hxy⟩ ⟨py, pz, Hyz⟩;
-    --TODO: automate...
-    rw [
-      Stlc.HasType.var_interp_wk1 
-      (by simp only [Term.stlc_ty_wk]; repeat constructor) 
-      _ _ _ rfl rfl
-    ] at Hxy
-    rw [
-      Stlc.HasType.var_interp_wk1 
-      (by simp only [Term.stlc_ty_wk]; repeat constructor) 
-      _ _ _ rfl rfl
-    ] at Hxy
-    rw [
-      Stlc.HasType.var_interp_0 _ _ _ rfl 
-      (by simp only [Term.stlc_ty_wk])
-    ] at Hxy
-    rw [
-      Stlc.HasType.var_interp_wk1 
-      (by simp only [Term.stlc_ty_wk]; repeat constructor) 
-      _ _ _ rfl rfl
-    ] at Hxy
-    rw [
-      Stlc.HasType.var_interp_0 _ _ _ rfl 
-      (by simp only [Term.stlc_ty_wk])
-    ] at Hxy
-    rw [
-      Stlc.HasType.var_interp_0 _ _ _ rfl 
-      (by simp only [Term.stlc_ty_wk])
-    ] at Hyz
-    rw [
-      Stlc.HasType.var_interp_wk1 
-      (by simp only [Term.stlc_ty_wk]; repeat constructor) 
-      _ _ _ rfl rfl
-    ] at Hyz
-    rw [
-      Stlc.HasType.var_interp_0 _ _ _ rfl 
-      (by simp only [Term.stlc_ty_wk])
-    ] at Hyz
-    exists 
-      (by simp only [Term.stlc_ty_wk]; repeat constructor), 
-      (by simp only [Term.stlc_ty_wk]; repeat constructor);
-    rw [
-      Stlc.HasType.var_interp_wk1 (by simp only [Term.stlc_ty_wk]; repeat constructor) 
-      _ _ _ rfl rfl
-    ]
-    rw [
-      Stlc.HasType.var_interp_wk1 (by simp only [Term.stlc_ty_wk]; repeat constructor) 
-      _ _ _ rfl rfl
-    ]
-    rw [
-      Stlc.HasType.var_interp_0 _ _ _ rfl 
-      (by simp only [Term.stlc_ty_wk])
-    ]
-    rw [
-      Stlc.HasType.var_interp_0 _ _ _ rfl 
-      (by simp only [Term.stlc_ty_wk])
-    ]
-    rw [cast_gen Hxy, cast_gen Hyz]
-    simp only [Term.stlc_ty_wk]
+                simp only [denote, Context.stlc]
+                apply Term.denote_wk1 (HΓ.var_valid Hv) _ x G _ _ _ I';
+                rw [monorecursor]
+                rename Nat => n;
+                rw [Stlc.HasType.interp_transport_mono]
+                rw [Stlc.Context.interp.downgrade]
+                rw [Stlc.HasType.var_interp_wk1]
+                rfl
+                rw [Term.stlc_var]
+                constructor
+                rw [Term.stlc_ty_wk1]
+                exact Hv.stlc
+                rw [Term.stlc_var]
+                rw [Term.stlc_ty_wk1]
+                rfl
+                rw [Term.stlc_ty_wk1]
+                rfl
+              )
   }
 
 theorem HasType.denote
