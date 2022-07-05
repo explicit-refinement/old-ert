@@ -312,6 +312,7 @@ theorem HasType.wk_eq
         rw [interp_eq_none]
       }
     | @dand Δ' A B _ _ IA IB => 
+      stop
       dsimp only [Term.denote_ty]
       simp only [pure]
       apply congr (congr rfl _) _;
@@ -358,17 +359,11 @@ theorem HasType.wk_eq
         rw [interp_eq_none]
       }
     | or _ _ IA IB =>
-      stop
       dsimp only [Term.denote_ty]
-      apply congr (congr rfl _) _;
-      {
-        rw [IA R rfl]
-        sorry
-      }
-      {
-        rw [IB R rfl]
-        sorry
-      }
+      rw [IA R rfl]
+      rw [interp_eq_none]
+      rw [IB R rfl]
+      rw [interp_eq_none]
     | forall_ _ _ IA IB =>  
       stop
       dsimp only [Term.denote_ty]
