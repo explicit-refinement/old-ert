@@ -20,12 +20,57 @@ theorem Subst.stlc_lift {σ: Subst}
     | succ v => exact (σ v).wk1_stlc_commute
   }
 
+theorem Stlc.HasVar.interp_inv {Γ: _root_.Context} (H: Stlc.HasVar Γ.stlc n A)
+  : ∃A' k, _root_.HasVar Γ n k A' ∧ (Hyp.stlc (Hyp.mk A' k)) = A
+  := by {
+    generalize HΓ': Γ.stlc = Γ';
+    rw [HΓ'] at H;
+    induction H generalizing Γ with
+    | zero =>
+      cases Γ with
+      | nil => cases HΓ'
+      | cons Hy Γ => 
+        cases Hy with
+        | mk A' k =>
+          exists A'.wk1, k;
+          constructor
+          constructor
+          rw [Context.stlc_hyp] at HΓ'
+          cases HΓ'
+          cases k <;> simp only [Hyp.stlc, Term.stlc_ty_wk1]
+    | succ Hv I =>
+      cases Γ with
+      | nil => cases HΓ'
+      | cons Hy Γ => 
+        rw [Context.stlc_hyp] at HΓ'
+        cases HΓ';
+        have ⟨A', k, Hv', HA⟩ := I rfl;
+        exists A'.wk1, k;
+        constructor
+        constructor
+        assumption
+        rw [<-HA]
+        cases k <;> simp only [Hyp.stlc, Term.stlc_ty_wk1]
+  }
+
 theorem SubstCtx.stlc {σ Γ Δ} (S: SubstCtx σ Γ Δ) (HΔ: IsCtx Δ)
   : Stlc.SubstCtx σ.stlc Γ.stlc Δ.stlc
   := by {
     intro n A Hv;
-    --TODO: antiHv lemma
-    sorry
+    generalize HΔ': Δ.stlc = Δ';
+    rw [HΔ'] at Hv;
+    induction Hv generalizing σ Γ Δ with
+    | zero => 
+      cases Δ with
+      | nil => cases HΔ'
+      | cons H Δ =>
+        simp only [Subst.stlc]
+        cases H with
+        | mk A k =>
+          cases k with
+          | val s => sorry
+          | gst => sorry
+    | succ Hv I => sorry
   }
 
 theorem HasType.subst_stlc_commute {σ Γ a A}
