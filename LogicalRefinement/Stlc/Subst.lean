@@ -371,6 +371,37 @@ theorem Stlc.HasType.subst_interp_dist {Γ Δ σ A a}
         rw [Stlc.Context.deriv.subst_lift2]
   }
 
+theorem Stlc.HasVar.wk_interp_dist {Γ Δ ρ A n}
+  (Hd: HasVar Δ n A)
+  (R: WkCtx ρ Γ Δ)
+  (Hg: HasVar Γ (ρ.var n) A)
+  (G: Γ.interp)
+  : Hg.interp G = Hd.interp (G.wk R)
+  := by {
+    induction R generalizing A n with
+    | id => rw [G.wk_id]; rfl
+    | step R I =>
+      cases Hg with
+      | succ Hg => 
+        cases G with
+        | mk x G =>
+          simp only [Wk.var, interp]
+          rw [I]
+          rfl
+    | lift R I => 
+      cases G with
+      | mk x G =>
+        cases n with
+        | zero => 
+          simp only [interp, Wk.var]
+          rw [G.wk_lift]
+          exact R
+        | succ n => 
+          simp only [interp, Wk.var]
+          rw [G.wk_lift]
+          rw [I]
+  }
+
 theorem Stlc.HasType.wk_interp_dist {Γ Δ ρ A a} 
   (H: HasType Δ a A) 
   (R: WkCtx ρ Γ Δ)
@@ -380,7 +411,7 @@ theorem Stlc.HasType.wk_interp_dist {Γ Δ ρ A a}
     | var => 
       funext G;
       simp only [Stlc.wk, interp, Context.deriv.wk]
-      sorry
+      rw [Stlc.HasVar.wk_interp_dist]
     | lam _ Is => 
       simp only [Stlc.wk, interp, Context.deriv.wk, Is R.lift]
       rfl

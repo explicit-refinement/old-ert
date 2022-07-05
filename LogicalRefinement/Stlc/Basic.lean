@@ -302,6 +302,20 @@ def Stlc.Context.interp.wk_id {Γ} {H: WkCtx Wk.id Γ Γ} (G: Γ.interp):
     rfl
   }
 
+def Stlc.Context.interp.wk_step {Γ Δ ρ} {A: Ty} 
+  (G: Γ.interp) 
+  (x: Option A.interp) 
+  (R: WkCtx ρ Γ Δ):
+  @wk (A::Γ) _ _ (x, G) R.step = G.wk R
+  := rfl
+
+def Stlc.Context.interp.wk_lift {Γ Δ ρ} {A: Ty} 
+  (G: Γ.interp) 
+  (x: Option A.interp) 
+  (R: WkCtx ρ Γ Δ):
+  @wk (A::Γ) (A::Δ) _ (x, G) R.lift = (x, G.wk R)
+  := rfl
+
 def Stlc.Subst := Nat -> Stlc
 
 def Stlc.to_subst (s: Stlc): Subst
