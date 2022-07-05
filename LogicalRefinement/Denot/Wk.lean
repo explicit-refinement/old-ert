@@ -9,7 +9,6 @@ open Annot
 theorem HasType.wk_eq
   {Γ Δ: Context} {ρ} {A: Term} {a s} 
   {G: Γ.upgrade.stlc.interp}
-  {D: Δ.upgrade.stlc.interp}
   (HΓ: Δ ⊢ A: sort s)
   (R: WkCtx ρ Γ.upgrade Δ.upgrade)
   : (A.wk ρ).denote_ty G a = A.denote_ty (G.wk R.stlc) (A.stlc_ty_wk ρ ▸ a)
@@ -202,7 +201,6 @@ theorem HasType.wk_eq
         assumption
       }
       {
-        stop
         intro ⟨Hl', Hr', HG⟩;
         exists (Hl.wk R).stlc, (Hr.wk R).stlc;
         rw [Hl.wk_stlc_interp_commute_cast_erased Hl']
@@ -215,11 +213,56 @@ theorem HasType.wk_eq
       }
     | _ => cases HS <;> rfl
   }
+
+
+theorem HasType.wk_eq'
+  {Γ Δ: Context} {ρ} {A A': Term} {a a' s} 
+  {G: Γ.upgrade.stlc.interp}
+  {D: Δ.upgrade.stlc.interp}
+  (HΓ: Δ ⊢ A: sort s)
+  (R: WkCtx ρ Γ.upgrade Δ.upgrade)
+  (HAA': A' = A.wk ρ)
+  (Haa': a' = A.stlc_ty_wk ρ ▸ HAA' ▸ a)
+  (HD: D = G.wk R.stlc)
+  : A'.denote_ty G a 
+  = A.denote_ty D a'
+  := by {
+    cases HAA';
+    cases HD;
+    rw [Haa']
+    rw [HΓ.wk_eq]
+    exact R
+  }
+
 --TODO: make stricter...
-theorem Term.denote_wk1
-  (A: Term) 
+theorem Term.denote_wk1_eq
+  {Γ: Context}  {A: Term}  {s}
+  (HΓ: Γ ⊢ A: sort s) 
   (B: Term)
-  (Γ: Context)
+  (x: Option B.stlc_ty.interp) 
+  (G: Γ.upgrade.stlc.interp)
+  (a: Option A.stlc_ty.interp)
+  (a': Option A.wk1.stlc_ty.interp)
+  (Haa': a' = (A.stlc_ty_wk Wk.wk1) ▸ a)
+  : A.denote_ty G a 
+  = @denote_ty A.wk1 (B.stlc_ty::Γ.upgrade.stlc) (x, G) a'
+  := by {
+    rw [
+      <-@HasType.wk_eq' ((Hyp.mk B (HypKind.val type))::Γ) Γ Wk.wk1 _ _ _ _ _
+      _ _ HΓ WkCtx.wk1 rfl
+    ]
+    rw [Haa']
+    rfl
+    simp only [rec_to_cast', cast_merge]
+    rfl
+    simp only [Wk.wk1]
+    rw [Stlc.Context.interp.wk_wk1]
+  }
+
+theorem Term.denote_wk1
+  {Γ: Context}  {A: Term}  {s}
+  (HΓ: Γ ⊢ A: sort s) 
+  (B: Term)
   (x: Option B.stlc_ty.interp) 
   (G: Γ.upgrade.stlc.interp) 
   (a: Option A.stlc_ty.interp)
@@ -227,4 +270,9 @@ theorem Term.denote_wk1
   (Haa': a' = A.stlc_ty_wk1 ▸ a)
   (H: A.denote_ty G a) 
   : @denote_ty A.wk1 (B.stlc_ty::Γ.upgrade.stlc) (x, G) a'
-  := sorry
+  := by {
+    rw [Term.denote_wk1_eq] at H;
+    exact H;
+    exact HΓ;
+    exact Haa';
+  }
