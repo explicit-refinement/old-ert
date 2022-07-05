@@ -124,25 +124,26 @@ theorem Term.alpha0_natrec_wk_helper {C: Term} {ρ: Wk}:
   }
 
 theorem Term.pi_funext_helper {A B f: Term} {ρ: Wk}:
-  Term.app (Term.wk1 (Term.wk f ρ)) 
-    (Term.wk1 (Term.pi (Term.wk A ρ) 
-    (Term.wk B (Wk.lift ρ))))
+  Term.app 
+    (Term.wk1 (Term.pi (Term.wk A ρ) (Term.wk B (Wk.lift ρ))))
+    (Term.wk1 (Term.wk f ρ)) 
     (Term.var 0)
-  = tri TermKind.app (Term.wk (Term.wk f Wk.wk1) (Wk.lift ρ))
+  = tri TermKind.app 
         (abs TermKind.pi (Term.wk (Term.wk A Wk.wk1) (Wk.lift ρ))
           (Term.wk (Term.wk B (Wk.lift Wk.wk1)) (Wk.lift (Wk.lift ρ))))
+        (Term.wk (Term.wk f Wk.wk1) (Wk.lift ρ))
         (Term.var (Wk.var (Wk.lift ρ) 0))
   := by {
     apply congr _ rfl;
     apply congr;
     apply congr rfl _;
-    rw [<-Term.lift_wk1]
-    rfl
     simp only [wk1, wk]
     apply congr;
     apply congr rfl;
     simp
     simp
+    rw [<-Term.lift_wk1]
+    rfl
   }
 
 theorem HasType.wk {ρ Γ Δ a A} (HΔ: Δ ⊢ a: A) (R: WkCtx ρ Γ Δ):
@@ -226,20 +227,3 @@ theorem IsCtx.var_valid {Γ} (H: IsCtx Γ) (Hv: HasVar Γ n k A):
 theorem IsCtx.var {Γ} (H: IsCtx Γ) (Hv: HasVar Γ n (HypKind.val s) A)
   : Γ ⊢ var n: expr s A
   := HasType.var (H.var_valid Hv) Hv
-
---TODO: requires strengthening lemma, basically
--- theorem IsCtx.from_var_valid {Γ} 
---   (H: ∀A n k, HasVar Γ n k A -> Γ ⊢ A: k.annot)
---   : IsCtx Γ
---   := by {
---     induction Γ with
---     | nil => constructor
---     | cons Hy Γ I => 
---       cases Hy with | mk B k =>
---       cases k with
---       | val s => sorry
---       | gst => 
---         constructor
---   }
-
---TODO: pseudo-constructors for HasType.arrow, etc...

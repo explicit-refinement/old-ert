@@ -236,6 +236,41 @@ theorem Term.alpha0_natrec_subst_helper {C: Term} {σ: Subst}:
       cases n <;> rfl
   }
 
+theorem Term.pi_funext_subst_helper {A B f: Term} {σ: Subst}:
+  Term.app 
+    (Term.wk1 (Term.pi (Term.subst A σ) (Term.subst B (Subst.lift σ)))) 
+    (Term.wk1 (Term.subst f σ))
+    (Term.var 0)
+  = tri TermKind.app
+    (abs TermKind.pi (Term.subst (Term.wk A Wk.wk1) (Subst.lift σ))
+    (Term.subst (Term.wk B (Wk.lift Wk.wk1)) (Subst.lift (Subst.lift σ))))
+    (Term.subst (Term.wk1 f) (Subst.lift σ)) (Subst.lift σ 0)
+  := by {
+    apply congr _ rfl;
+    apply congr;
+    apply congr rfl _;
+    simp only [wk1, wk]
+    apply congr;
+    apply congr rfl;
+    rw [<-Term.wk1]
+    rw [<-Subst.lift_wk]
+    rfl
+    {
+      simp only [<-Subst.subst_wk_compat, Term.subst_composes]
+      apply congr rfl;
+      funext v;
+      cases v with
+      | zero => rfl
+      | succ n => 
+        simp only [Subst.comp, subst, Subst.lift, Wk.var, Subst.wk1, wk1]
+        simp only [<-Subst.subst_wk_compat, Term.subst_composes]
+        apply congr rfl;
+        funext v;
+        cases v <;> rfl
+    }
+    rw [<-Subst.lift_wk]
+  }
+
 theorem HasType.subst' {σ Γ Δ a A} (HΔ: Δ ⊢ a: A) (S: SubstCtx' σ Γ Δ):
   (Γ ⊢ (a.subst σ): (A.subst σ)) := by {
     induction HΔ generalizing σ Γ;
@@ -247,8 +282,6 @@ theorem HasType.subst' {σ Γ Δ a A} (HΔ: Δ ⊢ a: A) (S: SubstCtx' σ Γ Δ)
         dsimp only [Term.subst]
         rw [Hv]
         exact HasType.var (I S) HΓ.v
-
-    case funext => sorry
 
     all_goals (
       rename_i' I5 I4 I3 I2 I1 I0;
@@ -271,6 +304,7 @@ theorem HasType.subst' {σ Γ Δ a A} (HΔ: Δ ⊢ a: A) (S: SubstCtx' σ Γ Δ)
         try rw [Term.let_bin_ty_alpha_conj]
         try rw [Term.alpha0_natrec_subst_helper]
         try rw [Term.var2_var1_alpha]
+        repeat rw [Term.pi_funext_subst_helper]
         first | apply I0 | apply I1 | apply I2 | apply I3 | apply I4 | apply I5 | constructor
         first
         | exact S

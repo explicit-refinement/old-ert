@@ -377,12 +377,6 @@ theorem Stlc.HasType.subst_interp_dist {Γ Δ σ A a}
         rw [Stlc.Context.deriv.subst_lift2]
   }
 
--- theorem Stlc.HasType.wk_interp_subst_compat {Γ Δ ρ A a}
---   (H: HasType Δ a A) 
---   (R: WkCtx ρ Γ Δ)
---   : H.interp.wk R = H.interp.subst 
---   := sorry
-
 theorem Stlc.HasType.wk_interp_dist {Γ Δ ρ A a} 
   (H: HasType Δ a A) 
   (R: WkCtx ρ Γ Δ)
