@@ -123,6 +123,28 @@ theorem Term.alpha0_natrec_wk_helper {C: Term} {ρ: Wk}:
     cases n <;> rfl
   }
 
+theorem Term.pi_funext_helper {A B f: Term} {ρ: Wk}:
+  Term.app (Term.wk1 (Term.wk f ρ)) 
+    (Term.wk1 (Term.pi (Term.wk A ρ) 
+    (Term.wk B (Wk.lift ρ))))
+    (Term.var 0)
+  = tri TermKind.app (Term.wk (Term.wk f Wk.wk1) (Wk.lift ρ))
+        (abs TermKind.pi (Term.wk (Term.wk A Wk.wk1) (Wk.lift ρ))
+          (Term.wk (Term.wk B (Wk.lift Wk.wk1)) (Wk.lift (Wk.lift ρ))))
+        (Term.var (Wk.var (Wk.lift ρ) 0))
+  := by {
+    apply congr _ rfl;
+    apply congr;
+    apply congr rfl _;
+    rw [<-Term.lift_wk1]
+    rfl
+    simp only [wk1, wk]
+    apply congr;
+    apply congr rfl;
+    simp
+    simp
+  }
+
 theorem HasType.wk {ρ Γ Δ a A} (HΔ: Δ ⊢ a: A) (R: WkCtx ρ Γ Δ):
   (Γ ⊢ (a.wk ρ): (A.wk ρ)) := by {
     induction HΔ generalizing ρ Γ;
@@ -132,8 +154,6 @@ theorem HasType.wk {ρ Γ Δ a A} (HΔ: Δ ⊢ a: A) (R: WkCtx ρ Γ Δ):
       assumption
       apply HasVar.wk
       repeat assumption
-
-    case funext => sorry
 
     all_goals (
       rename_i' I5 I4 I3 I2 I1 I0;
@@ -159,6 +179,7 @@ theorem HasType.wk {ρ Γ Δ a A} (HΔ: Δ ⊢ a: A) (R: WkCtx ρ Γ Δ):
       (try rw [Term.var2_var1_alpha_wk]) <;>
       (try rw [Term.let_bin_ty_alpha_wk_conj]) <;>
       (try rw [Term.alpha0_natrec_wk_helper]) <;>
+      (repeat rw [Term.pi_funext_helper]) <;>
       (first | apply I0 | apply I1 | apply I2 | apply I3 | apply I4 | apply I5) <;> 
       simp only [<-Hyp.wk_components] <;> 
       first 
