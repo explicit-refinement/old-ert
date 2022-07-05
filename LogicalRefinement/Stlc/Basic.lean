@@ -316,6 +316,15 @@ def Stlc.Context.interp.wk_lift {Γ Δ ρ} {A: Ty}
   @wk (A::Γ) (A::Δ) _ (x, G) R.lift = (x, G.wk R)
   := rfl
 
+
+def Stlc.Context.interp.wk_lift' {Γ Δ ρ} {A: Ty} 
+  (G: Γ.interp) 
+  (x: Option A.interp) 
+  (R: WkCtx ρ Γ Δ)
+  (R': WkCtx ρ.lift (A::Γ) (A::Δ)):
+  @wk (A::Γ) (A::Δ) _ (x, G) R' = (x, G.wk R)
+  := rfl
+
 def Stlc.Context.interp.wk_wk1 {Γ: Context} {A: Ty} 
   (G: Γ.interp) 
   (x: Option A.interp) 

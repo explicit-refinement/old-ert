@@ -725,7 +725,7 @@ theorem forall_helper {A: Type} {B C: A -> Prop}
     rfl
   }
 
-  theorem cast_app_dep_first
+theorem cast_app_dep_first
   {A: Sort u} {B: A -> Sort v} {C: Sort w}
   (f: (a: A) -> B a -> C)
   (a a': A)
@@ -748,4 +748,88 @@ theorem cast_app_dep_bin
   cast p'' (f a' (cast p' b)) = f a b
   := by {
     cases p; cases p'; rfl
+  }
+
+theorem cast_app_dep_one
+  {A: Sort u} {B: A -> Sort v} {C: Sort w}
+  (f: (a: A) -> B a -> C)
+  (a a': A)
+  (b: B a)
+  (b': B a')
+  (pa: a = a')
+  (pb: b' = cast (by rw [pa]) b):
+  f a' b' = f a b
+  := by {
+    cases pa; cases pb; rfl
+  }
+
+theorem cast_app_dep_two
+  {A: Sort u0} 
+  {B: A -> Sort u1}
+  {C: (a: A) -> B a -> Sort u2} 
+  {R: Sort v}
+  (f: (a: A) -> (b: B a) -> C a b -> R)
+  (a a': A)
+  (b: B a)
+  (b': B a')
+  (c: C a b)
+  (c': C a' b')
+  (pa: a = a')
+  (pb: b' = cast (by rw [pa]) b)
+  (pc: c' = cast (cast_app_dep_one C a a' b b' pa pb).symm c):
+  f a' b' c' = f a b c
+  := by {
+    cases pa; cases pb; cases pc; rfl
+  }
+
+theorem cast_app_dep_three
+  {A: Sort u0} 
+  {B: A -> Sort u1}
+  {C: (a: A) -> B a -> Sort u2}
+  {D: (a: A) -> (b: B a) -> (c: C a b) -> Sort u3} 
+  {R: Sort v}
+  (f: (a: A) -> (b: B a) -> (c: C a b) -> D a b c -> R)
+  (a a': A)
+  (b: B a)
+  (b': B a')
+  (c: C a b)
+  (c': C a' b')
+  (d: D a b c)
+  (d': D a' b' c')
+  (pa: a = a')
+  (pb: b' = cast (by rw [pa]) b)
+  (pc: c' = cast (cast_app_dep_one C a a' b b' pa pb).symm c)
+  (pd: d' = cast (cast_app_dep_two D a a' b b' c c' pa pb pc).symm d)
+  :
+  f a' b' c' d' = f a b c d
+  := by {
+    cases pa; cases pb; cases pc; cases pd; rfl
+  }
+
+theorem cast_app_dep_four
+  {A: Sort u0} 
+  {B: A -> Sort u1}
+  {C: (a: A) -> B a -> Sort u2}
+  {D: (a: A) -> (b: B a) -> (c: C a b) -> Sort u3}
+  {E: (a: A) -> (b: B a) -> (c: C a b) -> (d: D a b c) -> Sort u4} 
+  {R: Sort v}
+  (f: (a: A) -> (b: B a) -> (c: C a b) -> (d: D a b c) -> E a b c d -> R)
+  (a a': A)
+  (b: B a)
+  (b': B a')
+  (c: C a b)
+  (c': C a' b')
+  (d: D a b c)
+  (d': D a' b' c')
+  (e: E a b c d)
+  (e': E a' b' c' d')
+  (pa: a = a')
+  (pb: b' = cast (by rw [pa]) b)
+  (pc: c' = cast (cast_app_dep_one C a a' b b' pa pb).symm c)
+  (pd: d' = cast (cast_app_dep_two D a a' b b' c c' pa pb pc).symm d)
+  (pe: e' = cast (cast_app_dep_three E a a' b b' c c' d d' pa pb pc pd).symm e)
+  :
+  f a' b' c' d' e' = f a b c d e
+  := by {
+    cases pa; cases pb; cases pc; cases pd; cases pe;d rfl
   }
