@@ -37,7 +37,7 @@ theorem HasType.wk_eq
           _ _ _ (x, G) (x, D) R.lift rfl
         ];
         rfl
-    | @sigma Δ' A B _ _ IA IB => 
+    | @sigma Δ' A B _ _ IA IB =>
       stop
       cases a with
       | none => rw [interp_eq_none] rfl
@@ -59,7 +59,6 @@ theorem HasType.wk_eq
               ((Hyp.mk _ (HypKind.val type))::Γ)
               _ _ _ 
               (some a, G) R.lift rfl];
-            simp only [Context.stlc, Context.upgrade]
             apply congr (congr rfl _) _;
             {
               rw [<-Stlc.Context.interp.wk_lift]
@@ -132,7 +131,7 @@ theorem HasType.wk_eq
           rw [cast_some]
           rw [Term.stlc_ty_wk]
           rw [Term.stlc_ty_wk]
-    | assume _ _ IA IB => 
+    | @assume Δ' A B _ _ IA IB => 
       cases a with
       | none => rw [interp_eq_none] rfl
       | some a => 
@@ -141,15 +140,48 @@ theorem HasType.wk_eq
         apply arrow_equivalence;
         {
           rw [IA R rfl];
-          sorry
+          rw [interp_eq_none]
         }
         {
           rw [@IB 
             ((Hyp.mk _ (HypKind.val prop))::Γ) 
             _ _ _ (none, G) R.lift rfl];
-          sorry
+          apply congr (congr rfl _) _;
+          {
+            rw [<-Stlc.Context.interp.wk_lift]
+            let Δ'' := Term.stlc_ty A :: Context.stlc (Context.upgrade Δ');
+            let f: 
+              (Γ: Stlc.Context) -> Γ.interp 
+              -> Stlc.WkCtx ρ.lift Γ Δ'' -> (Stlc.Context.interp Δ'')
+              := λΓ => @Stlc.Context.interp.wk Γ Δ'' ρ.lift;              
+              have Hf: ∀Γ, @Stlc.Context.interp.wk Γ Δ'' ρ.lift = f Γ 
+                := by intros; rfl;              
+              rw [Hf]
+              rw [Hf]
+              apply cast_app_dep_two f;
+              rfl
+              {
+                simp only [
+                  Context.upgrade, Hyp.upgrade, A.stlc_ty_wk, Context.stlc
+                ]
+              }
+              {
+                rw [cast_pair']
+                apply congr (congr rfl _) rfl;
+                rw [A.stlc_ty_wk]
+                rw [cast_none]
+                rw [A.stlc_ty_wk]
+                rfl
+              }
+          }
+          {
+            rw [rec_to_cast']
+            rw [rec_to_cast']
+            rw [cast_app_pull_in]
+          }
         }
     | set _ _ IA IB => 
+      stop
       dsimp only [Term.denote_ty]
       dsimp only [Term.stlc_ty] at a;
       apply congr (congr rfl _) _;
@@ -161,6 +193,7 @@ theorem HasType.wk_eq
         sorry
       }
     | intersect _ _ IA IB => 
+      stop
       cases a with
       | none => rw [interp_eq_none] rfl
       | some a => 
@@ -179,7 +212,8 @@ theorem HasType.wk_eq
           _ _ _ (x, G) (x, D) R.lift];
         rfl
         rfl
-    | union _ _ IA IB => 
+    | union _ _ IA IB =>
+      stop 
       dsimp only [Term.denote_ty]
       simp only [pure]
       apply congr (congr rfl _) _;
@@ -200,6 +234,7 @@ theorem HasType.wk_eq
         rfl
       }
     | dimplies _ _ IA IB => 
+      stop
       dsimp only [Term.denote_ty]
       apply arrow_equivalence;
       {
@@ -213,6 +248,7 @@ theorem HasType.wk_eq
         sorry
       }
     | dand _ _ IA IB =>  
+      stop
       dsimp only [Term.denote_ty]
       simp only [pure]
       apply congr (congr rfl _) _;
@@ -227,6 +263,7 @@ theorem HasType.wk_eq
         sorry
       }
     | or _ _ IA IB =>
+      stop
       dsimp only [Term.denote_ty]
       apply congr (congr rfl _) _;
       {
@@ -238,6 +275,7 @@ theorem HasType.wk_eq
         sorry
       }
     | forall_ _ _ IA IB =>  
+      stop
       dsimp only [Term.denote_ty]
       --TODO: generalized forall helper
       stop
@@ -253,6 +291,7 @@ theorem HasType.wk_eq
       rfl
       rfl
     | exists_ _ _ IA IB => 
+      stop
       dsimp only [Term.denote_ty]
       simp only [pure]
       --TODO: generalized existential helper
