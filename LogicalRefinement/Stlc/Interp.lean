@@ -178,6 +178,35 @@ theorem HasVar.stlc {Γ A n}:
           | mk B k => cases k <;> exact (I Hv).succ
   }
 
+theorem HasVar.stlc_hyp {Γ A n}: 
+  HasVar Γ n k A ->
+  Stlc.HasVar Γ.stlc n (Hyp.mk A k).stlc := by {
+    revert Γ A;
+    induction n generalizing k with
+    | zero => 
+      intro Γ A Hv;
+      cases Hv with
+      | zero =>
+        cases k <;>
+        simp only [Term.wk1, Term.stlc_ty_wk, Hyp.stlc] <;>
+        exact Stlc.HasVar.zero
+    | succ n I => 
+      intro Γ A Hv;
+      cases Γ with
+      | nil => cases Hv
+      | cons H Γ =>
+        cases Hv with
+        | succ Hv =>
+          simp only [Term.wk1, Term.stlc_ty_wk]
+          cases H with
+          | mk B k => 
+            cases k <;>
+            constructor <;>
+            cases k <;>
+            simp only [Term.wk1, Term.stlc_ty_wk, Hyp.stlc] <;>
+            exact I Hv
+  }
+
 -- But why...
 set_option maxHeartbeats 1000000
 

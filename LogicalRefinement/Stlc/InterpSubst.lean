@@ -57,20 +57,21 @@ theorem SubstCtx.stlc {σ Γ Δ} (S: SubstCtx σ Γ Δ) (HΔ: IsCtx Δ)
   : Stlc.SubstCtx σ.stlc Γ.stlc Δ.stlc
   := by {
     intro n A Hv;
-    generalize HΔ': Δ.stlc = Δ';
-    rw [HΔ'] at Hv;
-    induction Hv generalizing σ Γ Δ with
-    | zero => 
-      cases Δ with
-      | nil => cases HΔ'
-      | cons H Δ =>
-        simp only [Subst.stlc]
-        cases H with
-        | mk A k =>
-          cases k with
-          | val s => sorry
-          | gst => sorry
-    | succ Hv I => sorry
+    have ⟨A', k, Hv', HA'⟩ := Hv.interp_inv;
+    cases S _ _ _ Hv' with
+    | expr E =>
+      have E' := E.stlc;
+      simp only [Subst.stlc, <-HA', stlc_ty] at *;
+      rw [(HΔ.var_valid Hv').stlc_ty_subst] at E'
+      exact E'
+    | var Hn HA Hg => 
+      simp only [Subst.stlc, Hn]
+      constructor;
+      have Hg' := Hg.stlc_hyp;
+      cases k <;>
+      simp only [Hyp.stlc, (HΔ.var_valid Hv').stlc_ty_subst] at Hg' <;>
+      rw [<-HA'] <;>
+      exact Hg'
   }
 
 theorem HasType.subst_stlc_commute {σ Γ a A}

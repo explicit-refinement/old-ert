@@ -15,7 +15,7 @@ inductive SubstVar': Subst -> Context -> Nat -> Term -> HypKind -> Prop
     -> HasVar' Γ m k (A.subst σ) -> SubstVar' σ Γ n A k
 
 inductive SubstVar: Subst -> Context -> Nat -> Term -> HypKind -> Prop
-  | expr {σ Γ n A k}: (Γ ⊢ σ n: expr k.annot (A.subst σ)) -> SubstVar σ Γ n A k
+  | expr {σ Γ n A s}: (Γ ⊢ σ n: expr s (A.subst σ)) -> SubstVar σ Γ n A (HypKind.val s)
   | var {σ Γ n A k m}: σ n = var m 
     -> (Γ ⊢ A.subst σ: sort k.annot)
     -> HasVar Γ m k (A.subst σ) -> SubstVar σ Γ n A k
@@ -184,10 +184,10 @@ SubstCtx σ Γ.upgrade Δ.upgrade
   have ⟨k', Hk', H'⟩ := HasVar.downgrade H;
   cases S _ _ _ H' with
   | expr S =>
-    apply SubstVar.expr;
     cases k with
-    | val s => cases s <;> cases Hk' <;> exact S.upgrade
-    | gst => cases Hk' <;> exact S.upgrade
+    | val s => 
+      apply SubstVar.expr;cases s <;> cases Hk' <;> exact S.upgrade
+    | gst => cases H.no_ghosts
   | var Hv HA HΓ =>
     cases k' with
     | val s => 
@@ -210,21 +210,6 @@ theorem SubstCtx'.upgrade_left (S: SubstCtx' ρ Γ Δ): SubstCtx' ρ Γ.upgrade 
     exact SubstVar'.expr (HasType.upgrade S)
   | var Hv HΓ =>
     exact SubstVar'.var Hv HΓ.upgrade_weak
-}
-
-theorem SubstCtx.upgrade_left (S: SubstCtx σ Γ Δ): SubstCtx σ Γ.upgrade Δ
-:= by {
-  intro n A k H;
-  cases S _ _ _ H with
-  | expr S =>
-    exact SubstVar.expr (HasType.upgrade S)
-  | var Hv HA HΓ =>
-    apply SubstVar.expr;
-    rw [Hv];
-    constructor;
-    exact HA.upgrade;
-    rw [HasVar.v_eq]
-    exact HΓ.v.upgrade;
 }
 
 theorem Term.alpha0_natrec_subst_helper {C: Term} {σ: Subst}:
