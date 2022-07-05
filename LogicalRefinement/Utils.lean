@@ -831,5 +831,5 @@ theorem cast_app_dep_four
   :
   f a' b' c' d' e' = f a b c d e
   := by {
-    cases pa; cases pb; cases pc; cases pd; cases pe;d rfl
+    cases pa; cases pb; cases pc; cases pd; cases pe; rfl
   }
