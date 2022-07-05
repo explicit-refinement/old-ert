@@ -38,6 +38,7 @@ theorem HasType.wk_eq
         ];
         rfl
     | @sigma Δ' A B _ _ IA IB => 
+      stop
       cases a with
       | none => rw [interp_eq_none] rfl
       | some a => 
@@ -49,12 +50,9 @@ theorem HasType.wk_eq
           dsimp only [Term.denote_ty, pure]
           apply congr (congr rfl _) _;
           {
-            rw [IA R]
-            {
-              rw [interp_eq_some]
-              rw [rec_to_cast']
-            }
-            rfl
+            rw [IA R rfl]
+            rw [interp_eq_some]
+            rw [rec_to_cast']
           }
           {
             rw [@IB
@@ -103,13 +101,36 @@ theorem HasType.wk_eq
             }
           }
     | coprod _ _ IA IB => 
-      stop
       cases a with
-      | none => rfl
+      | none => rw [interp_eq_none] rfl
       | some a => 
         cases a with
-        | inl a => dsimp only [Term.denote_ty]; rw [IA R rfl]; exact D
-        | inr a => dsimp only [Term.denote_ty]; rw [IB R rfl]; exact D
+        | inl a => 
+          dsimp only [Term.denote_ty];
+          rw [IA R rfl]; 
+          rw [interp_eq_some]
+          rw [rec_to_cast']
+          rw [rec_to_cast']
+          rw [cast_inl']
+          simp only []
+          apply congr rfl;
+          simp only [pure]
+          rw [cast_some]
+          rw [Term.stlc_ty_wk]
+          rw [Term.stlc_ty_wk]
+        | inr a => 
+          dsimp only [Term.denote_ty]; 
+          rw [IB R rfl]; 
+          rw [interp_eq_some]
+          rw [rec_to_cast']
+          rw [rec_to_cast']
+          rw [cast_inr']
+          simp only []
+          apply congr rfl;
+          simp only [pure]
+          rw [cast_some]
+          rw [Term.stlc_ty_wk]
+          rw [Term.stlc_ty_wk]
     | assume _ _ IA IB => 
       stop
       cases a with
