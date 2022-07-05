@@ -841,3 +841,17 @@ theorem cast_app_dep_four
   := by {
     cases pa; cases pb; cases pc; cases pd; cases pe; rfl
   }
+
+theorem cast_bind {A B A' B'}
+  {H: Option B = Option B'}
+  {H': Option A = Option A'}
+  {H'': (A -> Option B) = (A' -> Option B')}
+  (x: Option A)
+  (f: A -> Option B)
+  (p: A = A')
+  (p': B = B')
+  : cast H (Option.bind x f) =
+  Option.bind (cast H' x) (cast H'' f)
+  := by {
+    cases p; cases p'; rfl
+  }
