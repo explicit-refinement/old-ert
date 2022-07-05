@@ -17,7 +17,6 @@ theorem HasType.wk_eq
     rw [HS] at HΓ;
     induction HΓ generalizing ρ Γ s with
     | @pi Δ' A B _ _ IA IB =>
-      stop
       cases a with
       | none => rw [interp_eq_none] rfl
       | some a => 
@@ -82,7 +81,6 @@ theorem HasType.wk_eq
           }
         }
     | @sigma Δ' A B _ _ IA IB =>
-      stop
       cases a with
       | none => rw [interp_eq_none] rfl
       | some a => 
@@ -144,7 +142,6 @@ theorem HasType.wk_eq
             }
           }
     | coprod _ _ IA IB => 
-      stop
       cases a with
       | none => rw [interp_eq_none] rfl
       | some a => 
@@ -176,7 +173,6 @@ theorem HasType.wk_eq
           rw [Term.stlc_ty_wk]
           rw [Term.stlc_ty_wk]
     | @assume Δ' A B _ _ IA IB => 
-      stop
       cases a with
       | none => rw [interp_eq_none] rfl
       | some a => 
@@ -226,7 +222,6 @@ theorem HasType.wk_eq
           }
         }
     | @set Δ' A B _ _ IA IB => 
-      stop
       dsimp only [Term.denote_ty]
       dsimp only [Term.stlc_ty] at a;
       apply congr (congr rfl _) _;
@@ -391,7 +386,6 @@ theorem HasType.wk_eq
         }
       }
     | @dimplies Δ' A B _ _ IA IB => 
-      stop
       dsimp only [Term.denote_ty]
       apply arrow_equivalence;
       {
@@ -437,7 +431,6 @@ theorem HasType.wk_eq
         rw [interp_eq_none]
       }
     | @dand Δ' A B _ _ IA IB => 
-      stop
       dsimp only [Term.denote_ty]
       simp only [pure]
       apply congr (congr rfl _) _;
@@ -484,14 +477,12 @@ theorem HasType.wk_eq
         rw [interp_eq_none]
       }
     | or _ _ IA IB =>
-      stop
       dsimp only [Term.denote_ty]
       rw [IA R rfl]
       rw [interp_eq_none]
       rw [IB R rfl]
       rw [interp_eq_none]
     | @forall_ Δ' A B _ _ IA IB => 
-      stop 
       dsimp only [Term.denote_ty]
       apply forall_helper_dep (by rw [Term.stlc_ty_wk]);
       intro x;
@@ -542,25 +533,59 @@ theorem HasType.wk_eq
           rw [interp_eq_none]
         }
       }
-    | exists_ _ _ IA IB => 
-      stop
+    | @exists_ Δ' A B _ _ IA IB => 
       dsimp only [Term.denote_ty]
       simp only [pure]
-      --TODO: generalized existential helper
-      stop
-      apply congr rfl _;
-      funext x;
+      apply existential_forall_helper_dep (by rw [Term.stlc_ty_wk]);
+      intro x;
       apply congr (congr rfl _) _;
-      apply IA;
-      assumption
-      rfl
-      rw [@IB 
-        ((Hyp.mk _ (HypKind.val type))::Δ) 
-        _ _ _ (x, G) (x, D) R.lift];
-      rfl
-      rfl
+      {
+        rw [IA R rfl]
+        rw [rec_to_cast']
+        rw [rec_to_cast']
+      }
+      {
+        rw [@IB 
+          ((Hyp.mk _ (HypKind.val type))::Γ) 
+          _ _ _ (x, G) R.lift rfl];            
+        apply congr (congr rfl _) _;
+        {
+          rw [<-Stlc.Context.interp.wk_lift]
+          let Δ'' := Term.stlc_ty A :: Context.stlc (Context.upgrade Δ');
+          let f: 
+            (Γ: Stlc.Context) -> Γ.interp 
+            -> Stlc.WkCtx ρ.lift Γ Δ'' -> (Stlc.Context.interp Δ'')
+            := λΓ => @Stlc.Context.interp.wk Γ Δ'' ρ.lift;
+          have Hf: ∀Γ, @Stlc.Context.interp.wk Γ Δ'' ρ.lift = f Γ 
+            := by intros; rfl;
+          rw [Hf]
+          rw [Hf]
+          apply cast_app_dep_two f;
+          rfl
+          {
+            simp only [
+              Context.upgrade, Hyp.upgrade, A.stlc_ty_wk, Context.stlc
+            ]
+          }
+          {
+            rw [cast_pair']
+            {
+              {
+                apply congr (congr rfl _) rfl;
+                rw [A.stlc_ty_wk]
+                rw [rec_to_cast']
+                rw [cast_merge]
+                rfl
+              }
+            }
+            rfl
+          }
+        }
+        {
+          rw [interp_eq_none]
+        }
+      }
     | eq _ Hl Hr =>
-      stop
       dsimp only [Term.denote_ty]
       apply propext;
       apply Iff.intro;
