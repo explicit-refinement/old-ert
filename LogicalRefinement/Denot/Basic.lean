@@ -175,16 +175,50 @@ notation G "⊧" a "∈" A => Annot.denote A G a
 
 def Context.denote: (Γ: Context) -> Γ.upgrade.stlc.interp -> Prop
 | [], () => True
-| (Hyp.mk A (HypKind.val type))::Γ, (a, G) => 
+| (Hyp.mk A (HypKind.val _))::Γ, (a, G) => 
   A.denote_ty G a ∧ denote Γ G
-| (Hyp.mk φ (HypKind.val prop))::Γ, (a, G) =>
-  φ.denote_ty G a ∧ denote Γ G
 | (Hyp.mk A HypKind.gst)::Γ, (a, G) =>
   A.denote_ty G a ∧ denote Γ G
 
 theorem Context.denote.upgrade_helper {Γ: Context}
   : Γ.denote = Context.upgrade_idem.symm ▸ Γ.upgrade.denote
-  := sorry
+  := by {
+    induction Γ with
+    | nil => rfl
+    | cons H Γ I =>
+      rw [rec_to_cast']
+      cases H with
+      | mk A k =>
+        cases k <;> (
+          simp only [denote]
+          funext ⟨x, G⟩;
+          rw [cast_lam]
+          apply congr (congr rfl _) _;
+          rw [Context.upgrade_idem]
+          rw [cast_pair' rfl (by rw [Context.upgrade_idem])]
+          {
+            simp only []
+            apply congr _ rfl;
+            let f: 
+              (Γ : Stlc.Context) → Stlc.Context.interp Γ → 
+              Option (Ty.interp (Term.stlc_ty A)) ->
+              Prop
+              := @Term.denote_ty A;
+            have H: @Term.denote_ty A = f := rfl;
+            rw [H]
+            rw [cast_app_dep_first f]
+            rw [Context.upgrade_idem]
+          }
+          {
+            rw [I]
+            rw [rec_to_cast', cast_pair']
+            simp only []
+            rw [cast_app_prop]
+            rw [Context.upgrade_idem]
+            rfl
+          }
+        )
+  }
 
 theorem Context.denote.upgrade_eq {Γ: Context} {G}
   : Γ.denote G = Γ.upgrade.denote (Context.upgrade_idem.symm ▸ G)

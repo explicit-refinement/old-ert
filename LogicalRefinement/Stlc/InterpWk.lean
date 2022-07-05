@@ -47,3 +47,32 @@ theorem WkCtx.stlc {ρ Γ Δ} (R: WkCtx ρ Γ Δ): Stlc.WkCtx ρ Γ.stlc Δ.stlc
       apply Stlc.WkCtx.lift <;>
       assumption
   }
+
+theorem HasType.wk_stlc_interp_commute {Γ Δ ρ a} 
+  (H: Δ ⊢ a: term A) 
+  (R: WkCtx ρ Γ Δ)
+  (G: Γ.stlc.interp)
+  : H.stlc.interp.wk R.stlc G
+  = Annot.stlc_ty_wk ▸ (H.wk R).stlc.interp G
+  := by {
+    rw [<-Stlc.HasType.interp_wk]
+    rw [rec_to_cast']
+    rw [Stlc.HasType.interp_transport_cast']
+    rw [Term.wk_stlc_commute]
+    rw [Annot.stlc_ty_wk]
+  }
+
+theorem HasType.wk_stlc_interp_commute' {Γ Δ ρ a} 
+  (H: Δ ⊢ a: term A) 
+  (H': Γ ⊢ a.wk ρ: term (A.wk ρ))
+  (R: WkCtx ρ Γ Δ)
+  (G: Γ.stlc.interp)
+  : H'.stlc.interp G
+  = Annot.stlc_ty_wk.symm ▸ H.stlc.interp.wk R.stlc G
+  := by {
+    rw [<-Stlc.HasType.interp_wk]
+    rw [rec_to_cast']
+    rw [Stlc.HasType.interp_transport_cast']
+    rw [Term.wk_stlc_commute]
+    rw [Annot.stlc_ty_wk]
+  }

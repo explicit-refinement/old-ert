@@ -324,17 +324,3 @@ theorem HasType.subst_stlc_interp_up_commute' {Γ Δ σ a}
     assumption
     rw [Annot.stlc_ty_subst H.expr_regular]
   }
-
-theorem HasType.wk_stlc_interp_commute {Γ Δ ρ a} 
-  (H: Δ ⊢ a: term A) 
-  (R: WkCtx ρ Γ Δ)
-  (G: Γ.stlc.interp)
-  : H.stlc.interp.wk R.stlc G
-  = Annot.stlc_ty_wk ▸ (H.wk R).stlc.interp G
-  := by {
-    rw [<-Stlc.HasType.wk_interp_dist]
-    rw [rec_to_cast']
-    rw [Stlc.HasType.interp_transport_cast']
-    rw [Term.wk_stlc_commute]
-    rw [Annot.stlc_ty_wk]
-  }

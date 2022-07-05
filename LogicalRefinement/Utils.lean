@@ -711,3 +711,28 @@ theorem forall_helper {A: Type} {B C: A -> Prop}
       exact Hf x
     }
   }
+
+  theorem cast_app_prop
+  (A B: Sort u) 
+  (f: A -> Prop)
+  (b: B)
+  (H: (A -> Prop) = (B -> Prop))
+  (H': B = A):
+  (cast H f) b 
+  = f (cast H' b)
+  := by {
+    cases H';
+    rfl
+  }
+
+  theorem cast_app_dep_first
+  {A: Sort u} {B: A -> Sort v} {C: Sort w}
+  (f: (a: A) -> B a -> C)
+  (a a': A)
+  (b: B a)
+  (p: a = a')
+  (p': B a = B a'):
+  f a' (cast p' b) = f a b
+  := by {
+    cases p; cases p'; rfl
+  }
