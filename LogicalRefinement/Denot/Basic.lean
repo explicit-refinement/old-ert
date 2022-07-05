@@ -226,7 +226,7 @@ theorem Context.denote.upgrade_eq {Γ: Context} {G}
     rw [Context.denote.upgrade_helper]
     rw [rec_to_cast']
     rw [rec_to_cast']
-    sorry
+    rw [cast_app_prop]
   }
 
 theorem Context.denote.upgrade {Γ: Context} {G}
