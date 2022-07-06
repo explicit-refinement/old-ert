@@ -697,30 +697,29 @@ theorem HasType.denote
             --TODO: subst0 invariance...
             sorry
     | @beta_zero Γ C z s HC Hz Hs IC Iz Is => 
-        stop
-        dsimp only [
-          denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
-          Term.denote_ty', Term.denote_ty
-        ]
-        exists by {
-          simp only [if_pos, HC.stlc_ty_subst, Term.subst0]
-          exact 
-            @Stlc.HasType.natrec
-            Γ.upgrade.stlc
-            _ _ _ _
-            Stlc.HasType.zero
-            (HC.stlc_ty_subst ▸ Hz.stlc)
-            (by {
-              have Hs' := Hs.stlc;
-              simp only [
-                Term.alpha0, Term.wknth, stlc_ty
-              ] at Hs';
-              rw [HasType.stlc_ty_subst] at Hs';
-              rw [Term.stlc_ty_wk] at Hs';
-              exact Hs';
-              exact HC.wk_sort (by repeat constructor);
-            })
-        }, Hz.stlc;
+      dsimp only [
+        Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
+        Term.denote_ty
+      ]
+      exists by {
+        simp only [if_pos, HC.stlc_ty_subst, Term.subst0]
+        exact 
+          @Stlc.HasType.natrec
+          Γ.upgrade.stlc
+          _ _ _ _
+          Stlc.HasType.zero
+          (HC.stlc_ty_subst ▸ Hz.stlc)
+          (by {
+            have Hs' := Hs.stlc;
+            simp only [
+              Term.alpha0, Term.wknth, stlc_ty
+            ] at Hs';
+            rw [HasType.stlc_ty_subst] at Hs';
+            rw [Term.stlc_ty_wk] at Hs';
+            exact Hs';
+            exact HC.wk_sort (by repeat constructor);
+          })
+      }, Hz.stlc;
     | @beta_succ Γ C e z s HC He Hz Hs IC Ie Iz Is => 
       stop
       dsimp only [
