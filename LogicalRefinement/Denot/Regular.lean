@@ -580,8 +580,32 @@ theorem HasType.denote
       ]
       --TODO: downgrade stlc...
       exact ⟨
-        sorry,
-        sorry,
+        by {
+          constructor;
+          constructor;
+          exact Hl.stlc;
+          exact HB.stlc_ty_subst0 ▸ Hr.stlc;
+          have He' := He.stlc;
+          rw [HC.stlc_ty_subst0]
+          simp only [
+            Term.alpha0, Annot.subst0, Annot.subst, 
+            Term.wknth, <-Subst.subst_wk_compat,
+            Term.subst_composes
+          ] at He';
+          rw [Annot.stlc_ty_subst HC] at He';
+          exact He'
+        },
+        by {
+          have Hre := (He.subst01 Hr Hl).stlc;
+          simp only [
+            Term.alpha0, Annot.subst01, Annot.subst, 
+            Term.subst_composes,
+            Term.wknth, <-Subst.subst_wk_compat
+          ] at Hre;
+          rw [Annot.stlc_ty_subst HC] at Hre;
+          rw [HC.stlc_ty_subst0]
+          exact Hre
+        },
         sorry
       ⟩
     | beta_set =>   

@@ -276,11 +276,12 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
   case beta_pair => 
     constructor
     constructor
+    apply HasType.downgrade
     apply subst0_sort
-    assumption
+    upgrade_ctx assumption
     constructor
     constructor
-    assumption
+    upgrade_ctx assumption
     upgrade_ctx assumption
     assumption
     assumption
@@ -306,14 +307,15 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
   case beta_set => 
     constructor
     constructor
+    apply HasType.downgrade
     apply subst0_sort
-    assumption
+    upgrade_ctx assumption
     constructor
     constructor
-    assumption
+    upgrade_ctx assumption
     upgrade_ctx assumption
     assumption
-    assumption
+    upgrade_ctx assumption
     constructor
     constructor
     constructor
@@ -336,14 +338,15 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
   case beta_repr => 
     constructor
     constructor
+    apply HasType.downgrade
     apply subst0_sort
-    assumption
-    constructor
-    constructor
-    assumption
     upgrade_ctx assumption
-    assumption
-    assumption
+    constructor
+    constructor
+    upgrade_ctx assumption
+    upgrade_ctx assumption
+    upgrade_ctx assumption
+    upgrade_ctx assumption
     constructor
     constructor
     constructor

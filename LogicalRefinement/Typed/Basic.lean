@@ -420,37 +420,37 @@ inductive HasType: Context -> Term -> Annot -> Prop
         (case type (coprod A B) (inj 1 e) l r) 
         (r.subst0 e)))
   | beta_pair {Γ: Context} {A B C l r e: Term}:
-    HasType Γ l (term A) ->
-    HasType Γ r (term (B.subst0 l)) ->
+    HasType Γ.upgrade l (term A) ->
+    HasType Γ.upgrade r (term (B.subst0 l)) ->
     HasType Γ A type ->
     HasType ((Hyp.mk A (HypKind.val type))::Γ) B type ->
     HasType ((Hyp.mk (sigma A B) (HypKind.val type))::Γ) C type ->
     HasType 
-    ((Hyp.mk B (HypKind.val type))::(Hyp.mk A (HypKind.val type))::Γ) 
+    ((Hyp.mk B (HypKind.val type))::(Hyp.mk A (HypKind.val type))::Γ.upgrade) 
     e (expr type ((C.wknth 1).alpha0 (pair (var 1) (var 0)))) ->
     HasType Γ 
       (beta_pair (sigma A B) l r e)
       (expr prop (eq (C.subst0 (pair l r)) (let_pair type (sigma A B) (pair l r) e) (e.subst01 r l)))
   | beta_set {Γ: Context} {A φ C l r e: Term}:
-    HasType Γ l (term A) ->
+    HasType Γ.upgrade l (term A) ->
     HasType Γ r (proof (φ.subst0 l)) ->
     HasType Γ A type ->
     HasType ((Hyp.mk A (HypKind.val type))::Γ) φ prop ->
     HasType ((Hyp.mk (set A φ) (HypKind.val type))::Γ) C type ->
     HasType 
-    ((Hyp.mk φ (HypKind.val prop))::(Hyp.mk A (HypKind.val type))::Γ) 
+    ((Hyp.mk φ (HypKind.val prop))::(Hyp.mk A (HypKind.val type))::Γ.upgrade) 
     e (expr type ((C.wknth 1).alpha0 (elem (var 1) (var 0)))) ->
     HasType Γ 
       (beta_set (set A φ) l r e)
       (expr prop (eq (C.subst0 (elem l r)) (let_set type (set A φ) (elem l r) e) (e.subst01 r l)))
   | beta_repr {Γ: Context} {A B C l r e: Term}:
     HasType Γ.upgrade l (term A) ->
-    HasType Γ r (term (B.subst0 l)) ->
+    HasType Γ.upgrade r (term (B.subst0 l)) ->
     HasType Γ A type ->
     HasType ((Hyp.mk A HypKind.gst)::Γ) B type ->
     HasType ((Hyp.mk (union A B) (HypKind.val type))::Γ) C type ->
     HasType 
-    ((Hyp.mk B (HypKind.val type))::(Hyp.mk A HypKind.gst)::Γ) 
+    ((Hyp.mk B (HypKind.val type))::(Hyp.mk A HypKind.gst)::Γ.upgrade) 
     e (expr type ((C.wknth 1).alpha0 (repr (var 1) (var 0)))) ->
     HasType Γ 
       (beta_repr (union A B) l r e)
