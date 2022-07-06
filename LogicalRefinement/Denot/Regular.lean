@@ -488,32 +488,105 @@ theorem HasType.denote
         (Hs.subst0 Ht).stlc,
         sorry
       ⟩
-    | funext HA Hf Hg Hp _IA If Ig Ip =>
-      dsimp only [
-        Stlc.HasType.interp, 
-        Term.stlc, Term.stlc_ty, stlc_ty, Term.denote_ty,
-        Ty.abort, Annot.denote
-      ]
-      exact ⟨
-        Hf.stlc,
-        Hg.stlc,
-        by {
-          generalize HDf: Hf.stlc.interp G = Df;
-          generalize HDg: Hg.stlc.interp G = Dg;
-          cases Df with
-          | some Df =>  
-            cases Dg with
-            | some Dg => 
-              stop
-              apply congr rfl;
-              funext x;
-              have Ip' := 
-                Ip (HΓ.cons_val HA) (some x, G)
-                ;
-            | none => sorry --TODO: contradiction
-          | none => sorry --TODO: contradiction
+    | @eta Γ A B f Hf HA If IA => 
+      have pe
+        : Γ.upgrade.stlc ⊧ (Term.eta_ex A B f).stlc
+          : Ty.arrow A.stlc_ty B.stlc_ty 
+        := by {
+          constructor
+          dsimp only [Term.stlc]
+          have H: 
+            Term.stlc 
+              (Term.app (Term.pi (Term.wk1 A) (Term.wknth B 1)) 
+                (Term.wk1 f) (Term.var 0))
+          = Stlc.app (Ty.arrow A.stlc_ty B.stlc_ty) 
+            (f.wk1.stlc)
+            (Stlc.var 0)
+          := by {
+            dsimp only [Term.stlc];
+            apply congr _ rfl;
+            apply congr _ rfl;
+            simp only [Term.stlc_ty, Term.wk1, Term.wknth, Term.stlc_ty_wk]
+          };
+          rw [H]
+          constructor
+          have Hf': ((Hyp.val A type)::Γ.upgrade) ⊢ f.wk1: _ := Hf.wk1;
+          have Hf'' := Hf'.stlc;
+          simp only [stlc_ty, Annot.wk1, term, Term.stlc_ty_wk, Annot.wk] at Hf'';
+          exact Hf'';
+          constructor
+          constructor
+        };
+      have pf
+        : Γ.upgrade.stlc ⊧ f.stlc
+          : Ty.arrow A.stlc_ty B.stlc_ty 
+        := Hf.stlc;
+      --TODO: get rid of double upgrade...
+      have If' := If HΓ.upgrade (Context.upgrade_idem.symm ▸ G) HG.upgrade;
+      have HAB := Hf.term_regular;
+      have ⟨yi, Hyi⟩ := HAB.denote_ty_some If';
+      exists pe, pf;
+      unfold Term.eta_ex
+      dsimp only [Term.stlc_ty, Stlc.HasType.interp, Term.stlc]
+      simp only []
+      generalize Hsf: Stlc.HasType.interp pf G = sf;
+      cases sf with
+      | some sf => 
+        apply congr rfl;
+        funext x;
+        generalize Hwf: Stlc.HasType.interp 
+          (_: _ ⊧ f.wk1.stlc: _)
+          _ = wf;
+        {
+          have H: cast (by simp only [Term.wk1, Term.wknth, Term.stlc_ty_wk]) wf 
+            = some sf := by {
+              rw [<-Hsf, <-Hwf];
+              rw [Stlc.HasType.interp_wk1']
+              apply Stlc.HasType.interp_transport_cast'';
+              rfl
+              simp only [Term.wk1, Term.wknth, Term.stlc_ty_wk]
+              rfl
+              rfl
+              simp only [Term.wk1, Term.wknth, Term.stlc_ty_wk]
+              exact Hf.stlc;
+              simp only [Term.wk1, Stlc.wk1, Term.wk_stlc_commute]
+            }
+          cases wf with
+          | some wf =>
+            simp only [
+              Ty.interp.app, Stlc.HasVar.interp,
+              Option.bind, pure, mp_to_cast
+            ]
+            rw [cast_some]
+            simp only []
+            rw [cast_tri']
+            apply congr _ rfl;
+            simp only [Term.wk1, Term.stlc_ty_wk]
+            simp only [Term.wknth, Term.stlc_ty_wk]
+            rw [cast_some] at H;
+            apply some_eq_helper H;
+          | none => 
+            stop
+            rw [cast_none'] at H;
+            contradiction
+            simp only [Term.wk1, Term.wknth, Term.stlc_ty_wk]
         }
-      ⟩
+      | none => 
+        dsimp only [Term.denote_ty] at If'
+        simp only [Eq.rec] at If';
+        generalize Hsf': Stlc.HasType.interp _ _ = sf';
+        rw [Hsf'] at If';
+        cases sf' with
+        | some sf' => 
+          have C: some sf' = none := by {
+            rw [<-Hsf]
+            rw [<-Hsf']
+            rw [rec_to_cast']
+            rw [Stlc.Context.interp.downgrade_cast]
+            rfl
+          };
+          contradiction
+        | none => exact If'.elim
     | irir Hf Hx Hy => 
       stop
       exact ⟨

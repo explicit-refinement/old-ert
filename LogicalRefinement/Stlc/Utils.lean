@@ -27,3 +27,25 @@ theorem HasType.stlc_interp_var {Γ n A} (H: Γ ⊢ Term.var n: term A):
     ]
     rfl
   }
+
+  theorem Stlc.Context.interp.downgrade_cast
+  {Γ: _root_.Context} (G: Γ.upgrade.stlc.interp)
+  (p: Γ.upgrade.stlc.interp = Γ.upgrade.upgrade.stlc.interp)
+  : (cast p G).downgrade = G
+  := by {
+    induction Γ with
+    | nil => rfl
+    | cons H Γ I =>
+      cases H with
+      | mk A k =>
+        cases k <;>
+        cases G with
+        | mk x G =>
+          simp only [downgrade]
+          rw [rec_to_cast']
+          rw [cast_pair']
+          rw [I]
+          rfl
+          rw [Context.upgrade_idem]
+          rfl
+  }

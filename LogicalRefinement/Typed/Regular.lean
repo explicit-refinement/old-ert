@@ -177,13 +177,15 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
       exact Hp.upgrade
       exact Context.upgrade_idem ▸ Hs.upgrade.upgrade.subst0 Hp.upgrade.upgrade
 
-  case funext Γ A B f g _ _ Hf Hg _ _ If _ _ => 
+  case eta Hf _ If _ =>
+    constructor
     constructor
     apply HasType.downgrade
-    constructor
-    cases If; assumption
-    exact Hf.upgrade
-    exact Hg.upgrade
+    cases If <;> assumption
+    apply HasType.eta_ex_ty;
+    cases If <;> assumption
+    exact Hf
+    exact Hf
 
   case irir Γ A B f x y Hf Hx Hy If Ix _ => 
     cases Ix with

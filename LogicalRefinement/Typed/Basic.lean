@@ -372,16 +372,10 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType Γ (beta_ir t s) 
     (proof (eq (B.subst0 t) 
     (app_irrel (intersect A B) (lam_irrel A s) t) (s.subst0 t)))
-  | funext {Γ: Context} {A B f g p: Term}:
-    HasType Γ A type ->
+  | eta {Γ: Context} {A B f: Term}:
     HasType Γ.upgrade f (term (pi A B)) ->
-    HasType Γ.upgrade g (term (pi A B)) ->
-    HasType ((Hyp.mk A (HypKind.val type))::Γ) p (proof (
-      eq B 
-        ((pi A B).wk1.app f.wk1 (var 0))
-        ((pi A B).wk1.app g.wk1 (var 0))
-    )) ->
-    HasType Γ (funext f g p) (proof (eq (pi A B) f g))
+    HasType Γ A type ->
+    HasType Γ (eta A f) (proof (eq (pi A B) (eta_ex A B f) f))
   | irir {Γ: Context} {A B f x y: Term}:
     HasType Γ.upgrade f (term (const_arrow A B)) ->
     HasType Γ.upgrade x (term A) ->

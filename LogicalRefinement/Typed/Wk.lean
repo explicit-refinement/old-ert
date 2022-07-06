@@ -227,3 +227,22 @@ theorem IsCtx.var_valid {Γ} (H: IsCtx Γ) (Hv: HasVar Γ n k A):
 theorem IsCtx.var {Γ} (H: IsCtx Γ) (Hv: HasVar Γ n (HypKind.val s) A)
   : Γ ⊢ var n: expr s A
   := HasType.var (H.var_valid Hv) Hv
+
+theorem HasType.eta_ex_ty {Γ f A B}
+  (HAB: Γ ⊢ Term.pi A B: type)
+  (H: Γ ⊢ f: term (Term.pi A B))
+  : Γ ⊢ eta_ex A B f: term (Term.pi A B)
+  := by {
+    constructor;
+    conv =>
+      arg 3
+      rw [<-@Term.wknth1_subst0_var0 B]
+    apply HasType.app;
+    exact HAB.wk1;
+    exact H.wk1;
+    constructor;
+    cases HAB with
+    | pi HA => exact HA.wk1
+    constructor
+    cases HAB <;> assumption
+  }

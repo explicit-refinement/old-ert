@@ -1156,3 +1156,15 @@ theorem Term.alpha0_var1_subst01 {C l r: Term}:
     funext n;
     cases n <;> rfl
   }
+
+
+def Term.wknth1_subst0_var0 {u: Term}:
+  (u.wknth 1).subst0 (var 0) = u := by {
+    simp only [subst0, wknth, <-Subst.subst_wk_compat, Term.subst_composes]
+    conv =>
+      rhs
+      rw [<-u.subst_id]
+    apply congr rfl;
+    funext v;
+    cases v <;> rfl
+  }
