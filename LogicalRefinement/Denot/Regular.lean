@@ -451,18 +451,32 @@ theorem HasType.denote
       stop
       exact ⟨
         by {
-          have Hf' := Hf.stlc;
-          dsimp only 
-            [stlc_ty, Term.const_arrow, Term.wk1, Term.stlc_ty] at Hf'
-          rw [Term.stlc_ty_wk] at Hf'
-          exact Hf'
+          simp only [Term.irir_ex, Term.const_arrow]
+          dsimp only [Term.stlc, Term.stlc_ty]
+          rw [Term.stlc_ty_wk1]
+          constructor
+          {
+            have Hf' := Hf.stlc;
+            dsimp only 
+              [stlc_ty, Term.const_arrow, Term.wk1, Term.stlc_ty] at Hf'
+            rw [Term.stlc_ty_wk] at Hf'
+            exact Hf'
+          }
+          constructor
         }, 
         by {
-          have Hf' := Hf.stlc;
-          dsimp only 
-            [stlc_ty, Term.const_arrow, Term.wk1, Term.stlc_ty] at Hf'
-          rw [Term.stlc_ty_wk] at Hf'
-          exact Hf'
+          simp only [Term.irir_ex, Term.const_arrow]
+          dsimp only [Term.stlc, Term.stlc_ty]
+          rw [Term.stlc_ty_wk1]
+          constructor
+          {
+            have Hf' := Hf.stlc;
+            dsimp only 
+              [stlc_ty, Term.const_arrow, Term.wk1, Term.stlc_ty] at Hf'
+            rw [Term.stlc_ty_wk] at Hf'
+            exact Hf'
+          }
+          constructor
         }, 
         rfl
       ⟩
