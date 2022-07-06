@@ -393,9 +393,9 @@ theorem HasType.denote
         have Ir' := Ir (IsCtx.cons_val HΓ HB) G ⟨Ie', HG⟩;
         sorry
     | imp Hϕ Hs Iϕ Is => 
-      stop --TODO: prop transport...
-      exact λDϕ => Is (IsCtx.cons_val HΓ Hϕ) (none, G) ⟨Dϕ, HG⟩;
+      exact λDϕ => Hs.proof_regular.denote_prop_none (Is (IsCtx.cons_val HΓ Hϕ) (none, G) ⟨Dϕ, HG⟩);
     | @mp Γ φ ψ l r Hϕψ Hl Hr _ Il Ir => 
+      stop
       dsimp only [
         Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
         Term.denote_ty, Ty.abort, Annot.denote

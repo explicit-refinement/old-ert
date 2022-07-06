@@ -592,7 +592,7 @@ theorem HasType.wk_eq
       {
         intro ⟨Hl', Hr', HG⟩;
         exists Hl.stlc, Hr.stlc;
-        --TODO: report this "this pattern is a metavariable trash"
+        --TODO: report this "this pattern is a metavariable" trash
         rw [<-Hl.stlc.wk_def]
         rw [<-Hr.stlc.wk_def]
         rw [HasType.wk_stlc_interp_commute]
