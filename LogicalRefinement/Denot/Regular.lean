@@ -756,6 +756,7 @@ theorem HasType.denote
             --TODO: subst0 invariance...
             sorry
     | @beta_zero Γ C z s HC Hz Hs IC Iz Is => 
+      stop
       dsimp only [
         Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
         Term.denote_ty
@@ -782,32 +783,41 @@ theorem HasType.denote
     | @beta_succ Γ C e z s HC He Hz Hs IC Ie Iz Is => 
       stop
       dsimp only [
-        denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
-        Term.denote_ty', Term.denote_ty
+        Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
+        Term.denote_ty, Ty.abort, Annot.denote
       ]
-      simp only []
-      exists sorry, sorry;
-      simp only [
-        Eq.mp, Ty.interp.app, Ty.interp.bind_val, Ty.interp.natrec_int
-      ]
-      split
-      {
-        rename_i n Hm;
-        cases n with
-        | zero => sorry
-        | succ n =>
-          simp only [Ty.interp.natrec_inner, Ty.interp.bind_val]
-          split
-          {
-            --TODO: subst0 lemma...
-            sorry
-          }
-          {
-            sorry
-          }
-      }
-      {
+      exact ⟨
+        by {
+          stop
+          rw [HC.stlc_ty_subst0]
+          constructor
+          constructor
+          constructor
+          exact He.stlc;
+          exact HC.stlc_ty_subst0 ▸ Hz.stlc;
+          have Hs' := Hs.stlc;
+          simp only [
+            Term.alpha0, Annot.subst0, Annot.subst, 
+            Term.wknth, <-Subst.subst_wk_compat,
+            Term.subst_composes
+          ] at Hs';
+          rw [Annot.stlc_ty_subst HC] at Hs';
+          exact Hs'
+        },
+        by {
+          have Hn := 
+            HasType.natrec (by upgrade_ctx assumption) He Hz Hs;
+          have Hs' := (Hs.subst01_gen_gst Hn He rfl).stlc;
+          simp only [
+            Term.alpha0, Annot.subst0, Annot.subst, 
+            Term.wknth, <-Subst.subst_wk_compat,
+            Term.subst_composes, Annot.subst01
+          ] at Hs';
+          rw [Annot.stlc_ty_subst HC] at Hs';
+          rw [HC.stlc_ty_subst0]
+          exact Hs'
+        },
         sorry
-      }
+      ⟩
     | _ => exact True.intro
   }
