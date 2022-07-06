@@ -74,13 +74,6 @@ theorem Stlc.Context.eq_at_refl
       | succ n => exact I n
   }
 
-theorem Stlc.Context.eq_at.symm 
-  {Γ Δ: Stlc.Context} {n}
-  (H: Γ.eq_at Δ n): Δ.eq_at Γ n
-  := by {
-    sorry
-  }
-
 def Stlc.Context.eq_mod 
   (Γ Δ: Stlc.Context) (a: Stlc): Prop
   := ∀n: Nat, a.has_dep n -> Γ.eq_at Δ n
@@ -94,30 +87,6 @@ theorem Stlc.Context.interp.eq_mod.ctx_eq_mod
   (H: G.eq_mod D a)
   : Γ.eq_mod Δ a
   := λn Hd => (H n Hd).ctx_eq_at
-
-theorem Stlc.Context.eq_mod.symm 
-  {Γ Δ: Stlc.Context} {a}
-  (H: Γ.eq_mod Δ a): Δ.eq_mod Γ a
-  := by {
-    sorry
-  }
-
---TODO: var theorems
-
-theorem Stlc.Context.eq_mod.deriv
-  {Γ Δ: Stlc.Context} {a: Stlc} {A: Ty} 
-  (H: Γ.eq_mod Δ a)
-  (HΓ: Γ ⊧ a: A)
-  : (Δ ⊧ a: A)
-  := by {
-    sorry
-  }
-
-theorem Stlc.Context.eq_mod.deriv_eq
-  {Γ Δ: Stlc.Context} {a: Stlc} {A: Ty} 
-  (H: Γ.eq_mod Δ a)
-  : (Γ ⊧ a: A) = (Δ ⊧ a: A)
-  := propext (Iff.intro (λHΓ => H.deriv HΓ) (λHΔ => H.symm.deriv HΔ))
 
 theorem Stlc.HasVar.interp_eq_mod
   {Γ Δ: Stlc.Context} {n: Nat} {A: Ty} {G: Γ.interp} {D: Δ.interp}
