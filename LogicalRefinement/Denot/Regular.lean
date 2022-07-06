@@ -643,12 +643,42 @@ theorem HasType.denote
         },
         sorry
       ⟩
-    | beta_repr =>   
-      stop
+    | beta_repr Hl Hr HA HB HC He Il Ir _IA _IB IC Ie => 
+      stop     
       dsimp only [
-        denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
-        Term.denote_ty', Term.denote_ty
+        Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
+        Term.denote_ty, Ty.abort, Annot.denote
       ]
+      exact ⟨
+        by {
+          constructor;
+          constructor;
+          constructor;
+          exact HB.stlc_ty_subst0 ▸ Hr.stlc;
+          have He' := He.stlc;
+          rw [HC.stlc_ty_subst0]
+          simp only [
+            Term.alpha0, Annot.subst0, Annot.subst, 
+            Term.wknth, <-Subst.subst_wk_compat,
+            Term.subst_composes
+          ] at He';
+          rw [Annot.stlc_ty_subst HC] at He';
+          exact He'
+        },
+        by {
+          have Hre := (He.upgrade.subst01 Hr.upgrade Hl.upgrade).stlc;
+          simp only [
+            Term.alpha0, Annot.subst01, Annot.subst, 
+            Term.subst_composes,
+            Term.wknth, <-Subst.subst_wk_compat,
+            Context.upgrade_idem
+          ] at Hre;
+          rw [Annot.stlc_ty_subst HC] at Hre;
+          rw [HC.stlc_ty_subst0]
+          exact Hre
+        },
+        sorry
+      ⟩
     | succ => 
       stop
       intro x H;
