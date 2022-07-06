@@ -455,6 +455,8 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType Γ 
       (beta_repr (union A B) l r e)
       (expr prop (eq (C.subst0 (repr l r)) (let_repr type (union A B) (repr l r) e) (e.subst01 r l)))
+  --TODO: trans?
+  --TODO: beta_trans?
 
   -- Natural numbers
   | nats {Γ}: HasType Γ nats type

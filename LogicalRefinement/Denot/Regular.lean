@@ -572,12 +572,18 @@ theorem HasType.denote
         },
         sorry
       ⟩
-    | beta_pair =>   
+    | beta_pair Hl Hr HA HB HC He Il Ir _IA _IB IC Ie =>
       stop
       dsimp only [
-        denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
-        Term.denote_ty', Term.denote_ty
+        Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
+        Term.denote_ty, Ty.abort, Annot.denote
       ]
+      --TODO: downgrade stlc...
+      exact ⟨
+        sorry,
+        sorry,
+        sorry
+      ⟩
     | beta_set =>   
       stop
       dsimp only [
