@@ -481,30 +481,30 @@ theorem HasType.denote
         rfl
       ⟩
     | prir HP HA Hx Hy _  _ Ix Iy =>
-      stop
       dsimp only [
-        denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
-        Term.denote_ty', Term.denote_ty
+        Stlc.HasType.interp, 
+        Term.stlc, Term.stlc_ty, stlc_ty, Term.denote_ty,
+        Ty.abort, Annot.denote
       ]
-      rw [<-Hx.denote_prop_subst0 HΓ rfl HG HP _ 
-        (by 
-          rw [rec_to_cast, cast_none];
-          exact congr (congr rfl HP.stlc_ty_subst.symm) rfl;
-          exact HP.stlc_ty_subst.symm
-        )
-      ]
+      rw [<-Hx.denote_prop_subst0]
       intro Dx;
-      --TODO: have an actual weakening theorem
-      apply Term.denote_wk1_prop _ sorry _ G none none sorry _;
-      unfold Term.denote_ty';
-      rw [<-Hy.denote_prop_subst0 HΓ rfl HG HP _ 
-        (by 
-          rw [rec_to_cast, cast_none];
-          exact congr (congr rfl HP.stlc_ty_subst.symm) rfl;
-          exact HP.stlc_ty_subst.symm
-        )
-      ]
+      rw [<-Term.denote_wk1_eq]
+      rw [<-Hy.denote_prop_subst0]
       exact Dx
+      assumption
+      assumption
+      assumption
+      rw [HP.stlc_ty_subst0]
+      rfl
+      exact HP.subst0_sort Hy;
+      rw [interp_eq_none]
+      rw [interp_eq_none]
+      assumption
+      assumption
+      exact HP
+      rw [HP.stlc_ty_subst0]
+      rw [interp_eq_none]
+      constructor
     | beta_left =>  
       stop
       dsimp only [
