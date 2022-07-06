@@ -481,6 +481,7 @@ theorem HasType.denote
         rfl
       ⟩
     | prir HP HA Hx Hy _  _ Ix Iy =>
+      stop
       dsimp only [
         Stlc.HasType.interp, 
         Term.stlc, Term.stlc_ty, stlc_ty, Term.denote_ty,
@@ -505,26 +506,39 @@ theorem HasType.denote
       rw [HP.stlc_ty_subst0]
       rw [interp_eq_none]
       constructor
-    | beta_left =>  
+    | beta_left He HA HB HC Hl Hr Ie _IA _IB _IC Il Ir =>  
       stop
       dsimp only [
-        denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
-        Term.denote_ty', Term.denote_ty
+        Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
+        Term.denote_ty, Ty.abort, Annot.denote
       ]
-      exists sorry, sorry;
-      simp only [Ty.interp.case];
-      split
-      {
+      exact ⟨
+        by {
+          constructor
+          constructor
+          exact He.stlc;
+          have Hl' := Hl.stlc;
+          rw [HC.stlc_ty_subst0]
+          simp only [Term.alpha0] at Hl';
+          rw [Annot.stlc_ty_subst HC] at Hl';
+          exact Hl'
+          have Hr' := Hr.stlc;
+          rw [HC.stlc_ty_subst0]
+          simp only [Term.alpha0] at Hr';
+          rw [Annot.stlc_ty_subst HC] at Hr';
+          exact Hr'
+        },
+        by {
+          have Hle := (Hl.subst0 He).stlc;
+          simp only [
+            Term.alpha0, Annot.subst0, Annot.subst, Term.subst_composes
+          ] at Hle;
+          rw [Annot.stlc_ty_subst HC] at Hle;
+          rw [HC.stlc_ty_subst0]
+          exact Hle
+        },
         sorry
-      }
-      {
-        sorry
-      }
-      {
-        unfold Ty.abort;
-        --TODO: subst0 none lemma
-        sorry
-      }
+      ⟩
     | beta_right =>
       stop
       dsimp only [
