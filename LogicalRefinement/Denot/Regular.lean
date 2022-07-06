@@ -539,14 +539,39 @@ theorem HasType.denote
         },
         sorry
       ⟩
-    | beta_right =>
+    | beta_right He HA HB HC Hl Hr Ie _IA _IB _IC Il Ir =>
       stop
       dsimp only [
-        denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
-        Term.denote_ty', Term.denote_ty
+        Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
+        Term.denote_ty, Ty.abort, Annot.denote
       ]
-      exists sorry, sorry;
-      sorry
+      exact ⟨
+        by {
+          constructor
+          constructor
+          exact He.stlc;
+          have Hl' := Hl.stlc;
+          rw [HC.stlc_ty_subst0]
+          simp only [Term.alpha0] at Hl';
+          rw [Annot.stlc_ty_subst HC] at Hl';
+          exact Hl'
+          have Hr' := Hr.stlc;
+          rw [HC.stlc_ty_subst0]
+          simp only [Term.alpha0] at Hr';
+          rw [Annot.stlc_ty_subst HC] at Hr';
+          exact Hr'
+        },
+        by {
+          have Hre := (Hr.subst0 He).stlc;
+          simp only [
+            Term.alpha0, Annot.subst0, Annot.subst, Term.subst_composes
+          ] at Hre;
+          rw [Annot.stlc_ty_subst HC] at Hre;
+          rw [HC.stlc_ty_subst0]
+          exact Hre
+        },
+        sorry
+      ⟩
     | beta_pair =>   
       stop
       dsimp only [
