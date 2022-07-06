@@ -578,7 +578,6 @@ theorem HasType.denote
         Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
         Term.denote_ty, Ty.abort, Annot.denote
       ]
-      --TODO: downgrade stlc...
       exact ⟨
         by {
           constructor;
@@ -608,12 +607,42 @@ theorem HasType.denote
         },
         sorry
       ⟩
-    | beta_set =>   
-      stop
+    | beta_set Hl Hr HA HB HC He Il Ir _IA _IB IC Ie =>
+      stop        
       dsimp only [
-        denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
-        Term.denote_ty', Term.denote_ty
+        Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
+        Term.denote_ty, Ty.abort, Annot.denote
       ]
+      exact ⟨
+        by {
+          constructor;
+          constructor;
+          exact Hl.stlc;
+          constructor
+          have He' := He.stlc;
+          rw [HC.stlc_ty_subst0]
+          simp only [
+            Term.alpha0, Annot.subst0, Annot.subst, 
+            Term.wknth, <-Subst.subst_wk_compat,
+            Term.subst_composes, Context.stlc
+          ] at He';
+          rw [Annot.stlc_ty_subst HC] at He';
+          rw [HB.prop_is_unit] at He';
+          exact He'
+        },
+        by {
+          have Hre := (He.subst01 Hr.upgrade Hl).stlc;
+          simp only [
+            Term.alpha0, Annot.subst01, Annot.subst, 
+            Term.subst_composes,
+            Term.wknth, <-Subst.subst_wk_compat
+          ] at Hre;
+          rw [Annot.stlc_ty_subst HC] at Hre;
+          rw [HC.stlc_ty_subst0]
+          exact Hre
+        },
+        sorry
+      ⟩
     | beta_repr =>   
       stop
       dsimp only [
