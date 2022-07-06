@@ -269,10 +269,6 @@ theorem HasType.interp_irrel_dep {Γ a s A}
     | let_pair He _ _ _ He' Ie _ _ _ Ie' => 
       apply Or.inr
       cases HA';
-      rename AnnotSort => k;
-      cases k;
-      case prop => 
-        dsimp only [Stlc.has_dep, Term.stlc] at Ha;
       cases Ha with
       | inl Ha => exact He.interp_irrel_dep_cast (Ie n Ha rfl)
       | inr Ha => 
@@ -287,10 +283,6 @@ theorem HasType.interp_irrel_dep {Γ a s A}
     | case Hd _ _ _ Hl Hr Id _ _ _ Il Ir =>  
       apply Or.inr
       cases HA';
-      rename AnnotSort => k;
-      cases k;
-      case prop => 
-        dsimp only [Stlc.has_dep, Term.stlc] at Ha;
       cases Ha with
       | inl Ha => exact Hd.interp_irrel_dep_cast (Id n Ha rfl)
       | inr Ha =>
@@ -309,10 +301,6 @@ theorem HasType.interp_irrel_dep {Γ a s A}
     | let_set He _ _ _ He' Ie _ _ _ Ie' =>  
       apply Or.inr
       cases HA';
-      rename AnnotSort => k;
-      cases k;
-      case prop => 
-        dsimp only [Stlc.has_dep, Term.stlc] at Ha;
       cases Ha with
       | inl Ha => 
         cases Ha with
@@ -348,10 +336,6 @@ theorem HasType.interp_irrel_dep {Γ a s A}
     | let_repr He _ _ _ He' Ie _ _ _ Ie' =>  
       apply Or.inr
       cases HA';
-      rename AnnotSort => k;
-      cases k;
-      case prop => 
-        dsimp only [Stlc.has_dep, Term.stlc] at Ha;
       cases Ha with
       | inl Ha => 
         cases Ha with
@@ -368,10 +352,6 @@ theorem HasType.interp_irrel_dep {Γ a s A}
       apply Or.inr
       rename AnnotSort => k;
       cases HA';
-      rename AnnotSort => k;
-      cases k;
-      case prop => 
-        dsimp only [Stlc.has_dep, Term.stlc] at Ha;
       cases Ha with
       | inl Ha => exact He.interp_irrel_dep_cast (Ie n Ha rfl)
       | inr Ha =>

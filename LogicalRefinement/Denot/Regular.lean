@@ -183,7 +183,7 @@ theorem HasType.denote
           rw [<-Stlc.HasType.interp_transport_inner _ _ rfl HB.stlc_ty_subst.symm]
           exact (interp_eq_none' Hri).symm
       | none => exact Hl.term_regular.denote_ty_non_null Il'
-    | @let_pair Γ A B C e e' k He HA HB HC He' Ie IA IB IC Ie' =>
+    | @let_pair Γ A B C e e' He HA HB HC He' Ie IA IB IC Ie' =>
       stop
       cases k with
       | type => sorry
@@ -216,7 +216,7 @@ theorem HasType.denote
         dsimp only [Option.map, Option.bind, Function.comp]
         exact Ie'
       | none => exact He.term_regular.denote_ty_non_null Ie'
-    | @case Γ A B C e l r k He HA HB HC Hl Hr Ie IA IB IC Il Ir =>
+    | @case Γ A B C e l r He HA HB HC Hl Hr Ie IA IB IC Il Ir =>
       stop
       have HAB: Γ ⊢ Term.coprod A B: type := HasType.coprod HA HB;
       cases k with
@@ -429,6 +429,10 @@ theorem HasType.denote
       . sorry
       . sorry
     | let_wit => sorry
+    | case_prop => sorry
+    | let_pair_prop => sorry
+    | let_set_prop => sorry
+    | let_repr_prop => sorry
     | refl Ha => exact ⟨Ha.stlc, Ha.stlc, rfl⟩
     | discr Ha Hb Hp Ia Ib Ip => sorry
     | cong => 
@@ -826,7 +830,7 @@ theorem HasType.denote
       cases x with
       | none => cases H
       | some x => exact True.intro
-    | @natrec Γ C e z s k HC He Hz Hs IC Ie Iz Is =>
+    | @natrec Γ C e z s HC He Hz Hs IC Ie Iz Is =>
       stop
       generalize Hei:
         Stlc.HasType.interp
@@ -896,6 +900,7 @@ theorem HasType.denote
           | succ n I => 
             --TODO: subst0 invariance...
             sorry
+    | natrec_prop => sorry
     | @beta_zero Γ C z s HC Hz Hs IC Iz Is => 
       stop
       dsimp only [

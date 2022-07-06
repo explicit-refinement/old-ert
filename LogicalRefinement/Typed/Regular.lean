@@ -378,6 +378,41 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
     constructor
     assumption
 
+  case natrec_prop => 
+    constructor
+    apply HasType.downgrade
+    apply HasType.subst0_sort
+    upgrade_ctx assumption
+    upgrade_ctx assumption
+
+  case case_prop =>
+    constructor 
+    apply HasType.downgrade
+    apply HasType.subst0_sort;
+    upgrade_ctx assumption
+    assumption
+
+  case let_pair_prop => 
+    constructor 
+    apply HasType.downgrade
+    apply HasType.subst0_sort;
+    upgrade_ctx assumption
+    assumption
+
+  case let_set_prop => 
+    constructor 
+    apply HasType.downgrade
+    apply HasType.subst0_sort;
+    upgrade_ctx assumption
+    assumption
+
+  case let_repr_prop => 
+    constructor 
+    apply HasType.downgrade
+    apply HasType.subst0_sort;
+    upgrade_ctx assumption
+    assumption
+
   case beta_zero => 
     constructor
     constructor
@@ -462,4 +497,85 @@ theorem HasType.proof_regular (p: HasType Γ a (proof A)): HasType Γ A prop
     let H := regular p;
     cases H with
     | expr H => exact H
+  }
+
+theorem HasType.downgrade_prop {Γ: Context} {p ϕ} 
+  (H: Γ.upgrade ⊢ p: proof ϕ): Γ ⊢ p: proof ϕ
+  := by {
+    generalize HΓ': Γ.upgrade = Γ';
+    generalize HP: proof ϕ = P;
+    rw [HΓ', HP] at H; 
+    induction H generalizing Γ ϕ with
+    | var HA Hv IA => 
+      cases HP;
+      generalize HP: (HypKind.val prop) = P;
+      rw [HP] at Hv;
+      constructor;
+      {
+        cases HΓ';
+        exact HA.downgrade
+      }
+      clear HA;
+      clear IA;
+      induction Hv generalizing Γ with
+      | zero => 
+        cases Γ with
+        | nil => cases HΓ'
+        | cons H Γ =>
+          cases H with
+          | mk A k =>
+            cases k with
+            | val s => 
+              cases s with
+              | prop => cases HΓ'; constructor
+              | type => cases HΓ'; cases HP
+            | gst => cases HΓ'; cases HP
+      | succ Hv I => 
+        cases Γ with
+        | nil => cases HΓ'
+        | cons H Γ =>
+          cases HΓ'
+          constructor;
+          apply I rfl HP;
+    | _ =>
+      cases HP <;>
+      cases HΓ' <;>  
+      rename_i' I0 I1 I2 I3 I4 I5 I6 I7 I8 I9 IA IB IC ID <;>
+      constructor <;>
+      (first 
+        | assumption
+        | exact I0 rfl rfl
+        | exact I1 rfl rfl
+        | exact I2 rfl rfl
+        | exact I3 rfl rfl
+        | exact I4 rfl rfl
+        | exact I5 rfl rfl
+        | exact I6 rfl rfl
+        | exact I7 rfl rfl
+        | exact I8 rfl rfl
+        | exact I9 rfl rfl
+        | exact IA rfl rfl
+        | exact IB rfl rfl
+        | exact IC rfl rfl
+        | exact ID rfl rfl
+        | apply HasType.downgrade <;> (
+          first
+          | assumption
+          | exact Context.upgrade_idem ▸ I0.upgrade
+          | exact Context.upgrade_idem ▸ I1.upgrade
+          | exact Context.upgrade_idem ▸ I2.upgrade
+          | exact Context.upgrade_idem ▸ I3.upgrade
+          | exact Context.upgrade_idem ▸ I4.upgrade
+          | exact Context.upgrade_idem ▸ I5.upgrade
+          | exact Context.upgrade_idem ▸ I6.upgrade
+          | exact Context.upgrade_idem ▸ I7.upgrade
+          | exact Context.upgrade_idem ▸ I8.upgrade
+          | exact Context.upgrade_idem ▸ I9.upgrade
+          | exact Context.upgrade_idem ▸ IA.upgrade
+          | exact Context.upgrade_idem ▸ IB.upgrade
+          | exact Context.upgrade_idem ▸ IC.upgrade
+          | exact Context.upgrade_idem ▸ ID.upgrade
+          | upgrade_ctx assumption
+        )
+        | upgrade_ctx assumption)
   }
