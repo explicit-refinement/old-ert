@@ -453,6 +453,7 @@ theorem HasType.denote
         sorry
       ⟩
     | beta_ir Hs HA Ht Is _IA It =>
+      stop
       dsimp only [
         Stlc.HasType.interp, 
         Term.stlc, Term.stlc_ty, stlc_ty, Term.denote_ty,
@@ -469,7 +470,7 @@ theorem HasType.denote
         (Context.upgrade_idem ▸ Hs.upgrade.subst0 Ht.upgrade).stlc,
         sorry
       ⟩
-    | beta_pr => 
+    | beta_pr Hs HA Ht Is _IA It => 
       stop
       dsimp only [
         Stlc.HasType.interp, 
@@ -477,8 +478,14 @@ theorem HasType.denote
         Ty.abort, Annot.denote
       ]
       exact ⟨
-        sorry,
-        sorry,
+        by {
+          rw [Hs.expr_regular.stlc_ty_subst0]
+          constructor
+          constructor
+          exact HA.prop_is_unit ▸ Hs.stlc;
+          constructor
+        },
+        (Hs.subst0 Ht).stlc,
         sorry
       ⟩
     | funext => sorry
