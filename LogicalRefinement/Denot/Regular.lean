@@ -488,8 +488,7 @@ theorem HasType.denote
         (Hs.subst0 Ht).stlc,
         sorry
       ⟩
-    | funext HA Hf Hg Hp _IA If Ig Ip => 
-      stop
+    | funext HA Hf Hg Hp _IA If Ig Ip =>
       dsimp only [
         Stlc.HasType.interp, 
         Term.stlc, Term.stlc_ty, stlc_ty, Term.denote_ty,
@@ -498,7 +497,22 @@ theorem HasType.denote
       exact ⟨
         Hf.stlc,
         Hg.stlc,
-        sorry  
+        by {
+          generalize HDf: Hf.stlc.interp G = Df;
+          generalize HDg: Hg.stlc.interp G = Dg;
+          cases Df with
+          | some Df =>  
+            cases Dg with
+            | some Dg => 
+              stop
+              apply congr rfl;
+              funext x;
+              have Ip' := 
+                Ip (HΓ.cons_val HA) (some x, G)
+                ;
+            | none => sorry --TODO: contradiction
+          | none => sorry --TODO: contradiction
+        }
       ⟩
     | irir Hf Hx Hy => 
       stop
