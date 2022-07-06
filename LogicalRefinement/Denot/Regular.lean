@@ -488,7 +488,18 @@ theorem HasType.denote
         (Hs.subst0 Ht).stlc,
         sorry
       ⟩
-    | funext => sorry
+    | funext HA Hf Hg Hp _IA If Ig Ip => 
+      stop
+      dsimp only [
+        Stlc.HasType.interp, 
+        Term.stlc, Term.stlc_ty, stlc_ty, Term.denote_ty,
+        Ty.abort, Annot.denote
+      ]
+      exact ⟨
+        Hf.stlc,
+        Hg.stlc,
+        sorry  
+      ⟩
     | irir Hf Hx Hy => 
       stop
       exact ⟨
