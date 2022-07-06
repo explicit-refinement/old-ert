@@ -434,18 +434,48 @@ theorem HasType.denote
       stop
       dsimp only [denote', Annot.denote]
       sorry
-    | beta => 
+    | beta Hs HA Ht Is _IA It => 
       stop
-      dsimp only [denote', Annot.denote]
-      sorry
-    | beta_ir => 
-      stop
-      dsimp only [denote', Annot.denote]
-      sorry
+      dsimp only [
+        Stlc.HasType.interp, 
+        Term.stlc, Term.stlc_ty, stlc_ty, Term.denote_ty,
+        Ty.abort, Annot.denote
+      ]
+      exact ⟨
+        by {
+          rw [Hs.expr_regular.stlc_ty_subst0]
+          constructor
+          constructor
+          exact Hs.stlc;
+          exact Ht.stlc
+        },
+        (Hs.subst0 Ht).stlc,
+        sorry
+      ⟩
+    | beta_ir =>     
+      stop  
+      dsimp only [
+        Stlc.HasType.interp, 
+        Term.stlc, Term.stlc_ty, stlc_ty, Term.denote_ty,
+        Ty.abort, Annot.denote
+      ]
+      exact ⟨
+        sorry,
+        sorry,
+        sorry
+      ⟩
     | beta_pr => 
       stop
-      dsimp only [denote', Annot.denote]
-      sorry
+      dsimp only [
+        Stlc.HasType.interp, 
+        Term.stlc, Term.stlc_ty, stlc_ty, Term.denote_ty,
+        Ty.abort, Annot.denote
+      ]
+      exact ⟨
+        sorry,
+        sorry,
+        sorry
+      ⟩
     | funext => sorry
     | irir Hf Hx Hy => 
       stop

@@ -351,21 +351,22 @@ inductive HasType: Context -> Term -> Annot -> Prop
   --   HasType Γ e (term (B.subst0 x)) ->
   --   HasType Γ (trans p e B) (term (B.subst0 y))
   | beta {Γ: Context} {A B s t: Term}:
-    HasType ((Hyp.mk A (HypKind.val type))::Γ) s (term B) ->
+    HasType ((Hyp.mk A (HypKind.val type))::Γ.upgrade) s (term B) ->
     HasType Γ A type ->
     HasType Γ.upgrade t (term A) ->
     HasType Γ (beta t s) 
     (proof (eq (B.subst0 t) 
     (app (pi A B) (lam A s) t) (s.subst0 t)))
   | beta_pr {Γ: Context} {φ A s p: Term}:
-    HasType ((Hyp.mk φ (HypKind.val prop))::Γ) s (term A) ->
+    HasType ((Hyp.mk φ (HypKind.val prop))::Γ.upgrade) s (term A) ->
     HasType Γ φ prop ->
     HasType Γ.upgrade p (proof φ) ->
     HasType Γ (beta_pr p s) 
     (proof (eq (A.subst0 p) 
     (app_pr (assume φ A) (lam_pr φ s) p) (s.subst0 p)))
   | beta_ir {Γ: Context} {A B s t: Term}:
-    HasType ((Hyp.mk A HypKind.gst)::Γ) s (term B) ->
+  --TODO: val_type?
+    HasType ((Hyp.mk A HypKind.gst)::Γ.upgrade) s (term B) ->
     HasType Γ A type ->
     HasType Γ.upgrade t (term A) ->
     HasType Γ (beta_ir t s) 

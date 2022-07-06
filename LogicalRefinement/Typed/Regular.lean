@@ -132,16 +132,16 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
       constructor
       apply HasType.downgrade
       constructor
-      exact HB.upgrade.subst0_sort Ht
+      exact Context.upgrade_idem ▸ HB.upgrade.subst0_sort Ht.upgrade
       constructor
       constructor
       exact HA.upgrade.upgrade
-      exact HB.upgrade.upgrade
+      exact HB.upgrade
       constructor
-      exact Hs.upgrade.upgrade
+      exact Hs.upgrade
       exact HA.upgrade.upgrade
       exact Ht.upgrade
-      exact Hs.upgrade.upgrade.subst0 Ht.upgrade
+      exact Context.upgrade_idem ▸ Hs.upgrade.upgrade.subst0 Ht.upgrade.upgrade
 
   case beta_ir Hs HA Ht Is _ _ => 
     cases Is with
@@ -149,16 +149,16 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
       constructor
       apply HasType.downgrade
       constructor
-      exact HB.upgrade.subst0_sort Ht
+      exact Context.upgrade_idem ▸ HB.upgrade.subst0_sort Ht.upgrade
       constructor
       constructor
       exact HA.upgrade.upgrade
-      exact HB.upgrade.upgrade
+      exact HB.upgrade
       constructor
       exact HA.upgrade.upgrade
       upgrade_ctx assumption
       exact Ht.upgrade.upgrade
-      exact Hs.upgrade.upgrade.subst0 Ht.upgrade
+      exact Context.upgrade_idem ▸ Hs.upgrade.upgrade.subst0 Ht.upgrade.upgrade
 
   case beta_pr Hs Hφ Hp Is _ _  => 
     cases Is with
@@ -166,16 +166,16 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
       constructor
       apply HasType.downgrade
       constructor
-      exact HA.upgrade.subst0_sort Hp
+      exact Context.upgrade_idem ▸ HA.upgrade.subst0_sort Hp.upgrade
       constructor
       constructor
       exact Hφ.upgrade.upgrade
-      exact HA.upgrade.upgrade
+      exact HA.upgrade
       constructor
       exact Hφ.upgrade.upgrade
-      exact Hs.upgrade.upgrade
+      exact Hs.upgrade
       exact Hp.upgrade
-      exact Hs.upgrade.upgrade.subst0 Hp.upgrade
+      exact Context.upgrade_idem ▸ Hs.upgrade.upgrade.subst0 Hp.upgrade.upgrade
 
   case funext Γ A B f g _ _ Hf Hg _ _ If _ _ => 
     constructor
