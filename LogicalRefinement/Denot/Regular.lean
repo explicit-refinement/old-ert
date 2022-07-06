@@ -430,6 +430,7 @@ theorem HasType.denote
       . sorry
     | let_wit => sorry
     | refl Ha => exact ⟨Ha.stlc, Ha.stlc, rfl⟩
+    | discr Ha Hb Hp Ia Ib Ip => sorry
     | cong => 
       stop
       dsimp only [denote', Annot.denote]

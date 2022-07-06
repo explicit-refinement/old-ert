@@ -338,6 +338,10 @@ inductive HasType: Context -> Term -> Annot -> Prop
   -- Theory of equality
   | refl {Γ: Context} {A a: Term}:
     HasType Γ.upgrade a (term A) -> HasType Γ (refl a) (proof (eq A a a))
+  | discr {Γ: Context} {A B a b p: Term}:
+    HasType Γ.upgrade a (term A) -> HasType Γ.upgrade b (term B) ->
+    HasType Γ p (proof (eq (coprod A B) (inj 0 a) (inj 1 b))) ->
+    HasType Γ (discr a b p) (proof bot)
   | cong {Γ: Context} {A P p e x y: Term}:
     HasType ((Hyp.mk A (HypKind.val type))::Γ) P prop -> 
     HasType Γ A type ->

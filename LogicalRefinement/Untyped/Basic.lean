@@ -81,6 +81,7 @@ inductive TermKind: List Nat -> Type
   -- Theory of equality
   | eq: TermKind [0, 0, 0]
   | refl: TermKind [0]
+  | discr: TermKind [0, 0, 0]
   | cong: TermKind [0, 0, 1]
   | trans: TermKind [0, 0, 1]
   | beta: TermKind [0, 1]
@@ -173,6 +174,7 @@ abbrev Term.let_wit := let_bin TermKind.let_wit
 
 -- Theory of equality
 abbrev Term.refl := unary TermKind.refl
+abbrev Term.discr := tri TermKind.discr
 abbrev Term.cong := ir TermKind.cong
 abbrev Term.trans := ir TermKind.trans
 abbrev Term.beta := abs TermKind.beta
