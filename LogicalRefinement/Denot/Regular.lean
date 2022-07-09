@@ -185,9 +185,28 @@ theorem HasType.denote
       | none => exact Hl.term_regular.denote_ty_non_null Il'
     | @let_pair Γ A B C e e' He HA HB HC He' Ie IA IB IC Ie' =>
       stop
-      cases k with
-      | type => sorry
-      | prop => sorry
+      have De := Ie HΓ G HG;
+      dsimp only [
+        Term.denote_ty, Term.stlc, Annot.denote,
+        stlc_ty, Term.stlc_ty, Stlc.HasType.interp
+      ] at *;
+      generalize HSe: He.stlc.interp G.downgrade = Se;
+      rw [HSe] at De;
+      cases Se with
+      | some p => 
+        cases p with
+        | mk a b =>
+          have ⟨Da, Db⟩ := De;    
+          simp only [Ty.interp.let_pair, Option.bind]
+          have De' := 
+            Ie' ((HΓ.cons_val HA).cons_val HB) 
+            (some b, some a, G)
+            ⟨Db, Da, HG⟩
+            ;
+          --TODO: repeat alpha0 theorem
+          sorry
+      | none => exact False.elim De;
+      ;
     | inj_l He HB Ie IB => 
       stop
       dsimp only [
@@ -298,6 +317,7 @@ theorem HasType.denote
         Term.denote_ty', Term.denote_ty
       ]
     | lam_pr Hϕ Hs _Iϕ Is => 
+      stop
       dsimp only [
         Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
         Term.denote_ty
@@ -305,6 +325,7 @@ theorem HasType.denote
       let Is' := Is (HΓ.cons_val Hϕ) (none, G) ⟨sorry, HG⟩;
       sorry
     | app_pr HφA Hl Hr IφA Il Ir =>
+      stop
       dsimp only [Term.denote_ty]
       sorry
     | lam_irrel => 
@@ -343,7 +364,7 @@ theorem HasType.denote
         denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
         Term.denote_ty', Term.denote_ty
       ]
-    | abort Hp HA Ip IA => exact False.elim (Ip HΓ G HG)
+    | abort Hp HA Ip IA => stop exact False.elim (Ip HΓ G HG)
     | dconj HAB Hl Hr IAB Il Ir => 
       stop
       dsimp only [
@@ -392,7 +413,7 @@ theorem HasType.denote
       | inr Ie' =>  
         have Ir' := Ir (IsCtx.cons_val HΓ HB) G ⟨Ie', HG⟩;
         sorry
-    | imp Hϕ Hs Iϕ Is => 
+    | imp Hϕ Hs Iϕ Is => stop 
       exact λDϕ => Hs.proof_regular.denote_prop_none (Is (IsCtx.cons_val HΓ Hϕ) (none, G) ⟨Dϕ, HG⟩);
     | @mp Γ φ ψ l r Hϕψ Hl Hr _ Il Ir => 
       stop
@@ -406,7 +427,7 @@ theorem HasType.denote
       exact Hψ;
       rw [Hψ.stlc_ty_subst0]
       rw [interp_eq_none]
-    | general HA Hs IA Is => 
+    | general HA Hs IA Is => stop
       exact λx Dx => Hs.proof_regular.denote_prop_none 
         (Is (IsCtx.cons_val HΓ HA) (x, G) ⟨Dx, HG⟩);
     | inst HAϕ Hl Hr _ Il Ir => 
@@ -433,7 +454,7 @@ theorem HasType.denote
     | let_pair_prop => sorry
     | let_set_prop => sorry
     | let_repr_prop => sorry
-    | refl Ha => exact ⟨Ha.stlc, Ha.stlc, rfl⟩
+    | refl Ha => stop exact ⟨Ha.stlc, Ha.stlc, rfl⟩
     | discr Ha Hb Hp Ia Ib Ip => sorry
     | cong => 
       stop
@@ -493,7 +514,7 @@ theorem HasType.denote
         (Hs.subst0 Ht).stlc,
         sorry
       ⟩
-    | @eta Γ A B f Hf HA If IA => 
+    | @eta Γ A B f Hf HA If IA => stop
       have pe
         : Γ.upgrade.stlc ⊧ (Term.eta_ex A B f).stlc
           : Ty.arrow A.stlc_ty B.stlc_ty 
