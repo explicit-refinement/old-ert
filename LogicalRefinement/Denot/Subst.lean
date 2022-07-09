@@ -746,15 +746,69 @@ theorem SubstCtx.subst_denot''
   }
 
 theorem HasType.denote_val_subst0
-  {A: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} 
+  {A B: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} 
   {a: Option A.stlc_ty.interp}
-  {B: Term} {b: Term}
-  {a': Option (A.subst0 b).stlc_ty.interp}
-  {b' s s'}
-  (Hb: Γ ⊢ b: expr s' B)
+  {b: Term}
+  {sa sb}
+  (Hb: Γ ⊢ b: expr sb B)
   (HΓ: IsCtx Γ)
   (HG: G ⊧ ✓Γ)
-  (HA: ({ ty := B, kind := HypKind.val s' } :: Γ) ⊢ A: sort s)
+  (HA: ({ ty := B, kind := HypKind.val sb } :: Γ) ⊢ A: sort sa)
+  : @Term.denote_ty A (B.stlc_ty::Γ.upgrade.stlc) (Hb.stlc.interp G.downgrade, G) a =
+    @Term.denote_ty (A.subst0 b) Γ.upgrade.stlc G (HA.stlc_ty_subst ▸ a)
+  := by {
+    have D := 
+      @SubstCtx.subst_denot 
+      _ _ _ _ _ a _
+      (Hb.to_subst HΓ) HΓ 
+      (IsCtx.cons_val HΓ Hb.expr_regular) HG HA;
+    apply equiv_prop_split D _ rfl;
+    {
+      apply congr _ rfl;
+      apply congr rfl;
+      {
+        simp only [
+          SubstCtx.transport_interp_up, 
+          SubstCtx.transport_interp,
+          SubstCtx.interp,
+          Stlc.SubstCtx.interp,
+          Stlc.InterpSubst.transport_ctx
+        ]
+        apply congr;
+        {
+          apply congr rfl _;
+          rw [Hb.interp_upgrade]
+          rfl
+        }
+        {
+          clear HG;
+          apply Eq.trans G.transport_id.symm;
+          cases Γ with
+          | nil => rfl
+          | cons H Γ => 
+            cases H with
+            | mk H k =>
+              cases k <;>
+              cases G with
+              | mk x G => 
+                apply congr (congr rfl _) rfl;
+                funext n A Hv;
+                cases Hv <;> rfl
+        }
+      }
+    }
+  }
+
+theorem HasType.denote_val_subst0'
+  {A B: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} 
+  {a: Option A.stlc_ty.interp}
+  {b: Term}
+  {a' b'}
+  {sa sb}
+  (Hb: Γ ⊢ b: expr sb B)
+  (HΓ: IsCtx Γ)
+  (HG: G ⊧ ✓Γ)
+  (HA: ({ ty := B, kind := HypKind.val sb } :: Γ) ⊢ A: sort sa)
   (HAA': A.stlc_ty = (A.subst0 b).stlc_ty)
   (Haa': a' = HAA' ▸ a)
   (Hbb': b' = Hb.stlc.interp G.downgrade)
@@ -808,6 +862,27 @@ theorem HasType.denote_val_subst0
     }
   }
 
+theorem HasType.denote_prop_subst0
+  {A B: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} 
+  {a: Option A.stlc_ty.interp}
+  {b: Term}
+  {a': Option (A.subst0 b).stlc_ty.interp}
+  {b': Option B.stlc_ty.interp}
+  {s}
+  (Hb: Γ ⊢ b: proof B)
+  (HΓ: IsCtx Γ)
+  (HG: G ⊧ ✓Γ)
+  (HA: ({ ty := B, kind := HypKind.val prop } :: Γ) ⊢ A: sort s)
+  (HAA': A.stlc_ty = (A.subst0 b).stlc_ty)
+  (Haa': a' = HAA' ▸ a)
+  : @Term.denote_ty A (B.stlc_ty::Γ.upgrade.stlc) (b', G) a =
+    @Term.denote_ty (A.subst0 b) Γ.upgrade.stlc G a'
+  := by {
+    rw [<-Hb.denote_val_subst0' HΓ HG HA HAA' Haa' rfl]
+    rw [HA.eq_lrt_ty_denot']
+    exact (G.eq_mod_lrt_refl Γ.upgrade Γ.upgrade).extend_prop
+  }
+
 theorem HasType.denote_val_alpha0
   {A B C: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} 
   {a: Option A.stlc_ty.interp}
@@ -845,99 +920,31 @@ theorem HasType.denote_val_alpha0'
     cases Haa'; cases Hbb';
     apply denote_val_alpha0 <;> assumption
   }
-    
-theorem HasType.denote_val_subst0'
-  {A: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} {a: Option A.stlc_ty.interp}
-  {B: Term} {b: Term}
-  {a': Option (A.subst0 b).stlc_ty.interp}
-  {b' s'}
-  (Hb: Γ ⊢ b: expr s' B)
-  (HΓ: IsCtx Γ)
-  (HG: G ⊧ ✓Γ)
-  (HA: ({ ty := B, kind := HypKind.val s' } :: Γ) ⊢ A: type)
-  (HAA': A.stlc_ty = (A.subst0 b).stlc_ty)
-  (Haa': a' = HAA' ▸ a)
-  (Hbb': b' = Hb.stlc.interp G.downgrade)
-  (H: @Term.denote_ty A (B.stlc_ty::Γ.upgrade.stlc) (b', G) a)
-  : @Term.denote_ty (A.subst0 b) Γ.upgrade.stlc G a'
-  := by 
-    rw [<-HasType.denote_val_subst0]
-    exact H
-    repeat assumption
 
-theorem HasType.denote_val_antisubst0'
-  {A: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} {a: Option A.stlc_ty.interp}
-  {B: Term} {b: Term}
-  {a': Option (A.subst0 b).stlc_ty.interp}
-  {b' s'}
-  (HΓ: IsCtx Γ)
-  (HG: G ⊧ ✓Γ)
-  (Hb: Γ ⊢ b: expr s' B)
-  (HA: ({ ty := B, kind := HypKind.val s' } :: Γ) ⊢ A: sort s)
-  (HAA': A.stlc_ty = (A.subst0 b).stlc_ty)
-  (Haa': a' = HAA' ▸ a)
-  (Hbb': b' = Hb.stlc.interp G.downgrade)
-  (H: @Term.denote_ty (A.subst0 b) Γ.upgrade.stlc G a')
-  : @Term.denote_ty A (B.stlc_ty::Γ.upgrade.stlc) (b', G) a
-  := by 
-    rw [HasType.denote_val_subst0]
-    exact H
-    repeat assumption
-
-theorem HasType.denote_prop_subst0
-  {A: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} 
+  theorem HasType.denote_val_alpha0''
+  {A B C: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} 
   {a: Option A.stlc_ty.interp}
-  {B: Term} {b: Term}
-  {a': Option (A.subst0 b).stlc_ty.interp}
-  {s b'}
-  (Hb: Γ ⊢ b: proof B)
+  {b: Term}
+  {c: Option C.stlc_ty.interp}
+  {a': Option (A.alpha0 b).stlc_ty.interp}
+  {Γ' Γ'' G' G''}
+  {bi: Option B.stlc_ty.interp}
+  {sa sb sc: AnnotSort}
+  (Hb: (Hyp.mk C (HypKind.val sc)::Γ) ⊢ b: expr sb B)
   (HΓ: IsCtx Γ)
   (HG: G ⊧ ✓Γ)
-  (HA: ({ ty := B, kind := HypKind.val prop } :: Γ) ⊢ A: sort s)
-  (HAA': A.stlc_ty = (A.subst0 b).stlc_ty)
+  (HA: ({ ty := B, kind := HypKind.val sb } :: Γ) ⊢ A: sort sa)
+  (HAA': A.stlc_ty = (A.alpha0 b).stlc_ty)
   (Haa': a' = HAA' ▸ a)
-  : @Term.denote_ty A (B.stlc_ty::Γ.upgrade.stlc) (b', G) a =
-    @Term.denote_ty (A.subst0 b) Γ.upgrade.stlc G a'
+  (Hbb': bi = Hb.stlc.interp (c, G.downgrade))
+  (HΓ': Γ' = B.stlc_ty::Γ.upgrade.stlc)
+  (HΓ'': Γ'' = C.stlc_ty::Γ.upgrade.stlc)
+  (HG': G' = HΓ' ▸ (bi, G))
+  (HG'': G'' = HΓ'' ▸ (c, G))
+  : @Term.denote_ty A Γ' G' a =
+    @Term.denote_ty (A.alpha0 b) Γ'' G'' a'
   := by {
-    rw [<-Hb.denote_val_subst0 HΓ HG HA HAA' Haa' rfl]
-    rw [HA.eq_lrt_ty_denot']
-    exact (G.eq_mod_lrt_refl Γ.upgrade Γ.upgrade).extend_prop
+    cases HΓ'; cases HΓ''; cases HG'; cases HG'';
+    cases Haa'; cases Hbb';
+    apply denote_val_alpha0 <;> assumption
   }
-    
-theorem HasType.denote_prop_subst0'
-  {A: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} 
-  {a: Option A.stlc_ty.interp}
-  {B: Term} {b: Term}
-  {a': Option (A.subst0 b).stlc_ty.interp}
-  {s b'}
-  (Hb: Γ ⊢ b: proof B)
-  (HΓ: IsCtx Γ)
-  (HG: G ⊧ ✓Γ)
-  (HA: ({ ty := B, kind := HypKind.val prop } :: Γ) ⊢ A: sort s)
-  (HAA': A.stlc_ty = (A.subst0 b).stlc_ty)
-  (Haa': a' = HAA' ▸ a)
-  (H: @Term.denote_ty A (B.stlc_ty::Γ.upgrade.stlc) (b', G) a)
-  : @Term.denote_ty (A.subst0 b) Γ.upgrade.stlc G a'
-  := by 
-    rw [<-HasType.denote_prop_subst0]
-    exact H
-    repeat assumption
-
-theorem HasType.denote_prop_antisubst0'
-  {A: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} {a: Option A.stlc_ty.interp}
-  {B: Term} {b: Term}
-  {a': Option (A.subst0 b).stlc_ty.interp}
-  {s b'}
-  (_: S = sort s)
-  (HΓ: IsCtx Γ)
-  (HG: G ⊧ ✓Γ)
-  (Hb: Γ ⊢ b: proof B)
-  (HA: ({ ty := B, kind := HypKind.val prop } :: Γ) ⊢ A: sort s)
-  (HAA': A.stlc_ty = (A.subst0 b).stlc_ty)
-  (Haa': a' = HAA' ▸ a)
-  (H: @Term.denote_ty (A.subst0 b) Γ.upgrade.stlc G a')
-  : @Term.denote_ty A (B.stlc_ty::Γ.upgrade.stlc) (b', G) a
-  := by 
-    rw [HasType.denote_prop_subst0]
-    exact H
-    repeat assumption

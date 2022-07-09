@@ -184,7 +184,6 @@ theorem HasType.denote
           exact (interp_eq_none' Hri).symm
       | none => exact Hl.term_regular.denote_ty_non_null Il'
     | @let_pair Γ A B C e e' He HA HB HC He' Ie IA IB IC Ie' =>
-      stop
       have De := Ie HΓ G HG;
       dsimp only [
         Term.denote_ty, Term.stlc, Annot.denote,
@@ -203,6 +202,15 @@ theorem HasType.denote
             (some b, some a, G)
             ⟨Db, Da, HG⟩
             ;
+          rw [
+            <-He.denote_val_subst0' HΓ HG HC 
+            (by rw [HC.stlc_ty_subst0])
+            (by rw [rec_to_cast']; rw [cast_trans])
+            rfl
+            ]
+          rw [HSe]
+          stop
+          rw [HasType.denote_val_alpha0'] at De'
           --TODO: repeat alpha0 theorem
           sorry
       | none => exact False.elim De;

@@ -883,3 +883,10 @@ theorem cast_bind {A B A' B'}
   := by {
     cases p; cases p'; rfl
   }
+
+theorem cast_trans:
+  (b = cast H a) = (cast H.symm b = a)
+  := by {
+    cases H;
+    rfl
+  }
