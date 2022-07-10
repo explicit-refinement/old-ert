@@ -679,3 +679,74 @@ theorem HasType.denote_wk1
     exact HΓ;
     exact Haa';
   }
+
+theorem cast_bin_cast_helper
+  {A} {B: A -> Type} {C: (a: A) -> B a -> Type}
+  (f: (a: A) -> (b: B a) -> C a b)
+  (a a' b b')
+  (Ha: a = a')
+  (Hb: b = Ha ▸ b')
+  (H: C a b = C a' b'):
+  cast H (f a b) = f a' b'
+  := by {
+    cases Ha;
+    cases Hb;
+    rfl
+  }
+
+theorem HasType.denote_wk2_eq
+  {Γ: Context}  {A B X: Term}  {s k}
+  (HA: HasType ((Hyp.mk B k)::Γ) A (sort s))
+  (b: Option B.wk1.stlc_ty.interp) 
+  (x: Option X.stlc_ty.interp) 
+  (G: Γ.upgrade.stlc.interp)
+  (a: Option A.stlc_ty.interp)
+  (a': Option (A.wknth 1).stlc_ty.interp)
+  (Haa': a' = (A.stlc_ty_wk (Wk.wknth 1)) ▸ a)
+  : @Term.denote_ty A (B.stlc_ty::Γ.upgrade.stlc) (B.stlc_ty_wk _ ▸ b, G) a 
+  = @Term.denote_ty (A.wknth 1) (B.wk1.stlc_ty::X.stlc_ty::Γ.upgrade.stlc) (b, x, G) a'
+  := by {
+    simp only [Term.wknth]
+    cases k with
+    | val s => sorry
+    | gst =>
+      rw [
+        <-@HasType.wk_eq' 
+        ((Hyp.mk (B.wk1) HypKind.gst)::(Hyp.mk X (HypKind.val type))::Γ) 
+        ((Hyp.mk B HypKind.gst)::Γ) 
+        (Wk.wknth 1) _ _ _ _ _
+        (b, x, G) _ HA (by repeat constructor) rfl
+      ]
+      rw [Haa']
+      simp only [rec_to_cast', cast_merge]
+      rfl
+      simp only [Context.stlc, Context.upgrade, Term.stlc_ty_wk, Term.wk1]
+      have He := Stlc.Context.interp.wk_wk2 G x (B.stlc_ty_wk _ ▸ b) (by repeat constructor);
+      apply Eq.trans He.symm _;
+      let f := λB' b => @Stlc.Context.interp.wk 
+        (B'::X.stlc_ty::Γ.upgrade.stlc) 
+        (B'::Γ.upgrade.stlc) 
+        (Wk.wknth 1) (b, x, G)
+        (by repeat constructor);
+      have R: Stlc.WkCtx (Wk.wknth 1)
+        (Context.stlc
+          (Context.upgrade ({ ty := Term.wk1 B, kind := HypKind.gst } :: { ty := X, kind := HypKind.val type } :: Γ)))
+        (Context.stlc (Context.upgrade ({ ty := B, kind := HypKind.gst } :: Γ))) 
+        := by { 
+          simp only [Context.upgrade, Context.stlc, Term.stlc_ty_wk1]; 
+          repeat constructor
+        };
+      stop
+      have Hfl: Stlc.Context.interp.wk (b, x, G) R = f B.stlc_ty (B.stlc_ty_wk _ ▸ b) := by {
+        simp only []
+      }
+      have Hf: B.stlc_ty_wk _ ▸ f B.wk1.stlc_ty b = f B.stlc_ty (B.stlc_ty_wk _ ▸ b) := by {
+        rw [rec_to_cast']
+        rw [rec_to_cast']
+        rw [cast_bin_cast_helper f B.wk1.stlc_ty]
+        rw [Term.stlc_ty_wk1]
+        simp only [rec_to_cast', cast_merge]
+        rfl
+      }
+      rw [<-Hf]
+  }

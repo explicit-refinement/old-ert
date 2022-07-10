@@ -337,6 +337,20 @@ def Stlc.Context.interp.wk_wk1 {Γ: Context} {A: Ty}
     assumption
   }
 
+def Stlc.Context.interp.wk_wk2 {Γ: Context} {A X: Ty} 
+  (G: Γ.interp) 
+  (x: Option X.interp)
+  (a: Option A.interp) 
+  (R: WkCtx (Wk.wknth 1) (A::X::Γ) (A::Γ)):
+  @wk (A::X::Γ) _ _ (a, x, G) R = (a, G)
+  := by {
+    cases R;
+    rw [@Stlc.Context.interp.wk_lift (X::Γ)]
+    rw [Stlc.Context.interp.wk_step]
+    rw [Stlc.Context.interp.wk_id]
+    constructor
+  }
+
 def Stlc.Subst := Nat -> Stlc
 
 def Stlc.to_subst (s: Stlc): Subst
