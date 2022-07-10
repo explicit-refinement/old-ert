@@ -639,18 +639,17 @@ theorem HasType.wk_eq'
     exact R
   }
 
---TODO: make stricter...
-theorem Term.denote_wk1_eq
-  {Γ: Context}  {A: Term}  {s}
-  (HΓ: Γ ⊢ A: sort s) 
-  (B: Term)
+--TODO: move to HasType...
+theorem HasType.denote_wk1_eq
+  {Γ: Context}  {A B: Term}  {s}
+  (HΓ: Γ ⊢ A: sort s)
   (x: Option B.stlc_ty.interp) 
   (G: Γ.upgrade.stlc.interp)
   (a: Option A.stlc_ty.interp)
   (a': Option A.wk1.stlc_ty.interp)
   (Haa': a' = (A.stlc_ty_wk Wk.wk1) ▸ a)
   : A.denote_ty G a 
-  = @denote_ty A.wk1 (B.stlc_ty::Γ.upgrade.stlc) (x, G) a'
+  = @Term.denote_ty A.wk1 (B.stlc_ty::Γ.upgrade.stlc) (x, G) a'
   := by {
     rw [
       <-@HasType.wk_eq' ((Hyp.mk B (HypKind.val type))::Γ) Γ Wk.wk1 _ _ _ _ _
@@ -664,19 +663,18 @@ theorem Term.denote_wk1_eq
     rw [Stlc.Context.interp.wk_wk1]
   }
 
-theorem Term.denote_wk1
-  {Γ: Context}  {A: Term}  {s}
-  (HΓ: Γ ⊢ A: sort s) 
-  (B: Term)
+theorem HasType.denote_wk1
+  {Γ: Context}  {A B: Term}  {s}
+  (HΓ: Γ ⊢ A: sort s)
   (x: Option B.stlc_ty.interp) 
   (G: Γ.upgrade.stlc.interp) 
   (a: Option A.stlc_ty.interp)
   (a': Option A.wk1.stlc_ty.interp)
   (Haa': a' = A.stlc_ty_wk1 ▸ a)
   (H: A.denote_ty G a) 
-  : @denote_ty A.wk1 (B.stlc_ty::Γ.upgrade.stlc) (x, G) a'
+  : @Term.denote_ty A.wk1 (B.stlc_ty::Γ.upgrade.stlc) (x, G) a'
   := by {
-    rw [Term.denote_wk1_eq] at H;
+    rw [denote_wk1_eq] at H;
     exact H;
     exact HΓ;
     exact Haa';

@@ -30,7 +30,7 @@ theorem HasVar.denote_annot
               cases Hv with
               | zero =>
                 simp only [denote, Context.stlc]
-                apply Term.denote_wk1 HA _ x G _ _ _ Hx
+                apply HA.denote_wk1 _ G _ _ _ Hx
                 rw [Stlc.Context.interp.downgrade]
                 rw [Stlc.HasType.interp_var]
                 dsimp only [Stlc.HasVar.interp, Sparsity.ix]
@@ -44,7 +44,7 @@ theorem HasVar.denote_annot
                 have I' := I Hv HΓ G HG;
                 cases s <;> (
                   simp only [denote, Context.stlc]
-                  apply Term.denote_wk1 (HΓ.var_valid Hv) _ x G _ _ _ I';
+                  apply (HΓ.var_valid Hv).denote_wk1 _ G _ _ _ I';
                   rw [monorecursor]
                   rename Nat => n;
                   rw [Stlc.HasType.interp_transport_mono]
@@ -72,7 +72,7 @@ theorem HasVar.denote_annot
               have I' := I Hv HΓ G HG;
               cases s <;> (
                 simp only [denote, Context.stlc]
-                apply Term.denote_wk1 (HΓ.var_valid Hv) _ x G _ _ _ I';
+                apply (HΓ.var_valid Hv).denote_wk1 _ G _ _ _ I';
                 rw [monorecursor]
                 rename Nat => n;
                 rw [Stlc.HasType.interp_transport_mono]
@@ -136,7 +136,8 @@ theorem HasType.denote
           simp only []
           dsimp only [Annot.denote, Term.denote_ty] at Il'
           dsimp only [Annot.denote, Term.denote_ty]
-          apply HasType.denote_val_subst0' Hr HΓ HG HB HB.stlc_ty_subst.symm _ Hrg.symm Ilr
+          rw [<-Hr.denote_val_subst0' HΓ HG HB HB.stlc_ty_subst.symm _ Hrg.symm];
+          exact Ilr
           rw [monorecursor]
           rfl
         | none => exact False.elim (HA.denote_ty_non_null Ir')
@@ -162,7 +163,7 @@ theorem HasType.denote
           }
           {
             simp only [<-Hli, <-Hri]
-            rw [denote_val_subst0]
+            rw [denote_val_subst0']
             exact Ir';
             assumption
             assumption
@@ -184,6 +185,7 @@ theorem HasType.denote
           exact (interp_eq_none' Hri).symm
       | none => exact Hl.term_regular.denote_ty_non_null Il'
     | @let_pair Γ A B C e e' He HA HB HC He' Ie IA IB IC Ie' =>
+      stop
       have De := Ie HΓ G HG;
       dsimp only [
         Term.denote_ty, Term.stlc, Annot.denote,

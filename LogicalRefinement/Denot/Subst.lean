@@ -3,6 +3,7 @@ import LogicalRefinement.Typed
 import LogicalRefinement.Stlc
 import LogicalRefinement.Denot.Basic
 import LogicalRefinement.Denot.Irrel
+import LogicalRefinement.Denot.Wk
 
 open AnnotSort
 open Annot
