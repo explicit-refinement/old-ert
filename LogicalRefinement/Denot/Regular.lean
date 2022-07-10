@@ -209,10 +209,28 @@ theorem HasType.denote
             rfl
             ]
           rw [HSe]
-          stop
-          rw [HasType.denote_val_alpha0'] at De'
-          --TODO: repeat alpha0 theorem
-          sorry
+          simp only [Annot.stlc_ty, Stlc.Context.interp.downgrade] at De';
+          rw [
+            <-@HasType.denote_val_alpha0''
+            (C.wknth 1) _ _ _ _ _ _ _ _
+            _ _ _ _ _ _ _ _ _
+            _ _ _ 
+            (by 
+              rw [Term.wknth, Wk.wknth, Wk.liftn]; 
+              apply HC.wk_sort; 
+              constructor;
+              constructor;
+              repeat sorry
+            )
+            _
+            _
+            _
+            _
+            _
+            _
+            _
+          ] at De'
+          repeat sorry
       | none => exact False.elim De;
       ;
     | inj_l He HB Ie IB => 
