@@ -136,6 +136,29 @@ theorem HasType.denote_subst_let_bin'
     apply denote_subst_let_bin <;> assumption
   }
 
+theorem HasType.denote_subst_let_bin''
+  {A B X Y: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} 
+  {a: Option A.stlc_ty.interp}
+  {b: Term}
+  {a': Option ((A.wknth 1).alpha0 b).stlc_ty.interp}
+  {x: Option X.stlc_ty.interp}
+  {y: Option Y.stlc_ty.interp}
+  {Ixy: Option B.stlc_ty.interp}
+  {sa sb sx sy: AnnotSort}
+  (Hb: ((Hyp.mk Y (HypKind.val sy))::(Hyp.mk X (HypKind.val sx))::Γ) ⊢ b: expr sb B)
+  (HΓ: IsCtx Γ)
+  (HG: G ⊧ ✓Γ)
+  (HA: ({ ty := B, kind := HypKind.val sb } :: Γ) ⊢ A: sort sa)
+  (Ha': a' = HA.stlc_ty_let_bin ▸ a)
+  (HIxy: Ixy = Hb.stlc.interp (y, x, G.downgrade))
+  : @Term.denote_ty A (B.stlc_ty::Γ.upgrade.stlc) (Ixy, G) a =
+    @Term.denote_ty ((A.wknth 1).alpha0 b) (Y.stlc_ty::X.stlc_ty::Γ.upgrade.stlc) (y, x, G) a'
+  := by {
+    cases HIxy;
+    cases Ha';
+    apply denote_subst_let_bin <;> assumption
+  }
+
 theorem HasType.denote
   (H: Γ ⊢ a: A)
   (HΓ: IsCtx Γ)
@@ -230,7 +253,6 @@ theorem HasType.denote
           exact (interp_eq_none' Hri).symm
       | none => exact Hl.term_regular.denote_ty_non_null Il'
     | @let_pair Γ A B C e e' He HA HB HC He' Ie IA IB IC Ie' =>
-      stop
       have De := Ie HΓ G HG;
       dsimp only [
         Term.denote_ty, Term.stlc, Annot.denote,
@@ -256,27 +278,34 @@ theorem HasType.denote
             rfl
             ]
           rw [HSe]
-          simp only [Annot.stlc_ty, Stlc.Context.interp.downgrade] at De';
-          rw [
-            <-@HasType.denote_val_alpha0''
-            (C.wknth 1) _ _ _ _ _ _ _ _
-            _ _ _ _ _ _ _ _ _
-            _ _ _ 
-            (by 
-              rw [Term.wknth, Wk.wknth, Wk.liftn]; 
-              apply HC.wk_sort; 
-              constructor;
-              constructor;
-              repeat sorry
-            )
-            _
-            _
-            _
-            _
-            _
-            _
-            _
-          ] at De'
+          generalize HSe': cast _ _ = Se';
+          rw [HasType.denote_subst_let_bin'']
+          exact De';
+          constructor
+          constructor
+          repeat sorry
+
+          -- simp only [Annot.stlc_ty, Stlc.Context.interp.downgrade] at De';
+          -- rw [
+          --   <-@HasType.denote_val_alpha0''
+          --   (C.wknth 1) _ _ _ _ _ _ _ _
+          --   _ _ _ _ _ _ _ _ _
+          --   _ _ _ 
+          --   (by 
+          --     rw [Term.wknth, Wk.wknth, Wk.liftn]; 
+          --     apply HC.wk_sort; 
+          --     constructor;
+          --     constructor;
+          --     repeat sorry
+          --   )
+          --   _
+          --   _
+          --   _
+          --   _
+          --   _
+          --   _
+          --   _
+          -- ] at De'
           repeat sorry
       | none => exact False.elim De;
       ;
