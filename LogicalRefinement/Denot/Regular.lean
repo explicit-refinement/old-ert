@@ -160,6 +160,30 @@ theorem HasType.denote_subst_let_bin''
     sorry
   }
 
+  theorem HasType.denote_subst_let_pair
+  {A B C: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} 
+  {c: Option C.stlc_ty.interp}
+  {c': Option ((C.wknth 1).alpha0 (Term.pair (Term.var 1) (Term.var 0))).stlc_ty.interp}
+  {a: A.stlc_ty.interp}
+  {b: B.stlc_ty.interp}
+  {sc: AnnotSort}
+  (HC: ({ ty := Term.sigma A B, kind := HypKind.val sb } :: Γ) ⊢ C: sort sc)
+  (HΓ: IsCtx Γ)
+  (HG: G ⊧ ✓Γ)
+  (HA: Γ ⊢ A: sort type)
+  (HB: ((Hyp.mk A (HypKind.val type))::Γ) ⊢ B: sort type)
+  (Hc': c' = HC.stlc_ty_let_bin ▸ c)
+  : @Term.denote_ty C ((Term.sigma A B).stlc_ty::Γ.upgrade.stlc) (some (a, b), G) c =
+    @Term.denote_ty 
+      ((C.wknth 1).alpha0 (Term.pair (Term.var 1) (Term.var 0))) 
+      (B.stlc_ty::A.stlc_ty::Γ.upgrade.stlc) (some b, some a, G) c'
+  := by {
+    apply HasType.denote_subst_let_bin'' _ HΓ HG _ _ Hc';
+    . sorry
+    repeat sorry
+  }
+
+
 theorem HasType.denote
   (H: Γ ⊢ a: A)
   (HΓ: IsCtx Γ)
@@ -279,35 +303,14 @@ theorem HasType.denote
             rfl
             ]
           rw [HSe]
-          generalize HSe': cast _ _ = Se';
-          rw [HasType.denote_subst_let_bin'']
-          exact De';
-          constructor
-          constructor
-          repeat sorry
-
-          -- simp only [Annot.stlc_ty, Stlc.Context.interp.downgrade] at De';
-          -- rw [
-          --   <-@HasType.denote_val_alpha0''
-          --   (C.wknth 1) _ _ _ _ _ _ _ _
-          --   _ _ _ _ _ _ _ _ _
-          --   _ _ _ 
-          --   (by 
-          --     rw [Term.wknth, Wk.wknth, Wk.liftn]; 
-          --     apply HC.wk_sort; 
-          --     constructor;
-          --     constructor;
-          --     repeat sorry
-          --   )
-          --   _
-          --   _
-          --   _
-          --   _
-          --   _
-          --   _
-          --   _
-          -- ] at De'
-          repeat sorry
+          rw [HC.denote_subst_let_pair HΓ HG HA HB rfl]
+          rw [rec_to_cast', cast_merge]
+          apply equiv_prop_helper De';
+          apply congr rfl _;
+          rw [Stlc.HasType.interp_transport_cast']
+          rfl
+          rfl
+          rw [HC.stlc_ty_let_bin, HC.stlc_ty_subst0]
       | none => exact False.elim De;
       ;
     | inj_l He HB Ie IB => 
