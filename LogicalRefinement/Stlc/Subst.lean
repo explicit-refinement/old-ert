@@ -93,7 +93,6 @@ theorem Stlc.SubstCtx.lift2_interp {σ Γ Δ A B} (S: SubstCtx σ Γ Δ)
     simp only [InterpSubst.lift2]
     rw [<-lift_interp]
     rw [<-lift_interp]
-    rfl
   }
 
 --TODO: report spurious unused variable warning

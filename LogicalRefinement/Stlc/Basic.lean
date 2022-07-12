@@ -616,7 +616,6 @@ theorem Stlc.HasVar.interp_wk {Γ Δ ρ n A}
       intros; 
       funext G;
       simp [Context.deriv.wk, Context.interp.wk_id]
-      rfl
     | step R I =>
       intro n A H;
       funext G; cases G;
@@ -641,7 +640,6 @@ theorem Stlc.HasVar.interp_wk {Γ Δ ρ n A}
           reduce
           ext
         rw [<-I]
-        rfl
   }
 
 theorem option_helper {a b: A}: a = b -> some a = some b := by intros; simp [*]
@@ -860,7 +858,6 @@ theorem Stlc.HasType.interp_wk1' {Γ a a'} {A B: Ty}
   := by {
     cases Ha';
     rw [<-H.interp_wk1 x G]
-    rfl
   }
 
 def Stlc.Subst.wk1 (σ: Subst): Subst :=

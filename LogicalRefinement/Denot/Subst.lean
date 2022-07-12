@@ -42,7 +42,7 @@ theorem SubstCtx.subst_denot
         generalize Hb: Option.bind _ _ = b;
         {
           generalize Hx': 
-            ((HasType.stlc_ty_subst (by assumption)) ▸ x) = x';
+            (HA'.stlc_ty_subst ▸ x) = x';
           have IA' :=
             Hx' ▸
             interp_eq_collapse ▸
@@ -74,7 +74,7 @@ theorem SubstCtx.subst_denot
             G x' x Hx'.symm
           ]
           have Hbind: 
-            ((HasType.stlc_ty_subst (by assumption)) ▸ b) 
+            ((HB.stlc_ty_subst) ▸ b) 
             = Option.bind x' a := by {
               rw [<-Hb]
               rw [<-Hx']
@@ -143,7 +143,6 @@ theorem SubstCtx.subst_denot
             apply congr;
             rfl
             rw [cast_dist]
-            rfl
         }
     | sigma HA' HB IA IB =>
       cases a with
@@ -289,7 +288,6 @@ theorem SubstCtx.subst_denot
         cases s with
         | type => 
           rw [<-transport_interp_up_lift]
-          rfl
           exact S.lift_type HA;
           exact HA;
           rw [rec_to_cast']
@@ -300,7 +298,6 @@ theorem SubstCtx.subst_denot
       }
       {
         rw [interp_eq_none]
-        rfl
       }
     | @intersect Γ A B HA' HB IA IB => 
       cases a with
@@ -317,7 +314,7 @@ theorem SubstCtx.subst_denot
         generalize Hb: a () = b;
         {
           generalize Hx': 
-            ((HasType.stlc_ty_subst (by assumption)) ▸ x) = x';
+            (HA'.stlc_ty_subst ▸ x) = x';
           have IA' :=
             Hx' ▸
             interp_eq_collapse ▸
@@ -779,7 +776,6 @@ theorem HasType.denote_val_subst0
         {
           apply congr rfl _;
           rw [Hb.interp_upgrade]
-          rfl
         }
         {
           clear HG;
@@ -838,7 +834,6 @@ theorem HasType.denote_val_subst0'
           apply congr rfl _;
           rw [Hbb'];
           rw [Hb.interp_upgrade]
-          rfl
         }
         {
           clear Hbb' Haa' HAA' HG b' a';

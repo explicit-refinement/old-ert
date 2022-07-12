@@ -146,7 +146,6 @@ theorem HasType.wk_stlc_interp_commute_cast_erased {Γ Δ ρ a}
   = Annot.stlc_ty_wk.symm ▸ H'.interp.wk R.stlc G
   := by {
     rw [wk_stlc_interp_commute']
-    rfl
     assumption
     assumption
   }

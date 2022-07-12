@@ -108,11 +108,12 @@ theorem HasType.denote_subst_let_bin
   {x: Option X.stlc_ty.interp}
   {y: Option Y.stlc_ty.interp}
   {sa sb sx sy: AnnotSort}
-  (Hb: ((Hyp.mk Y (HypKind.val sy))::(Hyp.mk X (HypKind.val sx))::Γ) ⊢ b: expr sb B)
+  (Hb: ((Hyp.mk Y (HypKind.val sy))::(Hyp.mk X (HypKind.val sx))::Γ) ⊢ b: expr sb (B.wkn 2))
   (HΓ: IsCtx Γ)
   (HG: G ⊧ ✓Γ)
   (HA: ({ ty := B, kind := HypKind.val sb } :: Γ) ⊢ A: sort sa)
-  : @Term.denote_ty A (B.stlc_ty::Γ.upgrade.stlc) (Hb.stlc.interp (y, x, G.downgrade), G) a =
+  (HB: Γ ⊢ B: sort sb)
+  : @Term.denote_ty A ((B.wkn 2).stlc_ty::Γ.upgrade.stlc) (Hb.stlc.interp (y, x, G.downgrade), G) a =
     @Term.denote_ty ((A.wknth 1).alpha0 b) (Y.stlc_ty::X.stlc_ty::Γ.upgrade.stlc) (y, x, G) (HA.stlc_ty_let_bin ▸ a)
   := sorry
 
@@ -124,12 +125,13 @@ theorem HasType.denote_subst_let_bin'
   {x: Option X.stlc_ty.interp}
   {y: Option Y.stlc_ty.interp}
   {sa sb sx sy: AnnotSort}
-  (Hb: ((Hyp.mk Y (HypKind.val sy))::(Hyp.mk X (HypKind.val sx))::Γ) ⊢ b: expr sb B)
+  (Hb: ((Hyp.mk Y (HypKind.val sy))::(Hyp.mk X (HypKind.val sx))::Γ) ⊢ b: expr sb (B.wkn 2))
   (HΓ: IsCtx Γ)
   (HG: G ⊧ ✓Γ)
   (HA: ({ ty := B, kind := HypKind.val sb } :: Γ) ⊢ A: sort sa)
+  (HB: Γ ⊢ B: sort sb)
   (Ha': a' = HA.stlc_ty_let_bin ▸ a)
-  : @Term.denote_ty A (B.stlc_ty::Γ.upgrade.stlc) (Hb.stlc.interp (y, x, G.downgrade), G) a =
+  : @Term.denote_ty A ((B.wkn 2).stlc_ty::Γ.upgrade.stlc) (Hb.stlc.interp (y, x, G.downgrade), G) a =
     @Term.denote_ty ((A.wknth 1).alpha0 b) (Y.stlc_ty::X.stlc_ty::Γ.upgrade.stlc) (y, x, G) a'
   := by {
     cases Ha';
@@ -145,18 +147,17 @@ theorem HasType.denote_subst_let_bin''
   {y: Option Y.stlc_ty.interp}
   {Ixy: Option B.stlc_ty.interp}
   {sa sb sx sy: AnnotSort}
-  (Hb: ((Hyp.mk Y (HypKind.val sy))::(Hyp.mk X (HypKind.val sx))::Γ) ⊢ b: expr sb B)
+  (Hb: ((Hyp.mk Y (HypKind.val sy))::(Hyp.mk X (HypKind.val sx))::Γ) ⊢ b: expr sb (B.wkn 2))
   (HΓ: IsCtx Γ)
   (HG: G ⊧ ✓Γ)
   (HA: ({ ty := B, kind := HypKind.val sb } :: Γ) ⊢ A: sort sa)
+  (HB: Γ ⊢ B: sort sb)
   (Ha': a' = HA.stlc_ty_let_bin ▸ a)
-  (HIxy: Ixy = Hb.stlc.interp (y, x, G.downgrade))
+  (HIxy: Ixy = Term.stlc_ty_wk B _ ▸ Hb.stlc.interp (y, x, G.downgrade))
   : @Term.denote_ty A (B.stlc_ty::Γ.upgrade.stlc) (Ixy, G) a =
     @Term.denote_ty ((A.wknth 1).alpha0 b) (Y.stlc_ty::X.stlc_ty::Γ.upgrade.stlc) (y, x, G) a'
   := by {
-    cases HIxy;
-    cases Ha';
-    apply denote_subst_let_bin <;> assumption
+    sorry
   }
 
 theorem HasType.denote
