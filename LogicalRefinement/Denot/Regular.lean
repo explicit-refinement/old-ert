@@ -91,6 +91,15 @@ theorem HasVar.denote_annot
               )
   }
 
+theorem HasType.stlc_ty_let_bin {X Γ A s b} (H: (X::Γ) ⊢ A: sort s):
+  ((A.wknth 1).alpha0 b).stlc_ty = A.stlc_ty
+  := by {
+    simp only [Term.alpha0]
+    rw [(H.wk2).stlc_ty_subst]
+    rw [Term.stlc_ty_wknth]
+    exact Hyp.unit;
+  }
+
 --TODO: report "maximum recursion depth has been reached" bug with "HA.wk (by repeat constructor)"?
 theorem HasType.denote_subst_let_bin
   {A B X Y: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} 
@@ -104,16 +113,28 @@ theorem HasType.denote_subst_let_bin
   (HG: G ⊧ ✓Γ)
   (HA: ({ ty := B, kind := HypKind.val sb } :: Γ) ⊢ A: sort sa)
   : @Term.denote_ty A (B.stlc_ty::Γ.upgrade.stlc) (Hb.stlc.interp (y, x, G.downgrade), G) a =
-    @Term.denote_ty ((A.wknth 1).alpha0 b) (Y.stlc_ty::X.stlc_ty::Γ.upgrade.stlc) (y, x, G) 
-    (by {
-      simp only [Term.alpha0]
-      --TODO: factor out wk2 subst lemma
-      rw [(HA.wk2).stlc_ty_subst]
-      rw [Term.wknth, Term.stlc_ty_wk]
-      exact a;
-      exact Hyp.unit;
-    })
+    @Term.denote_ty ((A.wknth 1).alpha0 b) (Y.stlc_ty::X.stlc_ty::Γ.upgrade.stlc) (y, x, G) (HA.stlc_ty_let_bin ▸ a)
   := sorry
+
+theorem HasType.denote_subst_let_bin'
+  {A B X Y: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} 
+  {a: Option A.stlc_ty.interp}
+  {b: Term}
+  {a': Option ((A.wknth 1).alpha0 b).stlc_ty.interp}
+  {x: Option X.stlc_ty.interp}
+  {y: Option Y.stlc_ty.interp}
+  {sa sb sx sy: AnnotSort}
+  (Hb: ((Hyp.mk Y (HypKind.val sy))::(Hyp.mk X (HypKind.val sx))::Γ) ⊢ b: expr sb B)
+  (HΓ: IsCtx Γ)
+  (HG: G ⊧ ✓Γ)
+  (HA: ({ ty := B, kind := HypKind.val sb } :: Γ) ⊢ A: sort sa)
+  (Ha': a' = HA.stlc_ty_let_bin ▸ a)
+  : @Term.denote_ty A (B.stlc_ty::Γ.upgrade.stlc) (Hb.stlc.interp (y, x, G.downgrade), G) a =
+    @Term.denote_ty ((A.wknth 1).alpha0 b) (Y.stlc_ty::X.stlc_ty::Γ.upgrade.stlc) (y, x, G) a'
+  := by {
+    cases Ha';
+    apply denote_subst_let_bin <;> assumption
+  }
 
 theorem HasType.denote
   (H: Γ ⊢ a: A)
