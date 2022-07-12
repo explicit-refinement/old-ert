@@ -23,6 +23,7 @@ def WkCtx.lift_loose:
   }
 
 def WkCtx.wk1 {Γ H}: WkCtx Wk.wk1 (H::Γ) Γ := WkCtx.step WkCtx.id
+def WkCtx.wk2 {Γ A k X}: WkCtx (Wk.wknth 1) ((Hyp.mk A.wk1 k)::X::Γ) ((Hyp.mk A k)::Γ) := WkCtx.lift WkCtx.wk1
 
 theorem WkCtx.upgrade: WkCtx ρ Γ Δ 
   -> WkCtx ρ Γ.upgrade Δ.upgrade := by {
@@ -202,6 +203,12 @@ theorem HasType.wk1 {H} (Ha: Γ ⊢ a: A): (H::Γ) ⊢ a.wk1: A.wk1
 
 theorem HasType.wk1_sort {H} (Ha: Γ ⊢ a: sort s): (H::Γ) ⊢ a.wk1: sort s 
 := wk Ha WkCtx.wk1
+
+theorem HasType.wk2 {A B k X} (Ha: ((Hyp.mk B k)::Γ) ⊢ a: A): ((Hyp.mk B.wk1 k)::X::Γ) ⊢ (a.wknth 1): (A.wk (Wk.wknth 1)) 
+:= wk Ha WkCtx.wk2
+
+theorem HasType.wk2_sort {k X} (Ha: ((Hyp.mk B k)::Γ) ⊢ a: sort s): ((Hyp.mk B.wk1 k)::X::Γ) ⊢ (a.wknth 1): sort s 
+:= wk Ha WkCtx.wk2
 
 theorem IsCtx.var_valid' {Γ} (H: IsCtx Γ)
   : HasVar' Γ n k A -> Γ ⊢ A: k.annot

@@ -91,6 +91,30 @@ theorem HasVar.denote_annot
               )
   }
 
+--TODO: report "maximum recursion depth has been reached" bug with "HA.wk (by repeat constructor)"?
+theorem HasType.denote_subst_let_bin
+  {A B X Y: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} 
+  {a: Option A.stlc_ty.interp}
+  {b: Term}
+  {x: Option X.stlc_ty.interp}
+  {y: Option Y.stlc_ty.interp}
+  {sa sb sx sy: AnnotSort}
+  (Hb: ((Hyp.mk Y (HypKind.val sy))::(Hyp.mk X (HypKind.val sx))::Γ) ⊢ b: expr sb B)
+  (HΓ: IsCtx Γ)
+  (HG: G ⊧ ✓Γ)
+  (HA: ({ ty := B, kind := HypKind.val sb } :: Γ) ⊢ A: sort sa)
+  : @Term.denote_ty A (B.stlc_ty::Γ.upgrade.stlc) (Hb.stlc.interp (y, x, G.downgrade), G) a =
+    @Term.denote_ty ((A.wknth 1).alpha0 b) (Y.stlc_ty::X.stlc_ty::Γ.upgrade.stlc) (y, x, G) 
+    (by {
+      simp only [Term.alpha0]
+      --TODO: factor out wk2 subst lemma
+      rw [(HA.wk2).stlc_ty_subst]
+      rw [Term.wknth, Term.stlc_ty_wk]
+      exact a;
+      exact Hyp.unit;
+    })
+  := sorry
+
 theorem HasType.denote
   (H: Γ ⊢ a: A)
   (HΓ: IsCtx Γ)
