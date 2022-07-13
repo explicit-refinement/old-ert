@@ -84,6 +84,12 @@ def Term.denote_ty (A: Term)
     | none => False
   | _ => False
 
+theorem Term.denote_ctx_cast {A Γ} {X X': Ty} {x G a} 
+  (H: X = X'):
+  @Term.denote_ty A (X'::Γ) (cast (by cases H; rfl) x, G) a
+  = @Term.denote_ty A (X::Γ) (x, G) a
+  := by cases H; rfl
+
 abbrev Term.denote_prop (A: Term) 
   {Γ: Stlc.Context}
   (G: Γ.interp): Prop

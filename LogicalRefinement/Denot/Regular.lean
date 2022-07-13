@@ -157,7 +157,10 @@ theorem HasType.denote_subst_let_bin''
   : @Term.denote_ty A (B.stlc_ty::Γ.upgrade.stlc) (Ixy, G) a =
     @Term.denote_ty ((A.wknth 1).alpha0 b) (Y.stlc_ty::X.stlc_ty::Γ.upgrade.stlc) (y, x, G) a'
   := by {
-    sorry
+    cases Ha'; cases HIxy;
+    rw [rec_to_cast']
+    rw [Term.denote_ctx_cast (by rw [Term.stlc_ty_wk])]
+    apply denote_subst_let_bin <;> assumption
   }
 
   theorem HasType.denote_subst_let_pair
