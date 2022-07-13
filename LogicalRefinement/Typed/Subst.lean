@@ -443,6 +443,31 @@ theorem HasType.to_alpha' {Γ a sa sb A B}
       exact Hv.v
   }
 
+theorem HasType.alpha0 {Γ sa sb A B C e t}
+  (He: ((Hyp.mk A (HypKind.val sa))::Γ) ⊢ e: C)
+  (Ht: ((Hyp.mk B (HypKind.val sb))::Γ) ⊢ t: expr sa A.wk1)
+  : ((Hyp.mk B (HypKind.val sb))::Γ) ⊢ (e.alpha0 t): (C.alpha0 t)
+  := He.subst' Ht.to_alpha'
+
+theorem HasType.alpha0_expr {Γ sa sb sc A B C e t}
+  (He: ((Hyp.mk A (HypKind.val sa))::Γ) ⊢ e: expr sc C)
+  (Ht: ((Hyp.mk B (HypKind.val sb))::Γ) ⊢ t: expr sa A.wk1)
+  : ((Hyp.mk B (HypKind.val sb))::Γ) ⊢ (e.alpha0 t): expr sc (C.alpha0 t)
+  := He.subst' Ht.to_alpha'
+
+theorem HasType.alpha0_sort {Γ sa sb s A B e t}
+  (He: ((Hyp.mk A (HypKind.val sa))::Γ) ⊢ e: sort s)
+  (Ht: ((Hyp.mk B (HypKind.val sb))::Γ) ⊢ t: expr sa A.wk1)
+  : ((Hyp.mk B (HypKind.val sb))::Γ) ⊢ (e.alpha0 t): sort s
+  := He.subst' Ht.to_alpha'
+
+theorem HasType.alpha0_gen {Γ sa sb A B C C' e t}
+  (He: ((Hyp.mk A (HypKind.val sa))::Γ) ⊢ e: C)
+  (Ht: ((Hyp.mk B (HypKind.val sb))::Γ) ⊢ t: expr sa A.wk1)
+  (HCC': C' = C.alpha0 t)
+  : ((Hyp.mk B (HypKind.val sb))::Γ) ⊢ (e.alpha0 t): C'
+  := HCC' ▸ He.subst' Ht.to_alpha'
+
 theorem HasType.subst01 {Γ e C l r sl sr A B} 
   (He: HasType 
     ((Hyp.mk B (HypKind.val sl))
