@@ -774,6 +774,32 @@ theorem Term.liftn_below {u: Term}:
   )
 }
 
+theorem Term.subst_closed' {u: Term} {σ: Subst} (H: u.fv ≤ 0)
+  : u.subst σ = u 
+  := liftn_below H
+
+theorem Term.subst_closed {u: Term} {σ: Subst} (H: u.fv = 0)
+  : u.subst σ = u 
+  := subst_closed' (by simp [H])
+
+theorem Term.wk_closed {u: Term} {ρ: Wk} (H: u.fv = 0)
+  : u.wk ρ = u 
+  := by {
+    rw [<-Subst.subst_wk_compat]
+    exact subst_closed H
+  }
+
+theorem Term.wk1_closed {u: Term} (H: u.fv = 0)
+  : u.wk1 = u
+  := Term.wk_closed H
+
+theorem Term.wkn_closed {u: Term} {n} (H: u.fv = 0)
+  : u.wkn n = u
+  := Term.wk_closed H
+
+theorem Term.wknth_closed {u: Term} {n} (H: u.fv = 0)
+  : u.wknth n = u
+  := Term.wk_closed H
 
 theorem Term.lift_below {u: Term} {σ: Subst} (H: u.fv ≤ 1): u.subst σ.lift = u 
   := liftn_below H
