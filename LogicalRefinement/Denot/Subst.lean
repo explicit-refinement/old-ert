@@ -885,11 +885,11 @@ theorem HasType.denote_val_alpha0
   {b: Term}
   {c: Option C.stlc_ty.interp}
   {sa sb sc: AnnotSort}
-  (Hb: (Hyp.mk C (HypKind.val sc)::Γ) ⊢ b: expr sb B)
+  (Hb: (Hyp.mk C (HypKind.val sc)::Γ) ⊢ b: expr sb B.wk1)
   (HΓ: IsCtx Γ)
   (HG: G ⊧ ✓Γ)
   (HA: ({ ty := B, kind := HypKind.val sb } :: Γ) ⊢ A: sort sa)
-  : @Term.denote_ty A (B.stlc_ty::Γ.upgrade.stlc) (Hb.stlc.interp (c, G.downgrade), G) a =
+  : @Term.denote_ty A (B.wk1.stlc_ty::Γ.upgrade.stlc) (Hb.stlc.interp (c, G.downgrade), G) a =
     @Term.denote_ty (A.alpha0 b) (C.stlc_ty::Γ.upgrade.stlc) (c, G) (HA.stlc_ty_subst ▸ a)
   := by {
     sorry
@@ -901,16 +901,16 @@ theorem HasType.denote_val_alpha0'
   {b: Term}
   {c: Option C.stlc_ty.interp}
   {a': Option (A.alpha0 b).stlc_ty.interp}
-  {bi: Option B.stlc_ty.interp}
+  {bi: Option B.wk1.stlc_ty.interp}
   {sa sb sc: AnnotSort}
-  (Hb: (Hyp.mk C (HypKind.val sc)::Γ) ⊢ b: expr sb B)
+  (Hb: (Hyp.mk C (HypKind.val sc)::Γ) ⊢ b: expr sb B.wk1)
   (HΓ: IsCtx Γ)
   (HG: G ⊧ ✓Γ)
   (HA: ({ ty := B, kind := HypKind.val sb } :: Γ) ⊢ A: sort sa)
   (HAA': A.stlc_ty = (A.alpha0 b).stlc_ty)
   (Haa': a' = HAA' ▸ a)
   (Hbb': bi = Hb.stlc.interp (c, G.downgrade))
-  : @Term.denote_ty A (B.stlc_ty::Γ.upgrade.stlc) (bi, G) a =
+  : @Term.denote_ty A (B.wk1.stlc_ty::Γ.upgrade.stlc) (bi, G) a =
     @Term.denote_ty (A.alpha0 b) (C.stlc_ty::Γ.upgrade.stlc) (c, G) a'
   := by {
     cases Haa'; cases Hbb';
@@ -918,29 +918,28 @@ theorem HasType.denote_val_alpha0'
   }
 
   theorem HasType.denote_val_alpha0''
-  {A A' B C: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} 
+  {A B C: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} 
   {a: Option A.stlc_ty.interp}
   {b: Term}
   {c: Option C.stlc_ty.interp}
-  {a': Option A'.stlc_ty.interp}
+  {a': Option (A.alpha0 b).stlc_ty.interp}
   {Γ' Γ'' G' G''}
-  {bi: Option B.stlc_ty.interp}
+  {bi: Option B.wk1.stlc_ty.interp}
   {sa sb sc: AnnotSort}
-  (Hb: (Hyp.mk C (HypKind.val sc)::Γ) ⊢ b: expr sb B)
+  (Hb: (Hyp.mk C (HypKind.val sc)::Γ) ⊢ b: expr sb B.wk1)
   (HΓ: IsCtx Γ)
   (HG: G ⊧ ✓Γ)
   (HA: ({ ty := B, kind := HypKind.val sb } :: Γ) ⊢ A: sort sa)
-  (HA': A' = A.alpha0 b)
-  (Haa': a' = cast (by cases HA'; rw [Term.alpha0, HA.stlc_ty_subst]) a)
+  (Haa': a' = cast (by rw [Term.alpha0, HA.stlc_ty_subst]) a)
   (Hbb': bi = Hb.stlc.interp (c, G.downgrade))
-  (HΓ': Γ' = B.stlc_ty::Γ.upgrade.stlc)
+  (HΓ': Γ' = B.wk1.stlc_ty::Γ.upgrade.stlc)
   (HΓ'': Γ'' = C.stlc_ty::Γ.upgrade.stlc)
   (HG': G' = HΓ' ▸ (bi, G))
   (HG'': G'' = HΓ'' ▸ (c, G))
   : @Term.denote_ty A Γ' G' a =
-    @Term.denote_ty A' Γ'' G'' a'
+    @Term.denote_ty (A.alpha0 b) Γ'' G'' a'
   := by {
-    cases HΓ'; cases HΓ''; cases HG'; cases HG''; cases HA';
+    cases HΓ'; cases HΓ''; cases HG'; cases HG'';
     apply denote_val_alpha0' <;> try assumption;
     rw [Haa', rec_to_cast']
     rw [Term.alpha0, HA.stlc_ty_subst]
