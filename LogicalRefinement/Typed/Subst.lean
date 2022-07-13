@@ -422,30 +422,26 @@ theorem HasType.to_alpha {Γ a sa sb A B}
       exact Hv
   }
 
--- theorem HasType.subst0 {Γ e B t s A} 
---   (He: HasType ((Hyp.mk A (HypKind.val s))::Γ) e B)
---   (Ht: HasType Γ t (expr s A))
---   : Γ ⊢ (e.subst0 t): (B.subst0 t) 
---   := He.subst' Ht.to_subst'
-
--- theorem HasType.subst0_expr {Γ e s' t s A B} 
---   (He: HasType ((Hyp.mk A (HypKind.val s))::Γ) e (expr s' B))
---   (Ht: HasType Γ t (expr s A))
---   : Γ ⊢ (e.subst0 t): expr s' (B.subst0 t)
---   := He.subst' Ht.to_subst'
-
--- theorem HasType.subst0_sort {Γ e s' t s A} 
---   (He: HasType ((Hyp.mk A (HypKind.val s))::Γ) e (sort s'))
---   (Ht: HasType Γ t (expr s A))
---   : Γ ⊢ (e.subst0 t): sort s'
---   := He.subst' Ht.to_subst'
-
--- theorem HasType.subst0_gen {Γ e B t s A B'} 
---   (He: HasType ((Hyp.mk A (HypKind.val s))::Γ) e B)
---   (Ht: HasType Γ t (expr s A))
---   (HBB': B' = B.subst0 t)
---   : Γ ⊢ (e.subst0 t): (B') 
---   := HBB' ▸ He.subst' Ht.to_subst'
+theorem HasType.to_alpha' {Γ a sa sb A B} 
+  (H: ((Hyp.mk B (HypKind.val sb))::Γ) ⊢ a: expr sa A.wk1):
+  SubstCtx' a.to_alpha 
+    ((Hyp.mk B (HypKind.val sb))::Γ) 
+    ((Hyp.mk A (HypKind.val sa))::Γ) := by {
+    intro n A k Hv;
+    cases Hv with
+    | zero => 
+      apply SubstVar'.expr
+      rw [<-Term.alpha0_def]
+      rw [Term.alpha0_wk1]
+      exact H
+    | succ Hv => 
+      apply SubstVar'.var
+      rfl
+      rw [<-Term.alpha0_def]
+      rw [Term.alpha0_wk1]
+      constructor
+      exact Hv.v
+  }
 
 theorem HasType.subst01 {Γ e C l r sl sr A B} 
   (He: HasType 
