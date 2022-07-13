@@ -604,6 +604,18 @@ def Stlc.HasType.interp_var_app {Γ G n A}
   : H.interp G = H.has_var.interp G
   := rfl
 
+
+def Stlc.HasType.interp_pair {Γ P A B l r G} 
+  (H: Stlc.HasType Γ (Stlc.pair l r) P)
+  (HP: P = Ty.prod A B)
+  (Hl: Stlc.HasType Γ l A)
+  (Hr: Stlc.HasType Γ r B)
+  : H.interp G = HP ▸ Ty.interp.pair (Hl.interp G) (Hr.interp G)
+  := by {
+    cases HP;
+    rfl
+  }
+
 theorem Stlc.HasVar.interp_wk {Γ Δ ρ n A}
   (H: HasVar Δ n A)
   (R: WkCtx ρ Γ Δ)
@@ -875,7 +887,6 @@ def Wk.to_stlc_subst_lift {ρ: Wk}:
   funext v;
   cases v <;> rfl
 }
-
 
 theorem Stlc.Subst.liftn_lift_commute {σ: Stlc.Subst} {n}
   : σ.lift.liftn n = (σ.liftn n).lift 

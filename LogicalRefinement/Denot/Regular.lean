@@ -167,7 +167,7 @@ theorem HasType.denote_subst_let_bin''
   {a: A.stlc_ty.interp}
   {b: B.stlc_ty.interp}
   {sc: AnnotSort}
-  (HC: ({ ty := Term.sigma A B, kind := HypKind.val sb } :: Γ) ⊢ C: sort sc)
+  (HC: ({ ty := Term.sigma A B, kind := HypKind.val type } :: Γ) ⊢ C: sort sc)
   (HΓ: IsCtx Γ)
   (HG: G ⊧ ✓Γ)
   (HA: Γ ⊢ A: sort type)
@@ -178,9 +178,26 @@ theorem HasType.denote_subst_let_bin''
       ((C.wknth 1).alpha0 (Term.pair (Term.var 1) (Term.var 0))) 
       (B.stlc_ty::A.stlc_ty::Γ.upgrade.stlc) (some b, some a, G) c'
   := by {
-    apply HasType.denote_subst_let_bin'' _ HΓ HG _ _ Hc';
-    . sorry
-    repeat sorry
+    apply HasType.denote_subst_let_bin'' 
+      (by
+        constructor 
+          <;> constructor 
+          <;> (try exact HasType.wk_sort (by assumption) (by repeat constructor))
+          <;> simp only [Term.lift_wkn2_subst0_var1, Term.wk1_wk1_wkn2]
+          <;> repeat first | constructor | assumption | apply HasType.wk1_sort
+      ) 
+      HΓ HG HC (by constructor <;> assumption) Hc' 
+      (by 
+        rw [
+          Stlc.HasType.interp_pair
+          _
+          (by simp only [Annot.stlc_ty_wk, Term.wkn] rfl)
+          (by repeat constructor)
+          (by repeat constructor)
+        ]
+        simp only [rec_to_cast', cast_merge]
+        rfl
+      )
   }
 
 

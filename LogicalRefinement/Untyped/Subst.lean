@@ -1168,3 +1168,32 @@ def Term.wknth1_subst0_var0 {u: Term}:
     funext v;
     cases v <;> rfl
   }
+
+def Term.lift_wk1_wk1_subst0_var1 {u: Term}:
+  ((u.wk (Wk.wk1.lift)).wk (Wk.wk1.lift)).subst0 (var 1) =
+  u.wk1
+  := by {
+    simp only [subst0, <-Subst.subst_wk_compat, Term.subst_composes, Term.wk1]
+    apply congr rfl;
+    funext v;
+    cases v <;> rfl
+  }
+
+def Term.lift_wkn2_subst0_var1 {u: Term}:
+  (u.wk (Wk.wkn 2).lift).subst0 (var 1) =
+  u.wk1
+  := by {
+    simp only [subst0, <-Subst.subst_wk_compat, Term.subst_composes, Term.wk1]
+    apply congr rfl;
+    funext v;
+    cases v <;> rfl
+  }
+
+def Term.wk1_wk1_wkn2 {u: Term}:
+  (u.wk (Wk.wkn 2)) = u.wk1.wk1
+  := by {
+    simp only [<-Subst.subst_wk_compat, Term.subst_composes, Term.wk1]
+    apply congr rfl;
+    funext v;
+    cases v <;> rfl
+  }

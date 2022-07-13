@@ -154,7 +154,6 @@ theorem Annot.stlc_ty_wk' {A k}: ∀{ρ},
     apply A.stlc_ty_wk
   }
 
-
 theorem HasVar.stlc {Γ A n}: 
   HasVar Γ n (HypKind.val s) A ->
   Stlc.HasVar Γ.stlc n A.stlc_ty := by {
