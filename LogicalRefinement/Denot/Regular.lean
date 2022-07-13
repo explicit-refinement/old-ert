@@ -119,17 +119,12 @@ theorem HasType.denote_subst_let_bin
   : @Term.denote_ty A (B.wk1.wk1.stlc_ty::Γ.upgrade.stlc) (Hb.stlc.interp (y, x, G.downgrade), G) a =
     @Term.denote_ty ((A.wknth 1).alpha0 b) (Y.stlc_ty::X.stlc_ty::Γ.upgrade.stlc) (y, x, G) (HA.stlc_ty_let_bin ▸ a)
   := by {
-    stop
     rw [
       <-Hb.denote_val_alpha0'
       (HΓ.cons_val HX)
+      _
     ]
-    {
-
-    }
-    . exact ⟨Hx, HG⟩;
-    . rw [Term.wkn, Term.wk1_wk1_wkn2]
-      apply HasType.wk2_sort
+    repeat sorry
   }
 
 theorem HasType.denote_subst_let_bin'
