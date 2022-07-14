@@ -810,7 +810,7 @@ theorem HasType.denote
       ]
       rw [<-Hx.denote_prop_subst0]
       intro Dx;
-      rw [<-Term.denote_wk1_eq]
+      rw [<-HasType.denote_wk1_eq]
       rw [<-Hy.denote_prop_subst0]
       exact Dx
       assumption
