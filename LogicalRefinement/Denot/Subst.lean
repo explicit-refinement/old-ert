@@ -931,7 +931,17 @@ theorem HasType.denote_val_alpha0
       }
       { 
         rw [cast_to_self]
-        sorry
+        rw [<-G.transport_id]
+        rw [<-Stlc.InterpSubst.transport_step _ G]
+        apply congr;
+        {
+          apply congr rfl;
+          funext n A Hv;
+          cases n <;> rfl
+        }
+        {
+          rw [Stlc.InterpSubst.transport_step, G.transport_id]
+        }
       }
       {
         rw [Term.stlc_ty_wk1]
