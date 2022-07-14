@@ -113,32 +113,6 @@ theorem HasType.stlc_ty_let_bin {Γ A s b} (H: Γ ⊢ A: sort s):
     | cons => exact H.stlc_ty_let_bin'
   }
 
-theorem HasType.denote_subst_let_bin'
-  {A A' B X Y: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} 
-  {a: Option A.stlc_ty.interp}
-  {b: Term}
-  {a': Option (A'.alpha0 b).stlc_ty.interp}
-  {x: Option X.stlc_ty.interp}
-  {y: Option Y.stlc_ty.interp}
-  {Ixy: Option B.stlc_ty.interp}
-  {sa sb sx sy: AnnotSort}
-  (Hb: ((Hyp.mk Y (HypKind.val sy))::(Hyp.mk X (HypKind.val sx))::Γ) ⊢ b: expr sb B.wk1.wk1)
-  (HΓ: IsCtx Γ)
-  (HG: G ⊧ ✓Γ)
-  (HA: ({ ty := B, kind := HypKind.val sb } :: Γ) ⊢ A: sort sa)
-  (HB: Γ ⊢ B: sort sb)
-  (HX: Γ ⊢ X: sort sx)
-  (HY: ({ ty := X, kind := HypKind.val sx } :: Γ) ⊢ Y: sort sy)
-  (Hx: X.denote_ty G x)
-  (HAA': A' = A.wknth 1)
-  (Ha': a' = HAA' ▸ HA.stlc_ty_let_bin ▸ a)
-  (HIxy: Ixy = Term.stlc_ty_wk1 _ ▸ Term.stlc_ty_wk1 _ ▸ Hb.stlc.interp (y, x, G.downgrade))
-  : @Term.denote_ty A (B.stlc_ty::Γ.upgrade.stlc) (Ixy, G) a =
-    @Term.denote_ty (A'.alpha0 b) (Y.stlc_ty::X.stlc_ty::Γ.upgrade.stlc) (y, x, G) a'
-  := by {
-    sorry
-  }
-
 theorem HasType.denote_subst_let_bin
   {A B X Y: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} 
   {a: Option A.stlc_ty.interp}
@@ -152,15 +126,50 @@ theorem HasType.denote_subst_let_bin
   (HΓ: IsCtx Γ)
   (HG: G ⊧ ✓Γ)
   (HA: ({ ty := B, kind := HypKind.val sb } :: Γ) ⊢ A: sort sa)
-  (HB: Γ ⊢ B: sort sb)
   (HX: Γ ⊢ X: sort sx)
-  (HY: ({ ty := X, kind := HypKind.val sx } :: Γ) ⊢ Y: sort sy)
   (Hx: X.denote_ty G x)
   (Ha': a' = HA.stlc_ty_let_bin ▸ a)
   (HIxy: Ixy = Term.stlc_ty_wk1 _ ▸ Term.stlc_ty_wk1 _ ▸ Hb.stlc.interp (y, x, G.downgrade))
   : @Term.denote_ty A (B.stlc_ty::Γ.upgrade.stlc) (Ixy, G) a =
     @Term.denote_ty ((A.wknth 1).alpha0 b) (Y.stlc_ty::X.stlc_ty::Γ.upgrade.stlc) (y, x, G) a'
-  := Hb.denote_subst_let_bin' HΓ HG HA HB HX HY Hx rfl Ha' HIxy
+  := by {
+    rw [
+      <-Hb.denote_val_alpha0''
+        (HΓ.cons_val HX)
+        (by exact ⟨Hx, HG⟩) --TODO: why is by exact necessary here?
+        HA.wk2_sort
+        (doublecast_self _)
+        rfl
+        rfl
+        rfl
+        rfl
+        rfl
+    ]
+    rw [Stlc.Context.interp.downgrade]
+    rw [HIxy]
+    let Db := Annot.stlc_ty_wk ▸ Hb.stlc.interp (y, x, G.downgrade);
+    rw [<-HA.denote_wk2_eq'
+        Db _
+        _ _ _ _
+        (by rw [Ha', rec_to_cast', rec_to_cast', cast_merge])
+        (by 
+          apply congr
+          . rw [Term.stlc_ty_wk1]
+          . rfl
+        )
+        (by
+          simp only [rec_to_cast']
+          rw [
+            cast_pair'
+             (by simp only [Term.stlc_ty_wk1])
+             rfl
+             (by simp only [Term.stlc_ty_wk1])
+            ]
+          rw [cast_merge]
+          rfl
+        )
+    ]
+  }
 
   theorem HasType.denote_subst_let_pair
   {A B C: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} 
@@ -189,7 +198,7 @@ theorem HasType.denote_subst_let_bin
         <;> simp only [Term.lift_wkn2_subst0_var1, Term.wk1_wk1_wkn2]
         <;> repeat first | constructor | assumption | apply HasType.wk1_sort
     ) 
-    HΓ HG HC (by constructor <;> assumption) HA HB Ha
+    HΓ HG HC HA Ha
     Hc' 
     (by 
       rw [

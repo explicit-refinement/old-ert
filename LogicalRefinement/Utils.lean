@@ -890,3 +890,7 @@ theorem cast_trans:
     cases H;
     rfl
   }
+
+theorem doublecast_self {A B} {a: A} (H: B = A):
+  a = cast H (cast H.symm a)
+  := by cases H; rfl

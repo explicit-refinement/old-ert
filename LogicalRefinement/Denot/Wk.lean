@@ -763,3 +763,22 @@ theorem HasType.denote_wk2_eq
         rfl
       }
   }
+
+theorem HasType.denote_wk2_eq'
+  {Γ: Context} {Δ: Stlc.Context} {A B X: Term}  {s k}
+  (HA: HasType ((Hyp.mk B k)::Γ) A (sort s))
+  (b: Option B.wk1.stlc_ty.interp) 
+  (x: Option X.stlc_ty.interp) 
+  (G: Γ.upgrade.stlc.interp)
+  (D: Δ.interp)
+  (a: Option A.stlc_ty.interp)
+  (a': Option (A.wknth 1).stlc_ty.interp)
+  (Haa': a' = (A.stlc_ty_wk (Wk.wknth 1)) ▸ a)
+  (HΔ: Δ = (B.wk1.stlc_ty::X.stlc_ty::Γ.upgrade.stlc))
+  (HD: D = HΔ ▸ (b, x, G))
+  : @Term.denote_ty A (B.stlc_ty::Γ.upgrade.stlc) (B.stlc_ty_wk _ ▸ b, G) a 
+  = @Term.denote_ty (A.wknth 1) Δ D a'
+  := by {
+    cases HΔ; cases HD;
+    apply HasType.denote_wk2_eq HA b x G a a' Haa'
+  }
