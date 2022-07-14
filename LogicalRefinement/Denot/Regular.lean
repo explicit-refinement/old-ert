@@ -874,8 +874,7 @@ theorem HasType.denote
       stop
       dsimp only [denote', Annot.denote]
       sorry
-    | beta Hs HA Ht Is _IA It => 
-      stop
+    | @beta Γ A B s t Hs HA Ht Is _IA It => 
       dsimp only [
         Stlc.HasType.interp, 
         Term.stlc, Term.stlc_ty, stlc_ty, Term.denote_ty,
@@ -890,7 +889,50 @@ theorem HasType.denote
           exact Ht.stlc
         },
         (Hs.subst0 Ht).stlc,
-        sorry
+        by {
+          dsimp only [Ty.interp.app, Option.bind]
+          rw [
+            HasType.subst0_stlc_interp_commute
+            (by {
+              rw [<-Context.upgrade_idem]
+              exact Hs.upgrade
+            })
+            Ht
+            HΓ.upgrade
+          ]
+          simp only [
+            Eq.mp, rec_to_cast', Stlc.Context.deriv.subst, 
+            Annot.stlc_ty, Term.subst0, SubstCtx.interp]
+          apply @congr _ _ (cast _) (cast _);
+          {
+            rfl
+          }
+          {
+            have It' := It HΓ.upgrade (Context.upgrade_idem.symm ▸ G) HG.upgrade;
+            have It'': A.denote_ty G (Ht.stlc.interp G) := by {
+              rw [Term.denote_upgrade_eq]
+              rw [rec_to_cast'] at It';
+              rw [Stlc.Context.interp.downgrade_cast] at It';
+              rw [rec_to_cast']
+              exact It';
+            };
+            split;
+            case h_1 St => 
+              exact False.elim (Ht.expr_regular.denote_ty_non_null (St ▸ It''))
+            case h_2 a St => {
+              simp only [
+                Stlc.InterpSubst.transport_ctx, 
+                Stlc.SubstCtx.interp
+              ]
+              apply congr rfl;
+              apply congr;
+              exact congr rfl St.symm;
+              conv =>
+                lhs
+                rw [<-G.transport_id]
+            }
+          }
+        }
       ⟩
     | @beta_ir Γ A B s t Hs HA Ht Is _IA It =>
       stop
@@ -949,6 +991,7 @@ theorem HasType.denote
         }
       ⟩
     | @beta_pr Γ A B s t Hs HA Ht Is _IA It => 
+      stop
       dsimp only [
         Stlc.HasType.interp, 
         Term.stlc, Term.stlc_ty, stlc_ty, Term.denote_ty,
