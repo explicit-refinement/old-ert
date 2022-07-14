@@ -518,15 +518,63 @@ theorem HasType.denote
           ]
         rw [HSe]
         simp only [Ty.interp.pair, Option.bind]
-        stop
-        rw [HC.denote_subst_let_pair HΓ HG HA HB Da Db rfl]
+        rw [HC.denote_subst_let_set HΓ HG HA HB Da Db rfl]
         rw [rec_to_cast', cast_merge]
         apply equiv_prop_helper De';
         apply congr rfl _;
         rw [Stlc.HasType.interp_transport_cast']
+        simp only [Stlc.Context.interp.downgrade]
+        rw [
+          @HasType.interp_irrel_ty
+          ({ ty := B, kind := HypKind.val prop } ::
+           { ty := A, kind := HypKind.val type } :: Γ) 
+          ({ ty := B, kind := HypKind.val prop } ::
+           { ty := A, kind := HypKind.val type } :: Γ)  
+          _ _
+          (none, some a, G.downgrade)
+          (HB.prop_is_unit ▸ some (), some a, G.downgrade)
+          He'
+          He'
+          (@Stlc.Context.interp.eq_mod_lrt.extend_prop 
+            (A.stlc_ty::Γ.stlc) (A.stlc_ty::Γ.stlc) B _ _ 
+            (some a, G.downgrade) 
+            (some a, G.downgrade)
+            _
+            _
+              (Stlc.Context.interp.eq_mod_lrt_refl 
+                _
+                ({ ty := A, kind := HypKind.val type } :: Γ)
+                ({ ty := A, kind := HypKind.val type } :: Γ))
+          )
+        ]
+        let f: 
+          (Γ : Stlc.Context) → 
+          (a : Stlc) → 
+          (Γ ⊧ a : (Term.stlc_ty (Term.alpha0 (Term.wknth C 1) (Term.elem (Term.var 1) (Term.var 0))))) →
+          Γ.interp →
+          Option ((Term.stlc_ty (Term.alpha0 (Term.wknth C 1) (Term.elem (Term.var 1) (Term.var 0))))).interp 
+          := λ Γ a => @Stlc.HasType.interp Γ a (Term.stlc_ty (Term.alpha0 (Term.wknth C 1) (Term.elem (Term.var 1) (Term.var 0))));
+        have Hf: ∀ Γ a, @Stlc.HasType.interp Γ a (Term.stlc_ty (Term.alpha0 (Term.wknth C 1) (Term.elem (Term.var 1) (Term.var 0)))) = f Γ a := by intros; rfl;
+        rw [Hf]
+        apply 
+          cast_app_dep_three f
+          _ _ _ _ _ _ _ _ 
+          (by rw [Context.stlc, HB.prop_is_unit]; rfl)
+          rfl rfl 
+          (by
+            rw [cast_pair']
+            rw [rec_to_cast']
+            rfl
+            rfl
+            apply equiv_prop_helper He'.stlc;
+            rw [Context.stlc, HB.prop_is_unit]; rfl
+          )
+        ;
         rfl
-        rfl
-        rw [HC.stlc_ty_let_bin, HC.stlc_ty_subst0]
+        simp only [
+          Term.wknth, <-Subst.subst_wk_compat, Term.alpha0, 
+          Term.subst_composes, Term.subst0, HC.stlc_ty_subst
+        ]
       | none => exact False.elim (HA.denote_ty_non_null Da);
     | lam_pr Hϕ Hs _Iϕ Is => 
       stop
