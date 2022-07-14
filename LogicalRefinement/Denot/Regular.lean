@@ -548,14 +548,16 @@ theorem HasType.denote
                 ({ ty := A, kind := HypKind.val type } :: Γ))
           )
         ]
+        let C' := (Term.alpha0 (Term.wknth C 1) (Term.elem (Term.var 1) (Term.var 0)))
         let f: 
           (Γ : Stlc.Context) → 
           (a : Stlc) → 
-          (Γ ⊧ a : (Term.stlc_ty (Term.alpha0 (Term.wknth C 1) (Term.elem (Term.var 1) (Term.var 0))))) →
+          (Γ ⊧ a : (Term.stlc_ty C')) →
           Γ.interp →
-          Option ((Term.stlc_ty (Term.alpha0 (Term.wknth C 1) (Term.elem (Term.var 1) (Term.var 0))))).interp 
-          := λ Γ a => @Stlc.HasType.interp Γ a (Term.stlc_ty (Term.alpha0 (Term.wknth C 1) (Term.elem (Term.var 1) (Term.var 0))));
-        have Hf: ∀ Γ a, @Stlc.HasType.interp Γ a (Term.stlc_ty (Term.alpha0 (Term.wknth C 1) (Term.elem (Term.var 1) (Term.var 0)))) = f Γ a := by intros; rfl;
+          Option ((Term.stlc_ty C')).interp 
+          := λ Γ a => @Stlc.HasType.interp Γ a (Term.stlc_ty C');
+        have Hf: ∀ Γ a, @Stlc.HasType.interp Γ a (Term.stlc_ty C') = f Γ a 
+          := by intros; rfl;
         rw [Hf]
         apply 
           cast_app_dep_three f
@@ -891,6 +893,7 @@ theorem HasType.denote
         sorry
       ⟩
     | @beta_ir Γ A B s t Hs HA Ht Is _IA It =>
+      stop
       dsimp only [
         Stlc.HasType.interp, 
         Term.stlc, Term.stlc_ty, stlc_ty, Term.denote_ty,
@@ -945,8 +948,7 @@ theorem HasType.denote
           }
         }
       ⟩
-    | beta_pr Hs HA Ht Is _IA It => 
-      stop
+    | @beta_pr Γ A B s t Hs HA Ht Is _IA It => 
       dsimp only [
         Stlc.HasType.interp, 
         Term.stlc, Term.stlc_ty, stlc_ty, Term.denote_ty,
@@ -961,7 +963,74 @@ theorem HasType.denote
           constructor
         },
         (Hs.subst0 Ht).stlc,
-        sorry
+        by {
+          dsimp only [Ty.interp.app, Option.bind]
+          rw [
+            HasType.subst0_stlc_interp_commute
+            (by {
+              rw [<-Context.upgrade_idem]
+              exact Hs.upgrade
+            })
+            Ht
+            HΓ.upgrade
+          ]
+          simp only [
+            Eq.mp, rec_to_cast', Stlc.Context.deriv.subst, 
+            Annot.stlc_ty, Term.subst0, SubstCtx.interp]
+          apply @congr _ _ (cast _) (cast _);
+          {
+            rfl
+          }
+          {
+            rw [
+              @HasType.interp_irrel_ty
+              _
+              ((Hyp.mk A (HypKind.val prop))::Γ.upgrade)
+              _ _
+              _ (_, G)
+            ]
+            {
+              let f: 
+                (Γ : Stlc.Context) → 
+                (a : Stlc) → 
+                (Γ ⊧ a : (Term.stlc_ty B)) →
+                Γ.interp →
+                Option ((Term.stlc_ty B)).interp 
+                := λ Γ a => @Stlc.HasType.interp Γ a (Term.stlc_ty B);
+              have Hf: ∀ Γ a, @Stlc.HasType.interp Γ a (Term.stlc_ty B) = f Γ a 
+                := by intros; rfl;
+              rw [Hf, Hf]
+              apply cast_app_dep_three f
+                _ _ _ _ _ _ _ _
+                (by rw [Context.stlc, HA.prop_is_unit])
+                rfl
+                rfl
+                (by {
+                  rw [
+                    cast_pair' 
+                    (by rw [HA.prop_is_unit]) 
+                    rfl 
+                    (by rw [HA.prop_is_unit])
+                  ]
+                  apply congr (congr rfl _) rfl;
+                  exact HA.prop_is_unit ▸ some ();
+                  rw [rec_to_cast', cast_merge]
+                  rfl
+                  exact Hs
+                });
+            }
+            rw [<-Context.upgrade_idem]
+            exact Hs.upgrade;
+            {
+              apply Stlc.Context.interp.eq_mod_lrt.extend_prop;
+              apply Stlc.Context.interp.eq_mod_lrt_refl';
+              simp only [Stlc.InterpSubst.transport_ctx, Stlc.SubstCtx.interp]
+              conv =>
+                rhs
+                rw [<-G.transport_id]
+            }
+          }
+        }
       ⟩
     | @eta Γ A B f Hf HA If IA => stop
       have pe
