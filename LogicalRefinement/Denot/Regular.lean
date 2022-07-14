@@ -579,14 +579,21 @@ theorem HasType.denote
           Term.subst_composes, Term.subst0, HC.stlc_ty_subst
         ]
       | none => exact False.elim (HA.denote_ty_non_null Da);
-    | lam_pr Hϕ Hs _Iϕ Is => 
-      stop
+    | @lam_pr Γ ϕ s A Hϕ Hs _Iϕ Is => 
       dsimp only [
         Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
         Term.denote_ty
       ] at *
-      let Is' := Is (HΓ.cons_val Hϕ) (none, G) ⟨sorry, HG⟩;
-      sorry
+      intro Dϕ;
+      let Is' := Is (HΓ.cons_val Hϕ) (none, G) ⟨Dϕ, HG⟩;
+      apply equiv_prop_helper Is';
+      apply congr rfl;
+      simp only [Stlc.Context.interp.downgrade]
+      rw [Hs.interp_prop_none_ty]
+      rw [
+        @HasType.interp_prop_none_ty'
+        _ _ _ _ _ Ty.unit _ (some ()) Hs
+      ]
     | app_pr HφA Hl Hr IφA Il Ir =>
       stop
       dsimp only [Term.denote_ty]
@@ -875,6 +882,7 @@ theorem HasType.denote
       dsimp only [denote', Annot.denote]
       sorry
     | @beta Γ A B s t Hs HA Ht Is _IA It => 
+      stop
       dsimp only [
         Stlc.HasType.interp, 
         Term.stlc, Term.stlc_ty, stlc_ty, Term.denote_ty,
