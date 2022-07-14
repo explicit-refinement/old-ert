@@ -318,6 +318,7 @@ theorem HasType.denote
           exact (interp_eq_none' Hri).symm
       | none => exact Hl.term_regular.denote_ty_non_null Il'
     | @let_pair Γ A B C e e' He HA HB HC He' Ie IA IB IC Ie' =>
+      stop
       have De := Ie HΓ G HG;
       dsimp only [
         Term.denote_ty, Term.stlc, Annot.denote,
@@ -455,12 +456,41 @@ theorem HasType.denote
       {
         sorry
       }
-    | let_set => 
-      stop
+    | @let_set Γ A B C e e' He HA HB HC He' Ie IA IB IC Ie' =>       
+      have De := Ie HΓ G HG;
       dsimp only [
-        denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
-        Term.denote_ty', Term.denote_ty
-      ]
+        Term.denote_ty, Term.stlc, Annot.denote,
+        stlc_ty, Term.stlc_ty, Stlc.HasType.interp
+      ] at *;
+      generalize HSe: He.stlc.interp G.downgrade = Se;
+      rw [HSe] at De;
+      have ⟨Da, Db⟩ := De;
+      cases Se with
+      | some a => 
+        simp only [Ty.interp.let_pair, Option.bind]
+        have De' := 
+          Ie' ((HΓ.cons_val HA).cons_val HB) 
+          (none, some a, G)
+          ⟨Db, Da, HG⟩
+          ;
+        rw [
+          <-He.denote_val_subst0' HΓ HG HC 
+          (by rw [HC.stlc_ty_subst0])
+          (by rw [rec_to_cast']; rw [cast_trans])
+          rfl
+          ]
+        rw [HSe]
+        simp only [Ty.interp.pair, Option.bind]
+        stop
+        rw [HC.denote_subst_let_pair HΓ HG HA HB Da Db rfl]
+        rw [rec_to_cast', cast_merge]
+        apply equiv_prop_helper De';
+        apply congr rfl _;
+        rw [Stlc.HasType.interp_transport_cast']
+        rfl
+        rfl
+        rw [HC.stlc_ty_let_bin, HC.stlc_ty_subst0]
+      | none => exact False.elim (HA.denote_ty_non_null Da);
     | lam_pr Hϕ Hs _Iϕ Is => 
       stop
       dsimp only [
@@ -605,7 +635,8 @@ theorem HasType.denote
       . sorry
     | let_wit => sorry
     | case_prop => sorry
-    | @let_pair_prop Γ A B C e e' He HA HB HC He' Ie IA IB IC Ie' => 
+    | @let_pair_prop Γ A B C e e' He HA HB HC He' Ie IA IB IC Ie' =>
+      stop 
       have De := Ie HΓ.upgrade (Context.upgrade_idem.symm ▸ G) HG.upgrade;
       dsimp only [
         Term.denote_ty, Term.stlc, Annot.denote,
