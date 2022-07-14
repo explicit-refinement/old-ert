@@ -245,6 +245,13 @@ theorem Context.denote.upgrade {Γ: Context} {G}
 theorem Term.denote_upgrade_eq {Γ: Context} {G: Γ.upgrade.stlc.interp} {A a}:
   @Term.denote_ty A Γ.upgrade.stlc G a =
   @Term.denote_ty A Γ.upgrade.upgrade.stlc (Context.upgrade_idem.symm ▸ G) a
-  := sorry
+  := by {
+    apply cast_app_dep_two (@Term.denote_ty A);
+    rfl
+    rw [Context.upgrade_idem]
+    rw [rec_to_cast']
+    rw [cast_merge]
+    rfl
+  }
 
 notation G "⊧" "✓" Γ => Context.denote Γ G
