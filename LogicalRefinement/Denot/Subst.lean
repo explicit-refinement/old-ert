@@ -900,8 +900,44 @@ theorem HasType.denote_val_alpha0
       (Hyp.mk C (HypKind.val sc)::Γ) _ _ (c, G) _ a _
       (Hb.to_alpha HΓ) 
       (HΓ.cons_val HC) 
-      (HΓ.cons_val HB) ⟨Hc, HG⟩ HA;
-    sorry
+      (HΓ.cons_val HB) ⟨Hc, HG⟩ HA;    
+    apply equiv_prop_split D _ rfl;
+    {
+      apply congr _ rfl;
+      apply cast_app_dep_one (@Term.denote_ty A);
+      simp only [
+        SubstCtx.transport_interp_up, 
+        SubstCtx.transport_interp,
+        SubstCtx.interp,
+        Stlc.SubstCtx.interp,
+        Stlc.InterpSubst.transport_ctx,
+        Subst.stlc,
+        Term.to_alpha
+      ]
+      rw [cast_pair']
+      apply congr (congr rfl _) _;
+      {
+        rw [Term.stlc_ty_wk1]
+      }
+      {
+        rfl
+      }
+      {
+        rw [Stlc.HasType.interp_transport_cast']
+        rw [<-Hb.interp_upgrade]
+        rfl
+        rfl
+        rw [Term.stlc_ty_wk1]
+      }
+      { 
+        rw [cast_to_self]
+        sorry
+      }
+      {
+        rw [Term.stlc_ty_wk1]
+        rfl
+      }
+    }
   }
 
 theorem HasType.denote_val_alpha0'
