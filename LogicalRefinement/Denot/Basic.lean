@@ -242,4 +242,9 @@ theorem Context.denote.upgrade {Γ: Context} {G}
     exact id
   }
 
+theorem Term.denote_upgrade_eq {Γ: Context} {G: Γ.upgrade.stlc.interp} {A a}:
+  @Term.denote_ty A Γ.upgrade.stlc G a =
+  @Term.denote_ty A Γ.upgrade.upgrade.stlc (Context.upgrade_idem.symm ▸ G) a
+  := sorry
+
 notation G "⊧" "✓" Γ => Context.denote Γ G

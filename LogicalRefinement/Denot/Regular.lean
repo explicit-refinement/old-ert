@@ -318,7 +318,6 @@ theorem HasType.denote
           exact (interp_eq_none' Hri).symm
       | none => exact Hl.term_regular.denote_ty_non_null Il'
     | @let_pair Γ A B C e e' He HA HB HC He' Ie IA IB IC Ie' =>
-      stop
       have De := Ie HΓ G HG;
       dsimp only [
         Term.denote_ty, Term.stlc, Annot.denote,
@@ -606,7 +605,79 @@ theorem HasType.denote
       . sorry
     | let_wit => sorry
     | case_prop => sorry
-    | let_pair_prop => sorry
+    | @let_pair_prop Γ A B C e e' He HA HB HC He' Ie IA IB IC Ie' => 
+      have De := Ie HΓ.upgrade (Context.upgrade_idem.symm ▸ G) HG.upgrade;
+      dsimp only [
+        Term.denote_ty, Term.stlc, Annot.denote,
+        stlc_ty, Term.stlc_ty, Stlc.HasType.interp
+      ] at *;
+      generalize HSe: He.stlc.interp G = Se;
+      rw [rec_to_cast'] at De;
+      rw [Stlc.Context.interp.downgrade_cast] at De;
+      rw [HSe] at De;
+      cases Se with
+      | some p => 
+        cases p with
+        | mk a b =>
+          have ⟨Da, Db⟩ := De;    
+          rw []
+          simp only [Ty.abort]
+          have De' := 
+            Ie' (
+            (HΓ.upgrade.cons_val HA.upgrade).cons_val HB) 
+            (some b, some a, (cast (by rw [Context.upgrade_idem]) G))
+            ⟨Db, Da, rec_to_cast' ▸ HG.upgrade⟩
+            ;
+          rw [Term.denote_upgrade_eq]
+          rw [
+            <-He.denote_val_subst0'
+            HΓ.upgrade
+            HG.upgrade
+            HC
+            (by rw [HC.stlc_ty_subst0])
+            (by rw [interp_eq_none])
+            rfl
+            ]
+          rw [rec_to_cast']
+          rw [Stlc.Context.interp.downgrade_cast]
+          rw [HSe]
+          rw [
+            HC.denote_subst_let_pair HΓ.upgrade 
+            (by --TODO: why can't we just do rec_to_cast' ▸ HG.upgrade
+              have HG' := HG.upgrade; 
+              rw [rec_to_cast'] at HG';
+              exact HG'
+            ) HA.upgrade HB
+            Da Db rfl
+          ]
+          apply equiv_prop_helper De';
+          rw [HasType.denote_prop_eq']
+          apply HC.wk2_sort.alpha0_sort;
+          apply @HasType.pair 
+            ((Hyp.mk B (HypKind.val type))
+              ::(Hyp.mk A (HypKind.val type))
+              ::Γ.upgrade);
+          {
+            constructor;
+            exact HA.upgrade.wk1_sort.wk1_sort;
+            simp only [Term.wk_composes]
+            apply HB.wk_sort;
+            repeat constructor
+          }
+          {
+            constructor
+            exact HA.upgrade.wk1_sort.wk1_sort;
+            constructor
+            constructor
+          }
+          {
+            rw [Term.lift_wk1_wk1_subst0_var1]
+            constructor
+            exact HB.wk1_sort;
+            constructor
+          }
+            
+      | none => exact False.elim De;
     | let_set_prop => sorry
     | let_repr_prop => sorry
     | refl Ha => stop exact ⟨Ha.stlc, Ha.stlc, rfl⟩
