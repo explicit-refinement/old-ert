@@ -318,6 +318,7 @@ theorem HasType.denote
           exact (interp_eq_none' Hri).symm
       | none => exact Hl.term_regular.denote_ty_non_null Il'
     | @let_pair Γ A B C e e' He HA HB HC He' Ie IA IB IC Ie' =>
+      stop
       have De := Ie HΓ G HG;
       dsimp only [
         Term.denote_ty, Term.stlc, Annot.denote,
@@ -352,7 +353,6 @@ theorem HasType.denote
           rfl
           rw [HC.stlc_ty_let_bin, HC.stlc_ty_subst0]
       | none => exact False.elim De;
-      ;
     | inj_l He HB Ie IB => 
       stop
       dsimp only [
@@ -511,8 +511,7 @@ theorem HasType.denote
         Term.denote_ty', Term.denote_ty
       ]
     | abort Hp HA Ip IA => stop exact False.elim (Ip HΓ G HG)
-    | dconj HAB Hl Hr IAB Il Ir => 
-      stop
+    | @dconj Γ A B l r HAB Hl Hr IAB Il Ir => 
       dsimp only [
         Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
         Term.denote_ty
@@ -523,16 +522,26 @@ theorem HasType.denote
       exact Il HΓ G HG;
       have Ir' := Ir HΓ G HG;
       apply equiv_prop_helper Ir';
+      simp only [Annot.denote]
+      rw [@HasType.eq_lrt_ty_denot' ((Hyp.mk A (HypKind.val prop))::Γ) _ _ _ (none, G)]
       rw [
-        Hl.denote_val_subst0 HΓ HG 
+        Hl.denote_val_subst0' HΓ HG 
         (by cases HAB; assumption)
         (by rw [HasType.stlc_ty_subst0]; cases HAB; assumption)
+        rfl
         rfl
       ];
       rw [rec_to_cast']
       rw [cast_none']
-      stop
-      rw [HasType.stlc_ty_subst0]; cases HAB; assumption
+      rw [HasType.denote_prop_eq]
+      exact Hr.proof_regular
+      rw [HasType.stlc_ty_subst0]
+      cases HAB <;> assumption
+      cases HAB <;> assumption
+      {
+        apply Stlc.Context.interp.eq_mod_lrt.extend_prop;
+        apply Stlc.Context.interp.eq_mod_lrt_refl;
+      }
     | let_conj He HA HB HC He' Ie _IA _IB _IC Ie' =>
       stop
       dsimp only [
