@@ -890,7 +890,7 @@ theorem HasType.denote
         (Hs.subst0 Ht).stlc,
         sorry
       ⟩
-    | beta_ir Hs HA Ht Is _IA It =>
+    | @beta_ir Γ A B s t Hs HA Ht Is _IA It =>
       dsimp only [
         Stlc.HasType.interp, 
         Term.stlc, Term.stlc_ty, stlc_ty, Term.denote_ty,
@@ -907,6 +907,32 @@ theorem HasType.denote
         (Context.upgrade_idem ▸ Hs.upgrade.subst0 Ht.upgrade).stlc,
         by {
           dsimp only [Ty.interp.app, Option.bind]
+          rw [HasType.subst0_stlc_interp_commute]
+          simp only [
+            Eq.mp, rec_to_cast', Stlc.Context.deriv.subst, 
+            Annot.stlc_ty, Term.subst0, SubstCtx.interp]
+          apply @congr _ _ (cast _) (cast _);
+          {
+            rfl
+          }
+          {
+            let f: 
+            (Γ : Stlc.Context) → 
+            (a : Stlc) → 
+            (Γ ⊧ a : B.stlc_ty) →
+            Γ.interp →
+            Option B.stlc_ty.interp 
+            := λ Γ a => @Stlc.HasType.interp Γ a B.stlc_ty;
+            have Hf
+              : ∀ Γ a, @Stlc.HasType.interp Γ a B.stlc_ty = f Γ a 
+              := by intros; rfl;
+            rw [Hf, Hf]
+            apply cast_app_dep_three f _ _ _ _ _ _ _ _
+            (by sorry)
+            (by sorry)
+            (by sorry)
+            (by sorry);
+          }
         }
       ⟩
     | beta_pr Hs HA Ht Is _IA It => 
