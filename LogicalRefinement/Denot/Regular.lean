@@ -907,7 +907,15 @@ theorem HasType.denote
         (Context.upgrade_idem ▸ Hs.upgrade.subst0 Ht.upgrade).stlc,
         by {
           dsimp only [Ty.interp.app, Option.bind]
-          rw [HasType.subst0_stlc_interp_commute]
+          rw [
+            HasType.subst0_stlc_interp_commute
+            (by {
+              rw [<-Context.upgrade_idem]
+              exact Hs.upgrade
+            })
+            Ht
+            HΓ.upgrade
+          ]
           simp only [
             Eq.mp, rec_to_cast', Stlc.Context.deriv.subst, 
             Annot.stlc_ty, Term.subst0, SubstCtx.interp]
