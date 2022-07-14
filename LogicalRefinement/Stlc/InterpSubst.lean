@@ -324,3 +324,19 @@ theorem HasType.subst_stlc_interp_up_commute' {Γ Δ σ a}
     assumption
     rw [Annot.stlc_ty_subst H.expr_regular]
   }
+
+theorem HasType.subst0_stlc_interp_commute {Γ: Context} {a b A B s} 
+  (Ha: ((Hyp.mk B (HypKind.val s))::Γ) ⊢ a: term A) 
+  (Hb: Γ ⊢ b: expr s B)
+  (IΓ: IsCtx Γ)
+  (G: Γ.stlc.interp)
+  : (Ha.subst (Hb.to_subst IΓ)).stlc.interp G
+  = (Annot.stlc_ty_subst Ha.expr_regular) ▸ Ha.stlc.interp.subst ((Hb.to_subst IΓ).interp (IΓ.cons_val Hb.expr_regular)) G
+  := by {
+    rw [<-Stlc.HasType.subst_interp_dist]
+    rw [rec_to_cast']
+    rw [Stlc.HasType.interp_transport_cast']
+    rw [HasType.term_subst_stlc_commute]
+    assumption
+    rw [Annot.stlc_ty_subst Ha.expr_regular]
+  }

@@ -796,6 +796,7 @@ theorem HasType.denote
             
       | none => exact False.elim De;
     | @let_set_prop Γ A B C e e' He HA HB HC He' Ie IA IB IC Ie' => 
+      stop
       have De := Ie HΓ.upgrade (Context.upgrade_idem.symm ▸ G) HG.upgrade;
       dsimp only [
         Term.denote_ty, Term.stlc, Annot.denote,
@@ -890,7 +891,6 @@ theorem HasType.denote
         sorry
       ⟩
     | beta_ir Hs HA Ht Is _IA It =>
-      stop
       dsimp only [
         Stlc.HasType.interp, 
         Term.stlc, Term.stlc_ty, stlc_ty, Term.denote_ty,
@@ -905,7 +905,9 @@ theorem HasType.denote
           constructor
         },
         (Context.upgrade_idem ▸ Hs.upgrade.subst0 Ht.upgrade).stlc,
-        sorry
+        by {
+          dsimp only [Ty.interp.app, Option.bind]
+        }
       ⟩
     | beta_pr Hs HA Ht Is _IA It => 
       stop
