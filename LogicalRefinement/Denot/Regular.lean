@@ -493,7 +493,8 @@ theorem HasType.denote
       {
         sorry
       }
-    | @let_set Γ A B C e e' He HA HB HC He' Ie IA IB IC Ie' =>       
+    | @let_set Γ A B C e e' He HA HB HC He' Ie IA IB IC Ie' =>    
+      stop   
       have De := Ie HΓ G HG;
       dsimp only [
         Term.denote_ty, Term.stlc, Annot.denote,
@@ -794,7 +795,75 @@ theorem HasType.denote
           }
             
       | none => exact False.elim De;
-    | let_set_prop => sorry
+    | @let_set_prop Γ A B C e e' He HA HB HC He' Ie IA IB IC Ie' => 
+      have De := Ie HΓ.upgrade (Context.upgrade_idem.symm ▸ G) HG.upgrade;
+      dsimp only [
+        Term.denote_ty, Term.stlc, Annot.denote,
+        stlc_ty, Term.stlc_ty, Stlc.HasType.interp
+      ] at *;
+      generalize HSe: He.stlc.interp G = Se;
+      rw [rec_to_cast'] at De;
+      rw [Stlc.Context.interp.downgrade_cast] at De;
+      rw [HSe] at De;
+      have ⟨Da, Db⟩ := De;
+      cases Se with
+      | some a =>
+        simp only [Ty.abort]
+        have De' := 
+          Ie' (
+          (HΓ.upgrade.cons_val HA.upgrade).cons_val HB.upgrade) 
+          (none, some a, (cast (by rw [Context.upgrade_idem]) G))
+          ⟨Db, Da, rec_to_cast' ▸ HG.upgrade⟩
+          ;
+        rw [Term.denote_upgrade_eq]
+        rw [
+          <-He.denote_val_subst0'
+          HΓ.upgrade
+          HG.upgrade
+          HC.upgrade
+          (by rw [HC.stlc_ty_subst0])
+          (by rw [interp_eq_none])
+          rfl
+          ]
+        rw [rec_to_cast']
+        rw [Stlc.Context.interp.downgrade_cast]
+        rw [HSe]
+        rw [
+          HC.upgrade.denote_subst_let_set HΓ.upgrade 
+          (by --TODO: why can't we just do rec_to_cast' ▸ HG.upgrade
+            have HG' := HG.upgrade; 
+            rw [rec_to_cast'] at HG';
+            exact HG'
+          ) HA.upgrade HB.upgrade
+          Da Db rfl
+        ]
+        apply equiv_prop_helper De';
+        rw [HasType.denote_prop_eq']
+        apply HC.wk2_sort.alpha0_sort;
+        apply @HasType.elem
+          ((Hyp.mk B (HypKind.val prop))
+            ::(Hyp.mk A (HypKind.val type))
+            ::Γ);
+        {
+          constructor;
+          exact HA.wk1_sort.wk1_sort;
+          simp only [Term.wk_composes]
+          apply HB.wk_sort;
+          repeat constructor
+        }
+        {
+          constructor
+          exact HA.wk1_sort.wk1_sort;
+          constructor
+          constructor
+        }
+        {
+          rw [Term.lift_wk1_wk1_subst0_var1]
+          constructor
+          exact HB.wk1_sort;
+          constructor
+        }
+      | none => exact False.elim (HA.denote_ty_non_null Da);
     | let_repr_prop => sorry
     | refl Ha => stop exact ⟨Ha.stlc, Ha.stlc, rfl⟩
     | discr Ha Hb Hp Ia Ib Ip => sorry
