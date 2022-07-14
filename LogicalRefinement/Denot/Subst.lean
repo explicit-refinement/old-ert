@@ -888,10 +888,19 @@ theorem HasType.denote_val_alpha0
   (Hb: (Hyp.mk C (HypKind.val sc)::Γ) ⊢ b: expr sb B.wk1)
   (HΓ: IsCtx Γ)
   (HG: G ⊧ ✓Γ)
+  (HB: Γ ⊢ B: sort sb)
+  (HC: Γ ⊢ C: sort sc)
+  (Hc: Term.denote_ty C G c)
   (HA: ({ ty := B, kind := HypKind.val sb } :: Γ) ⊢ A: sort sa)
   : @Term.denote_ty A (B.wk1.stlc_ty::Γ.upgrade.stlc) (Hb.stlc.interp (c, G.downgrade), G) a =
     @Term.denote_ty (A.alpha0 b) (C.stlc_ty::Γ.upgrade.stlc) (c, G) (HA.stlc_ty_subst ▸ a)
   := by {
+    have D := 
+      @SubstCtx.subst_denot 
+      (Hyp.mk C (HypKind.val sc)::Γ) _ _ (c, G) _ a _
+      (Hb.to_alpha HΓ) 
+      (HΓ.cons_val HC) 
+      (HΓ.cons_val HB) ⟨Hc, HG⟩ HA;
     sorry
   }
 
@@ -906,6 +915,9 @@ theorem HasType.denote_val_alpha0'
   (Hb: (Hyp.mk C (HypKind.val sc)::Γ) ⊢ b: expr sb B.wk1)
   (HΓ: IsCtx Γ)
   (HG: G ⊧ ✓Γ)
+  (HB: Γ ⊢ B: sort sb)
+  (HC: Γ ⊢ C: sort sc)
+  (Hc: Term.denote_ty C G c)
   (HA: ({ ty := B, kind := HypKind.val sb } :: Γ) ⊢ A: sort sa)
   (HAA': A.stlc_ty = (A.alpha0 b).stlc_ty)
   (Haa': a' = HAA' ▸ a)
@@ -929,6 +941,9 @@ theorem HasType.denote_val_alpha0'
   (Hb: (Hyp.mk C (HypKind.val sc)::Γ) ⊢ b: expr sb B.wk1)
   (HΓ: IsCtx Γ)
   (HG: G ⊧ ✓Γ)
+  (HB: Γ ⊢ B: sort sb)
+  (HC: Γ ⊢ C: sort sc)
+  (Hc: Term.denote_ty C G c)
   (HA: ({ ty := B, kind := HypKind.val sb } :: Γ) ⊢ A: sort sa)
   (Haa': a' = cast (by rw [Term.alpha0, HA.stlc_ty_subst]) a)
   (Hbb': bi = Hb.stlc.interp (c, G.downgrade))

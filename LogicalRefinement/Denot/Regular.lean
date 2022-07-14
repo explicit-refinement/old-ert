@@ -126,8 +126,11 @@ theorem HasType.denote_subst_let_bin
   (HΓ: IsCtx Γ)
   (HG: G ⊧ ✓Γ)
   (HA: ({ ty := B, kind := HypKind.val sb } :: Γ) ⊢ A: sort sa)
+  (HB: Γ ⊢ B: sort sb)
   (HX: Γ ⊢ X: sort sx)
+  (HY: ({ ty := X, kind := HypKind.val sx } :: Γ) ⊢ Y: sort sy)
   (Hx: X.denote_ty G x)
+  (Hy: @Term.denote_ty Y (X.stlc_ty::Γ.upgrade.stlc) (x, G) y)
   (Ha': a' = HA.stlc_ty_let_bin ▸ a)
   (HIxy: Ixy = Term.stlc_ty_wk1 _ ▸ Term.stlc_ty_wk1 _ ▸ Hb.stlc.interp (y, x, G.downgrade))
   : @Term.denote_ty A (B.stlc_ty::Γ.upgrade.stlc) (Ixy, G) a =
@@ -137,6 +140,9 @@ theorem HasType.denote_subst_let_bin
       <-Hb.denote_val_alpha0''
         (HΓ.cons_val HX)
         (by exact ⟨Hx, HG⟩) --TODO: why is by exact necessary here?
+        HB.wk1
+        HY
+        Hy
         HA.wk2_sort
         (doublecast_self _)
         rfl
@@ -184,6 +190,7 @@ theorem HasType.denote_subst_let_bin
   (HA: Γ ⊢ A: sort type)
   (HB: ((Hyp.mk A (HypKind.val type))::Γ) ⊢ B: sort type)
   (Ha: A.denote_ty G (some a))
+  (Hb: @Term.denote_ty B (A.stlc_ty::Γ.upgrade.stlc) (some a, G) (some b))
   (Hc': c' = HC.stlc_ty_let_bin ▸ c)
   : @Term.denote_ty C ((Term.sigma A B).stlc_ty::Γ.upgrade.stlc) (some (a, b), G) c =
     @Term.denote_ty 
@@ -198,7 +205,8 @@ theorem HasType.denote_subst_let_bin
         <;> simp only [Term.lift_wkn2_subst0_var1, Term.wk1_wk1_wkn2]
         <;> repeat first | constructor | assumption | apply HasType.wk1_sort
     ) 
-    HΓ HG HC HA Ha
+    HΓ HG HC (by constructor <;> assumption) HA HB 
+    Ha Hb
     Hc' 
     (by 
       rw [
@@ -335,7 +343,7 @@ theorem HasType.denote
             rfl
             ]
           rw [HSe]
-          rw [HC.denote_subst_let_pair HΓ HG HA HB Da rfl]
+          rw [HC.denote_subst_let_pair HΓ HG HA HB Da Db rfl]
           rw [rec_to_cast', cast_merge]
           apply equiv_prop_helper De';
           apply congr rfl _;
