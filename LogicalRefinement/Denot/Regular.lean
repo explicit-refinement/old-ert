@@ -924,22 +924,24 @@ theorem HasType.denote
             rfl
           }
           {
-            let f: 
-            (Γ : Stlc.Context) → 
-            (a : Stlc) → 
-            (Γ ⊧ a : B.stlc_ty) →
-            Γ.interp →
-            Option B.stlc_ty.interp 
-            := λ Γ a => @Stlc.HasType.interp Γ a B.stlc_ty;
-            have Hf
-              : ∀ Γ a, @Stlc.HasType.interp Γ a B.stlc_ty = f Γ a 
-              := by intros; rfl;
-            rw [Hf, Hf]
-            apply cast_app_dep_three f _ _ _ _ _ _ _ _
-            (by sorry)
-            (by sorry)
-            (by sorry)
-            (by sorry);
+            rw [
+              @HasType.interp_irrel_ty
+              _
+              ((Hyp.mk A HypKind.gst)::Γ.upgrade)
+              _ _
+              _ (some (), G)
+            ]
+            rw [<-Context.upgrade_idem]
+            exact Hs.upgrade;
+            exact Hs;
+            {
+              apply Stlc.Context.interp.eq_mod_lrt.extend_gst_right;
+              apply Stlc.Context.interp.eq_mod_lrt_refl';
+              simp only [Stlc.InterpSubst.transport_ctx, Stlc.SubstCtx.interp]
+              conv =>
+                rhs
+                rw [<-G.transport_id]
+            }
           }
         }
       ⟩
