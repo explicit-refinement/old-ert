@@ -328,6 +328,73 @@ theorem HasType.denote_subst_case_left
     rfl
   }
 
+theorem HasType.denote_subst_case_right
+  {A B C: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} 
+  {e: Term}
+  {c: Option (C.subst0 e).stlc_ty.interp}
+  {c': Option (C.alpha0 (Term.inj 1 (Term.var 0))).stlc_ty.interp}
+  {b: B.stlc_ty.interp}
+  {sc: AnnotSort}
+  (HC: ({ ty := Term.coprod A B, kind := HypKind.val type } :: Γ) ⊢ C: sort sc)
+  (He: Γ ⊢ e: term (Term.coprod A B))
+  (HΓ: IsCtx Γ)
+  (HG: G ⊧ ✓Γ)
+  (HA: Γ ⊢ A: sort type)
+  (HB: Γ ⊢ B: sort type)
+  (Hb: B.denote_ty G (some b))
+  (Hea: He.stlc.interp G.downgrade = some (Sum.inr b))
+  (Hc': c' = HC.stlc_ty_subst ▸ HC.stlc_ty_subst ▸ c)
+  : @Term.denote_ty (C.subst0 e) Γ.upgrade.stlc G c =
+    @Term.denote_ty 
+      (C.alpha0 (Term.inj 1 (Term.var 0))) 
+      (B.stlc_ty::Γ.upgrade.stlc) (some b, G) c'
+  := by {
+    rw [
+      <-He.denote_val_subst0' HΓ HG HC (by rw [HC.stlc_ty_subst0])
+        (by rw [rec_to_cast']; apply doublecast_self)
+        rfl
+    ]
+    have Hv0: 
+      ({ ty := B, kind := HypKind.val type } :: Γ)
+        ⊢Term.inj 1 (Term.var 0)
+        :expr type (Term.wk1 (Term.coprod A B))
+      := (by 
+        constructor 
+        constructor 
+        apply HasType.wk1_sort; 
+        assumption 
+        constructor 
+        apply HasType.wk1_sort; 
+        assumption
+      );
+    rw [<-Hv0.denote_val_alpha0' HΓ HG 
+      (by constructor <;> assumption)
+      HB Hb HC (by rw [Term.alpha0, HC.stlc_ty_subst])
+      (by rw [rec_to_cast']; apply doublecast_self)
+      rfl
+    ]
+    rw [Hea]
+    apply cast_app_dep_three @Term.denote_ty;
+    rw [Hc']
+    simp only [rec_to_cast', cast_merge]
+    rfl
+    rw [Term.stlc_ty_wk1]
+    rfl
+    rw [cast_pair' 
+      (by rw [Term.stlc_ty_wk1]) rfl (by rw [Term.stlc_ty_wk1])
+    ]
+    apply congr (congr rfl _) rfl;
+    rw [
+      Stlc.HasType.interp_transport_cast'
+      Hv0.stlc
+      (Term.stlc_ty_wk1 _ ▸ Hv0.stlc)
+      rfl
+      (by simp only [Annot.stlc_ty, Term.stlc_ty_wk1])
+      _
+    ]
+    rfl
+  }
+
 theorem HasType.denote
   (H: Γ ⊢ a: A)
   (HΓ: IsCtx Γ)
