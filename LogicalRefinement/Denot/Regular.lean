@@ -2216,8 +2216,17 @@ theorem HasType.denote
           unfold Ty.interp.natrec_inner;
           simp only [Option.bind]
           split;
-          case h_1 => sorry
+          case h_1 Hnr => 
+            have HC':
+              Γ ⊢ C.subst0 ((Term.arrow Term.nats Term.nats).app Term.succ e): type
+              := sorry;
+            apply False.elim;
+            apply HC'.denote_ty_non_null;
+            rw [<-Hnr];
+            sorry
+            sorry
           case h_2 a Hnr => 
+            stop
             simp only []
             rw [Stlc.HasType.interp_transport_cast']
             rw [HasType.interp_irrel_ty'
