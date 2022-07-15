@@ -669,6 +669,16 @@ theorem cast_lam
     rfl
   }
 
+theorem cast_result
+  (A B C: Type)
+  (f: A -> B)
+  (H: B = C):
+  (λx => cast (by rw [H]) (f x)) = cast (by rw [H]) f 
+  := by {
+    cases H;
+    rfl
+  }
+
 theorem arrow_equivalence {A B C D: Prop}:
   A = B -> C = D -> (A -> C) = (B -> D)
   := by {
@@ -880,6 +890,18 @@ theorem cast_bind {A B A' B'}
   (p': B = B')
   : cast H (Option.bind x f) =
   Option.bind (cast H' x) (cast H'' f)
+  := by {
+    cases p; cases p'; rfl
+  }
+
+theorem cast_fun_bind {A B A' B'}
+  {H: B = B'}
+  (x: Option A)
+  (f: A -> Option B)
+  (p: A = A')
+  (p': B = B')
+  : cast (by rw [H]) (Option.bind x f) =
+  Option.bind x (cast (by rw [H]) f)
   := by {
     cases p; cases p'; rfl
   }

@@ -616,6 +616,18 @@ def Stlc.HasType.interp_pair {Γ P A B l r G}
     rfl
   }
 
+def Stlc.HasType.interp_app {Γ P A B l r G} 
+  (H: Stlc.HasType Γ (Stlc.app P l r) B)
+  (HP: P = Ty.arrow A B)
+  (Hl: Stlc.HasType Γ l (Ty.arrow A B))
+  (Hr: Stlc.HasType Γ r A)
+  : H.interp G = @Ty.interp.app A B (Hl.interp G) (Hr.interp G)
+  := by {
+    cases H;
+    cases HP;
+    rfl
+  }
+
 def Stlc.HasType.interp_inl {Γ P A B e G} 
   (H: Stlc.HasType Γ (Stlc.inj 0 e) P)
   (HP: P = Ty.coprod A B)

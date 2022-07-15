@@ -1860,24 +1860,41 @@ theorem HasType.denote
               (c, some n, G)
               ⟨Hc, True.intro, HG⟩
               ;
-            --TODO: alpha wknth ghost 1...
-            stop
-            rw [<-@HasType.denote_val_alpha0''
-              _ Term.nats C _ _ _ _ _ _ _ _ _ _ _ _ _ type 
+            apply equiv_prop_helper Is';
+            rw [<-@HasType.denote_subst_let_bin
+              C Term.nats Term.nats C
+              _ _
+              _ _ _ _ _ _
+              type type type type
               (by {
-                constructor
-                constructor
-                constructor
-                constructor
-                constructor
-                constructor
-                constructor
-                constructor
-                constructor
-              }) 
-              (HΓ.cons_gst HasType.nats) _
-            ] at Is';
-            sorry
+                repeat constructor
+                exact HasVar.zero.succ;
+              })
+              HΓ HG 
+              (by upgrade_ctx assumption)
+              HasType.nats
+              HasType.nats
+              (by upgrade_ctx assumption)
+              (by dsimp only [Term.denote_ty])
+              Hc 
+              (by {
+                rw [rec_to_cast']
+                apply doublecast_self
+              })
+              rfl
+            ]
+            simp only []
+            apply congr rfl;
+            rw [cast_result _ _ _ _ 
+              (by simp only [Annot.stlc_ty, HC.stlc_ty_let_bin])]
+            rw [<-cast_fun_bind]
+            apply congr rfl;
+            cases c with
+            | some c => rfl
+            | none => exact False.elim (HC.denote_ty_non_null Hc)
+            rfl
+            simp only [Annot.stlc_ty, HC.stlc_ty_let_bin]
+            simp only [Annot.stlc_ty, HC.stlc_ty_let_bin]
           })
           rfl
           rfl
