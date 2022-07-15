@@ -441,6 +441,21 @@ theorem HasType.interp_irrel_ty {Γ Δ a A}
   : HΓ.stlc.interp G = HΔ.stlc.interp D
   := HΓ.stlc.eq_mod HΔ.stlc (HΓ.interp_irrel_eq_ty HΔ HGD)
 
+theorem HasType.interp_irrel_ty' {Γ Δ a A b B} 
+  {G: Γ.stlc.interp} {D: Δ.stlc.interp} 
+  (HΓ: Γ ⊢ a: expr type A)
+  (HΔ: Δ ⊢ a: expr type A)
+  (HΓ': Γ.stlc ⊧ b: B)
+  (HΔ': Δ.stlc ⊧ b: B)
+  (Hb: b = a.stlc)
+  (HB: B = A.stlc_ty)
+  (HGD: G.eq_mod_lrt D Γ Δ)
+  : HΓ'.interp G = HΔ'.interp D
+  := by {
+    cases Hb; cases HB;
+    exact HΓ.stlc.eq_mod HΔ.stlc (HΓ.interp_irrel_eq_ty HΔ HGD)
+  }
+
 theorem HasType.interp_upgrade' {Γ a s A} 
   {G: Γ.upgrade.stlc.interp}
   (HΓ: Γ ⊢ a: expr s A)

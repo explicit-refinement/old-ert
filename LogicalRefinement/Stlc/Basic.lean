@@ -984,3 +984,19 @@ def Stlc.HasType.wk_def {Γ Δ ρ a A}
   (R: WkCtx ρ Γ Δ)
   (G: Γ.interp): (H.interp.wk R) G = H.interp (Stlc.Context.interp.wk G R)
   := rfl
+
+theorem interp_cast_spine 
+  {Γ Δ: Stlc.Context}
+  {a a': Stlc}
+  {A: Ty}
+  {H H'}
+  {G: Γ.interp} {D: Δ.interp}
+  (HΓΔ: Γ = Δ)
+  (HAA': a = a')
+  (HGD: G = HΓΔ ▸ D)
+  :
+  @Stlc.HasType.interp Γ a A H G =
+  @Stlc.HasType.interp Δ a' A H' D
+  := by {
+    cases HΓΔ; cases HAA'; cases HGD; rfl
+  }

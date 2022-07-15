@@ -421,6 +421,14 @@ theorem natrec_cast {A B: Ty} {n}
     rfl  
   }
 
+theorem curry_cast {A A' B'} (f: A' -> B') (a: A) 
+  (HA: A = A') 
+  (HB: B = B')
+  (H': (A' -> B') = (A -> B))
+  :
+  cast H' f a = cast HB.symm (f (cast HA a))
+  := by cases HA; cases HB; rfl
+
 theorem Term.denote_natrec_inner
   (C: Term) {Γ: Context} {G: Γ.upgrade.stlc.interp} 
   {n: Nat}
@@ -1888,7 +1896,61 @@ theorem HasType.denote
                   rw [HC.stlc_ty_subst0]
                 })
                 (by {
-                  sorry
+                  funext c;
+                  rw [
+                    curry_cast _ c 
+                    (by rw [HC.stlc_ty_subst0]) 
+                    (by rw [HC.stlc_ty_subst0])
+                    (by simp only [HC.stlc_ty_subst0])
+                  ]
+                  rw [
+                    Stlc.HasType.interp_transport_cast'
+                    Hs.stlc
+                    (cast 
+                      (by simp only [Annot.stlc_ty, HC.stlc_ty_let_bin])
+                      Hs.stlc)
+                    rfl
+                    (by simp only [Annot.stlc_ty, HC.stlc_ty_let_bin])
+                  ]
+                  rw [
+                    Stlc.HasType.interp_transport_cast'
+                    (cast 
+                      (by simp only [
+                        Annot.stlc_ty, 
+                        HC.stlc_ty_let_bin, 
+                        HC.stlc_ty_subst0] rfl)
+                      Hs.stlc)
+                    (cast 
+                      (by simp only [
+                        Annot.stlc_ty, 
+                        HC.stlc_ty_let_bin, 
+                        HC.stlc_ty_subst0] rfl)
+                      Hs.stlc)
+                    rfl
+                    (by simp only [Annot.stlc_ty, HC.stlc_ty_subst0])
+                  ]
+                  rw [
+                    HasType.interp_irrel_ty'
+                    Hs Hs
+                    (cast 
+                      (by simp only [
+                        Annot.stlc_ty, 
+                        HC.stlc_ty_let_bin, 
+                        HC.stlc_ty_subst0])
+                      Hs.stlc) 
+                    (cast 
+                      (by simp only [
+                        Annot.stlc_ty, 
+                        HC.stlc_ty_let_bin, 
+                        HC.stlc_ty_subst0])
+                      Hs.stlc)
+                    rfl 
+                    (by simp only [HC.stlc_ty_let_bin])
+                    sorry
+                  ]
+                  apply interp_cast_spine 
+                    (by simp only [Context.stlc, HC.stlc_ty_subst0]) 
+                    rfl rfl;
                 })
               )
     | natrec_prop => sorry
