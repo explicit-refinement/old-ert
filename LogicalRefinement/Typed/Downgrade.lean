@@ -1,11 +1,8 @@
 import LogicalRefinement.Untyped
-import LogicalRefinement.Untyped.Subst
 import LogicalRefinement.Utils
 import LogicalRefinement.Tactics
 import LogicalRefinement.Typed.Context
 import LogicalRefinement.Typed.Basic
-import LogicalRefinement.Typed.Wk
-import LogicalRefinement.Typed.Subst
 open Term
 open Annot
 open AnnotSort

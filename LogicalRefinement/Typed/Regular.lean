@@ -1,5 +1,4 @@
 import LogicalRefinement.Untyped
-import LogicalRefinement.Untyped.Subst
 import LogicalRefinement.Utils
 import LogicalRefinement.Tactics
 import LogicalRefinement.Typed.Context
