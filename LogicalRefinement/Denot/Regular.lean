@@ -580,6 +580,7 @@ theorem HasType.denote
         ]
       | none => exact False.elim (HA.denote_ty_non_null Da);
     | @lam_pr Γ ϕ s A Hϕ Hs _Iϕ Is => 
+      stop
       dsimp only [
         Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
         Term.denote_ty
@@ -594,10 +595,32 @@ theorem HasType.denote
         @HasType.interp_prop_none_ty'
         _ _ _ _ _ Ty.unit _ (some ()) Hs
       ]
-    | app_pr HφA Hl Hr IφA Il Ir =>
-      stop
-      dsimp only [Term.denote_ty]
-      sorry
+    | @app_pr Γ ϕ A l r HφA Hl Hr IφA Il Ir =>
+      dsimp only [
+        Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
+        Term.denote_ty, Annot.denote
+      ] at *
+      have Dl := Il HΓ G HG;
+      have Dr := Ir HΓ G HG;
+      generalize HSl: Hl.stlc.interp G.downgrade = Sl;
+      rw [HSl] at Dl;
+      cases Sl with
+      | some l =>   
+        simp only [] at *;
+        dsimp only [Ty.interp.app, Option.bind]
+        have HA: _ ⊢ A: _ := by cases HφA <;> assumption;
+        rw [<-
+          Hr.denote_val_subst0' HΓ HG 
+          (by cases HφA <;> assumption)
+          (by rw [HA.stlc_ty_subst0])
+          (by rw [Eq.mp, rec_to_cast', rec_to_cast'])
+          rfl
+        ]
+        rw [HA.eq_lrt_ty_denot']
+        exact Dl (Hr.proof_regular.denote_prop_none Dr)
+        apply Stlc.Context.interp.eq_mod_lrt.extend_prop;
+        apply Stlc.Context.interp.eq_mod_lrt_refl;
+      | none => exact False.elim Dl
     | lam_irrel => 
       stop
       dsimp only [
