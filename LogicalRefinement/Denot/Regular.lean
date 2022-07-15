@@ -405,6 +405,22 @@ theorem natrec_null_loop {C n s}: @Ty.interp.natrec_inner C n none s = none
       rfl
   }
 
+theorem natrec_cast {A B: Ty} {n} 
+  {z: Option A.interp} {s: A.interp -> Option A.interp} 
+  {z': Option B.interp} {s': B.interp -> Option B.interp} 
+  (H: A = B)
+  (Hz: z' = cast (by simp only [H]) z)
+  (Hs: s' = cast (by simp only [H]) s)
+  : 
+  cast (by simp only [H]) (@Ty.interp.natrec_inner A n z s) =
+  @Ty.interp.natrec_inner B n z' s'
+  := by {
+    cases H;
+    cases Hz;
+    cases Hs;
+    rfl  
+  }
+
 theorem Term.denote_natrec_inner
   (C: Term) {Γ: Context} {G: Γ.upgrade.stlc.interp} 
   {n: Nat}
@@ -1857,11 +1873,24 @@ theorem HasType.denote
           })
           rfl
           rfl
-          (by {
-            --TODO: natrec inner cast
-            sorry
-          })
+          _
         ;
+        exact (natrec_cast
+                (by rw [HC.stlc_ty_subst0])
+                (by {
+                  rw [Stlc.HasType.interp_transport_cast']
+                  rw [Stlc.HasType.interp_transport_cast']
+                  rw [<-HC.stlc_ty_subst]
+                  exact Hz.stlc;
+                  rfl
+                  rw [HC.stlc_ty_subst0]
+                  rfl
+                  rw [HC.stlc_ty_subst0]
+                })
+                (by {
+                  sorry
+                })
+              )
     | natrec_prop => sorry
     | @beta_zero Γ C z s HC Hz Hs IC Iz Is => 
       stop
