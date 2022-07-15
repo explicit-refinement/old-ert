@@ -1800,8 +1800,17 @@ theorem HasType.denote
           Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
           Term.denote_ty, Annot.denote
         ] at *
+        rw [<-HasType.zero.denote_val_subst0'        
+            HΓ HG (by upgrade_ctx assumption) 
+            (by rw [HC.stlc_ty_subst0])
+            (by {
+              rw [rec_to_cast']
+              exact doublecast_self _
+            })
+            rfl
+        ] at Iz';
         rw [Hei]
-        dsimp only [Ty.interp.natrec_int, Option.bind, Ty.interp.natrec_inner]
+        dsimp only [Ty.interp.natrec_int, Option.bind]
         rw [<-He.denote_val_subst0' 
           HΓ HG (by upgrade_ctx assumption)
           (by rw [HC.stlc_ty_subst0])
@@ -1812,33 +1821,47 @@ theorem HasType.denote
           rfl
         ]
         rw [Hei]
-        induction n generalizing e with
-        | zero => 
-          apply equiv_prop_helper Iz';
-          rw [<-HasType.zero.denote_val_subst0' 
-            HΓ HG (by upgrade_ctx assumption) 
-            (by rw [HC.stlc_ty_subst0])
-            (by {
-              rw [rec_to_cast']
-              exact doublecast_self _
-            })
-            rfl
-          ]
-          apply congr rfl;
-          {
-            rw [Stlc.HasType.interp_transport_cast']
-            rw [Stlc.HasType.interp_transport_cast']
-            rw [<-HC.stlc_ty_subst]
-            exact Hz.stlc;
-            rfl
-            rw [HC.stlc_ty_subst0]
-            rfl
-            rw [HC.stlc_ty_subst0]
-          }
-        | succ n I => 
-          dsimp only [Ty.interp.natrec_int, Option.bind, Ty.interp.natrec_inner] 
-            at *
-          sorry
+        apply @Term.denote_natrec_inner'
+          C _ _ _ _  
+          (λ c => cast 
+            (by simp only [Annot.stlc_ty, HC.stlc_ty_let_bin]) 
+            (Hs.stlc.interp (c, none, G.downgrade)))
+          _ _ _
+          Iz' 
+          (by {
+            intro n c Hc;
+            have Is' := 
+              Is 
+              ((HΓ.cons_gst HasType.nats).cons_val HC)
+              (c, some n, G)
+              ⟨Hc, True.intro, HG⟩
+              ;
+            --TODO: alpha wknth ghost 1...
+            stop
+            rw [<-@HasType.denote_val_alpha0''
+              _ Term.nats C _ _ _ _ _ _ _ _ _ _ _ _ _ type 
+              (by {
+                constructor
+                constructor
+                constructor
+                constructor
+                constructor
+                constructor
+                constructor
+                constructor
+                constructor
+              }) 
+              (HΓ.cons_gst HasType.nats) _
+            ] at Is';
+            sorry
+          })
+          rfl
+          rfl
+          (by {
+            --TODO: natrec inner cast
+            sorry
+          })
+        ;
     | natrec_prop => sorry
     | @beta_zero Γ C z s HC Hz Hs IC Iz Is => 
       stop
