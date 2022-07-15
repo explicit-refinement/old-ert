@@ -419,67 +419,67 @@ theorem HasType.denote
         exact Ie'
       | none => exact He.term_regular.denote_ty_non_null Ie'
     | @case Γ A B C e l r He HA HB HC Hl Hr Ie IA IB IC Il Ir =>
-      stop
       have HAB: Γ ⊢ Term.coprod A B: type := HasType.coprod HA HB;
-      cases k with
-      | type => 
-        dsimp only [Term.stlc, Term.stlc_ty, stlc_ty, Stlc.HasType.interp]
-        have Ie' := Ie HΓ G HG;
-        dsimp only [Term.stlc, Term.stlc_ty, stlc_ty, Stlc.HasType.interp] at Ie';
-        generalize Hei: Stlc.HasType.interp (_ : _⊧Term.stlc e:_) _ = ei;
-        --TODO: wait for Zulip to answer regarding the requirement to have
-        -- Stlc.HasType.interp_irrel here.
-        rw [Stlc.HasType.interp_irrel] at Ie'
-        rw [Hei] at Ie'
+      dsimp only [Term.stlc, Term.stlc_ty, stlc_ty, Stlc.HasType.interp]
+      have Ie' := Ie HΓ G HG;
+      dsimp only [Term.stlc, Term.stlc_ty, stlc_ty, Stlc.HasType.interp] at Ie';
+      generalize Hei: Stlc.HasType.interp (_ : _⊧Term.stlc e:_) _ = ei;
+      --TODO: wait for Zulip to answer regarding the requirement to have
+      -- Stlc.HasType.interp_irrel here.
+      rw [Stlc.HasType.interp_irrel] at Ie'
+      rw [Hei] at Ie'
+      cases ei with
+      | some ei => 
         cases ei with
-        | some ei => 
-          cases ei with
-          | inl a => 
-            simp only [Ty.interp.case]
-            have Il' := Il 
-              (HΓ.cons_val HA)
-              (return a, G)
-              ⟨Ie', HG⟩
-              ;
-            sorry --TODO: appropriate typecasting for Il'
-          | inr b => 
-            simp only [Ty.interp.case]
-            have Ir' := Ir
-              (HΓ.cons_val HB)
-              (return b, G)
-              ⟨Ie', HG⟩
-              ;
-            sorry --TODO: appropriate typecasting for Ir'
-        | none => exact False.elim (HAB.denote_ty_non_null Ie')
-      | prop => 
-        have Ie' := Ie HΓ G HG;
-        dsimp only [
-          Term.stlc, Term.stlc_ty, stlc_ty, Stlc.HasType.interp] 
-          at Ie';
-        generalize Hei: Stlc.HasType.interp (_ : _⊧Term.stlc e:_) _ = ei;
-        rw [Stlc.HasType.interp_irrel] at Ie'
-        rw [Hei] at Ie'
-        cases ei with
-        | some ei => 
-          cases ei with
-          | inl a => 
-            simp only [Ty.interp.case]
-            have Il' := Il 
-              (HΓ.cons_val HA)
-              (return a, G)
-              ⟨Ie', HG⟩
-              ;
-            sorry --TODO: appropriate typecasting for Il'
-          | inr b => 
-            simp only [Ty.interp.case]
-            have Ir' := Ir
-              (HΓ.cons_val HB)
-              (return b, G)
-              ⟨Ie', HG⟩
-              ;
-            sorry --TODO: appropriate typecasting for Ir'
-        | none => exact False.elim (HAB.denote_ty_non_null Ie')
-        exact He.stlc
+        | inl a => 
+          simp only [Ty.interp.case, Option.bind, Ty.interp.case_inner]
+          have Il' := Il 
+            (HΓ.cons_val HA)
+            (return a, G)
+            ⟨Ie', HG⟩
+            ;
+          apply equiv_prop_helper Il';
+          sorry --TODO: appropriate typecasting for Il'
+        | inr b => 
+          stop
+          simp only [Ty.interp.case, Option.bind, Ty.interp.case_inner]
+          have Ir' := Ir
+            (HΓ.cons_val HB)
+            (return b, G)
+            ⟨Ie', HG⟩
+            ;
+          apply equiv_prop_helper Ir';
+          sorry --TODO: appropriate typecasting for Ir'
+      | none => exact False.elim (HAB.denote_ty_non_null Ie')
+      -- | prop => 
+      --   have Ie' := Ie HΓ G HG;
+      --   dsimp only [
+      --     Term.stlc, Term.stlc_ty, stlc_ty, Stlc.HasType.interp] 
+      --     at Ie';
+      --   generalize Hei: Stlc.HasType.interp (_ : _⊧Term.stlc e:_) _ = ei;
+      --   rw [Stlc.HasType.interp_irrel] at Ie'
+      --   rw [Hei] at Ie'
+      --   cases ei with
+      --   | some ei => 
+      --     cases ei with
+      --     | inl a => 
+      --       simp only [Ty.interp.case]
+      --       have Il' := Il 
+      --         (HΓ.cons_val HA)
+      --         (return a, G)
+      --         ⟨Ie', HG⟩
+      --         ;
+      --       sorry --TODO: appropriate typecasting for Il'
+      --     | inr b => 
+      --       simp only [Ty.interp.case]
+      --       have Ir' := Ir
+      --         (HΓ.cons_val HB)
+      --         (return b, G)
+      --         ⟨Ie', HG⟩
+      --         ;
+      --       sorry --TODO: appropriate typecasting for Ir'
+      --   | none => exact False.elim (HAB.denote_ty_non_null Ie')
+      --   exact He.stlc
     | elem =>
       stop 
       dsimp only [
