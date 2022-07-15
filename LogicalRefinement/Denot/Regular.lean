@@ -395,6 +395,23 @@ theorem HasType.denote_subst_case_right
     rfl
   }
 
+theorem HasType.denote_natrec_inner
+  {C: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} 
+  {n: Nat}
+  {z: C.stlc_ty.interp}
+  {s: C.stlc_ty.interp -> Option C.stlc_ty.interp}
+  {sc}
+  (HC: ({ ty := Term.nats, kind := HypKind.val type } :: Γ) ⊢ C: sort sc)
+  (HΓ: IsCtx Γ)
+  (HG: G ⊧ ✓Γ)
+  (Hz: @Term.denote_ty C (Ty.nats::Γ.upgrade.stlc) (some Nat.zero, G) (some z))
+  (Hs: ∀n c, 
+    @Term.denote_ty C (Ty.nats::Γ.upgrade.stlc) (some n, G) (some c) ->
+    @Term.denote_ty C (Ty.nats::Γ.upgrade.stlc) (some (Nat.succ n), G) (s c)
+  )
+  : sorry
+  := sorry
+
 theorem HasType.denote
   (H: Γ ⊢ a: A)
   (HΓ: IsCtx Γ)
