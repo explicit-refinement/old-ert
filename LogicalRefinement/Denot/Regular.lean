@@ -1745,15 +1745,26 @@ theorem HasType.denote
         rw [Hei] at Ie';
         exact Ie'.elim
       | some n =>
+        have Iz' := Iz HΓ G HG;
         dsimp only [
           Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
           Term.denote_ty, Annot.denote
         ] at *
         rw [Hei]
+        dsimp only [Ty.interp.natrec_int, Option.bind, Ty.interp.natrec_inner]
+        rw [<-He.denote_val_subst0' 
+          HΓ HG (by upgrade_ctx assumption)
+          (by rw [HC.stlc_ty_subst0])
+          (by {
+            rw [rec_to_cast']
+            exact doublecast_self _
+          })
+          rfl
+        ]
+        rw [Hei]
         induction n generalizing e with
         | zero => 
-          dsimp only [Ty.interp.natrec_int, Option.bind, Ty.interp.natrec_inner]
-          apply equiv_prop_helper (Iz HΓ G HG);
+          apply equiv_prop_helper Iz';
           rw [<-HasType.zero.denote_val_subst0' 
             HΓ HG (by upgrade_ctx assumption) 
             (by rw [HC.stlc_ty_subst0])
@@ -1763,20 +1774,7 @@ theorem HasType.denote
             })
             rfl
           ]
-          rw [<-He.denote_val_subst0' 
-            HΓ HG (by upgrade_ctx assumption)
-            (by rw [HC.stlc_ty_subst0])
-            (by {
-              rw [rec_to_cast']
-              exact doublecast_self _
-            })
-            rfl
-          ]
-          apply congr
-          {
-            rw [Hei]
-            rfl
-          }
+          apply congr rfl;
           {
             rw [Stlc.HasType.interp_transport_cast']
             rw [Stlc.HasType.interp_transport_cast']
@@ -1787,7 +1785,10 @@ theorem HasType.denote
             rfl
             rw [HC.stlc_ty_subst0]
           }
-        | succ n I => sorry
+        | succ n I => 
+          dsimp only [Ty.interp.natrec_int, Option.bind, Ty.interp.natrec_inner] 
+            at *
+          sorry
     | natrec_prop => sorry
     | @beta_zero Γ C z s HC Hz Hs IC Iz Is => 
       stop
