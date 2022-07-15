@@ -446,6 +446,22 @@ theorem Term.denote_natrec_inner
     | zero => exact Hz
     | succ n I => exact Hs _ _ I
   }
+  
+theorem Term.denote_natrec_inner_none
+  (C: Term) {Γ: Context} {G: Γ.upgrade.stlc.interp} 
+  {n: Nat}
+  {s: C.stlc_ty.interp -> Option C.stlc_ty.interp}
+  (Hz: @Term.denote_ty C (Ty.nats::Γ.upgrade.stlc) (some Nat.zero, G) none)
+  (Hs: ∀n c, 
+    @Term.denote_ty C (Ty.nats::Γ.upgrade.stlc) (some n, G) c ->
+    @Term.denote_ty C (Ty.nats::Γ.upgrade.stlc) (some (Nat.succ n), G) (c.bind s)
+  )
+  : @Term.denote_ty C (Ty.nats::Γ.upgrade.stlc) (some n, G) none
+  := by {
+    induction n with
+    | zero => exact Hz
+    | succ n I => exact Hs _ _ I
+  }
 
 theorem Term.denote_natrec_inner'
   (C: Term) {Γ: Context} {G: Γ.upgrade.stlc.interp}
@@ -467,6 +483,25 @@ theorem Term.denote_natrec_inner'
     cases HD;
     cases HN;
     apply C.denote_natrec_inner <;> assumption
+  }
+
+theorem Term.denote_natrec_inner_none'
+  (C: Term) {Γ: Context} {G: Γ.upgrade.stlc.interp} 
+  {n: Nat}
+  {s: C.stlc_ty.interp -> Option C.stlc_ty.interp}
+  {Δ: Stlc.Context} {D: Δ.interp}
+  (Hz: @Term.denote_ty C (Ty.nats::Γ.upgrade.stlc) (some Nat.zero, G) none)
+  (Hs: ∀n c, 
+    @Term.denote_ty C (Ty.nats::Γ.upgrade.stlc) (some n, G) c ->
+    @Term.denote_ty C (Ty.nats::Γ.upgrade.stlc) (some (Nat.succ n), G) (c.bind s)
+  )
+  (HΔ: Δ = Ty.nats::Γ.upgrade.stlc)
+  (HD: D = HΔ ▸ (some n, G))
+  : @Term.denote_ty C Δ D none
+  := by {
+    cases HΔ;
+    cases HD;
+    apply C.denote_natrec_inner_none <;> assumption
   }
 
 theorem HasType.denote
@@ -1987,7 +2022,97 @@ theorem HasType.denote
                   exact (G.downgrade.eq_mod_lrt_refl Γ Γ);
                 })
               )
-    | natrec_prop => sorry
+    | @natrec_prop Γ C e z s HC He Hz Hs IC Ie Iz Is => 
+      generalize Hei: He.stlc.interp G = ei;
+      have Ie' := Ie HΓ.upgrade (Context.upgrade_idem.symm ▸ G) HG.upgrade;
+      have Iz' := Iz HΓ.upgrade (Context.upgrade_idem.symm ▸ G) HG.upgrade;
+      dsimp only [Term.denote_ty] at *;
+      simp only [rec_to_cast', Stlc.Context.interp.downgrade_cast] at Ie';
+      rw [Hei] at Ie';
+      cases ei with
+      | none => exact Ie'.elim
+      | some n =>
+        dsimp only [
+          Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
+          Term.denote_ty, Annot.denote
+        ] at *
+        rw [<-HasType.zero.denote_val_subst0'        
+            HΓ.upgrade HG.upgrade (by upgrade_ctx assumption) 
+            (by rw [HC.stlc_ty_subst0])
+            (by {
+              rw [rec_to_cast', rec_to_cast']
+              exact doublecast_self _
+            })
+            rfl
+        ] at Iz';
+        simp only [rec_to_cast', Stlc.Context.interp.downgrade_cast] at Iz';
+        have Iz'' := HC.denote_prop_none Iz';
+        dsimp only [Ty.abort]
+        rw [Term.denote_upgrade_eq]
+        rw [<-HasType.denote_val_subst0' 
+          He
+          HΓ.upgrade HG.upgrade (by upgrade_ctx assumption)
+          (by rw [HC.stlc_ty_subst0])
+          (by rw [interp_eq_none])
+          rfl
+        ]
+        rw [rec_to_cast', Stlc.Context.interp.downgrade_cast]
+        rw [Hei]
+        apply @Term.denote_natrec_inner_none'
+          C _ _ _  
+          (λ c => cast 
+            (by simp only [Annot.stlc_ty, HC.stlc_ty_let_bin]) 
+            (Hs.stlc.interp (c, none, G)))
+          _ _
+          Iz'' 
+          (by {
+            stop
+            intro n c Hc;
+            have Is' := 
+              Is 
+              ((HΓ.cons_gst HasType.nats).cons_val HC)
+              (c, some n, G)
+              ⟨Hc, True.intro, HG⟩
+              ;
+            apply equiv_prop_helper Is';
+            rw [<-@HasType.denote_subst_let_bin
+              C Term.nats Term.nats C
+              _ _
+              _ _ _ _ _ _
+              type type type type
+              (by {
+                repeat constructor
+                exact HasVar.zero.succ;
+              })
+              HΓ HG 
+              (by upgrade_ctx assumption)
+              HasType.nats
+              HasType.nats
+              (by upgrade_ctx assumption)
+              (by dsimp only [Term.denote_ty])
+              Hc 
+              (by {
+                rw [rec_to_cast']
+                apply doublecast_self
+              })
+              rfl
+            ]
+            simp only []
+            apply congr rfl;
+            rw [cast_result _ _ _ _ 
+              (by simp only [Annot.stlc_ty, HC.stlc_ty_let_bin])]
+            rw [<-cast_fun_bind]
+            apply congr rfl;
+            cases c with
+            | some c => rfl
+            | none => exact False.elim (HC.denote_ty_non_null Hc)
+            rfl
+            simp only [Annot.stlc_ty, HC.stlc_ty_let_bin]
+            simp only [Annot.stlc_ty, HC.stlc_ty_let_bin]
+          })
+          rfl
+          rfl
+        ;
     | @beta_zero Γ C z s HC Hz Hs IC Iz Is => 
       stop
       dsimp only [
