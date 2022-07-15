@@ -357,3 +357,25 @@ theorem HasType.subst0_gst_stlc_interp_commute {Γ: Context} {a b A B}
     assumption
     rw [Annot.stlc_ty_subst Ha.expr_regular]
   }
+
+theorem HasType.subst01_stlc_interp_commute {Γ: Context} {e l r A B C sl sr} 
+  (He: HasType 
+    ((Hyp.mk B (HypKind.val sl))
+    ::(Hyp.mk A (HypKind.val sr))::Γ) e (term C))
+  (Hl: HasType Γ l (expr sl (B.subst0 r)))
+  (Hr: HasType Γ r (expr sr A))
+  (HB: HasType ({ ty := A, kind := HypKind.val sr }::Γ) B (sort sl))
+  (IΓ: IsCtx Γ)
+  (G: Γ.stlc.interp)
+  : (He.subst (Hl.to_subst01 Hr IΓ)).stlc.interp G
+  = (Annot.stlc_ty_subst He.expr_regular) 
+    ▸ He.stlc.interp.subst 
+      ((Hl.to_subst01 Hr IΓ).interp ((IΓ.cons_val Hr.expr_regular).cons_val HB)) G
+  := by {
+    rw [<-Stlc.HasType.subst_interp_dist]
+    rw [rec_to_cast']
+    rw [Stlc.HasType.interp_transport_cast']
+    rw [HasType.term_subst_stlc_commute]
+    assumption
+    rw [Annot.stlc_ty_subst He.expr_regular]
+  }
