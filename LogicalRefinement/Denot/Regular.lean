@@ -2217,9 +2217,49 @@ theorem HasType.denote
           simp only [Option.bind]
           split;
           case h_1 => sorry
-          case h_2 => sorry
-          . rw [HC.stlc_ty_subst0, HC.stlc_ty_subst0]
-          . rw [HC.stlc_ty_subst0, HC.stlc_ty_subst0]
+          case h_2 a Hnr => 
+            simp only []
+            rw [Stlc.HasType.interp_transport_cast']
+            rw [HasType.interp_irrel_ty'
+              _ Hs _ _ _ 
+              (by rw [HC.stlc_ty_subst0, HC.stlc_ty_let_bin]) _
+            ]
+            apply interp_cast_spine;
+            rfl
+            {
+              sorry
+            }
+            rw [HC.stlc_ty_subst0] rfl
+            {
+              rw [HC.stlc_ty_subst0]
+              rw [<-Context.upgrade_idem]
+              have Hs' := Hs.upgrade.stlc;
+              simp only [Annot.stlc_ty, HC.stlc_ty_let_bin] at Hs';
+              exact Hs'
+            }
+            {
+              rw [HC.stlc_ty_subst0]
+              have Hs' := Hs.stlc;
+              simp only [Annot.stlc_ty, HC.stlc_ty_let_bin] at Hs';
+              exact Hs'
+            }
+            {
+              sorry
+            }
+            {
+              rw [<-Context.upgrade_idem]
+              exact Hs.upgrade
+            }
+            rfl
+            {
+              sorry
+            }
+            rfl
+            {
+              rw [HC.stlc_ty_let_bin, HC.stlc_ty_subst0]
+            }
+          . simp only [HC.stlc_ty_subst0]
+          . simp only [HC.stlc_ty_subst0]
           . rfl
         }
       ⟩
