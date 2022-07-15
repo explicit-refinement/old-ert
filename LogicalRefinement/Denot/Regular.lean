@@ -261,6 +261,55 @@ theorem HasType.denote_subst_let_set
       rfl
     )
 
+theorem HasType.denote_subst_case_left_inner
+  {A B C: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} 
+  {a: Option A.stlc_ty.interp}
+  {c: Option C.stlc_ty.interp}
+  {c': Option (C.alpha0 (Term.inj 0 (Term.var 0))).stlc_ty.interp}
+  {a: A.stlc_ty.interp}
+  {b: Option B.stlc_ty.interp}
+  {sc: AnnotSort}
+  (HC: ({ ty := Term.coprod A B, kind := HypKind.val type } :: Γ) ⊢ C: sort sc)
+  (HΓ: IsCtx Γ)
+  (HG: G ⊧ ✓Γ)
+  (HA: Γ ⊢ A: sort type)
+  (HB: ((Hyp.mk A (HypKind.val type))::Γ) ⊢ B: sort prop)
+  (Ha: A.denote_ty G (some a))
+  (Hb: @Term.denote_ty B (A.stlc_ty::Γ.upgrade.stlc) (some a, G) b)
+  (Hc': c' = HC.stlc_ty_subst ▸ c)
+  : @Term.denote_ty C
+    ((Term.coprod A B).stlc_ty::Γ.upgrade.stlc) 
+    (some (Sum.inl a), G) c =
+    @Term.denote_ty 
+      (C.alpha0 (Term.inj 0 (Term.var 0))) 
+      (A.stlc_ty::Γ.upgrade.stlc) (some a, G) c'
+  := sorry
+
+theorem HasType.denote_subst_case_left
+  {A B C: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} 
+  {a: Option A.stlc_ty.interp}
+  {e: Term}
+  {c: Option (C.subst0 e).stlc_ty.interp}
+  {c': Option (C.alpha0 (Term.inj 0 (Term.var 0))).stlc_ty.interp}
+  {a: A.stlc_ty.interp}
+  {b: Option B.stlc_ty.interp}
+  {sc: AnnotSort}
+  (HC: ({ ty := Term.coprod A B, kind := HypKind.val type } :: Γ) ⊢ C: sort sc)
+  (He: Γ ⊢ e: term (Term.coprod A B))
+  (HΓ: IsCtx Γ)
+  (HG: G ⊧ ✓Γ)
+  (HA: Γ ⊢ A: sort type)
+  (HB: ((Hyp.mk A (HypKind.val type))::Γ) ⊢ B: sort prop)
+  (Ha: A.denote_ty G (some a))
+  (Hb: @Term.denote_ty B (A.stlc_ty::Γ.upgrade.stlc) (some a, G) b)
+  (He: He.stlc.interp G.downgrade = some (Sum.inl a))
+  (Hc': c' = HC.stlc_ty_subst ▸ HC.stlc_ty_subst ▸ c)
+  : @Term.denote_ty (C.subst0 e) Γ.upgrade.stlc G c =
+    @Term.denote_ty 
+      (C.alpha0 (Term.inj 0 (Term.var 0))) 
+      (A.stlc_ty::Γ.upgrade.stlc) (some a, G) c'
+  := sorry
+
 theorem HasType.denote
   (H: Γ ⊢ a: A)
   (HΓ: IsCtx Γ)
