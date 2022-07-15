@@ -1144,6 +1144,7 @@ theorem HasType.denote
     | let_repr_prop => sorry
     | refl Ha => stop exact ⟨Ha.stlc, Ha.stlc, rfl⟩
     | discr Ha Hb Hp Ia Ib Ip => 
+      stop
       have Ia' := Ia HΓ.upgrade (Context.upgrade_idem.symm ▸ G) HG.upgrade;
       have Ib' := Ib HΓ.upgrade (Context.upgrade_idem.symm ▸ G) HG.upgrade;
       have ⟨Sa, Ea⟩ := Ha.term_regular.upgrade.denote_ty_some Ia';
@@ -1160,10 +1161,41 @@ theorem HasType.denote
       rw [Ea', Eb'] at C;
       simp only [Ty.interp.inl, Ty.interp.inr, Option.bind] at C;
       cases C
-    | cong => 
-      stop
-      dsimp only [denote', Annot.denote]
-      sorry
+    | @cong Γ A P p e x y HP HA Hp He IP IA Ip Ie => 
+      have Ie' := Ie HΓ G HG;
+      have ⟨Sx, Sy, Exy⟩ := Ip HΓ G HG;
+      have Hx: Γ.upgrade ⊢ x: term A := by cases Hp.proof_regular <;> assumption;
+      have Hy: Γ.upgrade ⊢ y: term A := by cases Hp.proof_regular <;> assumption;
+      dsimp only [
+        Term.denote_ty, Term.stlc, Annot.denote,
+        stlc_ty, Term.stlc_ty, Stlc.HasType.interp,
+        Ty.abort
+      ] at *;
+      rw [(HP.upgrade.subst0 Hx).denote_prop_eq, Term.denote_prop] at Ie';
+      rw [Term.denote_upgrade_eq]
+      rw [Term.denote_upgrade_eq] at Ie';
+      apply equiv_prop_helper Ie';
+      rw [<-Hx.denote_val_subst0' 
+        HΓ.upgrade HG.upgrade HP.upgrade 
+        (by rw [HP.stlc_ty_subst0])
+        (by rw [interp_eq_none])
+        rfl
+      ]      
+      rw [<-Hy.denote_val_subst0' 
+        HΓ.upgrade HG.upgrade HP.upgrade 
+        (by rw [HP.stlc_ty_subst0])
+        (by rw [interp_eq_none])
+        rfl
+      ]
+      apply cast_app_dep_two (@Term.denote_ty P);
+      rw [cast_none]
+      rfl
+      rfl
+      apply congr;
+      apply congr rfl;
+      simp only [rec_to_cast', Stlc.Context.interp.downgrade_cast]
+      exact Exy;
+      rfl
     | @beta Γ A B s t Hs HA Ht Is _IA It => 
       stop
       dsimp only [
