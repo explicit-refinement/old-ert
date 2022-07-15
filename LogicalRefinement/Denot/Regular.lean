@@ -395,22 +395,55 @@ theorem HasType.denote_subst_case_right
     rfl
   }
 
-theorem HasType.denote_natrec_inner
-  {C: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} 
+theorem natrec_null_loop {C n s}: @Ty.interp.natrec_inner C n none s = none
+  := by {
+    induction n with
+    | zero => rfl
+    | succ n I => 
+      unfold Ty.interp.natrec_inner
+      rw [I]
+      rfl
+  }
+
+theorem Term.denote_natrec_inner
+  (C: Term) {Γ: Context} {G: Γ.upgrade.stlc.interp} 
   {n: Nat}
-  {z: C.stlc_ty.interp}
+  {z: Option C.stlc_ty.interp}
   {s: C.stlc_ty.interp -> Option C.stlc_ty.interp}
-  {sc}
-  (HC: ({ ty := Term.nats, kind := HypKind.val type } :: Γ) ⊢ C: sort sc)
-  (HΓ: IsCtx Γ)
-  (HG: G ⊧ ✓Γ)
-  (Hz: @Term.denote_ty C (Ty.nats::Γ.upgrade.stlc) (some Nat.zero, G) (some z))
+  (Hz: @Term.denote_ty C (Ty.nats::Γ.upgrade.stlc) (some Nat.zero, G) z)
   (Hs: ∀n c, 
-    @Term.denote_ty C (Ty.nats::Γ.upgrade.stlc) (some n, G) (some c) ->
-    @Term.denote_ty C (Ty.nats::Γ.upgrade.stlc) (some (Nat.succ n), G) (s c)
+    @Term.denote_ty C (Ty.nats::Γ.upgrade.stlc) (some n, G) c ->
+    @Term.denote_ty C (Ty.nats::Γ.upgrade.stlc) (some (Nat.succ n), G) (c.bind s)
   )
-  : sorry
-  := sorry
+  : @Term.denote_ty C (Ty.nats::Γ.upgrade.stlc) (some n, G)
+    (Ty.interp.natrec_inner n z s)
+  := by {
+    induction n with
+    | zero => exact Hz
+    | succ n I => exact Hs _ _ I
+  }
+
+theorem Term.denote_natrec_inner'
+  (C: Term) {Γ: Context} {G: Γ.upgrade.stlc.interp}
+  {n: Nat}
+  {z: Option C.stlc_ty.interp}
+  {s: C.stlc_ty.interp -> Option C.stlc_ty.interp}
+  {Δ: Stlc.Context} {D: Δ.interp} {N: Option C.stlc_ty.interp}
+  (Hz: @Term.denote_ty C (Ty.nats::Γ.upgrade.stlc) (some Nat.zero, G) z)
+  (Hs: ∀n c, 
+    @Term.denote_ty C (Ty.nats::Γ.upgrade.stlc) (some n, G) c ->
+    @Term.denote_ty C (Ty.nats::Γ.upgrade.stlc) (some (Nat.succ n), G) (c.bind s)
+  )
+  (HΔ: Δ = Ty.nats::Γ.upgrade.stlc)
+  (HD: D = HΔ ▸ (some n, G))
+  (HN: N = Ty.interp.natrec_inner n z s)
+  : @Term.denote_ty C Δ D N
+  := by {
+    cases HΔ;
+    cases HD;
+    cases HN;
+    apply C.denote_natrec_inner <;> assumption
+  }
 
 theorem HasType.denote
   (H: Γ ⊢ a: A)
