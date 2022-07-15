@@ -1811,6 +1811,7 @@ theorem HasType.denote
       | none => cases H
       | some x => exact True.intro
     | @natrec Γ C e z s HC He Hz Hs IC Ie Iz Is =>
+      stop
       generalize Hei: He.stlc.interp G.downgrade = ei;
       cases ei with
       | none => 
@@ -2020,7 +2021,6 @@ theorem HasType.denote
       ]
       exact ⟨
         by {
-          stop
           rw [HC.stlc_ty_subst0]
           constructor
           constructor
@@ -2049,7 +2049,17 @@ theorem HasType.denote
           rw [HC.stlc_ty_subst0]
           exact Hs'
         },
-        sorry
+        by {
+          have Ie' := Ie HΓ.upgrade (Context.upgrade_idem.symm ▸ G) HG.upgrade;
+          have ⟨Se, Ee⟩ := He.term_regular.upgrade.denote_ty_some Ie';
+          have Ee': He.stlc.interp G = some Se 
+            := by rw [<-Ee, rec_to_cast', Stlc.Context.interp.downgrade_cast]
+          --TODO: report invalid simp lemma for Ty.interp.natrec_inner
+          simp only [Ee', Ty.interp.app, Option.bind, Eq.mp, Ty.interp.natrec_int]
+          dsimp only [Ty.interp.natrec_inner]
+          --TODO: Stlc.HasType.interp.subst01...
+          sorry
+        }
       ⟩
     | _ => exact True.intro
   }
