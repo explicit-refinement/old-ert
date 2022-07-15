@@ -622,7 +622,8 @@ theorem HasType.denote
         apply Stlc.Context.interp.eq_mod_lrt.extend_prop;
         apply Stlc.Context.interp.eq_mod_lrt_refl;
       | none => exact False.elim Dl
-    | @lam_irrel Γ A s B HA Hs _IA Is =>       
+    | @lam_irrel Γ A s B HA Hs _IA Is =>   
+      stop    
       dsimp only [
         Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
         Term.denote_ty
@@ -636,13 +637,47 @@ theorem HasType.denote
         congr
         . rw [Hs.interp_gst_none_ty]
         . rw [Hs.interp_gst_none_ty]
-    | app_irrel =>
-      stop  
+    | @app_irrel Γ A B l r HAB Hl Hr IAB Il Ir =>
       dsimp only [
-        denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
-        Term.denote_ty', Term.denote_ty
-      ]
-      sorry
+        Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
+        Term.denote_ty, Annot.denote
+      ] at *
+      have Dl := Il HΓ G HG;
+      have Dr := Ir HΓ.upgrade (Context.upgrade_idem.symm ▸ G) HG.upgrade;
+      generalize HSl: Hl.stlc.interp G.downgrade = Sl;
+      rw [HSl] at Dl;
+      cases Sl with
+      | some l =>   
+        have Dl' := Dl (Hr.stlc.interp G) (by {
+          rw [Term.denote_upgrade_eq]
+          simp only [rec_to_cast'] at Dr;
+          rw [Stlc.Context.interp.downgrade_cast] at Dr;
+          rw [rec_to_cast']
+          exact Dr
+        });
+        simp only [] at *;
+        dsimp only [Ty.interp.app, Option.bind]
+        have HB: _ ⊢ B: _ := by cases HAB <;> assumption;
+        rw [Term.denote_upgrade_eq]
+        rw [<-
+          Hr.denote_val_subst0' HΓ.upgrade HG.upgrade HB.upgrade
+          (by rw [HB.stlc_ty_subst0])
+          (by rw [Eq.mp, rec_to_cast', rec_to_cast'])
+          rfl
+        ]
+        apply equiv_prop_helper Dl';
+        rw [rec_to_cast']
+        rw [Stlc.Context.interp.downgrade_cast]
+        apply cast_app_dep_two (@Term.denote_ty B);
+        . rfl
+        . rw [Context.upgrade_idem]
+        . {
+          rw [cast_pair' rfl (by rw [Context.upgrade_idem]) (by rw [Context.upgrade_idem])]
+          apply congr rfl;
+          rw [cast_merge]
+          rfl
+        }
+      | none => exact False.elim Dl
     | @repr Γ A B l r HAB Hl Hr IAB Il Ir =>
       stop
       dsimp only [
