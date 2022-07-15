@@ -1963,11 +1963,27 @@ theorem HasType.denote
                       Hs.stlc)
                     rfl 
                     (by simp only [HC.stlc_ty_let_bin])
-                    sorry
+                    _
                   ]
                   apply interp_cast_spine 
                     (by simp only [Context.stlc, HC.stlc_ty_subst0]) 
                     rfl rfl;
+                  --TODO: factor this out as common... or upfactor
+                  simp only [rec_to_cast', pure]
+                  rw [cast_pair' 
+                    (by rw [HC.stlc_ty_subst0]) 
+                    rfl
+                    (by rw [HC.stlc_ty_subst0]), 
+                    @cast_some 
+                    _ _ (by rw [HC.stlc_ty_subst0]) _ 
+                    (by rw [HC.stlc_ty_subst0]), 
+                    cast_merge]
+                  simp only [cast]
+                  apply @Stlc.Context.interp.eq_mod_lrt.extend
+                    (Ty.unit::Γ.stlc) (Ty.unit::Γ.stlc);
+                  apply @Stlc.Context.interp.eq_mod_lrt.extend_gst
+                    Γ.stlc Γ.stlc;
+                  exact (G.downgrade.eq_mod_lrt_refl Γ Γ);
                 })
               )
     | natrec_prop => sorry
