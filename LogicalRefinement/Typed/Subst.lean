@@ -468,18 +468,12 @@ theorem HasType.alpha0_gen {Γ sa sb A B C C' e t}
   : ((Hyp.mk B (HypKind.val sb))::Γ) ⊢ (e.alpha0 t): C'
   := HCC' ▸ He.subst' Ht.to_alpha'
 
-theorem HasType.subst01 {Γ e C l r sl sr A B} 
-  (He: HasType 
-    ((Hyp.mk B (HypKind.val sl))
-    ::(Hyp.mk A (HypKind.val sr))::Γ) e C)
+theorem HasType.to_subst01' {Γ l r sl sr A B}
   (Hl: HasType Γ l (expr sl (B.subst0 r)))
   (Hr: HasType Γ r (expr sr A))
-  : Γ ⊢ (e.subst01 l r): (C.subst01 l r) 
+  : SubstCtx' (l.to_subst01 r) Γ ((Hyp.mk B (HypKind.val sl))
+    ::(Hyp.mk A (HypKind.val sr))::Γ)
   := by {
-    unfold Term.subst01;
-    unfold Annot.subst01;
-    apply subst';
-    exact He;
     intro n;
     cases n with
     | zero =>
@@ -511,6 +505,15 @@ theorem HasType.subst01 {Γ e C l r sl sr A B}
             rw [Term.subst01_def, Term.subst01_wk1_wk1]
             exact Hv.v
   }
+
+theorem HasType.subst01 {Γ e C l r sl sr A B} 
+  (He: HasType 
+    ((Hyp.mk B (HypKind.val sl))
+    ::(Hyp.mk A (HypKind.val sr))::Γ) e C)
+  (Hl: HasType Γ l (expr sl (B.subst0 r)))
+  (Hr: HasType Γ r (expr sr A))
+  : Γ ⊢ (e.subst01 l r): (C.subst01 l r) 
+  := subst' He (Hl.to_subst01' Hr)
 
 theorem HasType.subst01_gen {Γ e C l r sl sr A B} 
   (He: HasType 

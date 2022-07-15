@@ -2023,6 +2023,7 @@ theorem HasType.denote
                 })
               )
     | @natrec_prop Γ C e z s HC He Hz Hs IC Ie Iz Is => 
+      stop
       generalize Hei: He.stlc.interp G = ei;
       have Ie' := Ie HΓ.upgrade (Context.upgrade_idem.symm ▸ G) HG.upgrade;
       have Iz' := Iz HΓ.upgrade (Context.upgrade_idem.symm ▸ G) HG.upgrade;
@@ -2139,7 +2140,6 @@ theorem HasType.denote
           })
       }, Hz.stlc;
     | @beta_succ Γ C e z s HC He Hz Hs IC Ie Iz Is => 
-      stop
       dsimp only [
         Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
         Term.denote_ty, Ty.abort, Annot.denote
