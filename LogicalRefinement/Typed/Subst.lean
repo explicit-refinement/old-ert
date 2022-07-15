@@ -506,6 +506,51 @@ theorem HasType.to_subst01' {Γ l r sl sr A B}
             exact Hv.v
   }
 
+theorem HasType.to_subst01 {Γ l r sl sr A B}
+  (Hl: HasType Γ l (expr sl (B.subst0 r)))
+  (Hr: HasType Γ r (expr sr A))
+  (HΓ: IsCtx Γ)
+  : SubstCtx (l.to_subst01 r) Γ ((Hyp.mk B (HypKind.val sl))
+    ::(Hyp.mk A (HypKind.val sr))::Γ)
+  := by {
+    intro n;
+    cases n with
+    | zero =>
+      intro n A Hv;
+      cases Hv with
+      | zero =>
+        apply SubstVar.expr <;>
+        rw [<-Term.subst01_wk1] at Hl <;>
+        exact Hl
+    | succ n => 
+      cases n with
+      | zero => 
+        intro n A Hv;
+        cases Hv with
+        | succ Hv =>
+          cases Hv with
+          | zero =>
+            apply SubstVar.expr <;>
+            rw [Term.subst01_def, Term.subst01_wk1_wk1] <;>
+            exact Hr
+      | succ n => 
+        intro n A Hv;
+        apply SubstVar.var;
+        rfl
+        cases Hv with
+        | succ Hv =>
+          cases Hv with
+          | succ Hv => 
+            rw [Term.subst01_def, Term.subst01_wk1_wk1]
+            exact HΓ.var_valid Hv
+        cases Hv with
+        | succ Hv =>
+          cases Hv with
+          | succ Hv => 
+            rw [Term.subst01_def, Term.subst01_wk1_wk1]
+            exact Hv 
+  }
+
 theorem HasType.subst01 {Γ e C l r sl sr A B} 
   (He: HasType 
     ((Hyp.mk B (HypKind.val sl))
