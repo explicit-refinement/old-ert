@@ -470,7 +470,7 @@ theorem HasType.interp_prop_none_ty {Γ: Context} {a A ϕ: Term}
   := HΓ.stlc.eq_mod HΓ.stlc 
     (HΓ.interp_irrel_eq_ty HΓ (G.eq_mod_lrt_refl Γ Γ).extend_prop)
 
-  theorem HasType.interp_prop_ty' {Γ: Context} {a A ϕ: Term} 
+theorem HasType.interp_prop_ty' {Γ: Context} {a A ϕ: Term} 
   {G: Γ.stlc.interp}
   {X Y: Ty} {x: Option X.interp} {y: Option Y.interp}
   (Ha: ((Hyp.mk ϕ (HypKind.val prop))::Γ) ⊢ a: expr type A)
@@ -489,3 +489,19 @@ theorem HasType.interp_prop_none_ty' {Γ: Context} {a A ϕ: Term}
   : HΓ.interp (x, G) = HΔ.interp (none, G)
   := HΓ.eq_mod HΔ
     (Ha.interp_irrel_eq_ty Ha (G.eq_mod_lrt_refl Γ Γ).extend_prop)
+
+theorem HasType.interp_gst_ty {Γ: Context} {s A B: Term} 
+  {G: Γ.stlc.interp}
+  {x y: Option Ty.unit.interp}
+  (HΓ: ((Hyp.mk A HypKind.gst)::Γ) ⊢ s: expr type B)
+  : HΓ.stlc.interp (x, G) = HΓ.stlc.interp (y, G)
+  := HΓ.stlc.eq_mod HΓ.stlc 
+    (HΓ.interp_irrel_eq_ty HΓ (G.eq_mod_lrt_refl Γ Γ).extend_gst)
+
+theorem HasType.interp_gst_none_ty {Γ: Context} {s A B: Term} 
+  {G: Γ.stlc.interp}
+  {x: Option Ty.unit.interp}
+  (HΓ: ((Hyp.mk A HypKind.gst)::Γ) ⊢ s: expr type B)
+  : HΓ.stlc.interp (x, G) = HΓ.stlc.interp (none, G)
+  := HΓ.stlc.eq_mod HΓ.stlc 
+    (HΓ.interp_irrel_eq_ty HΓ (G.eq_mod_lrt_refl Γ Γ).extend_gst)

@@ -596,6 +596,7 @@ theorem HasType.denote
         _ _ _ _ _ Ty.unit _ (some ()) Hs
       ]
     | @app_pr Γ ϕ A l r HφA Hl Hr IφA Il Ir =>
+      stop
       dsimp only [
         Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
         Term.denote_ty, Annot.denote
@@ -621,19 +622,20 @@ theorem HasType.denote
         apply Stlc.Context.interp.eq_mod_lrt.extend_prop;
         apply Stlc.Context.interp.eq_mod_lrt_refl;
       | none => exact False.elim Dl
-    | lam_irrel => 
-      stop
+    | @lam_irrel Γ A s B HA Hs _IA Is =>       
       dsimp only [
-        denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
-        Term.denote_ty', Term.denote_ty
-      ]
-      apply And.intro
-      {
-        sorry
-      }
-      {
-        sorry
-      }
+        Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
+        Term.denote_ty
+      ] at *
+      intro a Da;
+      let Is' := Is (HΓ.cons_gst HA) (a, G) ⟨Da, HG⟩;
+      apply equiv_prop_helper Is';
+      apply congr rfl;
+      simp only [Stlc.Context.interp.downgrade]
+      conv =>
+        congr
+        . rw [Hs.interp_gst_none_ty]
+        . rw [Hs.interp_gst_none_ty]
     | app_irrel =>
       stop  
       dsimp only [
