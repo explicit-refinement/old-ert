@@ -506,7 +506,13 @@ theorem HasType.denote
             ⟨Ie', HG⟩
             ;
           apply equiv_prop_helper Il';
-          sorry --TODO: appropriate typecasting for Il'
+          simp only [pure, Annot.denote]
+          rw [HC.denote_subst_case_left He HΓ HG HA HB Ie' Hei]
+          simp only [rec_to_cast', cast_merge]
+          rw [Stlc.HasType.interp_transport_cast']
+          rfl
+          rfl
+          simp only [HC.stlc_ty_subst]
         | inr b => 
           stop
           simp only [Ty.interp.case, Option.bind, Ty.interp.case_inner]
@@ -516,7 +522,6 @@ theorem HasType.denote
             ⟨Ie', HG⟩
             ;
           apply equiv_prop_helper Ir';
-          sorry --TODO: appropriate typecasting for Ir'
       | none => exact False.elim (HAB.denote_ty_non_null Ie')
       -- | prop => 
       --   have Ie' := Ie HΓ G HG;
