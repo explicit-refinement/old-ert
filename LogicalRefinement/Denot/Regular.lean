@@ -1162,6 +1162,7 @@ theorem HasType.denote
       simp only [Ty.interp.inl, Ty.interp.inr, Option.bind] at C;
       cases C
     | @cong Γ A P p e x y HP HA Hp He IP IA Ip Ie => 
+      stop
       have Ie' := Ie HΓ G HG;
       have ⟨Sx, Sy, Exy⟩ := Ip HΓ G HG;
       have Hx: Γ.upgrade ⊢ x: term A := by cases Hp.proof_regular <;> assumption;
@@ -1736,75 +1737,57 @@ theorem HasType.denote
       | none => cases H
       | some x => exact True.intro
     | @natrec Γ C e z s HC He Hz Hs IC Ie Iz Is =>
-      stop
-      generalize Hei:
-        Stlc.HasType.interp
-          He.stlc
-          (Stlc.Context.interp.downgrade G) = ei;
+      generalize Hei: He.stlc.interp G.downgrade = ei;
       cases ei with
       | none => 
         have Ie' := Ie HΓ G HG;
-        dsimp only [Term.denote_ty', Term.denote_ty] at Ie';
+        dsimp only [Term.denote_ty] at Ie';
         rw [Hei] at Ie';
         exact Ie'.elim
       | some n =>
-        cases k with
-        | type =>
-          dsimp only [
-            denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
-            Term.denote_ty', Term.denote_ty
+        dsimp only [
+          Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
+          Term.denote_ty, Annot.denote
+        ] at *
+        rw [Hei]
+        induction n generalizing e with
+        | zero => 
+          dsimp only [Ty.interp.natrec_int, Option.bind, Ty.interp.natrec_inner]
+          apply equiv_prop_helper (Iz HΓ G HG);
+          rw [<-HasType.zero.denote_val_subst0' 
+            HΓ HG (by upgrade_ctx assumption) 
+            (by rw [HC.stlc_ty_subst0])
+            (by {
+              rw [rec_to_cast']
+              exact doublecast_self _
+            })
+            rfl
           ]
-          simp only []
-          generalize Hei':
-            Stlc.HasType.interp
-              (_: _ ⊧ e.stlc _: _)
-              (Stlc.Context.interp.downgrade G) = ei';
-          induction n generalizing e with
-          | zero => 
-            cases ei' with
-            | some n' =>
-              cases n' with
-              | zero => 
-                simp only [
-                  Ty.interp.natrec_int, Ty.interp.natrec_inner, 
-                  Ty.interp.bind_val
-                ]
-                --TODO: subst0 invariance
-                sorry
-              | succ n' => sorry
-            | none => sorry
-          | succ n I =>
-            cases ei' with
-            | some n' =>
-              cases n' with
-              | zero => sorry
-              | succ n' => 
-                simp only [
-                  Ty.interp.natrec_int, Ty.interp.natrec_inner, 
-                  Ty.interp.bind_val
-                ]
-                generalize HIi': Ty.interp.natrec_inner n' _ _ = Ii;
-                cases Ii with
-                | none => 
-                  apply False.elim;
-                  sorry
-                | some Ii => 
-                  simp only []
-                  --TODO: subst0 invariance, s application...
-                  sorry
-            | none => sorry
-        | prop =>         
-          dsimp only [
-            denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
-            Term.denote_ty', Term.denote_ty
+          rw [<-He.denote_val_subst0' 
+            HΓ HG (by upgrade_ctx assumption)
+            (by rw [HC.stlc_ty_subst0])
+            (by {
+              rw [rec_to_cast']
+              exact doublecast_self _
+            })
+            rfl
           ]
-          induction n generalizing e with
-          | zero => 
-            --TODO: subst0 invariance...
-            sorry
-          | succ n I => 
-            --TODO: subst0 invariance...
-            sorry
+          apply congr
+          {
+            rw [Hei]
+            rfl
+          }
+          {
+            rw [Stlc.HasType.interp_transport_cast']
+            rw [Stlc.HasType.interp_transport_cast']
+            rw [<-HC.stlc_ty_subst]
+            exact Hz.stlc;
+            rfl
+            rw [HC.stlc_ty_subst0]
+            rfl
+            rw [HC.stlc_ty_subst0]
+          }
+        | succ n I => sorry
     | natrec_prop => sorry
     | @beta_zero Γ C z s HC Hz Hs IC Iz Is => 
       stop
