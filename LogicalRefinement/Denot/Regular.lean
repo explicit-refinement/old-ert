@@ -1307,6 +1307,7 @@ theorem HasType.denote
       exact Exy;
       rfl
     | @beta Γ A B s t Hs HA Ht Is _IA It => 
+      stop
       dsimp only [
         Stlc.HasType.interp, 
         Term.stlc, Term.stlc_ty, stlc_ty, Term.denote_ty,
@@ -2176,9 +2177,9 @@ theorem HasType.denote
         by {
           have Ie' := Ie HΓ.upgrade (Context.upgrade_idem.symm ▸ G) HG.upgrade;
           have Iz' := Iz HΓ.upgrade (Context.upgrade_idem.symm ▸ G) HG.upgrade;
-          have ⟨Se, Ee⟩ := He.term_regular.upgrade.denote_ty_some Ie';
+          have ⟨n, Ee⟩ := He.term_regular.upgrade.denote_ty_some Ie';
           have ⟨Sz, Ez⟩ := Hz.term_regular.upgrade.denote_ty_some Iz';
-          have Ee': He.stlc.interp G = some Se 
+          have Ee': He.stlc.interp G = some n
             := by rw [<-Ee, rec_to_cast', Stlc.Context.interp.downgrade_cast]
           have Ez': Hz.stlc.interp G = some Sz 
             := by rw [<-Ez, rec_to_cast', Stlc.Context.interp.downgrade_cast]
@@ -2206,10 +2207,20 @@ theorem HasType.denote
             HΓ.upgrade
             G
           ];
+          rw [cast_some]
           simp only [
             rec_to_cast', Stlc.Context.deriv.subst,
-            SubstCtx.interp
+            SubstCtx.interp, Ty.interp.app, Option.bind,
+            Ty.interp.natrec_int
           ]
+          unfold Ty.interp.natrec_inner;
+          simp only [Option.bind]
+          split;
+          case h_1 => sorry
+          case h_2 => sorry
+          . rw [HC.stlc_ty_subst0, HC.stlc_ty_subst0]
+          . rw [HC.stlc_ty_subst0, HC.stlc_ty_subst0]
+          . rfl
         }
       ⟩
     | _ => exact True.intro
