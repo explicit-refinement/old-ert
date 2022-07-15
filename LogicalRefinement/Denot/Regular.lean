@@ -261,54 +261,72 @@ theorem HasType.denote_subst_let_set
       rfl
     )
 
-theorem HasType.denote_subst_case_left_inner
-  {A B C: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} 
-  {a: Option A.stlc_ty.interp}
-  {c: Option C.stlc_ty.interp}
-  {c': Option (C.alpha0 (Term.inj 0 (Term.var 0))).stlc_ty.interp}
-  {a: A.stlc_ty.interp}
-  {b: Option B.stlc_ty.interp}
-  {sc: AnnotSort}
-  (HC: ({ ty := Term.coprod A B, kind := HypKind.val type } :: Γ) ⊢ C: sort sc)
-  (HΓ: IsCtx Γ)
-  (HG: G ⊧ ✓Γ)
-  (HA: Γ ⊢ A: sort type)
-  (HB: ((Hyp.mk A (HypKind.val type))::Γ) ⊢ B: sort prop)
-  (Ha: A.denote_ty G (some a))
-  (Hb: @Term.denote_ty B (A.stlc_ty::Γ.upgrade.stlc) (some a, G) b)
-  (Hc': c' = HC.stlc_ty_subst ▸ c)
-  : @Term.denote_ty C
-    ((Term.coprod A B).stlc_ty::Γ.upgrade.stlc) 
-    (some (Sum.inl a), G) c =
-    @Term.denote_ty 
-      (C.alpha0 (Term.inj 0 (Term.var 0))) 
-      (A.stlc_ty::Γ.upgrade.stlc) (some a, G) c'
-  := sorry
-
 theorem HasType.denote_subst_case_left
   {A B C: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} 
-  {a: Option A.stlc_ty.interp}
   {e: Term}
   {c: Option (C.subst0 e).stlc_ty.interp}
   {c': Option (C.alpha0 (Term.inj 0 (Term.var 0))).stlc_ty.interp}
   {a: A.stlc_ty.interp}
-  {b: Option B.stlc_ty.interp}
   {sc: AnnotSort}
   (HC: ({ ty := Term.coprod A B, kind := HypKind.val type } :: Γ) ⊢ C: sort sc)
   (He: Γ ⊢ e: term (Term.coprod A B))
   (HΓ: IsCtx Γ)
   (HG: G ⊧ ✓Γ)
   (HA: Γ ⊢ A: sort type)
-  (HB: ((Hyp.mk A (HypKind.val type))::Γ) ⊢ B: sort prop)
+  (HB: Γ ⊢ B: sort type)
   (Ha: A.denote_ty G (some a))
-  (Hb: @Term.denote_ty B (A.stlc_ty::Γ.upgrade.stlc) (some a, G) b)
-  (He: He.stlc.interp G.downgrade = some (Sum.inl a))
+  (Hea: He.stlc.interp G.downgrade = some (Sum.inl a))
   (Hc': c' = HC.stlc_ty_subst ▸ HC.stlc_ty_subst ▸ c)
   : @Term.denote_ty (C.subst0 e) Γ.upgrade.stlc G c =
     @Term.denote_ty 
       (C.alpha0 (Term.inj 0 (Term.var 0))) 
       (A.stlc_ty::Γ.upgrade.stlc) (some a, G) c'
-  := sorry
+  := by {
+    rw [
+      <-He.denote_val_subst0' HΓ HG HC (by rw [HC.stlc_ty_subst0])
+        (by rw [rec_to_cast']; apply doublecast_self)
+        rfl
+    ]
+    have Hv0: 
+      ({ ty := A, kind := HypKind.val type } :: Γ)
+        ⊢Term.inj 0 (Term.var 0)
+        :expr type (Term.wk1 (Term.coprod A B))
+      := (by 
+        constructor 
+        constructor 
+        apply HasType.wk1_sort; 
+        assumption 
+        constructor 
+        apply HasType.wk1_sort; 
+        assumption
+      );
+    rw [<-Hv0.denote_val_alpha0' HΓ HG 
+      (by constructor <;> assumption)
+      HA Ha HC (by rw [Term.alpha0, HC.stlc_ty_subst])
+      (by rw [rec_to_cast']; apply doublecast_self)
+      rfl
+    ]
+    rw [Hea]
+    apply cast_app_dep_three @Term.denote_ty;
+    rw [Hc']
+    simp only [rec_to_cast', cast_merge]
+    rfl
+    rw [Term.stlc_ty_wk1]
+    rfl
+    rw [cast_pair' 
+      (by rw [Term.stlc_ty_wk1]) rfl (by rw [Term.stlc_ty_wk1])
+    ]
+    apply congr (congr rfl _) rfl;
+    rw [
+      Stlc.HasType.interp_transport_cast'
+      Hv0.stlc
+      (Term.stlc_ty_wk1 _ ▸ Hv0.stlc)
+      rfl
+      (by simp only [Annot.stlc_ty, Term.stlc_ty_wk1])
+      _
+    ]
+    rfl
+  }
 
 theorem HasType.denote
   (H: Γ ⊢ a: A)
