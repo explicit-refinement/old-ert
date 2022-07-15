@@ -1307,7 +1307,6 @@ theorem HasType.denote
       exact Exy;
       rfl
     | @beta Γ A B s t Hs HA Ht Is _IA It => 
-      stop
       dsimp only [
         Stlc.HasType.interp, 
         Term.stlc, Term.stlc_ty, stlc_ty, Term.denote_ty,
@@ -2176,14 +2175,41 @@ theorem HasType.denote
         },
         by {
           have Ie' := Ie HΓ.upgrade (Context.upgrade_idem.symm ▸ G) HG.upgrade;
+          have Iz' := Iz HΓ.upgrade (Context.upgrade_idem.symm ▸ G) HG.upgrade;
           have ⟨Se, Ee⟩ := He.term_regular.upgrade.denote_ty_some Ie';
+          have ⟨Sz, Ez⟩ := Hz.term_regular.upgrade.denote_ty_some Iz';
           have Ee': He.stlc.interp G = some Se 
             := by rw [<-Ee, rec_to_cast', Stlc.Context.interp.downgrade_cast]
+          have Ez': Hz.stlc.interp G = some Sz 
+            := by rw [<-Ez, rec_to_cast', Stlc.Context.interp.downgrade_cast]
           --TODO: report invalid simp lemma for Ty.interp.natrec_inner
-          simp only [Ee', Ty.interp.app, Option.bind, Eq.mp, Ty.interp.natrec_int]
-          dsimp only [Ty.interp.natrec_inner]
-          --TODO: Stlc.HasType.interp.subst01...
-          sorry
+          dsimp only [Eq.mp]
+          rw [Ee']
+          rw [<-@Stlc.HasType.interp_transport_cast' _ 
+            (Term.subst0 C Term.zero).stlc_ty 
+            _ _ _ Hz.stlc]
+          rw [Ez']
+          rw [
+            @HasType.subst01_gst_stlc_interp_commute'
+            Γ.upgrade s (Term.natrec type C e z s) e 
+            _ _ _ _ 
+            _ _
+            Hs _ rfl 
+            (by {
+              sorry
+            })
+            (by {
+              sorry
+            })
+            He
+            (by upgrade_ctx assumption)
+            HΓ.upgrade
+            G
+          ];
+          simp only [
+            rec_to_cast', Stlc.Context.deriv.subst,
+            SubstCtx.interp
+          ]
         }
       ⟩
     | _ => exact True.intro
