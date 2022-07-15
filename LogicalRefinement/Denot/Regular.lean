@@ -972,20 +972,28 @@ theorem HasType.denote
           }
           rfl
           simp only [HC.stlc_ty_subst]
-        | inr b => 
-          stop
-          simp only [Ty.interp.case, Option.bind, Ty.interp.case_inner]
-          have Ir' := Ir
-            (HΓ.cons_val HB)
-            (return b, G)
-            ⟨Ie', HG⟩
+        | inr b =>           
+          simp only [Ty.abort]
+          have Ir' := Ir 
+            (HΓ.upgrade.cons_val HB.upgrade)
+            (return b, Context.upgrade_idem.symm ▸ G)
+            ⟨Ie', HG.upgrade⟩
             ;
           apply equiv_prop_helper Ir';
           simp only [pure, Annot.denote]
-          rw [HC.denote_subst_case_right He HΓ HG HA HB Ie' Hei]
+          rw [Term.denote_upgrade_eq]
+          rw [(HC.upgrade.subst0 He).denote_prop_eq']
+          rw [HasType.denote_subst_case_right 
+            HC.upgrade He HΓ.upgrade HG.upgrade HA.upgrade HB.upgrade
+            Ie' Hei
+          ]
           simp only [rec_to_cast', cast_merge]
           rw [Stlc.HasType.interp_transport_cast']
-          rfl
+          {
+            have Hr' := Annot.stlc_ty_subst HC ▸ Hr.stlc;
+            rw [HC.stlc_ty_subst]
+            exact Hr'
+          }
           rfl
           simp only [HC.stlc_ty_subst]
       | none => exact False.elim (HAB.denote_ty_non_null Ie')
