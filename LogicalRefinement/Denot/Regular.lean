@@ -553,6 +553,7 @@ theorem HasType.denote
         exact Ie'
       | none => exact He.term_regular.denote_ty_non_null Ie'
     | @case Γ A B C e l r He HA HB HC Hl Hr Ie IA IB IC Il Ir =>
+      stop
       have HAB: Γ ⊢ Term.coprod A B: type := HasType.coprod HA HB;
       dsimp only [Term.stlc, Term.stlc_ty, stlc_ty, Stlc.HasType.interp]
       have Ie' := Ie HΓ G HG;
@@ -933,8 +934,61 @@ theorem HasType.denote
       apply And.intro
       . sorry
       . sorry
-    | let_wit => sorry
-    | case_prop => sorry
+    | let_wit => sorry    
+    | @case_prop Γ A B C e l r He HA HB HC Hl Hr Ie IA IB IC Il Ir =>
+      have HAB: Γ ⊢ Term.coprod A B: type := HasType.coprod HA HB;
+      dsimp only [Term.stlc, Term.stlc_ty, stlc_ty, Stlc.HasType.interp]
+      have Ie' := Ie HΓ.upgrade (Context.upgrade_idem.symm ▸ G) HG.upgrade;
+      dsimp only [Term.stlc, Term.stlc_ty, stlc_ty, Stlc.HasType.interp] at Ie';
+      generalize Hei: Stlc.HasType.interp (_ : _⊧Term.stlc e:_) _ = ei;
+      --TODO: wait for Zulip to answer regarding the requirement to have
+      -- Stlc.HasType.interp_irrel here.
+      rw [Stlc.HasType.interp_irrel] at Ie'
+      rw [Hei] at Ie'
+      cases ei with
+      | some ei => 
+        cases ei with
+        | inl a => 
+          simp only [Ty.abort]
+          have Il' := Il 
+            (HΓ.upgrade.cons_val HA.upgrade)
+            (return a, Context.upgrade_idem.symm ▸ G)
+            ⟨Ie', HG.upgrade⟩
+            ;
+          apply equiv_prop_helper Il';
+          simp only [pure, Annot.denote]
+          rw [Term.denote_upgrade_eq]
+          rw [(HC.upgrade.subst0 He).denote_prop_eq']
+          rw [HasType.denote_subst_case_left 
+            HC.upgrade He HΓ.upgrade HG.upgrade HA.upgrade HB.upgrade
+            Ie' Hei
+          ]
+          simp only [rec_to_cast', cast_merge]
+          rw [Stlc.HasType.interp_transport_cast']
+          {
+            have Hl' := Annot.stlc_ty_subst HC ▸ Hl.stlc;
+            rw [HC.stlc_ty_subst]
+            exact Hl'
+          }
+          rfl
+          simp only [HC.stlc_ty_subst]
+        | inr b => 
+          stop
+          simp only [Ty.interp.case, Option.bind, Ty.interp.case_inner]
+          have Ir' := Ir
+            (HΓ.cons_val HB)
+            (return b, G)
+            ⟨Ie', HG⟩
+            ;
+          apply equiv_prop_helper Ir';
+          simp only [pure, Annot.denote]
+          rw [HC.denote_subst_case_right He HΓ HG HA HB Ie' Hei]
+          simp only [rec_to_cast', cast_merge]
+          rw [Stlc.HasType.interp_transport_cast']
+          rfl
+          rfl
+          simp only [HC.stlc_ty_subst]
+      | none => exact False.elim (HAB.denote_ty_non_null Ie')
     | @let_pair_prop Γ A B C e e' He HA HB HC He' Ie IA IB IC Ie' =>
       stop 
       have De := Ie HΓ.upgrade (Context.upgrade_idem.symm ▸ G) HG.upgrade;
