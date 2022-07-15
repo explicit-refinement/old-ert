@@ -1143,7 +1143,23 @@ theorem HasType.denote
       | none => exact False.elim (HA.denote_ty_non_null Da);
     | let_repr_prop => sorry
     | refl Ha => stop exact ⟨Ha.stlc, Ha.stlc, rfl⟩
-    | discr Ha Hb Hp Ia Ib Ip => sorry
+    | discr Ha Hb Hp Ia Ib Ip => 
+      have Ia' := Ia HΓ.upgrade (Context.upgrade_idem.symm ▸ G) HG.upgrade;
+      have Ib' := Ib HΓ.upgrade (Context.upgrade_idem.symm ▸ G) HG.upgrade;
+      have ⟨Sa, Ea⟩ := Ha.term_regular.upgrade.denote_ty_some Ia';
+      have ⟨Sb, Eb⟩ := Hb.term_regular.upgrade.denote_ty_some Ib';
+      have Ea': Ha.stlc.interp G = some Sa 
+        := by rw [<-Ea, rec_to_cast', Stlc.Context.interp.downgrade_cast]
+      have Eb': Hb.stlc.interp G = some Sb 
+        := by rw [<-Eb, rec_to_cast', Stlc.Context.interp.downgrade_cast]
+      have ⟨px, py, C⟩ := Ip HΓ G HG;
+      rw [
+        Stlc.HasType.interp_inl _ rfl Ha.stlc,
+        Stlc.HasType.interp_inr _ rfl Hb.stlc] at C;
+      simp only [] at C;
+      rw [Ea', Eb'] at C;
+      simp only [Ty.interp.inl, Ty.interp.inr, Option.bind] at C;
+      cases C
     | cong => 
       stop
       dsimp only [denote', Annot.denote]

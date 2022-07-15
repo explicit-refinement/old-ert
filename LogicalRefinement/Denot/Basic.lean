@@ -163,7 +163,7 @@ theorem HasType.denote_ty_non_null
 theorem HasType.denote_ty_some {Δ: Stlc.Context} {G: Δ.interp}
   (H: Γ ⊢ A: type)
   (D: A.denote_ty G a)
-  : ∃a': Option A.stlc_ty.interp, a = some a'
+  : ∃a': A.stlc_ty.interp, a = some a'
   := match a with
     | some a => ⟨a, rfl⟩
     | none => False.elim (H.denote_ty_non_null D)

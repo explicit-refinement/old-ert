@@ -616,6 +616,26 @@ def Stlc.HasType.interp_pair {Γ P A B l r G}
     rfl
   }
 
+def Stlc.HasType.interp_inl {Γ P A B e G} 
+  (H: Stlc.HasType Γ (Stlc.inj 0 e) P)
+  (HP: P = Ty.coprod A B)
+  (He: Stlc.HasType Γ e A)
+  : H.interp G = HP ▸ Ty.interp.inl (He.interp G)
+  := by {
+    cases HP;
+    rfl
+  }
+
+def Stlc.HasType.interp_inr {Γ P A B e G} 
+  (H: Stlc.HasType Γ (Stlc.inj 1 e) P)
+  (HP: P = Ty.coprod A B)
+  (He: Stlc.HasType Γ e B)
+  : H.interp G = HP ▸ Ty.interp.inr (He.interp G)
+  := by {
+    cases HP;
+    rfl
+  }
+
 theorem Stlc.HasVar.interp_wk {Γ Δ ρ n A}
   (H: HasVar Δ n A)
   (R: WkCtx ρ Γ Δ)
