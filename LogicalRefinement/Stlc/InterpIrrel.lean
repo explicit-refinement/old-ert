@@ -28,10 +28,11 @@ def Context.is_val (Γ: Context) (n: Nat): Prop
 
 theorem Stlc.Context.interp.eq_mod_lrt.extend
     {Γ' Δ': Stlc.Context} 
-    {H: Hyp} {x: Option H.ty.stlc_ty.interp} 
+    {H H': Hyp}
+    {A: Ty} {x: Option A.interp} 
     {G: Γ'.interp} {D: Δ'.interp} {Γ Δ: _root_.Context}:
   G.eq_mod_lrt D Γ Δ -> 
-  @eq_mod_lrt (_::Γ') (_::Δ') (x, G) (x, D) (H::Γ) (H::Δ)
+  @eq_mod_lrt (A::Γ') (A::Δ') (x, G) (x, D) (H::Γ) (H'::Δ)
   := by {
     intro HGG' n Hn;
     cases n with
@@ -46,6 +47,36 @@ theorem Stlc.Context.interp.eq_mod_lrt.extend
       assumption
       constructor
       assumption
+  }
+
+theorem Stlc.Context.interp.eq_mod_lrt.extend'
+    {Γ' Δ': Stlc.Context} 
+    {H H': Hyp} 
+    {A: Ty} {x x': Option A.interp}  
+    {G: Γ'.interp} {D: Δ'.interp} {Γ Δ: _root_.Context}
+    (Hxx': x = x'):
+  G.eq_mod_lrt D Γ Δ -> 
+  @eq_mod_lrt (A::Γ') (A::Δ') (x, G) (x', D) (H::Γ) (H'::Δ)
+  := by {
+    cases Hxx';
+    apply extend <;> assumption
+  }
+
+theorem Stlc.Context.interp.eq_mod_lrt.extend''
+    {Γ' Δ': Stlc.Context} 
+    {H H': Hyp} 
+    {A B: Ty}
+    {x: Option A.interp}
+    {x': Option B.interp} 
+    {G: Γ'.interp} {D: Δ'.interp} {Γ Δ: _root_.Context}
+    (HAB: A = B)
+    (Hxx': x = HAB ▸ x'):
+  G.eq_mod_lrt D Γ Δ -> 
+  @eq_mod_lrt (A::Γ') (B::Δ') (x, G) (x', D) (H::Γ) (H'::Δ)
+  := by {
+    cases HAB;
+    cases Hxx';
+    apply extend <;> assumption
   }
 
 theorem Stlc.Context.interp.eq_mod_lrt_val.extend

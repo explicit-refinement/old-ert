@@ -2280,7 +2280,11 @@ theorem HasType.denote
             rfl
             (by rw [HC.stlc_ty_subst0, <-HC.stlc_ty_let_bin] rfl)
           ]
-          dsimp only [Stlc.InterpSubst.transport_ctx]
+          dsimp only [
+            Stlc.InterpSubst.transport_ctx, 
+            Stlc.SubstCtx.interp,
+            Stlc.InterpSubst.pop
+          ]
           rw [<-Ers']
           rw [HasType.interp_irrel_ty'
             Hs' Hs  
@@ -2288,7 +2292,7 @@ theorem HasType.denote
             (by rw [HC.stlc_ty_subst0, <-HC.stlc_ty_let_bin]; exact Hs.stlc) 
             rfl 
             (by rw [HC.stlc_ty_subst0, HC.stlc_ty_let_bin]) 
-            (by sorry)
+            _
           ]
           apply interp_cast_spine
             (by simp only [Annot.stlc_ty, HC.stlc_ty_subst0] rfl)
@@ -2305,6 +2309,21 @@ theorem HasType.denote
                 simp only [HC.stlc_ty_subst0]
               ) rfl;
             });
+          apply @Stlc.Context.interp.eq_mod_lrt.extend' 
+            (Ty.nats::Γ.upgrade.stlc) 
+            (Ty.unit::Γ.upgrade.stlc);
+          . {
+            stop
+            rw [<-cast_some]
+            rw [<-Er']
+          }
+          . {
+            apply Stlc.Context.interp.eq_mod_lrt.extend_gst_right;
+            apply Stlc.Context.interp.eq_mod_lrt_refl';
+            conv =>
+              rhs
+              rw [<-G.transport_id]
+          }
         }
       ⟩
     | _ => exact True.intro
