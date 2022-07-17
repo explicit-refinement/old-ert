@@ -23,6 +23,16 @@ import LogicalRefinement.Untyped.Basic
 @[simp] def Term.wk1 (u: Term) 
   := u.wk Wk.wk1
 
+-- wk1 based type formers
+abbrev Term.arrow (A B: Term) := pi A (wk1 B)
+abbrev Term.implies (φ ψ: Term) := dimplies φ ψ.wk1
+abbrev Term.and (φ ψ: Term) := dand φ ψ.wk1
+abbrev Term.const_arrow (A B: Term) := intersect A (wk1 B)
+abbrev Term.assume_wf (φ A: Term) := assume φ (A.wk1)
+
+abbrev Term.succ_nat (n: Term): Term := 
+  Term.app (Term.arrow Term.nats Term.nats) Term.succ n
+
 def Term.wk1_def {u: Term}: u.wk1 = u.wk Wk.wk1 := rfl
 
 @[simp] def Term.lift1 (u: Term) := u.wk (Wk.lift Wk.id)

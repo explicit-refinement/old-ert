@@ -309,13 +309,6 @@ theorem Context.is_sub.upgrade_bin {Γ Δ: Context} (H: Γ.is_sub Δ)
     exact Context.is_sub.refl
 }
 
---TODO: move to Term.Basic?
-abbrev Term.arrow (A B: Term) := pi A (wk1 B)
-abbrev Term.implies (φ ψ: Term) := dimplies φ ψ.wk1
-abbrev Term.and (φ ψ: Term) := dand φ ψ.wk1
-abbrev Term.const_arrow (A B: Term) := intersect A (wk1 B)
-abbrev Term.assume_wf (φ A: Term) := assume φ (A.wk1)
-
 @[simp]
 theorem Term.arrow_wk: (arrow A B).wk ρ = arrow (A.wk ρ) (B.wk ρ) 
   := by simp [arrow, pi]

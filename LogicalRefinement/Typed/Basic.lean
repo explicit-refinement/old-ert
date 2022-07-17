@@ -541,6 +541,10 @@ notation Γ "⊢" a ":" A => HasType Γ a A
 notation Γ "⊢" a "∈" A => HasType Γ a (term A)
 notation Γ "⊢" a "∴" A => HasType Γ a (prop A)
 
+theorem HasType.succ_nat {Γ n} (H: Γ ⊢ n: term Term.nats)
+  : Γ ⊢ n.succ_nat: term Term.nats
+  := by repeat first | assumption | constructor
+
 theorem HasType.fv {Γ a A} (P: Γ ⊢ a: A): a.fv ≤ Γ.length := by {
   induction P 
   <;> intros 
