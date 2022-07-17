@@ -669,6 +669,20 @@ theorem cast_lam
     rfl
   }
 
+theorem cast_lam'
+  (A B C D: Type)
+  (f: A -> C)
+  (b: B)
+  (H: A = B)
+  (H': C = D)
+  (H'': (A -> C) = (B -> D)):
+  (cast H'' f) b = cast H' (f (cast H.symm b))
+  := by {
+    cases H;
+    cases H';
+    rfl
+  }
+
 theorem cast_result
   (A B C: Type)
   (f: A -> B)

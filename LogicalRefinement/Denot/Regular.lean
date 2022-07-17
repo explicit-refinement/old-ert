@@ -2259,8 +2259,35 @@ theorem HasType.denote
                 }
                 . {
                   funext c;
-                  --TODO: castwork...
-                  sorry
+                  rw [cast_lam']
+                  rw [Stlc.HasType.interp_transport_cast' 
+                    (by 
+                      simp only [Annot.stlc_ty, HC.stlc_ty_subst0]; 
+                      have Hs'' := Hs.stlc;
+                      simp only [Annot.stlc_ty, HC.stlc_ty_let_bin] at Hs'';
+                      exact Hs''
+                    )
+                    (by 
+                      simp only [Annot.stlc_ty, HC.stlc_ty_subst0]; 
+                      have Hs'' := Hs.stlc;
+                      simp only [Annot.stlc_ty, HC.stlc_ty_let_bin] at Hs'';
+                      exact Hs''
+                    ) 
+                    rfl 
+                    (by simp only [Annot.stlc_ty, HC.stlc_ty_subst0])
+                  ]
+                  apply interp_cast_spine
+                    (by simp only [HC.stlc_ty_subst0, Annot.stlc_ty])
+                    rfl
+                    (by 
+                      simp only [rec_to_cast', pure]
+                      rw [<-cast_some] 
+                        <;> simp only [HC.stlc_ty_subst0, Annot.stlc_ty]
+                      rw [cast_pair'] 
+                        <;> simp only [HC.stlc_ty_subst0, Annot.stlc_ty]
+                      rw [cast_merge]
+                      rfl
+                    );
                 }
               };
           rw [Hrr'] at Ers';
