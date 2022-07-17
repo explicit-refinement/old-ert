@@ -504,6 +504,205 @@ theorem Term.denote_natrec_inner_none'
     apply C.denote_natrec_inner_none <;> assumption
   }
 
+theorem HasType.natrec_lemma
+  {Γ: Context} {C e z s G}
+  (HC: ({ ty := Term.nats, kind := HypKind.gst }::Γ) ⊢ C: type)
+  (He: Γ ⊢ e: term Term.nats)
+  (Hz: Γ ⊢ z: term (C.subst0 Term.zero))
+  (Hs: (
+    { ty := C, kind := (HypKind.val type) }::
+    { ty := Term.nats, kind := (HypKind.gst) }
+    ::Γ) ⊢ s: term ((C.wknth 1).alpha0 
+      (Term.app (Term.arrow Term.nats Term.nats) Term.succ (Term.var 1))))
+  (HΓ: IsCtx Γ)
+  (HG: G ⊧ ✓ Γ)
+  (Ie: Term.nats.denote_ty G (He.stlc.interp G.downgrade))
+  (Iz: (C.subst0 Term.zero).denote_ty G (Hz.stlc.interp G.downgrade))
+  (Is: ∀
+    (G :
+      Stlc.Context.interp
+        (Context.stlc
+          (Context.upgrade ({ ty := C, kind := HypKind.val type } :: { ty := Term.nats, kind := HypKind.gst } :: Γ)))),
+    (G⊧✓{ ty := C, kind := HypKind.val type } :: { ty := Term.nats, kind := HypKind.gst } :: Γ) →
+      ((C.wknth 1).alpha0 
+      (Term.app (Term.arrow Term.nats Term.nats) Term.succ (Term.var 1))).denote_ty G (Hs.stlc.interp G.downgrade))
+  : (C.subst0 e).denote_ty G
+    ((HasType.natrec HC He Hz Hs).stlc.interp G.downgrade)
+  := by {
+    generalize Hei: He.stlc.interp G.downgrade = ei;
+      cases ei with
+      | none => 
+        dsimp only [Term.denote_ty] at Ie;
+        rw [Hei] at Ie;
+        exact Ie.elim
+      | some n =>
+        dsimp only [
+          Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
+          Term.denote_ty, Annot.denote
+        ] at *
+        rw [<-HasType.zero.denote_val_subst0'        
+            HΓ HG (by upgrade_ctx assumption) 
+            (by rw [HC.stlc_ty_subst0])
+            (by {
+              rw [rec_to_cast']
+              exact doublecast_self _
+            })
+            rfl
+        ] at Iz;
+        rw [Hei]
+        dsimp only [Ty.interp.natrec_int, Option.bind]
+        rw [<-He.denote_val_subst0' 
+          HΓ HG (by upgrade_ctx assumption)
+          (by rw [HC.stlc_ty_subst0])
+          (by {
+            rw [rec_to_cast']
+            exact doublecast_self _
+          })
+          rfl
+        ]
+        rw [Hei]
+        apply @Term.denote_natrec_inner'
+          C _ _ _ _  
+          (λ c => cast 
+            (by simp only [Annot.stlc_ty, HC.stlc_ty_let_bin]) 
+            (Hs.stlc.interp (c, none, G.downgrade)))
+          _ _ _
+          Iz
+          (by {
+            intro n c Hc;
+            have Is' := 
+              Is 
+              (c, some n, G)
+              ⟨Hc, True.intro, HG⟩
+              ;
+            apply equiv_prop_helper Is';
+            rw [<-@HasType.denote_subst_let_bin
+              C Term.nats Term.nats C
+              _ _
+              _ _ _ _ _ _
+              type type type type
+              (by {
+                repeat constructor
+                exact HasVar.zero.succ;
+              })
+              HΓ HG 
+              (by upgrade_ctx assumption)
+              HasType.nats
+              HasType.nats
+              (by upgrade_ctx assumption)
+              (by dsimp only [Term.denote_ty])
+              Hc 
+              (by {
+                rw [rec_to_cast']
+                apply doublecast_self
+              })
+              rfl
+            ]
+            simp only []
+            apply congr rfl;
+            rw [cast_result _ _ _ _ 
+              (by simp only [Annot.stlc_ty, HC.stlc_ty_let_bin])]
+            rw [<-cast_fun_bind]
+            apply congr rfl;
+            cases c with
+            | some c => rfl
+            | none => exact False.elim (HC.denote_ty_non_null Hc)
+            rfl
+            simp only [Annot.stlc_ty, HC.stlc_ty_let_bin]
+            simp only [Annot.stlc_ty, HC.stlc_ty_let_bin]
+          })
+          rfl
+          rfl
+          _
+        ;
+        exact (natrec_cast
+                (by rw [HC.stlc_ty_subst0])
+                (by {
+                  rw [Stlc.HasType.interp_transport_cast']
+                  rw [Stlc.HasType.interp_transport_cast']
+                  rw [<-HC.stlc_ty_subst]
+                  exact Hz.stlc;
+                  rfl
+                  rw [HC.stlc_ty_subst0]
+                  rfl
+                  rw [HC.stlc_ty_subst0]
+                })
+                (by {
+                  funext c;
+                  rw [
+                    curry_cast _ c 
+                    (by rw [HC.stlc_ty_subst0]) 
+                    (by rw [HC.stlc_ty_subst0])
+                    (by simp only [HC.stlc_ty_subst0])
+                  ]
+                  rw [
+                    Stlc.HasType.interp_transport_cast'
+                    Hs.stlc
+                    (cast 
+                      (by simp only [Annot.stlc_ty, HC.stlc_ty_let_bin])
+                      Hs.stlc)
+                    rfl
+                    (by simp only [Annot.stlc_ty, HC.stlc_ty_let_bin])
+                  ]
+                  rw [
+                    Stlc.HasType.interp_transport_cast'
+                    (cast 
+                      (by simp only [
+                        Annot.stlc_ty, 
+                        HC.stlc_ty_let_bin, 
+                        HC.stlc_ty_subst0] rfl)
+                      Hs.stlc)
+                    (cast 
+                      (by simp only [
+                        Annot.stlc_ty, 
+                        HC.stlc_ty_let_bin, 
+                        HC.stlc_ty_subst0] rfl)
+                      Hs.stlc)
+                    rfl
+                    (by simp only [Annot.stlc_ty, HC.stlc_ty_subst0])
+                  ]
+                  rw [
+                    HasType.interp_irrel_ty'
+                    Hs Hs
+                    (cast 
+                      (by simp only [
+                        Annot.stlc_ty, 
+                        HC.stlc_ty_let_bin, 
+                        HC.stlc_ty_subst0])
+                      Hs.stlc) 
+                    (cast 
+                      (by simp only [
+                        Annot.stlc_ty, 
+                        HC.stlc_ty_let_bin, 
+                        HC.stlc_ty_subst0])
+                      Hs.stlc)
+                    rfl 
+                    (by simp only [HC.stlc_ty_let_bin])
+                    _
+                  ]
+                  apply interp_cast_spine 
+                    (by simp only [Context.stlc, HC.stlc_ty_subst0]) 
+                    rfl rfl;
+                  --TODO: factor this out as common... or upfactor
+                  simp only [rec_to_cast', pure]
+                  rw [cast_pair' 
+                    (by rw [HC.stlc_ty_subst0]) 
+                    rfl
+                    (by rw [HC.stlc_ty_subst0]), 
+                    @cast_some 
+                    _ _ (by rw [HC.stlc_ty_subst0]) _ 
+                    (by rw [HC.stlc_ty_subst0]), 
+                    cast_merge]
+                  simp only [cast]
+                  apply @Stlc.Context.interp.eq_mod_lrt.extend
+                    (Ty.unit::Γ.stlc) (Ty.unit::Γ.stlc);
+                  apply @Stlc.Context.interp.eq_mod_lrt.extend_gst
+                    Γ.stlc Γ.stlc;
+                  exact (G.downgrade.eq_mod_lrt_refl Γ Γ);
+                })
+              )
+  }
+
 theorem HasType.denote
   (H: Γ ⊢ a: A)
   (HΓ: IsCtx Γ)
@@ -1846,7 +2045,6 @@ theorem HasType.denote
       | none => cases H
       | some x => exact True.intro
     | @natrec Γ C e z s HC He Hz Hs IC Ie Iz Is =>
-      stop
       generalize Hei: He.stlc.interp G.downgrade = ei;
       cases ei with
       | none => 
@@ -2140,6 +2338,7 @@ theorem HasType.denote
           })
       }, Hz.stlc;
     | @beta_succ Γ C e z s HC He Hz Hs IC Ie Iz Is => 
+      stop
       dsimp only [
         Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
         Term.denote_ty, Ty.abort, Annot.denote
