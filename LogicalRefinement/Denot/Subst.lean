@@ -1001,3 +1001,76 @@ theorem HasType.denote_val_alpha0'
     rw [Haa', rec_to_cast']
     rw [Term.alpha0, HA.stlc_ty_subst]
   }
+
+theorem HasType.denote_val_subst0_upgrade'
+  {A B: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} 
+  {a: Option A.stlc_ty.interp}
+  {b: Term}
+  {a' b'}
+  {sa sb}
+  (Hb: Γ.upgrade ⊢ b: expr sb B)
+  (HΓ: IsCtx Γ)
+  (HG: G ⊧ ✓Γ)
+  (HA: ({ ty := B, kind := HypKind.val sb } :: Γ) ⊢ A: sort sa)
+  (HAA': A.stlc_ty = (A.subst0 b).stlc_ty)
+  (Haa': a' = HAA' ▸ a)
+  (Hbb': b' = Hb.stlc.interp G)
+  : @Term.denote_ty A (B.stlc_ty::Γ.upgrade.stlc) (b', G) a =
+    @Term.denote_ty (A.subst0 b) Γ.upgrade.stlc G a'
+  := by {
+    have D := 
+      @SubstCtx.subst_denot 
+      _ _ _ _ _ a _
+      (Hb.to_subst HΓ.upgrade) HΓ.upgrade 
+      (IsCtx.cons_val HΓ.upgrade Hb.expr_regular) HG.upgrade HA.upgrade;
+    apply equiv_prop_split D;
+    {
+      stop
+      apply denote_ty_cast_spine
+        rfl
+        (by simp only [Context.upgrade, Context.stlc, Context.upgrade_idem])
+        (by {
+          rw [rec_to_cast']
+          simp only [
+            SubstCtx.transport_interp_up, 
+            SubstCtx.transport_interp,
+            SubstCtx.interp,
+            Stlc.SubstCtx.interp,
+            Stlc.InterpSubst.transport_ctx
+          ]
+          rw [cast_pair' rfl 
+            (by simp only [Context.upgrade_idem]) 
+            (by simp only [Context.upgrade_idem])]
+          apply congr;
+          {
+            apply congr rfl;
+            rw [Hbb'];
+            rw [Stlc.HasType.interp_transport_cast']
+            apply interp_cast_spine 
+              (by rw [Context.upgrade_idem]) rfl 
+              (by simp only [rec_to_cast', cast_merge] rfl);
+            exact Hb.upgrade.stlc;
+            rfl
+            rfl
+          }
+          {
+            rw [rec_to_cast']
+            rw [@doublecast_self _ _ G]
+            apply congr rfl;
+            conv =>
+              lhs
+              rw [<-Stlc.Context.interp.transport_id (cast _ G)]
+            apply congr rfl;
+            rw [cast_merge]
+            rfl
+          }
+        })
+        rfl;
+    }
+    {
+      apply denote_ty_cast_spine rfl 
+        (by rw [Context.upgrade_idem]) 
+        (by simp only [rec_to_cast'])  
+        (by simp only [rec_to_cast', Haa']);
+    }
+  }

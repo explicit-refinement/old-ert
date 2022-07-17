@@ -1099,17 +1099,22 @@ theorem HasType.denote
         }
       | none => exact False.elim Dl
     | @repr Γ A B l r HAB Hl Hr IAB Il Ir =>
-      stop
-      dsimp only [
-        Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
-        Term.denote_ty, Annot.denote, Annot.stlc_ty
-      ]
-      apply And.intro 
-        (Il HΓ.upgrade (Context.upgrade_idem.symm ▸ G) HG.upgrade);
-      apply And.intro
-      . sorry -- not_none + Ir?
-      . exists Hl.stlc.interp G
-        sorry
+      simp only [Annot.denote] at *;
+      have Il' 
+        := Il HΓ.upgrade (Context.upgrade_idem.symm ▸ G) HG.upgrade
+      have Ir' := Ir HΓ G HG;
+      rw [<-Term.denote_upgrade_eq] at Il';
+      rw [rec_to_cast'] at Il';
+      rw [Stlc.Context.interp.downgrade_cast] at Il';
+      rw [
+        <-Hl.denote_val_subst0'
+      ] at Ir';
+      exact ⟨
+        Hl.stlc.interp G, 
+        Il', 
+        Ir'
+      ⟩
+
     | let_repr =>
       stop  
       dsimp only [

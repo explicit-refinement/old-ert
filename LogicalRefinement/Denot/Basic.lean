@@ -272,3 +272,18 @@ theorem HasType.succ_nat_stlc_denote {Γ Γ' e G D}
   }
 
 notation G "⊧" "✓" Γ => Context.denote Γ G
+
+theorem denote_ty_cast_spine 
+  {A B Γ Δ} {G: Γ.interp} {D: Δ.interp} {a b}
+  (HAB: A = B)
+  (HΓΔ: Γ = Δ)
+  (HGD: G = HΓΔ ▸ D)
+  (Hab: a = HAB ▸ b):
+  @Term.denote_ty A Γ G a = @Term.denote_ty B Δ D b
+  := by {
+    cases HAB;
+    cases HΓΔ;
+    cases HGD;
+    cases Hab;
+    rfl
+  }
