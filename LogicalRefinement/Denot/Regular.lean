@@ -2167,7 +2167,6 @@ theorem HasType.denote
           })
       }, Hz.stlc;
     | @beta_succ Γ C e z s HC He Hz Hs IC Ie Iz Is => 
-      stop
       dsimp only [
         Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
         Term.denote_ty, Ty.abort, Annot.denote
@@ -2203,8 +2202,14 @@ theorem HasType.denote
           exact Hs'
         },
         by {
+          have HC': 
+            ({ ty := Term.nats, kind := HypKind.gst}::Γ.upgrade) 
+            ⊢ C: type := by upgrade_ctx assumption;
           have Ie' := Ie HΓ.upgrade (Context.upgrade_idem.symm ▸ G) HG.upgrade;
           have Iz' := Iz HΓ.upgrade (Context.upgrade_idem.symm ▸ G) HG.upgrade;
+          have Inr := HC'.natrec_lemma 
+            He Hz Hs HΓ.upgrade HG.upgrade Ie' Iz' 
+            sorry;
           have ⟨n, Ee⟩ := He.term_regular.upgrade.denote_ty_some Ie';
           have ⟨Sz, Ez⟩ := Hz.term_regular.upgrade.denote_ty_some Iz';
           have Ee': He.stlc.interp G = some n
@@ -2251,6 +2256,8 @@ theorem HasType.denote
             apply False.elim;
             apply HC'.denote_ty_non_null;
             rw [<-Hnr];
+            sorry
+            sorry
             sorry
             sorry
           case h_2 a Hnr => 
