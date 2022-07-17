@@ -2138,10 +2138,6 @@ theorem HasType.denote
           })
       }, Hz.stlc;
     | @beta_succ Γ C e z s HC He Hz Hs IC Ie Iz Is => 
-      dsimp only [
-        Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
-        Term.denote_ty, Ty.abort, Annot.denote
-      ]
       exact ⟨
         by {
           rw [HC.stlc_ty_subst0]
@@ -2176,7 +2172,13 @@ theorem HasType.denote
           have HC': 
             ({ ty := Term.nats, kind := HypKind.gst}::Γ.upgrade) 
             ⊢ C: type := by upgrade_ctx assumption;
+          have Hs':
+            ({ ty := C, kind := (HypKind.val type) }
+            ::{ ty := Term.nats, kind := (HypKind.val type)}
+            ::Γ.upgrade) ⊢ s: _ := by upgrade_ctx assumption;
           have He' := He.succ_nat;
+          have Hnr := HC'.natrec He Hz Hs;
+          have Hnr' := HC'.natrec He' Hz Hs;
           have Ie' := Ie HΓ.upgrade (Context.upgrade_idem.symm ▸ G) HG.upgrade;
           have Ie'' := He.succ_nat_stlc_denote Ie';
           have Iz' := Iz HΓ.upgrade (Context.upgrade_idem.symm ▸ G) HG.upgrade;
@@ -2188,98 +2190,121 @@ theorem HasType.denote
             He' Hz Hs HΓ.upgrade HG.upgrade Ie'' Iz' Is';
           have ⟨n, Ee⟩ := He.term_regular.upgrade.denote_ty_some Ie';
           have ⟨Sz, Ez⟩ := Hz.term_regular.upgrade.denote_ty_some Iz';
+          have ⟨r, Er⟩ := Hnr.term_regular.denote_ty_some Inr;
+          have ⟨rs, Ers⟩ := Hnr'.term_regular.denote_ty_some Inr';
           have Ee': He.stlc.interp G = some n
-            := by rw [<-Ee, rec_to_cast', Stlc.Context.interp.downgrade_cast]
+            := by rw [<-Ee, rec_to_cast', Stlc.Context.interp.downgrade_cast];
           have Ez': Hz.stlc.interp G = some Sz 
-            := by rw [<-Ez, rec_to_cast', Stlc.Context.interp.downgrade_cast]
+            := by rw [<-Ez, rec_to_cast', Stlc.Context.interp.downgrade_cast];
+          have Er': Hnr.stlc.interp G = some r
+            := by rw [<-Er, rec_to_cast', Stlc.Context.interp.downgrade_cast];
+          have Ers': Hnr'.stlc.interp G = some rs
+            := by rw [<-Ers, rec_to_cast', Stlc.Context.interp.downgrade_cast];
+          dsimp only [
+            Term.stlc, Term.stlc_ty, stlc_ty,
+            Term.denote_ty, Annot.denote
+          ]
+          apply Eq.trans Ers';
           --TODO: report invalid simp lemma for Ty.interp.natrec_inner
-          dsimp only [Eq.mp]
-          rw [Ee']
+          dsimp only [
+            Stlc.HasType.interp, 
+            Term.stlc_ty, Eq.mp,
+            Ty.interp.app,
+            Option.bind
+          ] at Ers';
+          rw [Ee'] at Ers';
           rw [<-@Stlc.HasType.interp_transport_cast' _ 
             (Term.subst0 C Term.zero).stlc_ty 
-            _ _ _ Hz.stlc]
-          rw [Ez']
+            _ _ _ Hz.stlc
+            sorry rfl sorry] at Ers';
+          rw [Ez'] at Ers';
+          dsimp only [
+            Ty.interp.natrec_int, 
+            Option.bind
+          ] at Ers';
+          rw [Ty.interp.natrec_inner_succ] at Ers';
+          dsimp only [
+            Stlc.HasType.interp, 
+            Term.stlc_ty, Eq.mp,
+            Ty.interp.app,
+            Option.bind
+          ] at Er';
+          rw [Ee'] at Er';
+          dsimp only [
+            Ty.interp.natrec_int,
+            Option.bind
+          ] at Er';
+          rw [<-Ers'];
+          generalize Hr': Ty.interp.natrec_inner _ (cast _ _) _ = r';
+          rw [<-Hr', Ers']
+          rw [Hr'] at Ers';
+          have Hrr': r' 
+            = some (cast (by 
+              simp only [Annot.stlc_ty, HC.stlc_ty_subst0, <-HC.stlc_ty_let_bin]) r) := by {
+                rw [<-Hr']
+                rw [<-cast_some]
+                rw [<-Er']
+                rw [natrec_cast]
+                . simp only [HC.stlc_ty_subst0, Annot.stlc_ty]
+                . {
+                  rw [<-Ez']
+                  apply Stlc.HasType.interp_irrel_cast 
+                  <;> simp only [HC.stlc_ty_subst0, Annot.stlc_ty]
+                }
+                . {
+                  funext c;
+                  --TODO: castwork...
+                  sorry
+                }
+              };
+          rw [Hrr'] at Ers';
+          simp only [Option.bind] at Ers';
           rw [
             @HasType.subst01_gst_stlc_interp_commute'
             Γ.upgrade s (Term.natrec type C e z s) e 
             _ _ _ _ 
             _ _
             Hs _ rfl 
-            (by {
-              sorry
-            })
-            (by {
-              sorry
-            })
+            (by rw [HC.stlc_ty_subst0, <-HC.stlc_ty_let_bin])
+            Hnr
             He
             (by upgrade_ctx assumption)
             HΓ.upgrade
             G
           ];
-          rw [cast_some]
           simp only [
             rec_to_cast', Stlc.Context.deriv.subst,
-            SubstCtx.interp, Ty.interp.app, Option.bind,
-            Ty.interp.natrec_int
+            SubstCtx.interp]
+          rw [Stlc.HasType.interp_transport_cast' Hs'.stlc 
+            (by rw [HC.stlc_ty_subst0, <-HC.stlc_ty_let_bin]; exact Hs'.stlc)
+            rfl
+            (by rw [HC.stlc_ty_subst0, <-HC.stlc_ty_let_bin] rfl)
           ]
-          unfold Ty.interp.natrec_inner;
-          simp only [Option.bind]
-          split;
-          case h_1 Hnr => 
-            have HC'':
-              Γ ⊢ C.subst0 ((Term.arrow Term.nats Term.nats).app Term.succ e): type
-              := (HC.upgrade.subst0 He').downgrade;
-            apply False.elim;
-            apply HC''.denote_ty_non_null;
-            rw [<-Hnr];
-            sorry
-            sorry
-            sorry
-            sorry
-          case h_2 a Hnr => 
-            stop
-            simp only []
-            rw [Stlc.HasType.interp_transport_cast']
-            rw [HasType.interp_irrel_ty'
-              _ Hs _ _ _ 
-              (by rw [HC.stlc_ty_subst0, HC.stlc_ty_let_bin]) _
-            ]
-            apply interp_cast_spine;
+          dsimp only [Stlc.InterpSubst.transport_ctx]
+          rw [<-Ers']
+          rw [HasType.interp_irrel_ty'
+            Hs' Hs  
+            (by rw [HC.stlc_ty_subst0, <-HC.stlc_ty_let_bin]; exact Hs'.stlc)
+            (by rw [HC.stlc_ty_subst0, <-HC.stlc_ty_let_bin]; exact Hs.stlc) 
+            rfl 
+            (by rw [HC.stlc_ty_subst0, HC.stlc_ty_let_bin]) 
+            (by sorry)
+          ]
+          apply interp_cast_spine
+            (by simp only [Annot.stlc_ty, HC.stlc_ty_subst0] rfl)
             rfl
-            {
-              sorry
-            }
-            rw [HC.stlc_ty_subst0] rfl
-            {
-              rw [HC.stlc_ty_subst0]
-              rw [<-Context.upgrade_idem]
-              have Hs' := Hs.upgrade.stlc;
-              simp only [Annot.stlc_ty, HC.stlc_ty_let_bin] at Hs';
-              exact Hs'
-            }
-            {
-              rw [HC.stlc_ty_subst0]
-              have Hs' := Hs.stlc;
-              simp only [Annot.stlc_ty, HC.stlc_ty_let_bin] at Hs';
-              exact Hs'
-            }
-            {
-              sorry
-            }
-            {
-              rw [<-Context.upgrade_idem]
-              exact Hs.upgrade
-            }
-            rfl
-            {
-              sorry
-            }
-            rfl
-            {
-              rw [HC.stlc_ty_let_bin, HC.stlc_ty_subst0]
-            }
-          . simp only [HC.stlc_ty_subst0]
-          . simp only [HC.stlc_ty_subst0]
+            (by {
+              rw [rec_to_cast']
+              rw [cast_pair'] <;> simp only [Annot.stlc_ty, HC.stlc_ty_subst0] <;> try rfl
+              apply congr (by
+                rw [cast_some] <;> 
+                  simp only [Annot.stlc_ty, HC.stlc_ty_subst0] <;> try rfl
+                apply congr rfl;
+                apply congr rfl;
+                apply cast_merge.symm;
+                simp only [HC.stlc_ty_subst0]
+              ) rfl;
+            });
         }
       ⟩
     | _ => exact True.intro

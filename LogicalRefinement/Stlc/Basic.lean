@@ -74,6 +74,11 @@ abbrev Ty.interp.natrec_inner {C: Ty} (n: Nat)
   | 0 => z
   | n + 1 => (natrec_inner n z s).bind s
 
+theorem Ty.interp.natrec_inner_succ {C: Ty} (n: Nat) 
+  (z: Option C.interp) (s: C.interp -> Option C.interp)
+  : Ty.interp.natrec_inner (Nat.succ n) z s = (Ty.interp.natrec_inner n z s).bind s
+  := rfl
+
 abbrev Ty.interp.natrec_int {C: Ty} (n: Option nats.interp)
   (z: Option C.interp) (s: C.interp -> Option C.interp)
   : Option C.interp
@@ -869,6 +874,20 @@ theorem Stlc.HasType.interp_irrel
   (H': Γ ⊧ a: A)
   : H.interp = H'.interp
   := rfl
+
+theorem Stlc.HasType.interp_irrel_cast {Γ a A B C G}
+  (H: Γ ⊧ a: A)
+  (H': Γ ⊧ a: B)
+  (HAB: A = B)
+  (HAC: Option A.interp = C)
+  (HBC: Option B.interp = C)
+  : cast HAC (H.interp G) = cast HBC (H'.interp G)
+  := by {
+    cases HAB;
+    cases HAC;
+    cases HBC;
+    rfl
+  }
 
 theorem interp_eq_collapse
   : 
