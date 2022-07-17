@@ -415,9 +415,6 @@ theorem SubstCtx.subst_denot
     | @union Γ A B HA' HB IA IB =>
       dsimp only [Term.denote_ty]
       rw [rec_to_cast']
-      rw [cast_not_none_is_not_none]
-      apply equiv_and_split;
-      intro _;
       apply propext;
       apply Iff.intro <;> intro ⟨x, Hx, Ha⟩;
       {
@@ -483,7 +480,6 @@ theorem SubstCtx.subst_denot
           rw [rec_to_cast']
         }
       }
-      rw [HA.stlc_ty_subst]
     | dimplies Hφ Hψ Iφ Iψ => 
       dsimp only [Term.denote_ty];
       have Iφ' := 

@@ -52,8 +52,7 @@ def Term.denote_ty (A: Term)
         A.denote_ty G x ->
         @denote_ty B (A.stlc_ty::Γ) (x, G) (a ())
     | none => False
-  | abs TermKind.union A B => 
-    a ≠ none ∧
+  | abs TermKind.union A B =>
     ∃x: Option A.stlc_ty.interp,
       A.denote_ty G x ∧
       @denote_ty B (A.stlc_ty::Γ) (x, G) a
@@ -148,14 +147,14 @@ theorem HasType.denote_ty_non_null
   := by {
     generalize HS: sort type = S;
     intro HA;
-    induction HA with
+    induction HA generalizing Δ with
     | set _ _ IA _ => 
       dsimp only [Term.denote_ty]
       intro ⟨HA, _⟩;
       exact IA rfl HA
-    | union => 
-      intro ⟨Hn, _⟩
-      contradiction
+    | union _ _ _ IB => 
+      intro ⟨_, _, Hn⟩
+      exact IB rfl Hn
     | _ => cases HS <;> intro H <;> cases H
   }
 

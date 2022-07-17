@@ -906,6 +906,7 @@ theorem HasType.denote
           simp only [HC.stlc_ty_subst]
       | none => exact False.elim (HAB.denote_ty_non_null Ie')
     | @elem Γ A φ l r HAφ Hl Hr IAφ Il Ir =>
+      stop
       apply And.intro (Il HΓ G HG);
       dsimp only [Annot.stlc_ty, Term.stlc_ty]
       have Hφ: _ ⊢ φ: _ := by cases HAφ <;> assumption;
@@ -1100,9 +1101,11 @@ theorem HasType.denote
     | @repr Γ A B l r HAB Hl Hr IAB Il Ir =>
       stop
       dsimp only [
-        denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
-        Term.denote_ty', Term.denote_ty
+        Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
+        Term.denote_ty, Annot.denote, Annot.stlc_ty
       ]
+      apply And.intro 
+        (Il HΓ.upgrade (Context.upgrade_idem.symm ▸ G) HG.upgrade);
       apply And.intro
       . sorry -- not_none + Ir?
       . exists Hl.stlc.interp G

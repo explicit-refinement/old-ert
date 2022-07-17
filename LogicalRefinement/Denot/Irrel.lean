@@ -115,7 +115,6 @@ theorem HasType.eq_lrt_ty_denot
       dsimp only [Term.denote_ty]
       simp only [pure]
       apply congr rfl _;
-      apply congr rfl _;
       funext x;
       apply congr (congr rfl _) _;
       apply IA;
