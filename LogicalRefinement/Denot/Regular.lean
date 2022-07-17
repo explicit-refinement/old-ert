@@ -2216,7 +2216,13 @@ theorem HasType.denote
           rw [<-@Stlc.HasType.interp_transport_cast' _ 
             (Term.subst0 C Term.zero).stlc_ty 
             _ _ _ Hz.stlc
-            sorry rfl sorry] at Ers';
+            (by 
+            simp only [Annot.stlc_ty, HC.stlc_ty_subst0]
+            rw [<-HC.stlc_ty_subst0]; 
+            exact Hz.stlc) 
+            rfl 
+            (by simp only [Annot.stlc_ty, HC.stlc_ty_subst0])
+          ] at Ers';
           rw [Ez'] at Ers';
           dsimp only [
             Ty.interp.natrec_int, 
