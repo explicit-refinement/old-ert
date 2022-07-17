@@ -905,19 +905,13 @@ theorem HasType.denote
           rfl
           simp only [HC.stlc_ty_subst]
       | none => exact False.elim (HAB.denote_ty_non_null Ie')
-    | elem =>
-      stop 
-      dsimp only [
-        denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
-        Term.denote_ty', Term.denote_ty
-      ]
-      apply And.intro;
-      {
-        sorry
-      }
-      {
-        sorry
-      }
+    | @elem Γ A φ l r HAφ Hl Hr IAφ Il Ir =>
+      apply And.intro (Il HΓ G HG);
+      dsimp only [Annot.stlc_ty, Term.stlc_ty]
+      have Hφ: _ ⊢ φ: _ := by cases HAφ <;> assumption;
+      rw [Hl.denote_val_subst0 HΓ HG Hφ]
+      rw [(Hφ.subst0 Hl).denote_prop_eq']
+      exact Ir HΓ G HG;
     | @let_set Γ A B C e e' He HA HB HC He' Ie IA IB IC Ie' =>    
       stop   
       have De := Ie HΓ G HG;
@@ -2138,6 +2132,7 @@ theorem HasType.denote
           })
       }, Hz.stlc;
     | @beta_succ Γ C e z s HC He Hz Hs IC Ie Iz Is => 
+      stop
       exact ⟨
         by {
           rw [HC.stlc_ty_subst0]
