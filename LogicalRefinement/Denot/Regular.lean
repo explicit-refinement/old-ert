@@ -1107,14 +1107,20 @@ theorem HasType.denote
       rw [rec_to_cast'] at Il';
       rw [Stlc.Context.interp.downgrade_cast] at Il';
       rw [
-        <-Hl.denote_val_subst0'
+        <-Hl.denote_val_subst0_upgrade' HΓ HG 
+        (by cases HAB <;> assumption)
       ] at Ir';
       exact ⟨
         Hl.stlc.interp G, 
         Il', 
         Ir'
       ⟩
-
+      rw [rec_to_cast']
+      rw [Stlc.HasType.interp_transport_cast' _ _ rfl 
+        (by rw [HasType.stlc_ty_subst0] cases HAB; assumption)
+        _
+      ]
+      rfl
     | let_repr =>
       stop  
       dsimp only [

@@ -1012,8 +1012,7 @@ theorem HasType.denote_val_subst0_upgrade'
   (HΓ: IsCtx Γ)
   (HG: G ⊧ ✓Γ)
   (HA: ({ ty := B, kind := HypKind.val sb } :: Γ) ⊢ A: sort sa)
-  (HAA': A.stlc_ty = (A.subst0 b).stlc_ty)
-  (Haa': a' = HAA' ▸ a)
+  (Haa': a' = HA.stlc_ty_subst0 ▸ a)
   (Hbb': b' = Hb.stlc.interp G)
   : @Term.denote_ty A (B.stlc_ty::Γ.upgrade.stlc) (b', G) a =
     @Term.denote_ty (A.subst0 b) Γ.upgrade.stlc G a'
@@ -1025,7 +1024,6 @@ theorem HasType.denote_val_subst0_upgrade'
       (IsCtx.cons_val HΓ.upgrade Hb.expr_regular) HG.upgrade HA.upgrade;
     apply equiv_prop_split D;
     {
-      stop
       apply denote_ty_cast_spine
         rfl
         (by simp only [Context.upgrade, Context.stlc, Context.upgrade_idem])
