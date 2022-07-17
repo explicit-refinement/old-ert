@@ -905,35 +905,6 @@ theorem HasType.denote
           rfl
           simp only [HC.stlc_ty_subst]
       | none => exact False.elim (HAB.denote_ty_non_null Ie')
-      -- | prop => 
-      --   have Ie' := Ie HΓ G HG;
-      --   dsimp only [
-      --     Term.stlc, Term.stlc_ty, stlc_ty, Stlc.HasType.interp] 
-      --     at Ie';
-      --   generalize Hei: Stlc.HasType.interp (_ : _⊧Term.stlc e:_) _ = ei;
-      --   rw [Stlc.HasType.interp_irrel] at Ie'
-      --   rw [Hei] at Ie'
-      --   cases ei with
-      --   | some ei => 
-      --     cases ei with
-      --     | inl a => 
-      --       simp only [Ty.interp.case]
-      --       have Il' := Il 
-      --         (HΓ.cons_val HA)
-      --         (return a, G)
-      --         ⟨Ie', HG⟩
-      --         ;
-      --       sorry --TODO: appropriate typecasting for Il'
-      --     | inr b => 
-      --       simp only [Ty.interp.case]
-      --       have Ir' := Ir
-      --         (HΓ.cons_val HB)
-      --         (return b, G)
-      --         ⟨Ie', HG⟩
-      --         ;
-      --       sorry --TODO: appropriate typecasting for Ir'
-      --   | none => exact False.elim (HAB.denote_ty_non_null Ie')
-      --   exact He.stlc
     | elem =>
       stop 
       dsimp only [
@@ -2205,6 +2176,7 @@ theorem HasType.denote
           have HC': 
             ({ ty := Term.nats, kind := HypKind.gst}::Γ.upgrade) 
             ⊢ C: type := by upgrade_ctx assumption;
+          have He' := He.succ_nat;
           have Ie' := Ie HΓ.upgrade (Context.upgrade_idem.symm ▸ G) HG.upgrade;
           have Iz' := Iz HΓ.upgrade (Context.upgrade_idem.symm ▸ G) HG.upgrade;
           have Inr := HC'.natrec_lemma 
@@ -2250,11 +2222,11 @@ theorem HasType.denote
           simp only [Option.bind]
           split;
           case h_1 Hnr => 
-            have HC':
+            have HC'':
               Γ ⊢ C.subst0 ((Term.arrow Term.nats Term.nats).app Term.succ e): type
-              := sorry;
+              := (HC.upgrade.subst0 He').downgrade;
             apply False.elim;
-            apply HC'.denote_ty_non_null;
+            apply HC''.denote_ty_non_null;
             rw [<-Hnr];
             sorry
             sorry

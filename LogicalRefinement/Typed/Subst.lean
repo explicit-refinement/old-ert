@@ -396,6 +396,35 @@ theorem HasType.subst0_gen {Γ e B t s A B'}
   : Γ ⊢ (e.subst0 t): (B') 
   := HBB' ▸ He.subst' Ht.to_subst'
 
+
+theorem HasType.subst0_gst {Γ e B t A} 
+  (He: HasType ((Hyp.mk A HypKind.gst)::Γ) e B)
+  (Ht: HasType Γ t (term A))
+  : Γ ⊢ (e.subst0 t): (B.subst0 t) 
+  := 
+    have He': ((Hyp.mk A (HypKind.val type))::Γ) ⊢ e: B 
+      := by upgrade_ctx assumption;
+    He'.subst0 Ht
+
+theorem HasType.subst0_expr_gst {Γ e s t A B} 
+  (He: HasType ((Hyp.mk A HypKind.gst)::Γ) e (expr s B))
+  (Ht: HasType Γ t (term A))
+  : Γ ⊢ (e.subst0 t): expr s (B.subst0 t)
+  := He.subst0_gst Ht
+
+theorem HasType.subst0_sort_gst {Γ e s t A} 
+  (He: HasType ((Hyp.mk A HypKind.gst)::Γ) e (sort s))
+  (Ht: HasType Γ t (term A))
+  : Γ ⊢ (e.subst0 t): sort s
+  := He.subst0_gst Ht
+
+theorem HasType.subst0_gen_gst {Γ e B t A B'} 
+  (He: HasType ((Hyp.mk A HypKind.gst)::Γ) e B)
+  (Ht: HasType Γ t (term A))
+  (HBB': B' = B.subst0 t)
+  : Γ ⊢ (e.subst0 t): (B') 
+  := HBB' ▸ He.subst0_gst Ht
+
 theorem HasType.to_alpha {Γ a sa sb A B} 
   (H: ((Hyp.mk B (HypKind.val sb))::Γ) ⊢ a: expr sa A.wk1) 
   (HΓ: IsCtx Γ):
