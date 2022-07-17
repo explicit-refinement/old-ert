@@ -1099,6 +1099,7 @@ theorem HasType.denote
         }
       | none => exact False.elim Dl
     | @repr Γ A B l r HAB Hl Hr IAB Il Ir =>
+      stop
       simp only [Annot.denote] at *;
       have Il' 
         := Il HΓ.upgrade (Context.upgrade_idem.symm ▸ G) HG.upgrade
@@ -1121,12 +1122,46 @@ theorem HasType.denote
         _
       ]
       rfl
-    | let_repr =>
-      stop  
+    | @let_repr Γ A B C e e' He HA HB HC He' Ie IA IB IC Ie' =>      
+      have De := Ie HΓ G HG;
       dsimp only [
-        denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
-        Term.denote_ty', Term.denote_ty
-      ]
+        Term.denote_ty, Term.stlc, Annot.denote,
+        stlc_ty, Term.stlc_ty, Stlc.HasType.interp
+      ] at *;
+      generalize HSe: He.stlc.interp G.downgrade = Se;
+      rw [HSe] at De;
+      have ⟨a, Da, Db⟩ := De;
+      cases Se with
+      | some b =>     
+        simp only [
+          Ty.interp.let_pair, 
+          Ty.interp.pair,
+          Option.bind
+        ]
+        have De' := 
+          Ie' ((HΓ.cons_gst HA).cons_val HB) 
+          (some b, a, G)
+          ⟨Db, Da, HG⟩
+          ;
+        rw [
+          <-He.denote_val_subst0' HΓ HG HC 
+          (by rw [HC.stlc_ty_subst0])
+          (by rw [rec_to_cast']; rw [cast_trans])
+          rfl
+          ]
+        sorry
+        --TODO: irrelevance rewrite
+        --TODO: denote_cast_spine
+        -- rw [HSe]
+        -- rw [HC.denote_subst_let_pair HΓ HG HA HB Da Db rfl]
+        -- rw [rec_to_cast', cast_merge]
+        -- apply equiv_prop_helper De';
+        -- apply congr rfl _;
+        -- rw [Stlc.HasType.interp_transport_cast']
+        -- rfl
+        -- rfl
+        -- rw [HC.stlc_ty_let_bin, HC.stlc_ty_subst0]
+      | none => exact False.elim (HB.denote_ty_non_null Db);
     | abort Hp HA Ip IA => stop exact False.elim (Ip HΓ G HG)
     | @dconj Γ A B l r HAB Hl Hr IAB Il Ir => 
       dsimp only [
