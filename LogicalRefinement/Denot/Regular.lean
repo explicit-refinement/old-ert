@@ -2313,9 +2313,14 @@ theorem HasType.denote
             (Ty.nats::Γ.upgrade.stlc) 
             (Ty.unit::Γ.upgrade.stlc);
           . {
-            stop
             rw [<-cast_some]
-            rw [<-Er']
+            rw [<-Stlc.HasType.interp_transport_cast']
+            apply congr rfl;
+            rw [<-Er]
+            rw [rec_to_cast']
+            rw [Stlc.Context.interp.downgrade_cast]
+            rw [HC.stlc_ty_subst0]
+            rfl
           }
           . {
             apply Stlc.Context.interp.eq_mod_lrt.extend_gst_right;
