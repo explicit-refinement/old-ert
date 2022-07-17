@@ -254,4 +254,22 @@ theorem Term.denote_upgrade_eq {Γ: Context} {G: Γ.upgrade.stlc.interp} {A a}:
     rfl
   }
 
+theorem HasType.succ_nat_stlc_denote {Γ Γ' e G D} 
+  (H: Γ ⊢ e: term Term.nats) 
+  (HD: @Term.denote_ty Term.nats Γ' G (H.stlc.interp D)):
+  Term.nats.denote_ty G (H.succ_nat.stlc.interp D)
+  := by {
+    generalize HSe: H.stlc.interp D = Se;
+    rw [HSe] at HD
+    cases Se with
+    | none => exact HD.elim
+    | some Se =>
+      dsimp only [Term.succ_nat]
+      rw [Stlc.HasType.interp_app]
+      rw [HSe]
+      exact True.intro
+      constructor
+      rfl
+  }
+
 notation G "⊧" "✓" Γ => Context.denote Γ G
