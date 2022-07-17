@@ -2178,13 +2178,14 @@ theorem HasType.denote
             ⊢ C: type := by upgrade_ctx assumption;
           have He' := He.succ_nat;
           have Ie' := Ie HΓ.upgrade (Context.upgrade_idem.symm ▸ G) HG.upgrade;
+          have Ie'' := He.succ_nat_stlc_denote Ie';
           have Iz' := Iz HΓ.upgrade (Context.upgrade_idem.symm ▸ G) HG.upgrade;
           have Is' := λG HG => 
             Is ((HΓ.upgrade.cons_gst HasType.nats).cons_val HC') G HG;
           have Inr := HC'.natrec_lemma 
             He Hz Hs HΓ.upgrade HG.upgrade Ie' Iz' Is';
-          -- have Inr' := HC'.natrec_lemma 
-          --   He' Hz Hs HΓ.upgrade HG.upgrade Ie' Iz' Is';
+          have Inr' := HC'.natrec_lemma 
+            He' Hz Hs HΓ.upgrade HG.upgrade Ie'' Iz' Is';
           have ⟨n, Ee⟩ := He.term_regular.upgrade.denote_ty_some Ie';
           have ⟨Sz, Ez⟩ := Hz.term_regular.upgrade.denote_ty_some Iz';
           have Ee': He.stlc.interp G = some n
