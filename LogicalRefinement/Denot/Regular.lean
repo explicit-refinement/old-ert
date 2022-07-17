@@ -2304,7 +2304,6 @@ theorem HasType.denote
             }
           . simp only [HC.stlc_ty_subst0]
           . simp only [HC.stlc_ty_subst0]
-          . rfl
         }
       ⟩
     | _ => exact True.intro
