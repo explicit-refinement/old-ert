@@ -1353,7 +1353,8 @@ theorem HasType.denote
       exact Or.inl (He.proof_regular.denote_prop_none (Ie HΓ G HG))
     | disj_r He _ Ie _ => 
       exact Or.inr (He.proof_regular.denote_prop_none (Ie HΓ G HG))
-    | @case_pr Γ A B C e l r He HA HB HC Hl Hr Ie IA IB IC Il Ir => 
+    | @case_pr Γ A B C e l r He HA HB HC Hl Hr Ie IA IB IC Il Ir =>   
+      stop
       dsimp only [
         Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
         Ty.abort, Annot.denote
@@ -1431,18 +1432,21 @@ theorem HasType.denote
     | general HA Hs IA Is => stop
       exact λx Dx => Hs.proof_regular.denote_prop_none 
         (Is (IsCtx.cons_val HΓ HA) (x, G) ⟨Dx, HG⟩);
-    | inst HAϕ Hl Hr _ Il Ir => 
-      stop
+    | @inst Γ A φ l r HAφ Hl Hr _ Il Ir => 
       dsimp only [
         Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
         Term.denote_ty, Ty.abort, Annot.denote
       ] at *
-      --TODO: ghost denotation...
-      -- rw [<-Hr.denote_val_subst0]
-      -- apply Il HΓ G HG;
-      -- -- Double upgrade
-      -- sorry
-      repeat sorry
+      rw [<-Hr.denote_val_subst0_upgrade' HΓ HG 
+        (by cases HAφ <;> assumption)
+        (by rw [interp_eq_none])
+        rfl
+      ]
+      have Ir' := Ir HΓ.upgrade (Context.upgrade_idem.symm ▸ G) HG.upgrade;
+      rw [<-Term.denote_upgrade_eq] at Ir';
+      rw [rec_to_cast'] at Ir';
+      rw [G.downgrade_cast] at Ir';
+      exact Il HΓ G HG _ Ir'
     | @wit Γ A φ l r HAφ Hl Hr IAφ Il Ir =>
       stop
       exists Hl.stlc.interp G
