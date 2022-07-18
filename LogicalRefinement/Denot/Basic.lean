@@ -253,6 +253,18 @@ theorem Term.denote_upgrade_eq {Γ: Context} {G: Γ.upgrade.stlc.interp} {A a}:
     rfl
   }
 
+theorem Term.denote_upgrade_eq_cast {Γ: Context} {G: Γ.upgrade.stlc.interp} {A a}:
+  @Term.denote_ty A Γ.upgrade.stlc G a =
+  @Term.denote_ty A Γ.upgrade.upgrade.stlc (cast (by rw [Context.upgrade_idem]) G) a
+  := by {
+    apply cast_app_dep_two (@Term.denote_ty A);
+    rfl
+    rw [Context.upgrade_idem]
+    rw [cast_merge]
+    rfl
+  }
+
+
 theorem HasType.succ_nat_stlc_denote {Γ Γ' e G D} 
   (H: Γ ⊢ e: term Term.nats) 
   (HD: @Term.denote_ty Term.nats Γ' G (H.stlc.interp D)):

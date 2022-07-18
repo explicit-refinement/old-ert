@@ -1660,8 +1660,69 @@ theorem HasType.denote
           exact HB.wk1_sort;
           constructor
         }
-      | none => exact False.elim (HA.denote_ty_non_null Da);
-    | let_repr_prop => sorry
+      | none => exact False.elim (HA.denote_ty_non_null Da);    
+    | @let_repr_prop Γ A B C e e' He HA HB HC He' Ie IA IB IC Ie' => 
+      have De := Ie HΓ.upgrade (Context.upgrade_idem.symm ▸ G) HG.upgrade;
+      dsimp only [
+        Term.denote_ty, Term.stlc, Annot.denote,
+        stlc_ty, Term.stlc_ty, Stlc.HasType.interp, Ty.abort
+      ] at *;
+      have ⟨a, Da, Db⟩ := De;
+      have ⟨Sa, Ea⟩ := HA.denote_ty_some Da;
+      have Da' := Ea ▸ Da;     
+      have ⟨b, Eb⟩ := HB.denote_ty_some Db;
+      have Db' := Eb ▸ Db;
+      simp only [
+        Ty.interp.let_pair, 
+        Ty.interp.pair,
+        Option.bind
+      ]
+      have De' := 
+        Ie' ((HΓ.upgrade.cons_gst HA.upgrade).cons_val (by upgrade_ctx exact HB)) 
+        (some b, a, Context.upgrade_idem.symm ▸ G)
+        ⟨Eb ▸ Db, Da, HG.upgrade⟩
+        ;
+      rw [
+        <-HasType.denote_val_subst0_upgrade' He HΓ HG HC (by rw [interp_eq_none]) rfl
+        ]
+      rw [Ea] at De';
+      have Eb' := Eb;
+      rw [rec_to_cast'] at Eb';
+      rw [Stlc.Context.interp.downgrade_cast] at Eb';
+      rw [Eb'];
+      rw [
+        HC.denote_subst_let_repr HΓ HG HA  
+        (by upgrade_ctx assumption)
+        (Term.denote_upgrade_eq.symm ▸ Da')
+        (by
+          rw [Ea] at Db';
+          rw [@Term.denote_upgrade_eq_cast ((Hyp.mk A (HypKind.val type))::Γ)]
+          rw [cast_pair' rfl 
+            (by simp [Context.upgrade_idem]) 
+            (by simp [Context.upgrade_idem])]
+          rw [rec_to_cast'] at Db';
+          exact Db'
+        )
+        rfl
+      ];
+        rw [(HC.wk2.alpha0 (HA.repr01'' HB)).denote_prop_eq] at De';
+      apply equiv_prop_helper De';
+      apply denote_ty_cast_spine
+        rfl
+        (by simp only [Context.stlc, Context.upgrade, Context.upgrade_idem])
+        (by 
+          rw [rec_to_cast', rec_to_cast']
+          rw [cast_pair' rfl
+            (by simp only [Context.stlc, Context.upgrade, Context.upgrade_idem])
+            (by simp only [Context.stlc, Context.upgrade, Context.upgrade_idem])
+          ]
+          rw [cast_pair' rfl
+            (by simp only [Context.stlc, Context.upgrade, Context.upgrade_idem])
+            (by simp only [Context.stlc, Context.upgrade, Context.upgrade_idem])
+          ]
+          rfl
+        );
+      rw [interp_eq_none]
     | refl Ha => stop exact ⟨Ha.stlc, Ha.stlc, rfl⟩
     | discr Ha Hb Hp Ia Ib Ip => 
       stop
