@@ -2254,6 +2254,7 @@ theorem HasType.denote
       rw [interp_eq_none]
       constructor
     | @beta_left Γ A B C e l r He HA HB HC Hl Hr Ie _IA _IB _IC Il Ir =>  
+      stop
       dsimp only [
         Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
         Term.denote_ty, Ty.abort, Annot.denote
@@ -2354,8 +2355,7 @@ theorem HasType.denote
             });
         }
       ⟩
-    | beta_right He HA HB HC Hl Hr Ie _IA _IB _IC Il Ir =>
-      stop
+    | @beta_right Γ A B C e l r He HA HB HC Hl Hr Ie _IA _IB _IC Il Ir =>
       dsimp only [
         Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
         Term.denote_ty, Ty.abort, Annot.denote
@@ -2385,7 +2385,79 @@ theorem HasType.denote
           rw [HC.stlc_ty_subst0]
           exact Hre
         },
-        sorry
+        by {
+          have De := Ie HΓ.upgrade (Context.upgrade_idem.symm ▸ G) HG.upgrade;
+          have ⟨b, Eb⟩ := HB.denote_ty_some De;
+          have Eb' := G.downgrade_cast _ ▸ rec_to_cast' ▸ Eb;
+          rw [Eb']
+          simp only [
+            Ty.interp.case, Option.bind, Ty.interp.case_inner, Ty.interp.inl]
+          rw [<-@Stlc.HasType.interp_transport_cast Γ.upgrade.stlc
+            _ _ _ _ ((Hr.subst0 He).stlc) _ rfl 
+            (by simp only [
+              HC.stlc_ty_subst, Term.subst0, Annot.subst0, Annot.stlc_ty, 
+              Term.alpha0, Annot.subst, Term.subst_composes])
+          ]
+          have Hs0 := Hr.subst0_stlc_interp_commute He HΓ.upgrade G;
+          exact @Eq.trans _ _ 
+            (cast (by 
+              simp only [Annot.subst0, Annot.stlc_ty] 
+              simp only [
+                HC.stlc_ty_subst, Term.subst0, Annot.subst0, Annot.stlc_ty, 
+                Term.alpha0, Annot.subst, Term.subst_composes]) 
+            ((Hr.subst0 He).stlc.interp G)) _
+            (by {
+              rw [Hs0]
+              rw [rec_to_cast', cast_merge]
+              simp only [Stlc.Context.deriv.subst]
+              rw [Stlc.HasType.interp_transport_cast'' Hr.stlc 
+                (by
+                  have Hr' := Hr.stlc; 
+                  simp only [
+                    HC.stlc_ty_subst, Term.subst0, Annot.subst0, Annot.stlc_ty, 
+                    Term.alpha0, Annot.subst, Term.subst_composes]
+                  simp only [
+                    HC.stlc_ty_subst, Term.subst0, Annot.subst0, Annot.stlc_ty, 
+                    Term.alpha0, Annot.subst, Term.subst_composes] at Hr';
+                  exact Hr'
+                )  
+                rfl 
+                (by simp only [
+                  HC.stlc_ty_subst, Term.subst0, Annot.subst0, Annot.stlc_ty, 
+                  Term.alpha0, Annot.subst, Term.subst_composes]) 
+                rfl _]
+              simp only [
+                Stlc.InterpSubst.transport_ctx, SubstCtx.interp, Stlc.SubstCtx.interp]
+              rfl
+              simp only [
+                Stlc.InterpSubst.transport_ctx, SubstCtx.interp, Stlc.SubstCtx.interp]
+              apply congr (congr rfl (by simp only [pure]; rw [<-Eb'])) 
+                (by conv => 
+                  rhs
+                  rw [<-G.transport_id]
+                );
+            })
+            (by {
+              rw [Stlc.HasType.interp_transport_cast]
+              rw [Stlc.HasType.interp_transport_cast']
+              rfl
+              simp only [
+                HC.stlc_ty_subst, Term.subst0, Annot.subst0, Annot.stlc_ty, 
+                Term.alpha0, Annot.subst, Term.subst_composes]
+              have Hr' := (Hr.subst0 He).stlc; 
+              simp only [
+                HC.stlc_ty_subst, Term.subst0, Annot.subst0, Annot.stlc_ty, 
+                Term.alpha0, Annot.subst, Term.subst_composes]
+              simp only [
+                HC.stlc_ty_subst, Term.subst0, Annot.subst0, Annot.stlc_ty, 
+                Term.alpha0, Annot.subst, Term.subst_composes] at Hr';
+              exact Hr';
+              rfl
+              simp only [
+                HC.stlc_ty_subst, Term.subst0, Annot.subst0, Annot.stlc_ty, 
+                Term.alpha0, Annot.subst, Term.subst_composes]
+            });
+        }
       ⟩
     | beta_pair Hl Hr HA HB HC He Il Ir _IA _IB IC Ie =>
       stop
