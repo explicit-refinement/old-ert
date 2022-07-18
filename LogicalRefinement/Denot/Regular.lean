@@ -2460,7 +2460,7 @@ theorem HasType.denote
             });
         }
       ⟩
-    | beta_pair Hl Hr HA HB HC He Il Ir _IA _IB IC Ie =>
+    | @beta_pair Γ A B C l r e Hl Hr HA HB HC He Il Ir _IA _IB IC Ie =>
       dsimp only [
         Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
         Term.denote_ty, Ty.abort, Annot.denote
@@ -2493,7 +2493,85 @@ theorem HasType.denote
           exact Hre
         },
         by {
-
+          have Dl :=
+            G.downgrade_cast _ ▸ 
+            rec_to_cast' ▸ 
+            Il HΓ.upgrade (Context.upgrade_idem.symm ▸ G) HG.upgrade;
+          have ⟨Sl, El⟩ := HA.denote_ty_some Dl;
+          have Dr :=
+            G.downgrade_cast _ ▸ 
+            rec_to_cast' ▸  
+            Ir HΓ.upgrade (Context.upgrade_idem.symm ▸ G) HG.upgrade;
+          have ⟨Sr, Er⟩ := (HB.upgrade.subst0 Hl).denote_ty_some Dr;
+          let Sr' := cast (by rw [HB.stlc_ty_subst0]) Sr;
+          have Er_helper: 
+            cast (by simp only [Annot.stlc_ty, HB.stlc_ty_subst0]) (Hr.stlc.interp G) 
+            = some Sr' := by {
+              rw [Er]
+              rw [cast_some]
+            };
+          have Er': 
+            Stlc.HasType.interp
+            (cast (by simp only [Annot.stlc_ty, HB.stlc_ty_subst0] rfl) Hr.stlc) G 
+            = some Sr' := by {
+              rw [<-Er_helper]
+              rw [Stlc.HasType.interp_transport_cast']
+              rfl
+              rw [HB.stlc_ty_subst0]
+            };
+          rw [El, Er']
+          simp only [Ty.interp.let_pair, Option.bind, Ty.interp.pair]
+          rw [HasType.subst01_stlc_interp_commute'
+            He
+            (by {
+              have Helr := (He.subst01 Hr Hl).stlc;
+              simp only [
+                HC.stlc_ty_subst, Annot.subst01, Annot.subst, Term.alpha0, 
+                Term.wknth, <-Subst.subst_wk_compat, Term.subst_composes,
+                Annot.stlc_ty,
+                Term.subst01] at Helr;
+              rw [HC.stlc_ty_subst0]
+              exact Helr;
+            })
+            rfl
+            (by rw [HC.stlc_ty_let_bin, HC.stlc_ty_subst0])
+            Hr
+            Hl
+            HB.upgrade
+            HΓ.upgrade
+            G
+            ]
+          simp only [
+            Stlc.Context.deriv.subst, rec_to_cast', 
+            Stlc.InterpSubst.transport_ctx, SubstCtx.interp, Stlc.SubstCtx.interp,
+            Stlc.InterpSubst.pop, Subst.stlc]
+          dsimp only [Stlc.HasType.interp, Stlc.HasVar.interp]
+          rw [Stlc.HasType.interp_transport_cast' 
+            He.stlc 
+            (by {
+              have He' := He.stlc;
+              simp only [
+                HC.stlc_ty_subst, Annot.subst01, Annot.subst, Term.alpha0, 
+                Term.wknth, <-Subst.subst_wk_compat, Term.subst_composes,
+                Annot.stlc_ty,
+                Term.subst01] at He';
+              rw [HC.stlc_ty_subst0]
+              exact He';
+            }) 
+            rfl 
+            (by simp only [Annot.stlc_ty, HC.stlc_ty_let_bin, HC.stlc_ty_subst0]) 
+            _]
+            apply interp_cast_spine rfl rfl;
+            apply congr 
+              (by
+                simp only [pure]
+                rw [<-cast_some]
+                rw [<-Er]
+                rw [Er_helper]
+                exact congr rfl Er'.symm
+              ) 
+              (congr (by simp only [pure]; rw [El]) 
+                     (by conv => lhs; rw [<-G.transport_id]));
         }
       ⟩
     | beta_set Hl Hr HA HB HC He Il Ir _IA _IB IC Ie =>
