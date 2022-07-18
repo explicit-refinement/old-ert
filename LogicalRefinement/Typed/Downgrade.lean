@@ -104,3 +104,23 @@ theorem HasType.repr01''
         upgrade_ctx assumption;
         constructor
       })
+
+theorem HasType.dconj01 
+  (HA: Γ ⊢ A: sort prop)
+  (HB: ((Hyp.mk A (HypKind.val prop))::Γ) ⊢ B: sort prop):
+  ({ ty := B, kind := HypKind.val prop }::{ ty := A, kind := HypKind.val prop }::Γ)
+  ⊢ Term.dconj (Term.var 1) (Term.var 0): proof (Term.dand A B).wk1.wk1
+  := HasType.dconj (HasType.dand HA HB).wk1.wk1 
+      (HasType.var HA.wk1_sort.wk1_sort (by repeat constructor)) 
+      (by {
+        simp only [Term.wk_composes, Wk.comp]
+        have Hwk: Wk.wk1.step = Wk.wkn 2 := rfl;
+        rw [Hwk]
+        rw [Term.lift_wkn2_subst0_var1]
+        constructor;
+        apply HasType.wk1_sort;
+        apply HasType.downgrade;
+        rw [Context.upgrade]
+        upgrade_ctx assumption;
+        constructor
+      })

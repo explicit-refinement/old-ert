@@ -292,7 +292,7 @@ theorem HasType.denote_subst_let_set
       rfl
     )
 
-theorem HasType.denote_subst_let_conj
+theorem HasType.denote_subst_let_conj_none
   {A B C: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} 
   {c: Option C.stlc_ty.interp}
   {c': Option ((C.wknth 1).alpha0 (Term.dconj (Term.var 1) (Term.var 0))).stlc_ty.interp}
@@ -322,6 +322,49 @@ theorem HasType.denote_subst_let_conj
     Ha Hb
     Hc' 
     rfl
+
+
+theorem HasType.denote_subst_let_conj
+  {A B C: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} 
+  {c: Option C.stlc_ty.interp}
+  {c': Option ((C.wknth 1).alpha0 (Term.dconj (Term.var 1) (Term.var 0))).stlc_ty.interp}
+  {sc: AnnotSort}
+  {a: A.stlc_ty.interp}
+  {b: B.stlc_ty.interp}
+  {ab: Option Unit}
+  (HC: ({ ty := Term.dand A B, kind := HypKind.val prop } :: Γ) ⊢ C: sort sc)
+  (HΓ: IsCtx Γ)
+  (HG: G ⊧ ✓Γ)
+  (HA: Γ ⊢ A: sort prop)
+  (HB: ((Hyp.mk A (HypKind.val prop))::Γ) ⊢ B: sort prop)
+  (Ha: A.denote_ty G none)
+  (Hb: @Term.denote_ty B (A.stlc_ty::Γ.upgrade.stlc) (none, G) none)
+  (Hc': c' = HC.stlc_ty_let_bin ▸ c)
+  : @Term.denote_ty C ((Term.dand A B).stlc_ty::Γ.upgrade.stlc) (ab, G) c =
+    @Term.denote_ty 
+      ((C.wknth 1).alpha0 (Term.dconj (Term.var 1) (Term.var 0))) 
+      (B.stlc_ty::A.stlc_ty::Γ.upgrade.stlc) (b, a, G) c'
+  := by {
+    rw [
+      HC.eq_lrt_ty_denot'
+    ]
+    rw [(HC.wk2.alpha0 (HA.dconj01 HB)).eq_lrt_ty_denot']
+    apply denote_subst_let_conj_none <;> assumption;
+    apply @Stlc.Context.interp.eq_mod_lrt.extend_prop 
+      (A.stlc_ty::Γ.upgrade.stlc) (A.stlc_ty::Γ.upgrade.stlc)
+      B B.stlc_ty B.stlc_ty b none (a, G) (none, G) 
+      ((Hyp.mk A (HypKind.val prop))::Γ.upgrade) 
+      ((Hyp.mk A (HypKind.val prop))::Γ.upgrade);
+    exact @Stlc.Context.interp.eq_mod_lrt.extend_prop 
+      Γ.upgrade.stlc Γ.upgrade.stlc
+      A A.stlc_ty A.stlc_ty a none G G 
+      Γ.upgrade Γ.upgrade
+      (G.eq_mod_lrt_refl _ _);
+    exact @Stlc.Context.interp.eq_mod_lrt.extend_prop 
+      Γ.upgrade.stlc Γ.upgrade.stlc
+      (A.dand B) Ty.unit Ty.unit ab none G G Γ.upgrade Γ.upgrade 
+      (G.eq_mod_lrt_refl _ _);
+  }
 
 theorem HasType.denote_subst_case_left
   {A B C: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} 
@@ -1282,14 +1325,32 @@ theorem HasType.denote
         apply Stlc.Context.interp.eq_mod_lrt.extend_prop;
         apply Stlc.Context.interp.eq_mod_lrt_refl;
       }
-    | let_conj He HA HB HC He' Ie _IA _IB _IC Ie' =>
-      stop
+    | @let_conj Γ A B C e e' He HA HB HC He' Ie IA IB IC Ie' =>
+      have De := Ie HΓ G HG;
       dsimp only [
-        denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
-        Term.denote_ty', Term.denote_ty
-      ] at *
-      --TODO: alpha0 theorems...
-      sorry
+        Term.denote_ty, Term.stlc, Annot.denote,
+        stlc_ty, Term.stlc_ty, Stlc.HasType.interp, Ty.abort
+      ] at *;
+      have ⟨Da, Db⟩ := De;
+      have De' := 
+        Ie' ((HΓ.cons_val HA).cons_val HB) 
+        (none, none, G)
+        ⟨Db, Da, HG⟩
+        ;
+      rw [
+        <-He.denote_val_subst0' HΓ HG HC 
+        (by rw [HC.stlc_ty_subst0])
+        (by rw [rec_to_cast']; rw [cast_trans])
+        rfl
+        ]
+      rw [HC.denote_subst_let_conj HΓ HG HA HB Da Db rfl]
+      rw [rec_to_cast', cast_merge]
+      apply equiv_prop_helper De';
+      apply congr rfl _;
+      rw [Stlc.HasType.interp_transport_cast']
+      rfl
+      rfl
+      rw [HC.stlc_ty_let_bin, HC.stlc_ty_subst0]
     | disj_l He _ Ie _ => 
       exact Or.inl (He.proof_regular.denote_prop_none (Ie HΓ G HG))
     | disj_r He _ Ie _ => 
