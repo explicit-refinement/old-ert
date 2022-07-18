@@ -1175,7 +1175,9 @@ theorem HasType.denote
       rw [HSe] at De;
       have ⟨a, Da, Db⟩ := De;
       cases Se with
-      | some b =>     
+      | some b =>
+        have ⟨Sa, Ea⟩ := HA.denote_ty_some Da;
+        have Da' := Ea ▸ Da;     
         simp only [
           Ty.interp.let_pair, 
           Ty.interp.pair,
@@ -1192,16 +1194,60 @@ theorem HasType.denote
           (by rw [rec_to_cast']; rw [cast_trans])
           rfl
           ]
+        rw [HSe]
+        rw [
+          HC.denote_subst_let_repr HΓ HG HA 
+          (by upgrade_ctx assumption) 
+          Da' (Ea ▸ Db) rfl]
         apply equiv_prop_helper De';
-        rw [HC.denote_subst_let_pair]
         apply HasType.eq_lrt_ty_denote_ty_spine''
-          _
-          _
+          (by
+            stop
+            apply HC.wk2_sort.alpha0_sort;
+            apply HasType.repr;
+            apply HasType.union;
+            exact HA.wk1_sort.wk1_sort;
+            exact (
+              HasType.repr (HasType.union HA (by upgrade_ctx exact HB)).wk1.wk1 
+              (HasType.var HA.upgrade.wk1_sort.wk1_sort (by repeat constructor)) 
+              (by {
+                simp only [Term.wk_composes, Wk.comp]
+                have Hwk: Wk.wk1.step = Wk.wkn 2 := rfl;
+                rw [Hwk]
+                rw [Term.lift_wkn2_subst0_var1]
+                constructor;
+                exact HB.wk1_sort;
+                constructor
+              })
+            ) 
+          )
+          (by
+            stop
+            apply HC.wk2_sort.alpha0_sort;
+            apply HasType.repr;
+            apply HasType.union;
+            exact HA.wk1_sort.wk1_sort;
+            exact (
+              HasType.repr (HasType.union HA (by upgrade_ctx exact HB)).wk1.wk1 
+              (HasType.var HA.upgrade.wk1_sort.wk1_sort (by repeat constructor)) 
+              (by {
+                simp only [Term.wk_composes, Wk.comp]
+                have Hwk: Wk.wk1.step = Wk.wkn 2 := rfl;
+                rw [Hwk]
+                rw [Term.lift_wkn2_subst0_var1]
+                constructor;
+                exact HB.wk1_sort;
+                constructor
+              })
+            ) 
+          )
           (by rfl)
-          _
-          _
-          _
-          _;
+          (by stop rfl)
+          rfl
+          (by sorry)
+          (by sorry);
+        stop
+        sorry
         --TODO: irrelevance rewrite
         --TODO: denote_cast_spine
         -- rw [HSe]
