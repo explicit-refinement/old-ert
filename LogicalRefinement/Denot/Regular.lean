@@ -1448,12 +1448,22 @@ theorem HasType.denote
       rw [G.downgrade_cast] at Ir';
       exact Il HΓ G HG _ Ir'
     | @wit Γ A φ l r HAφ Hl Hr IAφ Il Ir =>
-      stop
+      dsimp only [Annot.denote, Term.denote_ty] at *;
       exists Hl.stlc.interp G
       have Il' := Il HΓ.upgrade (Context.upgrade_idem.symm ▸ G) HG.upgrade;
-      apply And.intro
-      . sorry
-      . sorry
+      rw [<-Term.denote_upgrade_eq] at Il';
+      rw [rec_to_cast'] at Il';
+      rw [G.downgrade_cast] at Il';
+      apply And.intro Il';
+      have Ir' := Ir HΓ G HG;
+      rw [
+        <-Hl.denote_val_subst0_upgrade' HΓ HG 
+        (by cases HAφ <;> assumption)
+        (by rw [rec_to_cast']; apply doublecast_self)
+        rfl
+      ] at Ir';
+      rw [HasType.denote_prop_eq (by cases HAφ <;> assumption)] at Ir';
+      exact Ir'
     | let_wit => sorry    
     | @case_prop Γ A B C e l r He HA HB HC Hl Hr Ie IA IB IC Il Ir =>
       have HAB: Γ ⊢ Term.coprod A B: type := HasType.coprod HA HB;
@@ -1662,6 +1672,7 @@ theorem HasType.denote
         }
       | none => exact False.elim (HA.denote_ty_non_null Da);    
     | @let_repr_prop Γ A B C e e' He HA HB HC He' Ie IA IB IC Ie' => 
+      stop
       have De := Ie HΓ.upgrade (Context.upgrade_idem.symm ▸ G) HG.upgrade;
       dsimp only [
         Term.denote_ty, Term.stlc, Annot.denote,
