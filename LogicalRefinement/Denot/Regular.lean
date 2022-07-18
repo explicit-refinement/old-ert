@@ -2356,6 +2356,7 @@ theorem HasType.denote
         }
       ⟩
     | @beta_right Γ A B C e l r He HA HB HC Hl Hr Ie _IA _IB _IC Il Ir =>
+      stop
       dsimp only [
         Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
         Term.denote_ty, Ty.abort, Annot.denote
@@ -2460,7 +2461,6 @@ theorem HasType.denote
         }
       ⟩
     | beta_pair Hl Hr HA HB HC He Il Ir _IA _IB IC Ie =>
-      stop
       dsimp only [
         Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
         Term.denote_ty, Ty.abort, Annot.denote
@@ -2492,7 +2492,9 @@ theorem HasType.denote
           rw [HC.stlc_ty_subst0]
           exact Hre
         },
-        sorry
+        by {
+
+        }
       ⟩
     | beta_set Hl Hr HA HB HC He Il Ir _IA _IB IC Ie =>
       stop        
