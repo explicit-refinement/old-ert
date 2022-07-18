@@ -218,6 +218,16 @@ theorem Stlc.Context.interp.eq_mod_lrt_refl'
     apply eq_mod_lrt_refl <;> assumption
   }
 
+theorem Stlc.Context.interp.eq_mod_lrt_refl''
+    {Γ' Δ': Stlc.Context} (G: Γ'.interp) (D: Δ'.interp) (Γ Δ: _root_.Context) 
+    (H: Γ' = Δ') (H': G = H ▸ D):
+    G.eq_mod_lrt D Γ Δ
+  := by {
+    cases H;
+    cases H';
+    apply eq_mod_lrt_refl <;> assumption
+  }
+
 theorem Stlc.Context.interp.eq_mod_lrt_val_refl
     {Γ': Stlc.Context} (G: Γ'.interp) (Γ Δ: _root_.Context):
     G.eq_mod_lrt_val G Γ Δ
