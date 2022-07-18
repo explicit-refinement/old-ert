@@ -2308,10 +2308,25 @@ theorem HasType.denote
               rw [Hs0]
               rw [rec_to_cast', cast_merge]
               simp only [Stlc.Context.deriv.subst]
-              rw [Stlc.HasType.interp_transport_cast'' sorry sorry rfl sorry rfl _]
+              rw [Stlc.HasType.interp_transport_cast'' Hl.stlc 
+                (by
+                  have Hl' := Hl.stlc; 
+                  simp only [
+                    HC.stlc_ty_subst, Term.subst0, Annot.subst0, Annot.stlc_ty, 
+                    Term.alpha0, Annot.subst, Term.subst_composes]
+                  simp only [
+                    HC.stlc_ty_subst, Term.subst0, Annot.subst0, Annot.stlc_ty, 
+                    Term.alpha0, Annot.subst, Term.subst_composes] at Hl';
+                  exact Hl'
+                )  
+                rfl 
+                (by simp only [
+                  HC.stlc_ty_subst, Term.subst0, Annot.subst0, Annot.stlc_ty, 
+                  Term.alpha0, Annot.subst, Term.subst_composes]) 
+                rfl _]
               simp only [
                 Stlc.InterpSubst.transport_ctx, SubstCtx.interp, Stlc.SubstCtx.interp]
-              apply congr sorry 
+              apply congr (congr rfl (by simp only [pure]; rw [<-Ea'])) 
                 (by conv => 
                   rhs
                   rw [<-G.transport_id]
@@ -2324,7 +2339,14 @@ theorem HasType.denote
               simp only [
                 HC.stlc_ty_subst, Term.subst0, Annot.subst0, Annot.stlc_ty, 
                 Term.alpha0, Annot.subst, Term.subst_composes]
-              sorry
+              have Hl' := (Hl.subst0 He).stlc; 
+              simp only [
+                HC.stlc_ty_subst, Term.subst0, Annot.subst0, Annot.stlc_ty, 
+                Term.alpha0, Annot.subst, Term.subst_composes]
+              simp only [
+                HC.stlc_ty_subst, Term.subst0, Annot.subst0, Annot.stlc_ty, 
+                Term.alpha0, Annot.subst, Term.subst_composes] at Hl';
+              exact Hl';
               rfl
               simp only [
                 HC.stlc_ty_subst, Term.subst0, Annot.subst0, Annot.stlc_ty, 
