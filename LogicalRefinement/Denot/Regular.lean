@@ -282,19 +282,7 @@ theorem HasType.denote_subst_let_set
       ((C.wknth 1).alpha0 (Term.repr (Term.var 1) (Term.var 0))) 
       (B.stlc_ty::A.stlc_ty::Γ.upgrade.stlc) (some b, some a, G) c'
   := HasType.denote_subst_let_bin
-    (
-      HasType.repr (HasType.union HA HB).wk1.wk1 
-      (HasType.var HA.upgrade.wk1_sort.wk1_sort (by repeat constructor)) 
-      (by {
-        simp only [Term.wk_composes, Wk.comp]
-        have Hwk: Wk.wk1.step = Wk.wkn 2 := rfl;
-        rw [Hwk]
-        rw [Term.lift_wkn2_subst0_var1]
-        constructor;
-        exact HB.wk1_sort;
-        constructor
-      })
-    ) 
+    (HasType.repr01' HA HB) 
     HΓ HG HC (by constructor <;> assumption) HA HB 
     Ha Hb
     Hc' 
@@ -1200,65 +1188,35 @@ theorem HasType.denote
           (by upgrade_ctx assumption) 
           Da' (Ea ▸ Db) rfl]
         apply equiv_prop_helper De';
-        apply HasType.eq_lrt_ty_denote_ty_spine''
-          (by
-            stop
-            apply HC.wk2_sort.alpha0_sort;
-            apply HasType.repr;
-            apply HasType.union;
-            exact HA.wk1_sort.wk1_sort;
-            exact (
-              HasType.repr (HasType.union HA (by upgrade_ctx exact HB)).wk1.wk1 
-              (HasType.var HA.upgrade.wk1_sort.wk1_sort (by repeat constructor)) 
-              (by {
-                simp only [Term.wk_composes, Wk.comp]
-                have Hwk: Wk.wk1.step = Wk.wkn 2 := rfl;
-                rw [Hwk]
-                rw [Term.lift_wkn2_subst0_var1]
-                constructor;
-                exact HB.wk1_sort;
-                constructor
-              })
-            ) 
-          )
-          (by
-            stop
-            apply HC.wk2_sort.alpha0_sort;
-            apply HasType.repr;
-            apply HasType.union;
-            exact HA.wk1_sort.wk1_sort;
-            exact (
-              HasType.repr (HasType.union HA (by upgrade_ctx exact HB)).wk1.wk1 
-              (HasType.var HA.upgrade.wk1_sort.wk1_sort (by repeat constructor)) 
-              (by {
-                simp only [Term.wk_composes, Wk.comp]
-                have Hwk: Wk.wk1.step = Wk.wkn 2 := rfl;
-                rw [Hwk]
-                rw [Term.lift_wkn2_subst0_var1]
-                constructor;
-                exact HB.wk1_sort;
-                constructor
-              })
-            ) 
-          )
-          (by rfl)
-          (by stop rfl)
+        apply denote_ty_cast_spine
           rfl
-          (by sorry)
-          (by sorry);
-        stop
-        sorry
-        --TODO: irrelevance rewrite
-        --TODO: denote_cast_spine
-        -- rw [HSe]
-        -- rw [HC.denote_subst_let_pair HΓ HG HA HB Da Db rfl]
-        -- rw [rec_to_cast', cast_merge]
-        -- apply equiv_prop_helper De';
-        -- apply congr rfl _;
-        -- rw [Stlc.HasType.interp_transport_cast']
-        -- rfl
-        -- rfl
-        -- rw [HC.stlc_ty_let_bin, HC.stlc_ty_subst0]
+          rfl
+          (by rw [Ea]);
+        rw [
+          HasType.interp_irrel_ty
+          He' He'
+          (by {
+            apply Stlc.Context.interp.eq_mod_lrt.extend;
+            apply Stlc.Context.interp.eq_mod_lrt.extend_gst_left;
+            exact pure ();
+            apply Stlc.Context.interp.eq_mod_lrt_refl;
+          })
+        ]
+        rw [rec_to_cast', cast_merge]
+        rw [
+          Stlc.HasType.interp_transport_cast' 
+          (by
+            have He'' := He'.stlc;
+            simp only [Annot.stlc_ty, HC.stlc_ty_let_bin] at He'';
+            rw [HC.stlc_ty_subst0]
+            exact He''
+          ) 
+          He'.stlc 
+          rfl
+          (by simp only [
+            Annot.stlc_ty, HC.stlc_ty_let_bin, HC.stlc_ty_subst0])
+        ]
+        rfl
       | none => exact False.elim (HB.denote_ty_non_null Db);
     | abort Hp HA Ip IA => stop exact False.elim (Ip HΓ G HG)
     | @dconj Γ A B l r HAB Hl Hr IAB Il Ir => 
