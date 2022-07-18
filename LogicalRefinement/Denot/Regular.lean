@@ -1353,19 +1353,45 @@ theorem HasType.denote
       exact Or.inl (He.proof_regular.denote_prop_none (Ie HΓ G HG))
     | disj_r He _ Ie _ => 
       exact Or.inr (He.proof_regular.denote_prop_none (Ie HΓ G HG))
-    | case_pr He HA HB HC Hl Hr Ie IA IB IC Il Ir => 
-      stop
+    | @case_pr Γ A B C e l r He HA HB HC Hl Hr Ie IA IB IC Il Ir => 
       dsimp only [
-        denote', Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
-        Term.denote_ty', Term.denote_ty
+        Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
+        Ty.abort, Annot.denote
       ] at *
+      rw [
+        <-He.denote_val_subst0' HΓ HG HC 
+        (by rw [HC.stlc_ty_subst0])
+        (by rw [rec_to_cast']; rw [cast_trans])
+        rfl
+        ]
       have Ie' := Ie HΓ G HG;
       cases Ie' with
       | inl Ie' => 
-        have Il' := Il (IsCtx.cons_val HΓ HA) G ⟨Ie', HG⟩;
-        sorry
+        have Il' := Il (IsCtx.cons_val HΓ HA) (_, G) ⟨Ie', HG⟩;
+        rw [<-HasType.denote_val_alpha0'
+          (by repeat first | constructor | assumption | apply HasType.wk1_sort) 
+          HΓ HG (HA.or HB) HA Ie' HC 
+          (by simp only [Term.alpha0, HC.stlc_ty_subst])
+          (by 
+            rw [rec_to_cast]
+            apply doublecast_self
+            simp only [Term.alpha0, HC.stlc_ty_subst]
+          )
+          rfl
+        ] at Il';
+        rw [cast_none]
+        rw [HC.denote_prop_eq'] at Il';
+        apply @equiv_prop_helper _ _ (
+          HC.eq_lrt_ty_denote_ty_spine' rfl 
+          (by
+            apply Stlc.Context.interp.eq_mod_lrt.extend_prop;
+            apply Stlc.Context.interp.eq_mod_lrt_refl
+          )
+          rfl
+        ) Il';
+        rw [HC.stlc_ty_subst0]
       | inr Ie' =>  
-        have Ir' := Ir (IsCtx.cons_val HΓ HB) G ⟨Ie', HG⟩;
+        have Ir' := Ir (IsCtx.cons_val HΓ HB) (_, G) ⟨Ie', HG⟩;
         sorry
     | imp Hϕ Hs Iϕ Is => stop 
       exact λDϕ => Hs.proof_regular.denote_prop_none (Is (IsCtx.cons_val HΓ Hϕ) (none, G) ⟨Dϕ, HG⟩);
