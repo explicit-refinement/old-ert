@@ -299,3 +299,13 @@ theorem denote_ty_cast_spine
     cases Hab;
     rfl
   }
+
+theorem Term.denote_ty.inl {A B: Term} {Γ: Stlc.Context} 
+  {G: Γ.interp} 
+  {a: A.stlc_ty.interp} 
+  (H: A.denote_ty G (some a))
+  : ((A.coprod B).denote_ty G (some (Sum.inl a)))
+  := by {
+    dsimp only [Term.denote_ty]
+    exact H
+  }

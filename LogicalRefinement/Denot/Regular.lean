@@ -1529,6 +1529,7 @@ theorem HasType.denote
       rw [HasType.denote_prop_eq (by cases HAφ <;> assumption)] at Ir';
       exact Ir'
     | @let_wit Γ A B C e e' He HA HB HC He' Ie IA IB IC Ie' => 
+      stop
       have De := Ie HΓ G HG;
       dsimp only [
         Term.denote_ty, Term.stlc, Annot.denote,
@@ -2253,7 +2254,6 @@ theorem HasType.denote
       rw [interp_eq_none]
       constructor
     | beta_left He HA HB HC Hl Hr Ie _IA _IB _IC Il Ir =>  
-      stop
       dsimp only [
         Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
         Term.denote_ty, Ty.abort, Annot.denote
@@ -2283,7 +2283,15 @@ theorem HasType.denote
           rw [HC.stlc_ty_subst0]
           exact Hle
         },
-        sorry
+        by {
+          have De := Ie HΓ.upgrade (Context.upgrade_idem.symm ▸ G) HG.upgrade;
+          have ⟨a, Ea⟩ := HA.denote_ty_some De;
+          have Ea' := G.downgrade_cast _ ▸ rec_to_cast' ▸ Ea;
+          rw [Ea']
+          simp only [Ty.interp.case, Option.bind, Ty.interp.case_inner, Ty.interp.inl]
+          --TODO: subst0 commute?
+          sorry
+        }
       ⟩
     | beta_right He HA HB HC Hl Hr Ie _IA _IB _IC Il Ir =>
       stop
