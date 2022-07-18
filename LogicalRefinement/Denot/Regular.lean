@@ -2926,19 +2926,24 @@ theorem HasType.denote
               Is 
               ((HΓ.upgrade.cons_gst HasType.nats).cons_val (by upgrade_ctx exact HC))
               (c, some n, Context.upgrade_idem.symm ▸ G)
-              ⟨sorry, True.intro, HG.upgrade⟩
+              ⟨(by rw [rec_to_cast']; exact Hc), True.intro, HG.upgrade⟩
               ;
             apply equiv_prop_helper Is';
             rw [<-HasType.denote_subst_let_bin
-              sorry
+              (by {
+                apply HasType.succ_nat;
+                constructor
+                constructor
+                exact HasVar.zero.succ
+              })
               HΓ.upgrade
               HG.upgrade
               HC.upgrade
               HasType.nats
               HasType.nats
               HC.upgrade
-              sorry
-              sorry
+              (by dsimp only [Term.denote_ty])
+              (by rw [rec_to_cast']; exact Hc)
               (by 
                 rw [rec_to_cast', rec_to_cast']; 
                 apply doublecast_self)
