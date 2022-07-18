@@ -262,7 +262,7 @@ theorem HasType.denote_subst_let_set
       rfl
     )
 
-  theorem HasType.denote_subst_let_repr
+theorem HasType.denote_subst_let_repr
   {A B C: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} 
   {c: Option C.stlc_ty.interp}
   {c': Option ((C.wknth 1).alpha0 (Term.repr (Term.var 1) (Term.var 0))).stlc_ty.interp}
@@ -363,6 +363,69 @@ theorem HasType.denote_subst_let_conj
     exact @Stlc.Context.interp.eq_mod_lrt.extend_prop 
       Γ.upgrade.stlc Γ.upgrade.stlc
       (A.dand B) Ty.unit Ty.unit ab none G G Γ.upgrade Γ.upgrade 
+      (G.eq_mod_lrt_refl _ _);
+  }
+
+theorem HasType.denote_subst_let_wit_none
+  {A B C: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} 
+  {c: Option C.stlc_ty.interp}
+  {c': Option ((C.wknth 1).alpha0 (Term.wit (Term.var 1) (Term.var 0))).stlc_ty.interp}
+  {a: A.stlc_ty.interp}
+  {sc: AnnotSort}
+  (HC: ({ ty := Term.exists_ A B, kind := HypKind.val prop } :: Γ) ⊢ C: sort sc)
+  (HΓ: IsCtx Γ)
+  (HG: G ⊧ ✓Γ)
+  (HA: Γ ⊢ A: sort type)
+  (HB: ((Hyp.mk A (HypKind.val type))::Γ) ⊢ B: sort prop)
+  (Ha: A.denote_ty G (some a))
+  (Hb: @Term.denote_ty B (A.stlc_ty::Γ.upgrade.stlc) (some a, G) none)
+  (Hc': c' = HC.stlc_ty_let_bin ▸ c)
+  : @Term.denote_ty C ((Term.exists_ A B).stlc_ty::Γ.upgrade.stlc) (none, G) c =
+    @Term.denote_ty 
+      ((C.wknth 1).alpha0 (Term.wit (Term.var 1) (Term.var 0))) 
+      (B.stlc_ty::A.stlc_ty::Γ.upgrade.stlc) (none, some a, G) c'
+  := HasType.denote_subst_let_bin
+    (HasType.wit01' HA HB) 
+    HΓ HG HC (by constructor <;> assumption) HA HB 
+    Ha Hb
+    Hc' 
+    rfl
+
+theorem HasType.denote_subst_let_wit
+  {A B C: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} 
+  {c: Option C.stlc_ty.interp}
+  {c': Option ((C.wknth 1).alpha0 (Term.wit (Term.var 1) (Term.var 0))).stlc_ty.interp}
+  {a: A.stlc_ty.interp}
+  {b: Option B.stlc_ty.interp}
+  {e: Option Unit}
+  {sc: AnnotSort}
+  (HC: ({ ty := Term.exists_ A B, kind := HypKind.val prop } :: Γ) ⊢ C: sort sc)
+  (HΓ: IsCtx Γ)
+  (HG: G ⊧ ✓Γ)
+  (HA: Γ ⊢ A: sort type)
+  (HB: ((Hyp.mk A (HypKind.val type))::Γ) ⊢ B: sort prop)
+  (Ha: A.denote_ty G (some a))
+  (Hb: @Term.denote_ty B (A.stlc_ty::Γ.upgrade.stlc) (some a, G) none)
+  (Hc': c' = HC.stlc_ty_let_bin ▸ c)
+  : @Term.denote_ty C ((Term.exists_ A B).stlc_ty::Γ.upgrade.stlc) (e, G) c =
+    @Term.denote_ty 
+      ((C.wknth 1).alpha0 (Term.wit (Term.var 1) (Term.var 0))) 
+      (B.stlc_ty::A.stlc_ty::Γ.upgrade.stlc) (b, some a, G) c'
+  := by {
+    rw [
+      HC.eq_lrt_ty_denot'
+    ]
+    rw [(HC.wk2.alpha0 (HA.wit01' HB)).eq_lrt_ty_denot']
+    apply denote_subst_let_wit_none <;> assumption;
+    apply @Stlc.Context.interp.eq_mod_lrt.extend_prop 
+      (A.stlc_ty::Γ.upgrade.stlc) (A.stlc_ty::Γ.upgrade.stlc)
+      B B.stlc_ty B.stlc_ty b none (some a, G) (some a, G) 
+      ((Hyp.mk A (HypKind.val type))::Γ.upgrade) 
+      ((Hyp.mk A (HypKind.val type))::Γ.upgrade);
+    apply Stlc.Context.interp.eq_mod_lrt_refl;
+    exact @Stlc.Context.interp.eq_mod_lrt.extend_prop 
+      Γ.upgrade.stlc Γ.upgrade.stlc
+      (A.exists_ B) Ty.unit Ty.unit e none G G Γ.upgrade Γ.upgrade 
       (G.eq_mod_lrt_refl _ _);
   }
 
