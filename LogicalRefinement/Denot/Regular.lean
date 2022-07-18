@@ -1392,7 +1392,28 @@ theorem HasType.denote
         rw [HC.stlc_ty_subst0]
       | inr Ie' =>  
         have Ir' := Ir (IsCtx.cons_val HΓ HB) (_, G) ⟨Ie', HG⟩;
-        sorry
+        rw [<-HasType.denote_val_alpha0'
+          (by repeat first | constructor | assumption | apply HasType.wk1_sort) 
+          HΓ HG (HA.or HB) HB Ie' HC 
+          (by simp only [Term.alpha0, HC.stlc_ty_subst])
+          (by 
+            rw [rec_to_cast]
+            apply doublecast_self
+            simp only [Term.alpha0, HC.stlc_ty_subst]
+          )
+          rfl
+        ] at Ir';
+        rw [cast_none]
+        rw [HC.denote_prop_eq'] at Ir';
+        apply @equiv_prop_helper _ _ (
+          HC.eq_lrt_ty_denote_ty_spine' rfl 
+          (by
+            apply Stlc.Context.interp.eq_mod_lrt.extend_prop;
+            apply Stlc.Context.interp.eq_mod_lrt_refl
+          )
+          rfl
+        ) Ir';
+        rw [HC.stlc_ty_subst0]
     | imp Hϕ Hs Iϕ Is => stop 
       exact λDϕ => Hs.proof_regular.denote_prop_none (Is (IsCtx.cons_val HΓ Hϕ) (none, G) ⟨Dϕ, HG⟩);
     | @mp Γ φ ψ l r Hϕψ Hl Hr _ Il Ir => 
