@@ -2461,6 +2461,7 @@ theorem HasType.denote
         }
       ⟩
     | @beta_pair Γ A B C l r e Hl Hr HA HB HC He Il Ir _IA _IB IC Ie =>
+      stop
       dsimp only [
         Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
         Term.denote_ty, Ty.abort, Annot.denote
@@ -2574,8 +2575,7 @@ theorem HasType.denote
                      (by conv => lhs; rw [<-G.transport_id]));
         }
       ⟩
-    | beta_set Hl Hr HA HB HC He Il Ir _IA _IB IC Ie =>
-      stop        
+    | @beta_set Γ A B C l r e Hl Hr HA HB HC He Il Ir _IA _IB IC Ie =>
       dsimp only [
         Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
         Term.denote_ty, Ty.abort, Annot.denote
@@ -2608,7 +2608,88 @@ theorem HasType.denote
           rw [HC.stlc_ty_subst0]
           exact Hre
         },
-        sorry
+        by {
+          have Dl :=
+            G.downgrade_cast _ ▸ 
+            rec_to_cast' ▸ 
+            Il HΓ.upgrade (Context.upgrade_idem.symm ▸ G) HG.upgrade;
+          have ⟨Sl, El⟩ := HA.denote_ty_some Dl;
+          have Dr := Ir HΓ G HG;
+          rw [El]
+          simp only [Ty.interp.let_pair, Option.bind, Ty.interp.pair]
+          rw [HasType.subst01_stlc_interp_commute'
+            He
+            (by {
+              have Helr := (He.subst01 Hr.upgrade Hl).stlc;
+              simp only [
+                HC.stlc_ty_subst, Annot.subst01, Annot.subst, Term.alpha0, 
+                Term.wknth, <-Subst.subst_wk_compat, Term.subst_composes,
+                Annot.stlc_ty,
+                Term.subst01] at Helr;
+              rw [HC.stlc_ty_subst0]
+              exact Helr;
+            })
+            rfl
+            (by rw [HC.stlc_ty_let_bin, HC.stlc_ty_subst0])
+            Hr.upgrade
+            Hl
+            HB.upgrade
+            HΓ.upgrade
+            G
+            ]
+          simp only [
+            Stlc.Context.deriv.subst, rec_to_cast', 
+            Stlc.InterpSubst.transport_ctx, SubstCtx.interp, Stlc.SubstCtx.interp,
+            Stlc.InterpSubst.pop, Subst.stlc]
+          dsimp only [Stlc.HasType.interp, Stlc.HasVar.interp]
+          rw [Stlc.HasType.interp_transport_cast' 
+            He.stlc 
+            (by {
+              have He' := He.stlc;
+              simp only [
+                HC.stlc_ty_subst, Annot.subst01, Annot.subst, Term.alpha0, 
+                Term.wknth, <-Subst.subst_wk_compat, Term.subst_composes,
+                Annot.stlc_ty,
+                Term.subst01] at He';
+              rw [HC.stlc_ty_subst0]
+              exact He';
+            }) 
+            rfl 
+            (by simp only [Annot.stlc_ty, HC.stlc_ty_let_bin, HC.stlc_ty_subst0]) 
+            _]
+            rw [HasType.interp_prop_ty'' He 
+              (by {
+                have He' := He.stlc;
+                simp only [
+                  HC.stlc_ty_subst, Annot.subst01, Annot.subst, Term.alpha0, 
+                  Term.wknth, <-Subst.subst_wk_compat, Term.subst_composes,
+                  Annot.stlc_ty,
+                  Term.subst01, HB.prop_is_unit, Context.stlc] at He';
+                rw [HC.stlc_ty_subst0]
+                exact He';
+              })  
+              (by {
+                have He' := He.stlc;
+                simp only [
+                  HC.stlc_ty_subst, Annot.subst01, Annot.subst, Term.alpha0, 
+                  Term.wknth, <-Subst.subst_wk_compat, Term.subst_composes,
+                  Annot.stlc_ty,
+                  Term.subst01, HB.prop_is_unit, Context.stlc] at He';
+                rw [HC.stlc_ty_subst0]
+                exact He';
+              }) 
+            ]
+            apply interp_cast_spine 
+              (by simp only [HB.prop_is_unit, Context.stlc]) 
+              rfl;
+            rw [rec_to_cast']
+            rw [cast_pair' (by rw [HB.prop_is_unit]) rfl 
+              (by simp only [HB.prop_is_unit, Context.stlc])]
+            rw [cast_pair' rfl rfl rfl]
+            apply congr rfl
+              (congr (by simp only [pure]; rw [El]; rfl) 
+                     (by conv => lhs; rw [<-G.transport_id]));
+        }
       ⟩
     | beta_repr Hl Hr HA HB HC He Il Ir _IA _IB IC Ie => 
       stop     
