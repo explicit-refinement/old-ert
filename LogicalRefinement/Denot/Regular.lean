@@ -292,6 +292,37 @@ theorem HasType.denote_subst_let_set
       rfl
     )
 
+theorem HasType.denote_subst_let_conj
+  {A B C: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} 
+  {c: Option C.stlc_ty.interp}
+  {c': Option ((C.wknth 1).alpha0 (Term.dconj (Term.var 1) (Term.var 0))).stlc_ty.interp}
+  {sc: AnnotSort}
+  (HC: ({ ty := Term.dand A B, kind := HypKind.val prop } :: Γ) ⊢ C: sort sc)
+  (HΓ: IsCtx Γ)
+  (HG: G ⊧ ✓Γ)
+  (HA: Γ ⊢ A: sort prop)
+  (HB: ((Hyp.mk A (HypKind.val prop))::Γ) ⊢ B: sort prop)
+  (Ha: A.denote_ty G none)
+  (Hb: @Term.denote_ty B (A.stlc_ty::Γ.upgrade.stlc) (none, G) none)
+  (Hc': c' = HC.stlc_ty_let_bin ▸ c)
+  : @Term.denote_ty C ((Term.dand A B).stlc_ty::Γ.upgrade.stlc) (none, G) c =
+    @Term.denote_ty 
+      ((C.wknth 1).alpha0 (Term.dconj (Term.var 1) (Term.var 0))) 
+      (B.stlc_ty::A.stlc_ty::Γ.upgrade.stlc) (none, none, G) c'
+  := HasType.denote_subst_let_bin
+    (by
+      rw [<-Term.wk1_wk1_wkn2]
+      constructor 
+        <;> constructor 
+        <;> (try exact HasType.wk_sort (by assumption) (by repeat constructor))
+        <;> simp only [Term.lift_wkn2_subst0_var1, Term.wk1_wk1_wkn2]
+        <;> repeat first | constructor | assumption | apply HasType.wk1_sort
+    ) 
+    HΓ HG HC (by constructor <;> assumption) HA HB 
+    Ha Hb
+    Hc' 
+    rfl
+
 theorem HasType.denote_subst_case_left
   {A B C: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} 
   {e: Term}
@@ -1153,7 +1184,8 @@ theorem HasType.denote
         _
       ]
       rfl
-    | @let_repr Γ A B C e e' He HA HB HC He' Ie IA IB IC Ie' =>      
+    | @let_repr Γ A B C e e' He HA HB HC He' Ie IA IB IC Ie' => 
+      stop     
       have De := Ie HΓ G HG;
       dsimp only [
         Term.denote_ty, Term.stlc, Annot.denote,
