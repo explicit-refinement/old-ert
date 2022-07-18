@@ -125,6 +125,26 @@ theorem HasType.dconj01
         constructor
       })
 
+theorem HasType.wit01
+  (HA: Γ ⊢ A: sort type)
+  (HB: ((Hyp.mk A (HypKind.val type))::Γ) ⊢ B: sort prop):
+  ({ ty := B, kind := HypKind.val prop }::{ ty := A, kind := HypKind.gst }::Γ)
+  ⊢ Term.wit (Term.var 1) (Term.var 0): proof (Term.exists_ A B).wk1.wk1
+  := HasType.wit (HasType.exists_ HA HB).wk1.wk1 
+      (HasType.var HA.upgrade.wk1_sort.wk1_sort (by repeat constructor)) 
+      (by {
+        simp only [Term.wk_composes, Wk.comp]
+        have Hwk: Wk.wk1.step = Wk.wkn 2 := rfl;
+        rw [Hwk]
+        rw [Term.lift_wkn2_subst0_var1]
+        constructor;
+        apply HasType.wk1_sort;
+        apply HasType.downgrade;
+        rw [Context.upgrade]
+        upgrade_ctx assumption;
+        constructor
+      })
+
 theorem HasType.wit01'
   (HA: Γ ⊢ A: sort type)
   (HB: ((Hyp.mk A (HypKind.val type))::Γ) ⊢ B: sort prop):

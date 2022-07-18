@@ -1548,43 +1548,26 @@ theorem HasType.denote
         ⟨Db, Da, HG⟩
         ;
       rw [
-        <-He.denote_val_subst0' HΓ HG HC (by rw [HC.stlc_ty_subst0]) (by rw [interp_eq_none])
+        <-He.denote_val_subst0' HΓ HG HC 
+        (by rw [HC.stlc_ty_subst0])
+        (by rw [interp_eq_none])
+        rfl
         ]
       rw [Ea] at De';
-      stop
+      rw [(HC.wk2.alpha0 (HA.wit01 (by upgrade_ctx exact HB))).denote_prop_eq] at De';
       rw [
-        HC.denote_subst_let_repr HΓ HG HA  
+        @HasType.denote_subst_let_wit 
+        _ _ _ _ _
+        _ _ _ _ _ _
+        HC HΓ HG HA  
         (by upgrade_ctx assumption)
-        (Term.denote_upgrade_eq.symm ▸ Da')
-        (by
-          rw [Ea] at Db';
-          rw [@Term.denote_upgrade_eq_cast ((Hyp.mk A (HypKind.val type))::Γ)]
-          rw [cast_pair' rfl 
-            (by simp [Context.upgrade_idem]) 
-            (by simp [Context.upgrade_idem])]
-          rw [rec_to_cast'] at Db';
-          exact Db'
-        )
+        Da'
+        (Ea ▸ Db)
         rfl
       ];
-        rw [(HC.wk2.alpha0 (HA.repr01'' HB)).denote_prop_eq] at De';
-      apply equiv_prop_helper De';
-      apply denote_ty_cast_spine
-        rfl
-        (by simp only [Context.stlc, Context.upgrade, Context.upgrade_idem])
-        (by 
-          rw [rec_to_cast', rec_to_cast']
-          rw [cast_pair' rfl
-            (by simp only [Context.stlc, Context.upgrade, Context.upgrade_idem])
-            (by simp only [Context.stlc, Context.upgrade, Context.upgrade_idem])
-          ]
-          rw [cast_pair' rfl
-            (by simp only [Context.stlc, Context.upgrade, Context.upgrade_idem])
-            (by simp only [Context.stlc, Context.upgrade, Context.upgrade_idem])
-          ]
-          rfl
-        );
-      rw [interp_eq_none]    
+      apply @equiv_prop_helper _ _ (denote_ty_cast_spine
+        rfl rfl rfl (by rw [interp_eq_none])
+      ) De';
     | @case_prop Γ A B C e l r He HA HB HC Hl Hr Ie IA IB IC Il Ir =>
       have HAB: Γ ⊢ Term.coprod A B: type := HasType.coprod HA HB;
       dsimp only [Term.stlc, Term.stlc_ty, stlc_ty, Stlc.HasType.interp]
