@@ -2253,7 +2253,7 @@ theorem HasType.denote
       rw [HP.stlc_ty_subst0]
       rw [interp_eq_none]
       constructor
-    | beta_left He HA HB HC Hl Hr Ie _IA _IB _IC Il Ir =>  
+    | @beta_left Γ A B C e l r He HA HB HC Hl Hr Ie _IA _IB _IC Il Ir =>  
       dsimp only [
         Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
         Term.denote_ty, Ty.abort, Annot.denote
@@ -2288,9 +2288,48 @@ theorem HasType.denote
           have ⟨a, Ea⟩ := HA.denote_ty_some De;
           have Ea' := G.downgrade_cast _ ▸ rec_to_cast' ▸ Ea;
           rw [Ea']
-          simp only [Ty.interp.case, Option.bind, Ty.interp.case_inner, Ty.interp.inl]
-          --TODO: subst0 commute?
-          sorry
+          simp only [
+            Ty.interp.case, Option.bind, Ty.interp.case_inner, Ty.interp.inl]
+          rw [<-@Stlc.HasType.interp_transport_cast Γ.upgrade.stlc
+            _ _ _ _ ((Hl.subst0 He).stlc) _ rfl 
+            (by simp only [
+              HC.stlc_ty_subst, Term.subst0, Annot.subst0, Annot.stlc_ty, 
+              Term.alpha0, Annot.subst, Term.subst_composes])
+          ]
+          have Hs0 := Hl.subst0_stlc_interp_commute He HΓ.upgrade G;
+          exact @Eq.trans _ _ 
+            (cast (by 
+              simp only [Annot.subst0, Annot.stlc_ty] 
+              simp only [
+                HC.stlc_ty_subst, Term.subst0, Annot.subst0, Annot.stlc_ty, 
+                Term.alpha0, Annot.subst, Term.subst_composes]) 
+            ((Hl.subst0 He).stlc.interp G)) _
+            (by {
+              rw [Hs0]
+              rw [rec_to_cast', cast_merge]
+              simp only [Stlc.Context.deriv.subst]
+              rw [Stlc.HasType.interp_transport_cast'' sorry sorry rfl sorry rfl _]
+              simp only [
+                Stlc.InterpSubst.transport_ctx, SubstCtx.interp, Stlc.SubstCtx.interp]
+              apply congr sorry 
+                (by conv => 
+                  rhs
+                  rw [<-G.transport_id]
+                );
+            })
+            (by {
+              rw [Stlc.HasType.interp_transport_cast]
+              rw [Stlc.HasType.interp_transport_cast']
+              rfl
+              simp only [
+                HC.stlc_ty_subst, Term.subst0, Annot.subst0, Annot.stlc_ty, 
+                Term.alpha0, Annot.subst, Term.subst_composes]
+              sorry
+              rfl
+              simp only [
+                HC.stlc_ty_subst, Term.subst0, Annot.subst0, Annot.stlc_ty, 
+                Term.alpha0, Annot.subst, Term.subst_composes]
+            });
         }
       ⟩
     | beta_right He HA HB HC Hl Hr Ie _IA _IB _IC Il Ir =>
