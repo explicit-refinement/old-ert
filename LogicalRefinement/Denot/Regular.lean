@@ -1448,6 +1448,7 @@ theorem HasType.denote
       rw [G.downgrade_cast] at Ir';
       exact Il HΓ G HG _ Ir'
     | @wit Γ A φ l r HAφ Hl Hr IAφ Il Ir =>
+      stop
       dsimp only [Annot.denote, Term.denote_ty] at *;
       exists Hl.stlc.interp G
       have Il' := Il HΓ.upgrade (Context.upgrade_idem.symm ▸ G) HG.upgrade;
@@ -1464,7 +1465,63 @@ theorem HasType.denote
       ] at Ir';
       rw [HasType.denote_prop_eq (by cases HAφ <;> assumption)] at Ir';
       exact Ir'
-    | let_wit => sorry    
+    | @let_wit Γ A B C e e' He HA HB HC He' Ie IA IB IC Ie' => 
+      have De := Ie HΓ G HG;
+      dsimp only [
+        Term.denote_ty, Term.stlc, Annot.denote,
+        stlc_ty, Term.stlc_ty, Stlc.HasType.interp, Ty.abort
+      ] at *;
+      have ⟨a, Da, Db⟩ := De;
+      have ⟨Sa, Ea⟩ := HA.denote_ty_some Da;
+      have Da' := Ea ▸ Da;
+      simp only [
+        Ty.interp.let_pair, 
+        Ty.interp.pair,
+        Option.bind
+      ]
+      have De' := 
+        Ie' ((HΓ.cons_val HA).cons_val (by upgrade_ctx exact HB))
+        (none, a, G)
+        ⟨Db, Da, HG⟩
+        ;
+      rw [
+        <-He.denote_val_subst0' HΓ HG HC (by rw [HC.stlc_ty_subst0]) (by rw [interp_eq_none])
+        ]
+      rw [Ea] at De';
+      stop
+      rw [
+        HC.denote_subst_let_repr HΓ HG HA  
+        (by upgrade_ctx assumption)
+        (Term.denote_upgrade_eq.symm ▸ Da')
+        (by
+          rw [Ea] at Db';
+          rw [@Term.denote_upgrade_eq_cast ((Hyp.mk A (HypKind.val type))::Γ)]
+          rw [cast_pair' rfl 
+            (by simp [Context.upgrade_idem]) 
+            (by simp [Context.upgrade_idem])]
+          rw [rec_to_cast'] at Db';
+          exact Db'
+        )
+        rfl
+      ];
+        rw [(HC.wk2.alpha0 (HA.repr01'' HB)).denote_prop_eq] at De';
+      apply equiv_prop_helper De';
+      apply denote_ty_cast_spine
+        rfl
+        (by simp only [Context.stlc, Context.upgrade, Context.upgrade_idem])
+        (by 
+          rw [rec_to_cast', rec_to_cast']
+          rw [cast_pair' rfl
+            (by simp only [Context.stlc, Context.upgrade, Context.upgrade_idem])
+            (by simp only [Context.stlc, Context.upgrade, Context.upgrade_idem])
+          ]
+          rw [cast_pair' rfl
+            (by simp only [Context.stlc, Context.upgrade, Context.upgrade_idem])
+            (by simp only [Context.stlc, Context.upgrade, Context.upgrade_idem])
+          ]
+          rfl
+        );
+      rw [interp_eq_none]    
     | @case_prop Γ A B C e l r He HA HB HC Hl Hr Ie IA IB IC Il Ir =>
       have HAB: Γ ⊢ Term.coprod A B: type := HasType.coprod HA HB;
       dsimp only [Term.stlc, Term.stlc_ty, stlc_ty, Stlc.HasType.interp]
