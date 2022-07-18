@@ -871,6 +871,8 @@ theorem HasType.natrec_lemma
               )
   }
 
+set_option maxHeartbeats 10000000
+
 theorem HasType.denote
   (H: Γ ⊢ a: A)
   (HΓ: IsCtx Γ)
@@ -878,17 +880,16 @@ theorem HasType.denote
   (HG: Γ.denote G)
   : A.denote G (H.stlc.interp G.downgrade)
   := by {
-    --TODO: replace with a recursive match?
     induction H with
     | var HA Hv IA => exact Hv.denote_annot HΓ G HG
     | lam Hs HA Is IA =>
-      stop
+      
       intro x Hx
       cases x with
       | some x => exact Is (HΓ.cons_val HA) _ ⟨Hx, HG⟩
       | none => exact False.elim (HA.denote_ty_non_null Hx)
     | @app Γ A B l r HAB Hl Hr IA Il Ir =>
-      stop
+      
       dsimp only [Annot.denote]
       dsimp only [
         Annot.stlc_ty, term, Term.stlc_ty, Term.stlc, 
@@ -923,7 +924,7 @@ theorem HasType.denote
         | none => exact False.elim (HA.denote_ty_non_null Ir')
       | none => exact False.elim (HAB.denote_ty_non_null Il')
     | @pair Γ A B l r HAB Hl Hr IAB Il Ir =>
-      stop
+      
       dsimp only [Term.denote_ty, 
         Stlc.HasType.interp, Term.stlc, stlc_ty, term, Term.stlc_ty, 
         Ty.interp.pair]
@@ -964,7 +965,7 @@ theorem HasType.denote
           exact (interp_eq_none' Hri).symm
       | none => exact Hl.term_regular.denote_ty_non_null Il'
     | @let_pair Γ A B C e e' He HA HB HC He' Ie IA IB IC Ie' =>
-      stop
+      
       have De := Ie HΓ G HG;
       dsimp only [
         Term.denote_ty, Term.stlc, Annot.denote,
@@ -1000,7 +1001,7 @@ theorem HasType.denote
           rw [HC.stlc_ty_let_bin, HC.stlc_ty_subst0]
       | none => exact False.elim De;
     | inj_l He HB Ie IB => 
-      stop
+      
       dsimp only [
         Term.denote_ty, Term.stlc, 
         stlc_ty, Term.stlc_ty, Stlc.HasType.interp,
@@ -1014,7 +1015,7 @@ theorem HasType.denote
         exact Ie'
       | none => exact He.term_regular.denote_ty_non_null Ie'
     | inj_r He HA Ie IA => 
-      stop
+      
       dsimp only [
         Term.denote_ty, Term.stlc, 
         stlc_ty, Term.stlc_ty, Stlc.HasType.interp,
@@ -1028,7 +1029,7 @@ theorem HasType.denote
         exact Ie'
       | none => exact He.term_regular.denote_ty_non_null Ie'
     | @case Γ A B C e l r He HA HB HC Hl Hr Ie IA IB IC Il Ir =>
-      stop
+      
       have HAB: Γ ⊢ Term.coprod A B: type := HasType.coprod HA HB;
       dsimp only [Term.stlc, Term.stlc_ty, stlc_ty, Stlc.HasType.interp]
       have Ie' := Ie HΓ G HG;
@@ -1073,7 +1074,7 @@ theorem HasType.denote
           simp only [HC.stlc_ty_subst]
       | none => exact False.elim (HAB.denote_ty_non_null Ie')
     | @elem Γ A φ l r HAφ Hl Hr IAφ Il Ir =>
-      stop
+      
       apply And.intro (Il HΓ G HG);
       dsimp only [Annot.stlc_ty, Term.stlc_ty]
       have Hφ: _ ⊢ φ: _ := by cases HAφ <;> assumption;
@@ -1081,7 +1082,7 @@ theorem HasType.denote
       rw [(Hφ.subst0 Hl).denote_prop_eq']
       exact Ir HΓ G HG;
     | @let_set Γ A B C e e' He HA HB HC He' Ie IA IB IC Ie' => 
-      stop
+      
       have De := Ie HΓ G HG;
       dsimp only [
         Term.denote_ty, Term.stlc, Annot.denote,
@@ -1167,7 +1168,7 @@ theorem HasType.denote
         ]
       | none => exact False.elim (HA.denote_ty_non_null Da);
     | @lam_pr Γ ϕ s A Hϕ Hs _Iϕ Is => 
-      stop
+      
       dsimp only [
         Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
         Term.denote_ty
@@ -1183,7 +1184,7 @@ theorem HasType.denote
         _ _ _ _ _ Ty.unit _ (some ()) Hs
       ]
     | @app_pr Γ ϕ A l r HφA Hl Hr IφA Il Ir =>
-      stop
+      
       dsimp only [
         Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
         Term.denote_ty, Annot.denote
@@ -1210,7 +1211,7 @@ theorem HasType.denote
         apply Stlc.Context.interp.eq_mod_lrt_refl;
       | none => exact False.elim Dl
     | @lam_irrel Γ A s B HA Hs _IA Is =>   
-      stop    
+          
       dsimp only [
         Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
         Term.denote_ty
@@ -1225,7 +1226,7 @@ theorem HasType.denote
         . rw [Hs.interp_gst_none_ty]
         . rw [Hs.interp_gst_none_ty]
     | @app_irrel Γ A B l r HAB Hl Hr IAB Il Ir =>
-      stop
+      
       dsimp only [
         Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
         Term.denote_ty, Annot.denote
@@ -1267,7 +1268,7 @@ theorem HasType.denote
         }
       | none => exact False.elim Dl
     | @repr Γ A B l r HAB Hl Hr IAB Il Ir =>
-      stop
+      
       simp only [Annot.denote] at *;
       have Il' 
         := Il HΓ.upgrade (Context.upgrade_idem.symm ▸ G) HG.upgrade
@@ -1291,7 +1292,7 @@ theorem HasType.denote
       ]
       rfl
     | @let_repr Γ A B C e e' He HA HB HC He' Ie IA IB IC Ie' => 
-      stop     
+           
       have De := Ie HΓ G HG;
       dsimp only [
         Term.denote_ty, Term.stlc, Annot.denote,
@@ -1356,9 +1357,9 @@ theorem HasType.denote
         ]
         rfl
       | none => exact False.elim (HB.denote_ty_non_null Db);
-    | abort Hp HA Ip IA => stop exact False.elim (Ip HΓ G HG)
+    | abort Hp HA Ip IA =>  exact False.elim (Ip HΓ G HG)
     | @dconj Γ A B l r HAB Hl Hr IAB Il Ir => 
-      stop
+      
       dsimp only [
         Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
         Term.denote_ty
@@ -1390,7 +1391,7 @@ theorem HasType.denote
         apply Stlc.Context.interp.eq_mod_lrt_refl;
       }
     | @let_conj Γ A B C e e' He HA HB HC He' Ie IA IB IC Ie' =>
-      stop
+      
       have De := Ie HΓ G HG;
       dsimp only [
         Term.denote_ty, Term.stlc, Annot.denote,
@@ -1414,12 +1415,12 @@ theorem HasType.denote
       apply equiv_prop_helper De';
       rw [cast_none]
       rw [HC.stlc_ty_let_bin, HC.stlc_ty_subst0]
-    | disj_l He _ Ie _ => stop
+    | disj_l He _ Ie _ => 
       exact Or.inl (He.proof_regular.denote_prop_none (Ie HΓ G HG))
-    | disj_r He _ Ie _ => stop
+    | disj_r He _ Ie _ => 
       exact Or.inr (He.proof_regular.denote_prop_none (Ie HΓ G HG))
     | @case_pr Γ A B C e l r He HA HB HC Hl Hr Ie IA IB IC Il Ir =>   
-      stop
+      
       dsimp only [
         Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
         Ty.abort, Annot.denote
@@ -1480,10 +1481,10 @@ theorem HasType.denote
           rfl
         ) Ir';
         rw [HC.stlc_ty_subst0]
-    | imp Hϕ Hs Iϕ Is => stop 
+    | imp Hϕ Hs Iϕ Is =>  
       exact λDϕ => Hs.proof_regular.denote_prop_none (Is (IsCtx.cons_val HΓ Hϕ) (none, G) ⟨Dϕ, HG⟩);
     | @mp Γ φ ψ l r Hϕψ Hl Hr _ Il Ir => 
-      stop
+      
       dsimp only [
         Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
         Term.denote_ty, Ty.abort, Annot.denote
@@ -1494,11 +1495,11 @@ theorem HasType.denote
       exact Hψ;
       rw [Hψ.stlc_ty_subst0]
       rw [interp_eq_none]
-    | general HA Hs IA Is => stop
+    | general HA Hs IA Is => 
       exact λx Dx => Hs.proof_regular.denote_prop_none 
         (Is (IsCtx.cons_val HΓ HA) (x, G) ⟨Dx, HG⟩);
     | @inst Γ A φ l r HAφ Hl Hr _ Il Ir => 
-      stop
+      
       dsimp only [
         Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
         Term.denote_ty, Ty.abort, Annot.denote
@@ -1514,7 +1515,7 @@ theorem HasType.denote
       rw [G.downgrade_cast] at Ir';
       exact Il HΓ G HG _ Ir'
     | @wit Γ A φ l r HAφ Hl Hr IAφ Il Ir =>
-      stop
+      
       dsimp only [Annot.denote, Term.denote_ty] at *;
       exists Hl.stlc.interp G
       have Il' := Il HΓ.upgrade (Context.upgrade_idem.symm ▸ G) HG.upgrade;
@@ -1532,7 +1533,7 @@ theorem HasType.denote
       rw [HasType.denote_prop_eq (by cases HAφ <;> assumption)] at Ir';
       exact Ir'
     | @let_wit Γ A B C e e' He HA HB HC He' Ie IA IB IC Ie' => 
-      stop
+      
       have De := Ie HΓ G HG;
       dsimp only [
         Term.denote_ty, Term.stlc, Annot.denote,
@@ -1573,7 +1574,7 @@ theorem HasType.denote
         rfl rfl rfl (by rw [interp_eq_none])
       ) De';
     | @case_prop Γ A B C e l r He HA HB HC Hl Hr Ie IA IB IC Il Ir =>
-      stop
+      
       have HAB: Γ ⊢ Term.coprod A B: type := HasType.coprod HA HB;
       dsimp only [Term.stlc, Term.stlc_ty, stlc_ty, Stlc.HasType.interp]
       have Ie' := Ie HΓ.upgrade (Context.upgrade_idem.symm ▸ G) HG.upgrade;
@@ -1636,7 +1637,7 @@ theorem HasType.denote
           simp only [HC.stlc_ty_subst]
       | none => exact False.elim (HAB.denote_ty_non_null Ie')
     | @let_pair_prop Γ A B C e e' He HA HB HC He' Ie IA IB IC Ie' =>
-      stop 
+       
       have De := Ie HΓ.upgrade (Context.upgrade_idem.symm ▸ G) HG.upgrade;
       dsimp only [
         Term.denote_ty, Term.stlc, Annot.denote,
@@ -1710,7 +1711,7 @@ theorem HasType.denote
             
       | none => exact False.elim De;
     | @let_set_prop Γ A B C e e' He HA HB HC He' Ie IA IB IC Ie' => 
-      stop
+      
       have De := Ie HΓ.upgrade (Context.upgrade_idem.symm ▸ G) HG.upgrade;
       dsimp only [
         Term.denote_ty, Term.stlc, Annot.denote,
@@ -1780,7 +1781,7 @@ theorem HasType.denote
         }
       | none => exact False.elim (HA.denote_ty_non_null Da);    
     | @let_repr_prop Γ A B C e e' He HA HB HC He' Ie IA IB IC Ie' => 
-      stop
+      
       have De := Ie HΓ.upgrade (Context.upgrade_idem.symm ▸ G) HG.upgrade;
       dsimp only [
         Term.denote_ty, Term.stlc, Annot.denote,
@@ -1842,9 +1843,9 @@ theorem HasType.denote
           rfl
         );
       rw [interp_eq_none]
-    | refl Ha => stop exact ⟨Ha.stlc, Ha.stlc, rfl⟩
+    | refl Ha =>  exact ⟨Ha.stlc, Ha.stlc, rfl⟩
     | discr Ha Hb Hp Ia Ib Ip => 
-      stop
+      
       have Ia' := Ia HΓ.upgrade (Context.upgrade_idem.symm ▸ G) HG.upgrade;
       have Ib' := Ib HΓ.upgrade (Context.upgrade_idem.symm ▸ G) HG.upgrade;
       have ⟨Sa, Ea⟩ := Ha.term_regular.upgrade.denote_ty_some Ia';
@@ -1862,7 +1863,7 @@ theorem HasType.denote
       simp only [Ty.interp.inl, Ty.interp.inr, Option.bind] at C;
       cases C
     | @cong Γ A P p e x y HP HA Hp He IP IA Ip Ie => 
-      stop
+      
       have Ie' := Ie HΓ G HG;
       have ⟨Sx, Sy, Exy⟩ := Ip HΓ G HG;
       have Hx: Γ.upgrade ⊢ x: term A := by cases Hp.proof_regular <;> assumption;
@@ -1898,7 +1899,7 @@ theorem HasType.denote
       exact Exy;
       rfl
     | @beta Γ A B s t Hs HA Ht Is _IA It => 
-      stop
+      
       dsimp only [
         Stlc.HasType.interp, 
         Term.stlc, Term.stlc_ty, stlc_ty, Term.denote_ty,
@@ -1959,7 +1960,7 @@ theorem HasType.denote
         }
       ⟩
     | @beta_ir Γ A B s t Hs HA Ht Is _IA It =>
-      stop
+      
       dsimp only [
         Stlc.HasType.interp, 
         Term.stlc, Term.stlc_ty, stlc_ty, Term.denote_ty,
@@ -2015,7 +2016,7 @@ theorem HasType.denote
         }
       ⟩
     | @beta_pr Γ A B s t Hs HA Ht Is _IA It => 
-      stop
+      
       dsimp only [
         Stlc.HasType.interp, 
         Term.stlc, Term.stlc_ty, stlc_ty, Term.denote_ty,
@@ -2100,7 +2101,7 @@ theorem HasType.denote
         }
       ⟩
     | @eta Γ A B f Hf HA If IA =>
-      stop
+      
       have pe
         : Γ.upgrade.stlc ⊧ (Term.eta_ex A B f).stlc
           : Ty.arrow A.stlc_ty B.stlc_ty 
@@ -2198,7 +2199,7 @@ theorem HasType.denote
           contradiction
         | none => exact If'.elim
     | irir Hf Hx Hy => 
-      stop
+      
       exact ⟨
         by {
           simp only [Term.irir_ex, Term.const_arrow]
@@ -2231,7 +2232,7 @@ theorem HasType.denote
         rfl
       ⟩
     | prir HP HA Hx Hy _  _ Ix Iy =>
-      stop
+      
       dsimp only [
         Stlc.HasType.interp, 
         Term.stlc, Term.stlc_ty, stlc_ty, Term.denote_ty,
@@ -2257,7 +2258,7 @@ theorem HasType.denote
       rw [interp_eq_none]
       constructor
     | @beta_left Γ A B C e l r He HA HB HC Hl Hr Ie _IA _IB _IC Il Ir =>  
-      stop
+      
       dsimp only [
         Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
         Term.denote_ty, Ty.abort, Annot.denote
@@ -2359,7 +2360,7 @@ theorem HasType.denote
         }
       ⟩
     | @beta_right Γ A B C e l r He HA HB HC Hl Hr Ie _IA _IB _IC Il Ir =>
-      stop
+      
       dsimp only [
         Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
         Term.denote_ty, Ty.abort, Annot.denote
@@ -2464,7 +2465,7 @@ theorem HasType.denote
         }
       ⟩
     | @beta_pair Γ A B C l r e Hl Hr HA HB HC He Il Ir _IA _IB IC Ie =>
-      stop
+      
       dsimp only [
         Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
         Term.denote_ty, Ty.abort, Annot.denote
@@ -2579,7 +2580,7 @@ theorem HasType.denote
         }
       ⟩
     | @beta_set Γ A B C l r e Hl Hr HA HB HC He Il Ir _IA _IB IC Ie =>
-      stop
+      
       dsimp only [
         Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
         Term.denote_ty, Ty.abort, Annot.denote
@@ -2696,7 +2697,7 @@ theorem HasType.denote
         }
       ⟩
     | @beta_repr Γ A B C l r e Hl Hr HA HB HC He Il Ir _IA _IB IC Ie => 
-      stop
+      
       dsimp only [
         Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
         Term.denote_ty, Ty.abort, Annot.denote
@@ -2867,7 +2868,7 @@ theorem HasType.denote
         }
       ⟩
     | succ => 
-      stop
+      
       intro x H;
       cases x with
       | none => cases H
@@ -2963,7 +2964,7 @@ theorem HasType.denote
           rfl
           rfl
     | @beta_zero Γ C z s HC Hz Hs IC Iz Is => 
-      stop
+      
       dsimp only [
         Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
         Term.denote_ty
@@ -2988,7 +2989,7 @@ theorem HasType.denote
           })
       }, Hz.stlc;
     | @beta_succ Γ C e z s HC He Hz Hs IC Ie Iz Is => 
-      stop
+      
       exact ⟨
         by {
           rw [HC.stlc_ty_subst0]
