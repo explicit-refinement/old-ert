@@ -329,8 +329,8 @@ theorem HasType.denote_subst_let_conj
   {c: Option C.stlc_ty.interp}
   {c': Option ((C.wknth 1).alpha0 (Term.dconj (Term.var 1) (Term.var 0))).stlc_ty.interp}
   {sc: AnnotSort}
-  {a: A.stlc_ty.interp}
-  {b: B.stlc_ty.interp}
+  {a: Option A.stlc_ty.interp}
+  {b: Option B.stlc_ty.interp}
   {ab: Option Unit}
   (HC: ({ ty := Term.dand A B, kind := HypKind.val prop } :: Γ) ⊢ C: sort sc)
   (HΓ: IsCtx Γ)
@@ -1343,13 +1343,11 @@ theorem HasType.denote
         (by rw [rec_to_cast']; rw [cast_trans])
         rfl
         ]
-      rw [HC.denote_subst_let_conj HΓ HG HA HB Da Db rfl]
+      rw [(HC.wk2_sort.alpha0 (HA.dconj01 HB)).denote_prop_eq] at De';
+      rw [HC.denote_subst_let_conj HΓ HG HA HB Da Db rfl] <;> try exact none;
       rw [rec_to_cast', cast_merge]
       apply equiv_prop_helper De';
-      apply congr rfl _;
-      rw [Stlc.HasType.interp_transport_cast']
-      rfl
-      rfl
+      rw [cast_none]
       rw [HC.stlc_ty_let_bin, HC.stlc_ty_subst0]
     | disj_l He _ Ie _ => 
       exact Or.inl (He.proof_regular.denote_prop_none (Ie HΓ G HG))
