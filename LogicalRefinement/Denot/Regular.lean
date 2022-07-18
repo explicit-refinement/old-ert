@@ -3,6 +3,7 @@ import LogicalRefinement.Typed
 import LogicalRefinement.Stlc
 import LogicalRefinement.Denot.Basic
 import LogicalRefinement.Denot.Wk
+import LogicalRefinement.Denot.Irrel
 import LogicalRefinement.Denot.Subst
 
 open AnnotSort
@@ -258,6 +259,48 @@ theorem HasType.denote_subst_let_set
     (by 
       dsimp only [Stlc.HasType.interp, Stlc.HasVar.interp, Eq.mp]
       simp only [rec_to_cast', cast_merge]
+      rfl
+    )
+
+  theorem HasType.denote_subst_let_repr
+  {A B C: Term} {Γ: Context} {G: Γ.upgrade.stlc.interp} 
+  {c: Option C.stlc_ty.interp}
+  {c': Option ((C.wknth 1).alpha0 (Term.repr (Term.var 1) (Term.var 0))).stlc_ty.interp}
+  {a: A.stlc_ty.interp}
+  {b: B.stlc_ty.interp}
+  {sc: AnnotSort}
+  (HC: ({ ty := Term.union A B, kind := HypKind.val type } :: Γ) ⊢ C: sort sc)
+  (HΓ: IsCtx Γ)
+  (HG: G ⊧ ✓Γ)
+  (HA: Γ ⊢ A: sort type)
+  (HB: ((Hyp.mk A (HypKind.val type))::Γ) ⊢ B: sort type)
+  (Ha: A.denote_ty G (some a))
+  (Hb: @Term.denote_ty B (A.stlc_ty::Γ.upgrade.stlc) (some a, G) (some b))
+  (Hc': c' = HC.stlc_ty_let_bin ▸ c)
+  : @Term.denote_ty C ((Term.union A B).stlc_ty::Γ.upgrade.stlc) (some b, G) c =
+    @Term.denote_ty 
+      ((C.wknth 1).alpha0 (Term.repr (Term.var 1) (Term.var 0))) 
+      (B.stlc_ty::A.stlc_ty::Γ.upgrade.stlc) (some b, some a, G) c'
+  := HasType.denote_subst_let_bin
+    (
+      HasType.repr (HasType.union HA HB).wk1.wk1 
+      (HasType.var HA.upgrade.wk1_sort.wk1_sort (by repeat constructor)) 
+      (by {
+        simp only [Term.wk_composes, Wk.comp]
+        have Hwk: Wk.wk1.step = Wk.wkn 2 := rfl;
+        rw [Hwk]
+        rw [Term.lift_wkn2_subst0_var1]
+        constructor;
+        exact HB.wk1_sort;
+        constructor
+      })
+    ) 
+    HΓ HG HC (by constructor <;> assumption) HA HB 
+    Ha Hb
+    Hc' 
+    (by 
+      dsimp only [Stlc.HasType.interp, Stlc.HasVar.interp]
+      simp only [rec_to_cast', cast_merge, Eq.mp]
       rfl
     )
 
@@ -1149,7 +1192,16 @@ theorem HasType.denote
           (by rw [rec_to_cast']; rw [cast_trans])
           rfl
           ]
-        sorry
+        apply equiv_prop_helper De';
+        rw [HC.denote_subst_let_pair]
+        apply HasType.eq_lrt_ty_denote_ty_spine''
+          _
+          _
+          (by rfl)
+          _
+          _
+          _
+          _;
         --TODO: irrelevance rewrite
         --TODO: denote_cast_spine
         -- rw [HSe]

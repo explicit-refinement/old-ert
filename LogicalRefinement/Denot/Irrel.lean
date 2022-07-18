@@ -218,6 +218,42 @@ theorem HasType.eq_lrt_ty_denot
     | _ => cases HS <;> rfl
   }
 
+
+theorem HasType.eq_lrt_ty_denote_ty_spine
+  {Γ Δ: Context} {A B: Term} {a b s} 
+  {G: Γ.upgrade.stlc.interp} {D: Δ.upgrade.stlc.interp}
+  (HΓ: Γ ⊢ A: sort s)
+  (HΔ: Δ ⊢ A: sort s)
+  (HAB: A = B)
+  (HGD: G.eq_mod_lrt D Γ.upgrade Δ.upgrade)
+  (Hab: a = HAB ▸ b)
+  : A.denote_ty G a = B.denote_ty D b
+  := by {
+    cases HAB;
+    cases Hab;
+    exact HΓ.eq_lrt_ty_denot HΔ HGD
+  }
+
+
+theorem HasType.eq_lrt_ty_denote_ty_spine''
+  {Γ' Δ': Stlc.Context} {Γ Δ: Context} {A B: Term} {a b s} 
+  {G: Γ'.interp} {D: Δ'.interp}
+  (HΓ: Γ ⊢ A: sort s)
+  (HΔ: Δ ⊢ A: sort s)
+  (HΓ': Γ' = Γ.upgrade.stlc)
+  (HΔ': Δ' = Δ.upgrade.stlc)
+  (HAB: A = B)
+  (HGD: G.eq_mod_lrt D Γ.upgrade Δ.upgrade)
+  (Hab: a = HAB ▸ b)
+  : A.denote_ty G a = B.denote_ty D b
+  := by {
+    cases HΓ';
+    cases HΔ';
+    cases HAB;
+    cases Hab;
+    exact HΓ.eq_lrt_ty_denot HΔ HGD
+  }
+
 theorem HasType.eq_lrt_ty_denot'
   {Γ: Context} {A a s} 
   {G D: Γ.upgrade.stlc.interp}
@@ -225,3 +261,18 @@ theorem HasType.eq_lrt_ty_denot'
   (HGD: G.eq_mod_lrt D Γ.upgrade Γ.upgrade)
   : A.denote_ty G a = A.denote_ty D a
   := HΓ.eq_lrt_ty_denot HΓ HGD
+
+
+theorem HasType.eq_lrt_ty_denote_ty_spine'
+  {Γ: Context} {A B: Term} {a b s} 
+  {G D: Γ.upgrade.stlc.interp}
+  (HΓ: Γ ⊢ A: sort s)
+  (HAB: A = B)
+  (HGD: G.eq_mod_lrt D Γ.upgrade Γ.upgrade)
+  (Hab: a = HAB ▸ b)
+  : A.denote_ty G a = B.denote_ty D b
+  := by {
+    cases HAB;
+    cases Hab;
+    exact HΓ.eq_lrt_ty_denot' HGD
+  }
