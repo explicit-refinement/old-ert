@@ -181,19 +181,23 @@ def Nat.zero_le_true: (0 ≤ n) = True :=
   propext (Iff.intro (λ _ => True.intro) (λ _ => Nat.zero_le _))
 
 def Nat.le_sub_is_le_add: {l n m: Nat} -> (n - l ≤ m) = (n ≤ m + l) := by {
-  intros l.
+  intros l;
   induction l with
   | zero => intros; rfl
-  | succ l I => intros n. cases n with
-    | zero => intros m.
-      rw [Nat.zero_sub]. 
-      rw [Nat.zero_le_true].
+  | succ l I => intros n; cases n with
+    | zero => {
+      intros m;
+      rw [Nat.zero_sub];
+      rw [Nat.zero_le_true];
       rw [Nat.zero_le_true]
-    | succ n => intros m.
-      rw [Nat.succ_sub_succ_eq_sub].
-      rw [Nat.succ_right].
-      rw [Nat.succ_le_succ_is_le].
+    }
+    | succ n => {
+      intros m;
+      rw [Nat.succ_sub_succ_eq_sub];
+      rw [Nat.succ_right];
+      rw [Nat.succ_le_succ_is_le];
       apply I
+    }
 }
 
 def Nat.lt_is_succ_le: {n m: Nat} -> (n < m) = (Nat.succ n ≤ m) := rfl

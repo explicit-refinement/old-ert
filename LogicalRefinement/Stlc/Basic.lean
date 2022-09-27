@@ -67,7 +67,7 @@ abbrev Ty.interp.case {A B C: Ty}
   : Option C.interp
   := d.bind (λd => d.case_inner l r)
 
-abbrev Ty.interp.natrec_inner {C: Ty} (n: Nat) 
+def Ty.interp.natrec_inner {C: Ty} (n: Nat) 
   (z: Option C.interp) (s: C.interp -> Option C.interp)
   : Option C.interp
   := match n with
@@ -79,7 +79,7 @@ theorem Ty.interp.natrec_inner_succ {C: Ty} (n: Nat)
   : Ty.interp.natrec_inner (Nat.succ n) z s = (Ty.interp.natrec_inner n z s).bind s
   := rfl
 
-abbrev Ty.interp.natrec_int {C: Ty} (n: Option nats.interp)
+def Ty.interp.natrec_int {C: Ty} (n: Option nats.interp)
   (z: Option C.interp) (s: C.interp -> Option C.interp)
   : Option C.interp
   := n.bind (λn => Ty.interp.natrec_inner n z s)
@@ -668,12 +668,9 @@ theorem Stlc.HasVar.interp_wk {Γ Δ ρ n A}
     | step R I =>
       intro n A H;
       funext G; cases G;
-      conv =>
-        congr
-        reduce
-        skip
-        rw [H.interp.wk_step R]
-        rw [<-I]
+      rw [H.interp.wk_step R]
+      rw [<-I]
+      rfl
     | lift R I =>
       intro N A H;
       funext G; cases G;
@@ -681,14 +678,13 @@ theorem Stlc.HasVar.interp_wk {Γ Δ ρ n A}
       | zero => rfl
       | succ H =>
         conv =>
-          congr
-          reduce
-          skip
+          rhs
           rw [H.succ.interp.wk_lift R]
           arg 1
           reduce
           ext
         rw [<-I]
+        rfl
   }
 
 theorem option_helper {a b: A}: a = b -> some a = some b := by intros; simp [*]

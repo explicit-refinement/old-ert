@@ -141,10 +141,8 @@ theorem Stlc.HasType.eq_mod
     | let_in He He' Ie Ie' => 
       cases Ha';
       dsimp only [interp]
-      apply congr _ rfl;
-      apply congr _ rfl;
       apply congr;
-      apply congr rfl _;
+      apply congr rfl;
       apply Ie;
       intro n He; exact H _ (Or.inl He);
       funext _;
@@ -163,13 +161,11 @@ theorem Stlc.HasType.eq_mod
     | let_pair He He' Ie Ie' => 
       cases Ha';
       dsimp only [interp]
-      apply congr _ rfl;
-      apply congr _ rfl;
       apply congr;
-      apply congr rfl _;
+      apply congr rfl;
       apply Ie;
       intro n He; exact H _ (Or.inl He);
-      funext _;
+      funext _ _;
       apply Ie';
       intro n He';
       cases n with
@@ -191,15 +187,11 @@ theorem Stlc.HasType.eq_mod
     | case Hd Hl Hr Id Il Ir => 
       cases Ha';
       dsimp only [interp]
-      apply congr _ rfl;
-      apply congr _ rfl;
       apply congr;
-      apply congr rfl _;
+      apply congr;
+      apply congr rfl;
       apply Id;
       intro n Hd; exact H _ (Or.inl Hd);
-      funext _;
-      apply congr;
-      apply congr rfl _;
       funext _;
       apply Il;
       intro n He';
@@ -215,15 +207,11 @@ theorem Stlc.HasType.eq_mod
     | natrec Hn Hz Hs In Iz Is =>       
       cases Ha';
       dsimp only [interp]
-      apply congr _ rfl;
-      apply congr _ rfl;
       apply congr;
-      apply congr rfl _;
+      apply congr;
+      apply congr rfl;
       apply In;
       intro n Hn; exact H _ (Or.inl Hn);
-      funext _;
-      apply congr;
-      apply congr rfl _;
       apply Iz;
       intro n Hz; exact H _ (Or.inr (Or.inl Hz));
       funext _;

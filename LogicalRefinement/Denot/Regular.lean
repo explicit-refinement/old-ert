@@ -36,11 +36,12 @@ theorem HasVar.denote_annot
                 rw [Stlc.HasType.interp_var]
                 dsimp only [Stlc.HasVar.interp, Sparsity.ix]
                 simp only [Eq.mp, Eq.mpr]
-                conv =>
-                  rhs
-                  rw [monorecursor]
-                  skip
-                  rw [<-A.stlc_ty_wk1]
+                rw [monorecursor]
+                rw [rec_to_cast]
+                rw [rec_to_cast]
+                rw [<-A.stlc_ty_wk1]
+                rw [<-A.stlc_ty_wk1]
+                simp only [Annot.stlc_ty]
               | succ Hv => 
                 have I' := I Hv HΓ G HG;
                 cases s <;> (
@@ -818,13 +819,13 @@ theorem HasType.natrec_lemma
                       (by simp only [
                         Annot.stlc_ty, 
                         HC.stlc_ty_let_bin, 
-                        HC.stlc_ty_subst0] rfl)
+                        HC.stlc_ty_subst0]; rfl)
                       Hs.stlc)
                     (cast 
                       (by simp only [
                         Annot.stlc_ty, 
                         HC.stlc_ty_let_bin, 
-                        HC.stlc_ty_subst0] rfl)
+                        HC.stlc_ty_subst0]; rfl)
                       Hs.stlc)
                     rfl
                     (by simp only [Annot.stlc_ty, HC.stlc_ty_subst0])
@@ -1287,7 +1288,7 @@ theorem HasType.denote
       ⟩
       rw [rec_to_cast']
       rw [Stlc.HasType.interp_transport_cast' _ _ rfl 
-        (by rw [HasType.stlc_ty_subst0] cases HAB; assumption)
+        (by rw [HasType.stlc_ty_subst0]; cases HAB; assumption)
         _
       ]
       rfl
@@ -2517,7 +2518,7 @@ theorem HasType.denote
             };
           have Er': 
             Stlc.HasType.interp
-            (cast (by simp only [Annot.stlc_ty, HB.stlc_ty_subst0] rfl) Hr.stlc) G 
+            (cast (by simp only [Annot.stlc_ty, HB.stlc_ty_subst0]; rfl) Hr.stlc) G 
             = some Sr' := by {
               rw [<-Er_helper]
               rw [Stlc.HasType.interp_transport_cast']
@@ -2565,7 +2566,7 @@ theorem HasType.denote
             }) 
             rfl 
             (by simp only [Annot.stlc_ty, HC.stlc_ty_let_bin, HC.stlc_ty_subst0]) 
-            _]
+            _];
             apply interp_cast_spine rfl rfl;
             apply congr 
               (by
@@ -2661,7 +2662,7 @@ theorem HasType.denote
             }) 
             rfl 
             (by simp only [Annot.stlc_ty, HC.stlc_ty_let_bin, HC.stlc_ty_subst0]) 
-            _]
+            _];
             rw [HasType.interp_prop_ty'' He 
               (by {
                 have He' := He.stlc;
@@ -2683,21 +2684,20 @@ theorem HasType.denote
                 rw [HC.stlc_ty_subst0]
                 exact He';
               }) 
-            ]
+            ];
             apply interp_cast_spine 
               (by simp only [HB.prop_is_unit, Context.stlc]) 
               rfl;
-            rw [rec_to_cast']
+            rw [rec_to_cast'];
             rw [cast_pair' (by rw [HB.prop_is_unit]) rfl 
-              (by simp only [HB.prop_is_unit, Context.stlc])]
-            rw [cast_pair' rfl rfl rfl]
+              (by simp only [HB.prop_is_unit, Context.stlc])];
+            rw [cast_pair' rfl rfl rfl];
             apply congr rfl
               (congr (by simp only [pure]; rw [El]; rfl) 
                      (by conv => lhs; rw [<-G.transport_id]));
         }
       ⟩
-    | @beta_repr Γ A B C l r e Hl Hr HA HB HC He Il Ir _IA _IB IC Ie => 
-      
+    | @beta_repr Γ A B C l r e Hl Hr HA HB HC He Il Ir _IA _IB IC Ie =>
       dsimp only [
         Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
         Term.denote_ty, Ty.abort, Annot.denote
@@ -2750,7 +2750,7 @@ theorem HasType.denote
             };
           have Er': 
             Stlc.HasType.interp
-            (cast (by simp only [Annot.stlc_ty, HB.stlc_ty_subst0] rfl) Hr.stlc) G 
+            (cast (by simp only [Annot.stlc_ty, HB.stlc_ty_subst0]; rfl) Hr.stlc) G 
             = some Sr' := by {
               rw [<-Er_helper]
               rw [Stlc.HasType.interp_transport_cast']
@@ -2802,7 +2802,7 @@ theorem HasType.denote
             }) 
             rfl
             (by simp only [Annot.stlc_ty, HC.stlc_ty_let_bin, HC.stlc_ty_subst0])
-            ]
+            ];
             rw [HasType.interp_irrel_ty'
               He
               He.upgrade
@@ -2829,7 +2829,7 @@ theorem HasType.denote
               rfl
               (by simp only [Annot.stlc_ty, HC.stlc_ty_let_bin, HC.stlc_ty_subst0])
               _
-            ]
+            ];
             apply interp_cast_spine 
               (by simp only [Context.stlc, Context.upgrade_idem]) 
               rfl
@@ -2838,22 +2838,24 @@ theorem HasType.denote
               (Ty.unit::Γ.upgrade.stlc)
               (A.stlc_ty::Γ.upgrade.upgrade.stlc)
               _ _ B.stlc_ty;
-            simp only [pure]
-            rw [<-cast_some]
-            rw [rec_to_cast', <-Er]
-            rw [Er_helper]
-            rw [Er']
+            simp only [pure];
+            rw [<-cast_some];
+            rw [rec_to_cast', <-Er];
+            rw [Er_helper];
+            rw [Er'];
             rw [cast_pair' rfl 
-              (by simp only [Context.upgrade, Context.upgrade_idem] rfl)
-              (by simp only [Context.upgrade, Context.upgrade_idem] rfl)]
-            rfl
+              (by simp only [Context.upgrade, Context.upgrade_idem]; rfl)
+              (by simp only [Context.upgrade, Context.upgrade_idem];rfl)];
+            rfl;
             apply Stlc.Context.interp.eq_mod_lrt.extend_gst_left;
             apply Stlc.Context.interp.eq_mod_lrt_refl'';
             {
               rw [rec_to_cast', rec_to_cast']
               rw [cast_pair' rfl 
-                (by simp only [Context.upgrade, Context.upgrade_idem] rfl) 
-                (by simp only [Context.upgrade, Context.upgrade_idem] rfl)]
+                (by 
+                  simp only [Context.upgrade, Context.upgrade_idem]; rfl) 
+                (by 
+                  simp only [Context.upgrade, Context.upgrade_idem]; rfl)]
               rw [cast_pair' rfl 
                 (by simp only [Context.upgrade, Context.upgrade_idem]) 
                 (by simp only [Context.upgrade, Context.upgrade_idem])]
@@ -2868,7 +2870,6 @@ theorem HasType.denote
         }
       ⟩
     | succ => 
-      
       intro x H;
       cases x with
       | none => cases H
@@ -2964,7 +2965,6 @@ theorem HasType.denote
           rfl
           rfl
     | @beta_zero Γ C z s HC Hz Hs IC Iz Is => 
-      
       dsimp only [
         Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
         Term.denote_ty
@@ -2989,7 +2989,6 @@ theorem HasType.denote
           })
       }, Hz.stlc;
     | @beta_succ Γ C e z s HC He Hz Hs IC Ie Iz Is => 
-      
       exact ⟨
         by {
           rw [HC.stlc_ty_subst0]
@@ -3163,7 +3162,7 @@ theorem HasType.denote
           rw [Stlc.HasType.interp_transport_cast' Hs'.stlc 
             (by rw [HC.stlc_ty_subst0, <-HC.stlc_ty_let_bin]; exact Hs'.stlc)
             rfl
-            (by rw [HC.stlc_ty_subst0, <-HC.stlc_ty_let_bin] rfl)
+            (by rw [HC.stlc_ty_subst0, <-HC.stlc_ty_let_bin]; rfl)
           ]
           dsimp only [
             Stlc.InterpSubst.transport_ctx, 
@@ -3180,7 +3179,7 @@ theorem HasType.denote
             _
           ]
           apply interp_cast_spine
-            (by simp only [Annot.stlc_ty, HC.stlc_ty_subst0] rfl)
+            (by simp only [Annot.stlc_ty, HC.stlc_ty_subst0]; rfl)
             rfl
             (by {
               rw [rec_to_cast']

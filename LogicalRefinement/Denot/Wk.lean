@@ -18,7 +18,7 @@ theorem HasType.wk_eq
     induction HΓ generalizing ρ Γ s with
     | @pi Δ' A B _ _ IA IB =>
       cases a with
-      | none => rw [interp_eq_none] rfl
+      | none => rw [interp_eq_none]; rfl
       | some a => 
         rw [interp_eq_some]
         dsimp only [Term.denote_ty]
@@ -82,7 +82,7 @@ theorem HasType.wk_eq
         }
     | @sigma Δ' A B _ _ IA IB =>
       cases a with
-      | none => rw [interp_eq_none] rfl
+      | none => rw [interp_eq_none]; rfl
       | some a => 
         rw [interp_eq_some]
         cases a with
@@ -143,7 +143,7 @@ theorem HasType.wk_eq
           }
     | coprod _ _ IA IB => 
       cases a with
-      | none => rw [interp_eq_none] rfl
+      | none => rw [interp_eq_none]; rfl
       | some a => 
         cases a with
         | inl a => 
@@ -174,7 +174,7 @@ theorem HasType.wk_eq
           rw [Term.stlc_ty_wk]
     | @assume Δ' A B _ _ IA IB => 
       cases a with
-      | none => rw [interp_eq_none] rfl
+      | none => rw [interp_eq_none]; rfl
       | some a => 
         dsimp only [Term.denote_ty]
         rw [interp_eq_some]
@@ -190,30 +190,30 @@ theorem HasType.wk_eq
           apply congr (congr rfl _) _;
           {
             rw [<-Stlc.Context.interp.wk_lift]
-            let Δ'' := Term.stlc_ty A :: Context.stlc (Context.upgrade Δ');
+            let Δ'' := Term.stlc_ty A :: Context.stlc (Context.upgrade Δ')
             let f: 
               (Γ: Stlc.Context) -> Γ.interp 
               -> Stlc.WkCtx ρ.lift Γ Δ'' -> (Stlc.Context.interp Δ'')
               := λΓ => @Stlc.Context.interp.wk Γ Δ'' ρ.lift;              
-              have Hf: ∀Γ, @Stlc.Context.interp.wk Γ Δ'' ρ.lift = f Γ 
-                := by intros; rfl;              
-              rw [Hf]
-              rw [Hf]
-              apply cast_app_dep_two f;
+            have Hf: ∀Γ, @Stlc.Context.interp.wk Γ Δ'' ρ.lift = f Γ 
+              := by { intros; rfl }          
+            rw [Hf]
+            rw [Hf]
+            apply cast_app_dep_two f;
+            rfl
+            {
+              simp only [
+                Context.upgrade, Hyp.upgrade, A.stlc_ty_wk, Context.stlc
+              ]
+            }
+            {
+              rw [cast_pair']
+              apply congr (congr rfl _) rfl;
+              rw [A.stlc_ty_wk]
+              rw [cast_none]
+              rw [A.stlc_ty_wk]
               rfl
-              {
-                simp only [
-                  Context.upgrade, Hyp.upgrade, A.stlc_ty_wk, Context.stlc
-                ]
-              }
-              {
-                rw [cast_pair']
-                apply congr (congr rfl _) rfl;
-                rw [A.stlc_ty_wk]
-                rw [cast_none]
-                rw [A.stlc_ty_wk]
-                rfl
-              }
+            }
           }
           {
             rw [rec_to_cast']
@@ -238,34 +238,34 @@ theorem HasType.wk_eq
             (Γ: Stlc.Context) -> Γ.interp 
             -> Stlc.WkCtx ρ.lift Γ Δ'' -> (Stlc.Context.interp Δ'')
             := λΓ => @Stlc.Context.interp.wk Γ Δ'' ρ.lift;              
-            have Hf: ∀Γ, @Stlc.Context.interp.wk Γ Δ'' ρ.lift = f Γ 
-              := by intros; rfl;              
-            rw [Hf]
-            rw [Hf]
-            apply cast_app_dep_two f;
+          have Hf: ∀Γ, @Stlc.Context.interp.wk Γ Δ'' ρ.lift = f Γ 
+            := by intros; rfl;              
+          rw [Hf]
+          rw [Hf]
+          apply cast_app_dep_two f;
+          rfl
+          {
+            simp only [
+              Context.upgrade, Hyp.upgrade, A.stlc_ty_wk, Context.stlc
+            ]
             rfl
-            {
-              simp only [
-                Context.upgrade, Hyp.upgrade, A.stlc_ty_wk, Context.stlc
-              ]
-              rfl
-            }
-            {
-              rw [cast_pair']
-              apply congr (congr rfl _) rfl;
-              rw [A.stlc_ty_wk]
-              rfl
-              rw [rec_to_cast']
-              rw [cast_merge]
-              rfl
-              rfl
-            }
+          }
+          {
+            rw [cast_pair']
+            apply congr (congr rfl _) rfl;
+            rw [A.stlc_ty_wk]
+            rfl
+            rw [rec_to_cast']
+            rw [cast_merge]
+            rfl
+            rfl
+          }
         }
         rw [interp_eq_none]
       }
     | @intersect Δ' A B _ _ IA IB =>
       cases a with
-      | none => rw [interp_eq_none] rfl
+      | none => rw [interp_eq_none]; rfl
       | some a => 
         rw [interp_eq_some]
         dsimp only [Term.denote_ty]

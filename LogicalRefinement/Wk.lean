@@ -315,7 +315,7 @@ theorem Wk.wk1_maps {n: Nat}: wk1.maps (n + 1) n
 theorem Wk.liftn_maps {ρ: Wk} {l m n: Nat}: 
   ρ.maps m n -> (ρ.liftn l).maps (m + l) (n + l) := by {
   induction l with
-  | zero => intros Hρ. apply Hρ
+  | zero => intros Hρ; apply Hρ
   | succ l I => 
     intros Hρ;
     apply lift_maps

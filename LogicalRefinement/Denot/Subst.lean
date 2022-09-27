@@ -1046,7 +1046,7 @@ theorem HasType.denote_val_subst0_upgrade'
             rw [Stlc.HasType.interp_transport_cast']
             apply interp_cast_spine 
               (by rw [Context.upgrade_idem]) rfl 
-              (by simp only [rec_to_cast', cast_merge] rfl);
+              (by simp only [rec_to_cast', cast_merge]; rfl);
             exact Hb.upgrade.stlc;
             rfl
             rfl
