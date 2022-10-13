@@ -460,6 +460,13 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
 
   case succ => repeat constructor
 
+  case unit_unique =>
+    constructor
+    constructor
+    constructor
+    assumption
+    constructor
+
   all_goals (
     constructor; 
     first 

@@ -1835,6 +1835,22 @@ theorem HasType.denote
       rw [Ea', Eb'] at C;
       simp only [Ty.interp.inl, Ty.interp.inr, Option.bind] at C;
       cases C
+    | unit_unique a Ha IA => 
+      constructor;
+      constructor;
+      generalize Hlg: Stlc.HasType.interp _ G = li;
+      cases li with
+      | none => 
+        apply False.elim
+        apply HasType.unit.denote_ty_non_null
+        rw [<-Hlg]
+        have HA' := IA HΓ.upgrade (Context.upgrade_idem.symm ▸ G) HG.upgrade
+        rw [rec_to_cast'] at HA'
+        rw [Stlc.Context.interp.downgrade_cast] at HA'
+        exact HA'
+        assumption
+      | some _ => rfl
+      constructor
     | @cong Γ A P p e x y HP HA Hp He _ _ Ip Ie => 
       have Ie' := Ie HΓ G HG;
       have ⟨Sx, Sy, Exy⟩ := Ip HΓ G HG;
