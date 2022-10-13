@@ -1835,7 +1835,7 @@ theorem HasType.denote
       rw [Ea', Eb'] at C;
       simp only [Ty.interp.inl, Ty.interp.inr, Option.bind] at C;
       cases C
-    | unit_unique a Ha IA => 
+    | unit_unique Ha IA => 
       constructor;
       constructor;
       generalize Hlg: Stlc.HasType.interp _ G = li;
