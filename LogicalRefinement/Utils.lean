@@ -20,16 +20,32 @@ def Nat.succ_le_is_le: (succ m ≤ succ n) = (m ≤ n) :=
 @[simp]
 def Nat.max_zero_left: {m: Nat} -> Nat.max m 0 = m
   | 0 => rfl
-  | Nat.succ n => by { simp [Nat.max, Nat.eq_zero_is_le_zero] }
+  | Nat.succ n => by { 
+    unfold Nat.max
+    unfold max
+    unfold instMaxNat
+    unfold maxOfLe
+    simp
+  }
 
 @[simp]
 def Nat.max_zero_right: {m: Nat} -> Nat.max 0 m = m
   | 0 => rfl
-  | Nat.succ n => by { simp [Nat.max, Nat.zero_le] }
+  | Nat.succ n => by { 
+    unfold Nat.max
+    unfold max
+    unfold instMaxNat
+    unfold maxOfLe
+    simp
+  }
 
 @[simp]
 def Nat.max_bin_succ: Nat.max (Nat.succ l) (Nat.succ r) = Nat.succ (Nat.max l r) := by {
   unfold Nat.max
+  unfold max
+  unfold instMaxNat
+  unfold maxOfLe
+  simp
   cases (Nat.decLe l r).em with
   | inl Ht => 
     rw [if_pos Ht]
@@ -42,12 +58,18 @@ def Nat.max_bin_succ: Nat.max (Nat.succ l) (Nat.succ r) = Nat.succ (Nat.max l r)
 @[simp]
 def Nat.max_idempotent {l: Nat}: Nat.max l l = l := by {
   unfold Nat.max
-  rw [if_pos]
-  apply Nat.le_refl
+  unfold max
+  unfold instMaxNat
+  unfold maxOfLe
+  simp
 }
 
 def Nat.max_val_l {l r: Nat} (p: r ≤ l): Nat.max l r = l := by {
   unfold Nat.max
+  unfold max
+  unfold instMaxNat
+  unfold maxOfLe
+  simp
   cases (Nat.decLe l r).em with
   | inl Ht =>
     rw [if_pos Ht]
@@ -58,12 +80,20 @@ def Nat.max_val_l {l r: Nat} (p: r ≤ l): Nat.max l r = l := by {
 
 def Nat.max_val_r {l r: Nat} (p: l ≤ r): Nat.max l r = r := by {
   unfold Nat.max
+  unfold max
+  unfold instMaxNat
+  unfold maxOfLe
+  simp
   rw [if_pos]
   exact p
 }
 
 def Nat.max_le_l {l r: Nat}: l ≤ Nat.max l r := by {
   unfold Nat.max
+  unfold max
+  unfold instMaxNat
+  unfold maxOfLe
+  simp
   cases (Nat.decLe l r).em with
   | inl Ht =>
     rw [if_pos Ht]
@@ -75,6 +105,10 @@ def Nat.max_le_l {l r: Nat}: l ≤ Nat.max l r := by {
  
 def Nat.max_le_r {l r: Nat}: r ≤ Nat.max l r := by {
   unfold Nat.max
+  unfold max
+  unfold instMaxNat
+  unfold maxOfLe
+  simp
   cases (Nat.decLe l r).em with
   | inl Ht =>
     rw [if_pos Ht]
