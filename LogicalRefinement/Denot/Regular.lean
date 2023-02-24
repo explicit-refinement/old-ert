@@ -2105,6 +2105,7 @@ theorem HasType.denote
             apply congr _ rfl;
             simp only [Term.stlc_ty, Term.wk1, Term.wknth, Term.stlc_ty_wk]
           };
+          simp only [Term.stlc] at H
           rw [H]
           constructor
           have Hf': ((Hyp.val A type)::Γ.upgrade) ⊢ f.wk1: _ := Hf.wk1;

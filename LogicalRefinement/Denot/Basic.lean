@@ -212,6 +212,7 @@ theorem Context.denote.upgrade_helper {Γ: Context}
             have H: @Term.denote_ty A = f := rfl;
             rw [H]
             rw [cast_app_dep_first f]
+            rfl
             rw [Context.upgrade_idem]
           }
           {
