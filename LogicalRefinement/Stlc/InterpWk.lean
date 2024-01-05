@@ -14,13 +14,13 @@ theorem Term.wk_stlc_commute {ρ}
     induction a generalizing ρ with
     | var => rfl
     | const c => cases c <;> rfl
-    | unary k t I => 
+    | unary k t I =>
       (cases k <;> try rfl)
       rename Fin 2 => b;
       match b with
       | 0 => dsimp only [stlc]; rw [I]; rfl
       | 1 => dsimp only [stlc]; rw [I]; rfl
-    | _ => 
+    | _ =>
       rename TermKind _ => k;
       cases k <;>
       (try rename AnnotSort => k <;> cases k) <;>
@@ -39,7 +39,7 @@ theorem WkCtx.stlc {ρ Γ Δ} (R: WkCtx ρ Γ Δ): Stlc.WkCtx ρ Γ.stlc Δ.stlc
     induction R with
     | id => constructor
     | step => simp [Context.stlc_hyp]; constructor <;> assumption
-    | lift => 
+    | lift =>
       --TODO: clean?
       rename HypKind => k;
       cases k <;>
@@ -48,8 +48,8 @@ theorem WkCtx.stlc {ρ Γ Δ} (R: WkCtx ρ Γ Δ): Stlc.WkCtx ρ Γ.stlc Δ.stlc
       assumption
   }
 
-theorem HasType.wk_stlc_interp_commute {Γ Δ ρ a} 
-  (H: Δ ⊢ a: term A) 
+theorem HasType.wk_stlc_interp_commute {Γ Δ ρ a}
+  (H: Δ ⊢ a: term A)
   (R: WkCtx ρ Γ Δ)
   (G: Γ.stlc.interp)
   : H.stlc.interp.wk R.stlc G
@@ -59,12 +59,12 @@ theorem HasType.wk_stlc_interp_commute {Γ Δ ρ a}
     rw [rec_to_cast']
     rw [Stlc.HasType.interp_transport_cast']
     rw [Term.wk_stlc_commute]
-    rw [Annot.stlc_ty_wk]
+    rw [Annot.stlc_ty_wk']
   }
 
 
-theorem HasType.wk_stlc_interp_commute' {Γ Δ ρ a} 
-  (H: Δ ⊢ a: term A) 
+theorem HasType.wk_stlc_interp_commute' {Γ Δ ρ a}
+  (H: Δ ⊢ a: term A)
   (R: WkCtx ρ Γ Δ)
   (G: Γ.stlc.interp)
   : (H.wk R).stlc.interp G
@@ -77,8 +77,8 @@ theorem HasType.wk_stlc_interp_commute' {Γ Δ ρ a}
     rw [Annot.stlc_ty_wk]
   }
 
-theorem HasType.wk_stlc_interp_commute'' {Γ Δ ρ a} 
-  (H: Δ ⊢ a: term A) 
+theorem HasType.wk_stlc_interp_commute'' {Γ Δ ρ a}
+  (H: Δ ⊢ a: term A)
   (H': Γ ⊢ a.wk ρ: term (A.wk ρ))
   (R: WkCtx ρ Γ Δ)
   (G: Γ.stlc.interp)
@@ -92,8 +92,8 @@ theorem HasType.wk_stlc_interp_commute'' {Γ Δ ρ a}
     rw [Annot.stlc_ty_wk]
   }
 
-theorem HasType.wk_stlc_interp_commute_erased {Γ Δ ρ a} 
-  (H: Δ ⊢ a: term A) 
+theorem HasType.wk_stlc_interp_commute_erased {Γ Δ ρ a}
+  (H: Δ ⊢ a: term A)
   (H': Δ.stlc ⊧ a.stlc: (A.wk ρ).stlc_ty)
   (R: WkCtx ρ Γ Δ)
   (G: Γ.stlc.interp)
@@ -102,43 +102,43 @@ theorem HasType.wk_stlc_interp_commute_erased {Γ Δ ρ a}
   := by {
     rw [<-Stlc.HasType.interp_wk]
     apply congr _ rfl;
-    let f: (p: Stlc × Ty) -> (Γ.stlc ⊧ p.fst: p.snd) -> Γ.stlc.deriv p.snd 
+    let f: (p: Stlc × Ty) -> (Γ.stlc ⊧ p.fst: p.snd) -> Γ.stlc.deriv p.snd
     := λ(a, A) => @Stlc.HasType.interp Γ.stlc a A
-    have Hf: ∀a A, @Stlc.HasType.interp Γ.stlc a A = f (a, A) 
+    have Hf: ∀a A, @Stlc.HasType.interp Γ.stlc a A = f (a, A)
       := by intros; rfl;
     rw [Hf]
     rw [Hf]
-    rw 
-      [<-cast_app_dep_bin f 
+    rw
+      [<-cast_app_dep_bin f
         (Term.stlc (Term.wk a ρ), stlc_ty (Annot.wk (term A) ρ))
-        _ _ 
-        (by 
+        _ _
+        (by
           simp only [Annot.wk]
           rw [Term.wk_stlc_commute, Annot.stlc_ty_wk];
         )
-        (by 
+        (by
           simp only [Annot.wk]
           rw [Term.wk_stlc_commute, Annot.stlc_ty_wk];
         )
-        (by 
+        (by
           simp only [Annot.wk, Annot.stlc_ty_wk]
         )
       ]
     funext G;
     unfold Stlc.Context.deriv
     rw [
-      cast_app_pull_in _ _ 
-      (by rw [Annot.stlc_ty_wk]) 
-      (by rw [Annot.stlc_ty_wk])
+      cast_app_pull_in _ _
+      (by rw [Annot.stlc_ty_wk'])
+      (by rw [Annot.stlc_ty_wk'])
     ]
     simp only []
     rw [Stlc.HasType.interp_transport_cast']
     rfl
-    rw [Annot.stlc_ty_wk]
+    rw [Annot.stlc_ty_wk']
   }
 
-theorem HasType.wk_stlc_interp_commute_cast_erased {Γ Δ ρ a} 
-  (H: Δ ⊢ a: term A) 
+theorem HasType.wk_stlc_interp_commute_cast_erased {Γ Δ ρ a}
+  (H: Δ ⊢ a: term A)
   (H': Δ.stlc ⊧ a.stlc: A.stlc_ty)
   (R: WkCtx ρ Γ Δ)
   (G: Γ.stlc.interp)

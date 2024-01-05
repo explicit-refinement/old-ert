@@ -10,12 +10,12 @@ open AnnotSort
 
 inductive WkCtx: Wk -> Context -> Context -> Type
   | id: WkCtx Wk.id Γ Γ
-  | step {ρ Γ Δ H}: WkCtx ρ Γ Δ -> WkCtx ρ.step (H::Γ) Δ 
-  | lift {ρ Γ Δ k} {A: Term}: WkCtx ρ Γ Δ 
+  | step {ρ Γ Δ H}: WkCtx ρ Γ Δ -> WkCtx ρ.step (H::Γ) Δ
+  | lift {ρ Γ Δ k} {A: Term}: WkCtx ρ Γ Δ
     -> WkCtx ρ.lift ((Hyp.mk (A.wk ρ) k)::Γ) ((Hyp.mk A k)::Δ)
 
-def WkCtx.lift_loose: 
-  ρ' = ρ.lift -> A' = A.wk ρ -> WkCtx ρ Γ Δ 
+def WkCtx.lift_loose:
+  ρ' = ρ.lift -> A' = A.wk ρ -> WkCtx ρ Γ Δ
   -> WkCtx ρ' ((Hyp.mk A' k)::Γ) ((Hyp.mk A k)::Δ) := by {
     intro Hρ HA R;
     rw [Hρ, HA];
@@ -25,7 +25,7 @@ def WkCtx.lift_loose:
 def WkCtx.wk1 {Γ H}: WkCtx Wk.wk1 (H::Γ) Γ := WkCtx.step WkCtx.id
 def WkCtx.wk2 {Γ A k X}: WkCtx (Wk.wknth 1) ((Hyp.mk A.wk1 k)::X::Γ) ((Hyp.mk A k)::Γ) := WkCtx.lift WkCtx.wk1
 
-theorem WkCtx.upgrade: WkCtx ρ Γ Δ 
+theorem WkCtx.upgrade: WkCtx ρ Γ Δ
   -> WkCtx ρ Γ.upgrade Δ.upgrade := by {
   intro R;
   induction R with
@@ -39,13 +39,13 @@ theorem WkCtx.upgrade: WkCtx ρ Γ Δ
 theorem HasVar.wk:
   {ρ: Wk} -> {Γ Δ: Context} -> (Hs: WkCtx ρ Γ Δ) ->
   {n: Nat} -> {A: Term} -> {s: HypKind} ->
-  HasVar Δ n s A -> HasVar Γ (ρ.var n) s (A.wk ρ) 
+  HasVar Δ n s A -> HasVar Γ (ρ.var n) s (A.wk ρ)
   := by {
     intros ρ;
     induction ρ <;> intro Γ Δ R <;> cases R;
-    case id => 
+    case id =>
       intros n A s H;
-      simp [H] 
+      simp [H]
     case step ρ I Γ H R =>
       intros n A s HΔ;
       simp only [Term.step_wk1]
@@ -75,13 +75,13 @@ theorem HasVar.wk:
 theorem HasVar'.wk:
   {ρ: Wk} -> {Γ Δ: Context} -> (Hs: WkCtx ρ Γ Δ) ->
   {n: Nat} -> {A: Term} -> {s: HypKind} ->
-  HasVar' Δ n s A -> HasVar' Γ (ρ.var n) s (A.wk ρ) 
+  HasVar' Δ n s A -> HasVar' Γ (ρ.var n) s (A.wk ρ)
   := by {
     intros ρ;
     induction ρ <;> intro Γ Δ R <;> cases R;
-    case id => 
+    case id =>
       intros n A s H;
-      simp [H] 
+      simp [H]
     case step ρ I Γ H R =>
       intros n A s HΔ;
       simp only [Term.step_wk1]
@@ -107,7 +107,7 @@ theorem HasVar'.wk:
         apply I
         apply R
         assumption
-  } 
+  }
 
 
 theorem Term.alpha0_natrec_wk_helper {C: Term} {ρ: Wk}:
@@ -125,11 +125,11 @@ theorem Term.alpha0_natrec_wk_helper {C: Term} {ρ: Wk}:
   }
 
 theorem Term.pi_funext_helper {A B f: Term} {ρ: Wk}:
-  Term.app 
+  Term.app
     (Term.wk1 (Term.pi (Term.wk A ρ) (Term.wk B (Wk.lift ρ))))
-    (Term.wk1 (Term.wk f ρ)) 
+    (Term.wk1 (Term.wk f ρ))
     (Term.var 0)
-  = tri TermKind.app 
+  = tri TermKind.app
         (abs TermKind.pi (Term.wk (Term.wk A Wk.wk1) (Wk.lift ρ))
           (Term.wk (Term.wk B (Wk.lift Wk.wk1)) (Wk.lift (Wk.lift ρ))))
         (Term.wk (Term.wk f Wk.wk1) (Wk.lift ρ))
@@ -159,7 +159,7 @@ theorem HasType.wk {ρ Γ Δ a A} (HΔ: Δ ⊢ a: A) (R: WkCtx ρ Γ Δ):
 
     all_goals (
       rename_i' I5 I4 I3 I2 I1 I0;
-      simp only [
+      try simp only [
         Annot.sym_ty_wk,
         Annot.trans_ty_wk
       ]
@@ -182,9 +182,9 @@ theorem HasType.wk {ρ Γ Δ a A} (HΔ: Δ ⊢ a: A) (R: WkCtx ρ Γ Δ):
       (try rw [Term.let_bin_ty_alpha_wk_conj]) <;>
       (try rw [Term.alpha0_natrec_wk_helper]) <;>
       (repeat rw [Term.pi_funext_helper]) <;>
-      (first | apply I0 | apply I1 | apply I2 | apply I3 | apply I4 | apply I5) <;> 
-      simp only [<-Hyp.wk_components] <;> 
-      first 
+      (first | apply I0 | apply I1 | apply I2 | apply I3 | apply I4 | apply I5) <;>
+      (try simp only [<-Hyp.wk_components]) <;>
+      first
       | exact R
       | (exact R.upgrade)
       | {
@@ -194,20 +194,20 @@ theorem HasType.wk {ρ Γ Δ a A} (HΔ: Δ ⊢ a: A) (R: WkCtx ρ Γ Δ):
     )
   }
 
-theorem HasType.wk_sort {ρ Γ Δ a s} 
+theorem HasType.wk_sort {ρ Γ Δ a s}
   (H: Δ ⊢ a: sort s) (R: WkCtx ρ Γ Δ):
   (Γ ⊢ (a.wk ρ): sort s) := H.wk R
 
-theorem HasType.wk1 {H} (Ha: Γ ⊢ a: A): (H::Γ) ⊢ a.wk1: A.wk1 
+theorem HasType.wk1 {H} (Ha: Γ ⊢ a: A): (H::Γ) ⊢ a.wk1: A.wk1
 := wk Ha WkCtx.wk1
 
-theorem HasType.wk1_sort {H} (Ha: Γ ⊢ a: sort s): (H::Γ) ⊢ a.wk1: sort s 
+theorem HasType.wk1_sort {H} (Ha: Γ ⊢ a: sort s): (H::Γ) ⊢ a.wk1: sort s
 := wk Ha WkCtx.wk1
 
-theorem HasType.wk2 {A B k X} (Ha: ((Hyp.mk B k)::Γ) ⊢ a: A): ((Hyp.mk B.wk1 k)::X::Γ) ⊢ (a.wknth 1): (A.wk (Wk.wknth 1)) 
+theorem HasType.wk2 {A B k X} (Ha: ((Hyp.mk B k)::Γ) ⊢ a: A): ((Hyp.mk B.wk1 k)::X::Γ) ⊢ (a.wknth 1): (A.wk (Wk.wknth 1))
 := wk Ha WkCtx.wk2
 
-theorem HasType.wk2_sort {k X} (Ha: ((Hyp.mk B k)::Γ) ⊢ a: sort s): ((Hyp.mk B.wk1 k)::X::Γ) ⊢ (a.wknth 1): sort s 
+theorem HasType.wk2_sort {k X} (Ha: ((Hyp.mk B k)::Γ) ⊢ a: sort s): ((Hyp.mk B.wk1 k)::X::Γ) ⊢ (a.wknth 1): sort s
 := wk Ha WkCtx.wk2
 
 theorem IsCtx.var_valid' {Γ} (H: IsCtx Γ)
@@ -215,22 +215,22 @@ theorem IsCtx.var_valid' {Γ} (H: IsCtx Γ)
   := by {
     intro Hv;
     induction Hv with
-    | zero => 
+    | zero =>
       cases H <;>
       apply HasType.wk1_sort <;>
       rename HypKind.is_sub _ _ => Hsub <;>
       cases Hsub <;>
       assumption
-    | succ _Hk Hv => 
+    | succ _Hk Hv =>
       apply HasType.wk1_sort
       apply Hv
       cases H <;> assumption
   }
 
-theorem IsCtx.var_valid {Γ} (H: IsCtx Γ) (Hv: HasVar Γ n k A): 
+theorem IsCtx.var_valid {Γ} (H: IsCtx Γ) (Hv: HasVar Γ n k A):
   Γ ⊢ A: k.annot
   := H.var_valid' Hv.v
-  
+
 theorem IsCtx.var {Γ} (H: IsCtx Γ) (Hv: HasVar Γ n (HypKind.val s) A)
   : Γ ⊢ var n: expr s A
   := HasType.var (H.var_valid Hv) Hv

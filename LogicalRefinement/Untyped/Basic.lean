@@ -28,7 +28,7 @@ inductive TermKind: List Nat -> Type
   --TODO: consider merging with (pi, prop, prop)
   | dimplies: TermKind [0, 1]
   --TODO: consider dependent and, analogous to (sigma, prop, prop)
-  | dand: TermKind [0, 1] 
+  | dand: TermKind [0, 1]
   | or: TermKind [0, 0]
   --TODO: consider merging with (pi, type, prop) == (pi, ghost, prop)
   | forall_: TermKind [0, 1]
@@ -69,11 +69,11 @@ inductive TermKind: List Nat -> Type
   | let_conj: TermKind [0, 0, 2]
   | disj (b: Fin 2): TermKind [0]
   | case_pr: TermKind [0, 0, 1, 1]
-  -- Consider merging with intro/elim for 
+  -- Consider merging with intro/elim for
   -- (pi, ghost, prop) == (pi, type, prop)
   | general: TermKind [0, 1]
   | inst: TermKind [0, 0, 0]
-  -- Consider merging with intro/elim for 
+  -- Consider merging with intro/elim for
   -- (sigma, ghost, prop) == (sigma, type, prop)
   | wit: TermKind [0, 0]
   | let_wit: TermKind [0, 0, 2]
@@ -105,7 +105,7 @@ inductive TermKind: List Nat -> Type
   | natrec: AnnotSort -> TermKind [1, 0, 0, 2]
   | beta_zero: TermKind [1, 0, 2]
   | beta_succ: TermKind [1, 0, 0, 2]
-  
+
 inductive Term: Type
   | var (v: Nat)
 
@@ -217,15 +217,15 @@ abbrev Term.beta_succ := nr TermKind.beta_succ
   | var v, i => v = i
   | const _, _ => False
   | unary _ t, i => has_dep t i
-  | let_bin _ P e e', i => 
+  | let_bin _ P e e', i =>
     has_dep P i ∨ has_dep e i ∨ has_dep e' (i + 2)
-  | let_bin_beta _ P l r e', i => 
+  | let_bin_beta _ P l r e', i =>
     has_dep P i ∨ has_dep l i ∨ has_dep r i ∨ has_dep e' (i + 2)
   | bin _ l r, i => has_dep l i ∨ has_dep r i
   | abs _ A t, i => has_dep A i ∨ has_dep t (i + 1)
   | tri _ A l r, i => has_dep A i ∨ has_dep l i ∨ has_dep r i
   | ir _ x y p, i => has_dep x i ∨ has_dep y i ∨ has_dep p (i + 1)
-  | cases _ K d l r, i => 
+  | cases _ K d l r, i =>
     has_dep K i ∨ has_dep d i ∨ has_dep l (i + 1) ∨ has_dep r (i + 1)
   | nr _ K e z s, i =>
     has_dep K (i + 1) ∨ has_dep e i ∨ has_dep z i ∨ has_dep s (i + 2)
@@ -234,10 +234,9 @@ abbrev Term.beta_succ := nr TermKind.beta_succ
 
 theorem Term.has_dep_dimplies_fv (u: Term): {i: Nat} ->
   has_dep u i -> i < fv u := by {
-    induction u <;> 
+    induction u <;>
     simp only [has_dep, fv, Nat.max_l_lt_split];
     case var v =>
-      simp
       intro i H
       apply Nat.le_lt_succ
       apply Nat.le_of_eq

@@ -45,7 +45,7 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
     intro n A k;
     apply Hr.to_subst'
 
-  case lam_irrel _ _ _ IB => 
+  case lam_irrel _ _ _ IB =>
     constructor
     constructor
     assumption
@@ -55,7 +55,7 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
     constructor
     exact Context.is_sub.refl
     repeat constructor
-    
+
   case app_irrel A B _ r HP _ Hr _ _ _ =>
     constructor
     apply HasType.downgrade
@@ -63,17 +63,17 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
     cases HP <;> assumption
     intro n A k Hv;
     cases k with
-    | val s => 
+    | val s =>
       apply Hr.to_subst'
       rw [HasVar.v_eq]
       exact Hv.v.upgrade
-    | gst => 
+    | gst =>
       apply SubstVar'.wk_sort
       apply Hr.to_subst'
       apply Hv.ghost_up
       constructor
 
-  case dconj HD _ _ _ IA _ => 
+  case dconj HD _ _ _ IA _ =>
     constructor
     constructor
     cases IA
@@ -90,7 +90,7 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
       exact Hψ.upgrade
       upgrade_ctx assumption
 
-  case inst Hf _ Hr _ _ _ => 
+  case inst Hf _ Hr _ _ _ =>
     constructor
     apply HasType.downgrade
     apply HasType.subst0_sort
@@ -98,7 +98,7 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
     | forall_ HA Hφ => exact Hφ.upgrade
     assumption
 
-  case refl Ha IA =>  
+  case refl Ha IA =>
     cases IA;
     constructor
     apply HasType.downgrade
@@ -109,7 +109,7 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
     apply HasType.upgrade
     assumption
 
-  case cong _ _ _ _ _ Ip _ => 
+  case cong _ _ _ _ _ Ip _ =>
     constructor
     apply HasType.downgrade
     apply HasType.subst0_sort
@@ -117,7 +117,7 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
     cases Ip with
     | expr Ip => cases Ip; assumption
 
-  -- case trans _ _ _ _ _ Ip _ => 
+  -- case trans _ _ _ _ _ Ip _ =>
   --   constructor
   --   apply HasType.downgrade
   --   apply HasType.subst0_sort
@@ -125,7 +125,7 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
   --   cases Ip with
   --   | expr Ip => cases Ip; assumption
 
-  case beta Hs HA Ht Is _ _ => 
+  case beta Hs HA Ht Is _ _ =>
     cases Is with
     | expr HB =>
       constructor
@@ -142,7 +142,7 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
       exact Ht.upgrade
       exact Context.upgrade_idem ▸ Hs.upgrade.upgrade.subst0 Ht.upgrade.upgrade
 
-  case beta_ir Hs HA Ht Is _ _ => 
+  case beta_ir Hs HA Ht Is _ _ =>
     cases Is with
     | expr HB =>
       constructor
@@ -159,7 +159,7 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
       exact Ht.upgrade.upgrade
       exact Context.upgrade_idem ▸ Hs.upgrade.upgrade.subst0 Ht.upgrade.upgrade
 
-  case beta_pr Hs Hφ Hp Is _ _  => 
+  case beta_pr Hs Hφ Hp Is _ _  =>
     cases Is with
     | expr HA =>
       constructor
@@ -186,7 +186,7 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
     exact Hf
     exact Hf
 
-  case irir Γ A B f x y Hf Hx Hy If Ix _ => 
+  case irir Γ A B f x y Hf Hx Hy If Ix _ =>
     cases Ix with
     | expr HA =>
       cases If with
@@ -213,7 +213,7 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
           exact Hf.upgrade
           exact Hy.upgrade.upgrade
 
-  case prir => 
+  case prir =>
     constructor
     constructor
     apply subst0_sort
@@ -224,7 +224,7 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
     assumption
     assumption
 
-  case beta_left => 
+  case beta_left =>
     constructor
     constructor
     apply downgrade
@@ -249,7 +249,7 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
     rw [Term.alpha0_inj_subst]
     rfl
 
-  case beta_right => 
+  case beta_right =>
     constructor
     constructor
     apply downgrade
@@ -274,7 +274,7 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
     rw [Term.alpha0_inj_subst]
     rfl
 
-  case beta_pair => 
+  case beta_pair =>
     constructor
     constructor
     apply HasType.downgrade
@@ -305,7 +305,7 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
     apply congr rfl
     exact Term.alpha0_subst01_bin.symm
 
-  case beta_set => 
+  case beta_set =>
     constructor
     constructor
     apply HasType.downgrade
@@ -336,7 +336,7 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
     apply congr rfl
     exact Term.alpha0_subst01_bin.symm
 
-  case beta_repr => 
+  case beta_repr =>
     constructor
     constructor
     apply HasType.downgrade
@@ -367,7 +367,7 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
     apply congr rfl
     exact Term.alpha0_subst01_bin.symm
 
-  case natrec HC Hn _ _ _ _ _ _ => 
+  case natrec HC Hn _ _ _ _ _ _ =>
     constructor
     apply HasType.subst0_sort
     apply HC.sub
@@ -377,7 +377,7 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
     constructor
     assumption
 
-  case natrec_prop => 
+  case natrec_prop =>
     constructor
     apply HasType.downgrade
     apply HasType.subst0_sort
@@ -385,34 +385,34 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
     upgrade_ctx assumption
 
   case case_prop =>
-    constructor 
+    constructor
     apply HasType.downgrade
     apply HasType.subst0_sort;
     upgrade_ctx assumption
     assumption
 
-  case let_pair_prop => 
-    constructor 
+  case let_pair_prop =>
+    constructor
     apply HasType.downgrade
     apply HasType.subst0_sort;
     upgrade_ctx assumption
     assumption
 
-  case let_set_prop => 
-    constructor 
+  case let_set_prop =>
+    constructor
     apply HasType.downgrade
     apply HasType.subst0_sort;
     upgrade_ctx assumption
     assumption
 
-  case let_repr_prop => 
-    constructor 
+  case let_repr_prop =>
+    constructor
     apply HasType.downgrade
     apply HasType.subst0_sort;
     upgrade_ctx assumption
     assumption
 
-  case beta_zero => 
+  case beta_zero =>
     constructor
     constructor
     apply downgrade
@@ -426,7 +426,7 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
     upgrade_ctx assumption
     assumption
 
-  case beta_succ => 
+  case beta_succ =>
     constructor
     constructor
     apply downgrade
@@ -468,51 +468,51 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
     constructor
 
   all_goals (
-    constructor; 
-    first 
-    | assumption 
+    constructor;
+    first
+    | assumption
     | (
       apply subst0_sort
       assumption
       assumption
     )
     | (constructor <;> (
-        first 
-        | assumption 
+        first
+        | assumption
         | ( apply Annot.regular_expr; assumption )
       ))
   )
 }
 
-theorem HasType.expr_regular (p: HasType Γ a (expr s A)): HasType Γ A (sort s) 
+theorem HasType.expr_regular (p: HasType Γ a (expr s A)): HasType Γ A (sort s)
   := by {
     let H := regular p;
     cases H with
     | expr H => exact H
   }
 
-theorem HasType.term_regular (p: HasType Γ a (term A)): HasType Γ A type 
+theorem HasType.term_regular (p: HasType Γ a (term A)): HasType Γ A type
   := by {
     let H := regular p;
     cases H with
     | expr H => exact H
   }
 
-theorem HasType.proof_regular (p: HasType Γ a (proof A)): HasType Γ A prop 
+theorem HasType.proof_regular (p: HasType Γ a (proof A)): HasType Γ A prop
   := by {
     let H := regular p;
     cases H with
     | expr H => exact H
   }
 
-theorem HasType.downgrade_prop {Γ: Context} {p ϕ} 
+theorem HasType.downgrade_prop {Γ: Context} {p ϕ}
   (H: Γ.upgrade ⊢ p: proof ϕ): Γ ⊢ p: proof ϕ
   := by {
     generalize HΓ': Γ.upgrade = Γ';
     generalize HP: proof ϕ = P;
-    rw [HΓ', HP] at H; 
+    rw [HΓ', HP] at H;
     induction H generalizing Γ ϕ with
-    | var HA Hv IA => 
+    | var HA Hv IA =>
       cases HP;
       generalize HP: (HypKind.val prop) = P;
       rw [HP] at Hv;
@@ -524,19 +524,19 @@ theorem HasType.downgrade_prop {Γ: Context} {p ϕ}
       clear HA;
       clear IA;
       induction Hv generalizing Γ with
-      | zero => 
+      | zero =>
         cases Γ with
         | nil => cases HΓ'
         | cons H Γ =>
           cases H with
           | mk A k =>
             cases k with
-            | val s => 
+            | val s =>
               cases s with
               | prop => cases HΓ'; constructor
               | type => cases HΓ'; cases HP
             | gst => cases HΓ'; cases HP
-      | succ Hv I => 
+      | succ Hv I =>
         cases Γ with
         | nil => cases HΓ'
         | cons H Γ =>
@@ -545,10 +545,10 @@ theorem HasType.downgrade_prop {Γ: Context} {p ϕ}
           apply I rfl HP;
     | _ =>
       cases HP <;>
-      cases HΓ' <;>  
+      cases HΓ' <;>
       rename_i' I0 I1 I2 I3 I4 I5 I6 I7 I8 I9 IA IB IC ID <;>
       constructor <;>
-      (first 
+      (first
         | assumption
         | exact I0 rfl rfl
         | exact I1 rfl rfl

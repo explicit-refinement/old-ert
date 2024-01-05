@@ -7,7 +7,7 @@ open AnnotSort
 open Annot
 
 theorem HasType.wk_eq
-  {Γ Δ: Context} {ρ} {A: Term} {a s} 
+  {Γ Δ: Context} {ρ} {A: Term} {a s}
   {G: Γ.upgrade.stlc.interp}
   (HΓ: Δ ⊢ A: sort s)
   (R: WkCtx ρ Γ.upgrade Δ.upgrade)
@@ -19,7 +19,7 @@ theorem HasType.wk_eq
     | @pi Δ' A B _ _ IA IB =>
       cases a with
       | none => rw [interp_eq_none]; rfl
-      | some a => 
+      | some a =>
         rw [interp_eq_some]
         dsimp only [Term.denote_ty]
         apply forall_helper_dep (by rw [Term.stlc_ty_wk]);
@@ -33,19 +33,19 @@ theorem HasType.wk_eq
           }
           {
             rw[
-              @IB 
+              @IB
               ((Hyp.mk _ (HypKind.val type))::Γ)
               _ _ _ (x, G) R.lift rfl
-            ];            
+            ];
             apply congr (congr rfl _) _;
             {
               rw [<-Stlc.Context.interp.wk_lift]
               let Δ'' := Term.stlc_ty A :: Context.stlc (Context.upgrade Δ');
-              let f: 
-                (Γ: Stlc.Context) -> Γ.interp 
+              let f:
+                (Γ: Stlc.Context) -> Γ.interp
                 -> Stlc.WkCtx ρ.lift Γ Δ'' -> (Stlc.Context.interp Δ'')
                 := λΓ => @Stlc.Context.interp.wk Γ Δ'' ρ.lift;
-              have Hf: ∀Γ, @Stlc.Context.interp.wk Γ Δ'' ρ.lift = f Γ 
+              have Hf: ∀Γ, @Stlc.Context.interp.wk Γ Δ'' ρ.lift = f Γ
                 := by intros; rfl;
               rw [Hf]
               rw [Hf]
@@ -83,7 +83,7 @@ theorem HasType.wk_eq
     | @sigma Δ' A B _ _ IA IB =>
       cases a with
       | none => rw [interp_eq_none]; rfl
-      | some a => 
+      | some a =>
         rw [interp_eq_some]
         cases a with
         | mk a b =>
@@ -99,17 +99,17 @@ theorem HasType.wk_eq
           {
             rw [@IB
               ((Hyp.mk _ (HypKind.val type))::Γ)
-              _ _ _ 
+              _ _ _
               (some a, G) R.lift rfl];
             apply congr (congr rfl _) _;
             {
               rw [<-Stlc.Context.interp.wk_lift]
               let Δ'' := Term.stlc_ty A :: Context.stlc (Context.upgrade Δ');
-              let f: 
-                (Γ: Stlc.Context) -> Γ.interp 
+              let f:
+                (Γ: Stlc.Context) -> Γ.interp
                 -> Stlc.WkCtx ρ.lift Γ Δ'' -> (Stlc.Context.interp Δ'')
                 := λΓ => @Stlc.Context.interp.wk Γ Δ'' ρ.lift;
-              have Hf: ∀Γ, @Stlc.Context.interp.wk Γ Δ'' ρ.lift = f Γ 
+              have Hf: ∀Γ, @Stlc.Context.interp.wk Γ Δ'' ρ.lift = f Γ
                 := by intros; rfl;
               rw [Hf]
               rw [Hf]
@@ -141,14 +141,14 @@ theorem HasType.wk_eq
               rw [rec_to_cast']
             }
           }
-    | coprod _ _ IA IB => 
+    | coprod _ _ IA IB =>
       cases a with
       | none => rw [interp_eq_none]; rfl
-      | some a => 
+      | some a =>
         cases a with
-        | inl a => 
+        | inl a =>
           dsimp only [Term.denote_ty];
-          rw [IA R rfl]; 
+          rw [IA R rfl];
           rw [interp_eq_some]
           rw [rec_to_cast']
           rw [rec_to_cast']
@@ -159,9 +159,9 @@ theorem HasType.wk_eq
           rw [cast_some]
           rw [Term.stlc_ty_wk]
           rw [Term.stlc_ty_wk]
-        | inr a => 
-          dsimp only [Term.denote_ty]; 
-          rw [IB R rfl]; 
+        | inr a =>
+          dsimp only [Term.denote_ty];
+          rw [IB R rfl];
           rw [interp_eq_some]
           rw [rec_to_cast']
           rw [rec_to_cast']
@@ -172,10 +172,10 @@ theorem HasType.wk_eq
           rw [cast_some]
           rw [Term.stlc_ty_wk]
           rw [Term.stlc_ty_wk]
-    | @assume Δ' A B _ _ IA IB => 
+    | @assume Δ' A B _ _ IA IB =>
       cases a with
       | none => rw [interp_eq_none]; rfl
-      | some a => 
+      | some a =>
         dsimp only [Term.denote_ty]
         rw [interp_eq_some]
         apply arrow_equivalence;
@@ -184,19 +184,19 @@ theorem HasType.wk_eq
           rw [interp_eq_none]
         }
         {
-          rw [@IB 
-            ((Hyp.mk _ (HypKind.val prop))::Γ) 
+          rw [@IB
+            ((Hyp.mk _ (HypKind.val prop))::Γ)
             _ _ _ (none, G) R.lift rfl];
           apply congr (congr rfl _) _;
           {
             rw [<-Stlc.Context.interp.wk_lift]
             let Δ'' := Term.stlc_ty A :: Context.stlc (Context.upgrade Δ')
-            let f: 
-              (Γ: Stlc.Context) -> Γ.interp 
+            let f:
+              (Γ: Stlc.Context) -> Γ.interp
               -> Stlc.WkCtx ρ.lift Γ Δ'' -> (Stlc.Context.interp Δ'')
-              := λΓ => @Stlc.Context.interp.wk Γ Δ'' ρ.lift;              
-            have Hf: ∀Γ, @Stlc.Context.interp.wk Γ Δ'' ρ.lift = f Γ 
-              := by { intros; rfl }          
+              := λΓ => @Stlc.Context.interp.wk Γ Δ'' ρ.lift;
+            have Hf: ∀Γ, @Stlc.Context.interp.wk Γ Δ'' ρ.lift = f Γ
+              := by { intros; rfl }
             rw [Hf]
             rw [Hf]
             apply cast_app_dep_two f;
@@ -221,25 +221,25 @@ theorem HasType.wk_eq
             rw [cast_app_pull_in]
           }
         }
-    | @set Δ' A B _ _ IA IB => 
+    | @set Δ' A B _ _ IA IB =>
       dsimp only [Term.denote_ty]
       dsimp only [Term.stlc_ty] at a;
       apply congr (congr rfl _) _;
       . apply IA <;> assumption
       {
         rw [@IB
-          ((Hyp.mk _ (HypKind.val type))::Γ) 
+          ((Hyp.mk _ (HypKind.val type))::Γ)
           _ _ _ (_, G) R.lift rfl]
         apply congr (congr rfl _) _;
         {
           rw [<-Stlc.Context.interp.wk_lift]
           let Δ'' := Term.stlc_ty A :: Context.stlc (Context.upgrade Δ');
-          let f: 
-            (Γ: Stlc.Context) -> Γ.interp 
+          let f:
+            (Γ: Stlc.Context) -> Γ.interp
             -> Stlc.WkCtx ρ.lift Γ Δ'' -> (Stlc.Context.interp Δ'')
-            := λΓ => @Stlc.Context.interp.wk Γ Δ'' ρ.lift;              
-          have Hf: ∀Γ, @Stlc.Context.interp.wk Γ Δ'' ρ.lift = f Γ 
-            := by intros; rfl;              
+            := λΓ => @Stlc.Context.interp.wk Γ Δ'' ρ.lift;
+          have Hf: ∀Γ, @Stlc.Context.interp.wk Γ Δ'' ρ.lift = f Γ
+            := by intros; rfl;
           rw [Hf]
           rw [Hf]
           apply cast_app_dep_two f;
@@ -266,7 +266,7 @@ theorem HasType.wk_eq
     | @intersect Δ' A B _ _ IA IB =>
       cases a with
       | none => rw [interp_eq_none]; rfl
-      | some a => 
+      | some a =>
         rw [interp_eq_some]
         dsimp only [Term.denote_ty]
         apply forall_helper_dep (by rw [Term.stlc_ty_wk]);
@@ -278,18 +278,18 @@ theorem HasType.wk_eq
           rw [rec_to_cast']
         }
         {
-          rw [@IB 
-            ((Hyp.mk _ (HypKind.val type))::Γ) 
-            _ _ _ (x, G) R.lift rfl];            
+          rw [@IB
+            ((Hyp.mk _ (HypKind.val type))::Γ)
+            _ _ _ (x, G) R.lift rfl];
           apply congr (congr rfl _) _;
           {
             rw [<-Stlc.Context.interp.wk_lift]
             let Δ'' := Term.stlc_ty A :: Context.stlc (Context.upgrade Δ');
-            let f: 
-              (Γ: Stlc.Context) -> Γ.interp 
+            let f:
+              (Γ: Stlc.Context) -> Γ.interp
               -> Stlc.WkCtx ρ.lift Γ Δ'' -> (Stlc.Context.interp Δ'')
               := λΓ => @Stlc.Context.interp.wk Γ Δ'' ρ.lift;
-            have Hf: ∀Γ, @Stlc.Context.interp.wk Γ Δ'' ρ.lift = f Γ 
+            have Hf: ∀Γ, @Stlc.Context.interp.wk Γ Δ'' ρ.lift = f Γ
               := by intros; rfl;
             rw [Hf]
             rw [Hf]
@@ -322,7 +322,6 @@ theorem HasType.wk_eq
         }
     | @union Δ' A B _ _ IA IB =>
       dsimp only [Term.denote_ty]
-      simp only [pure]
       apply existential_forall_helper_dep (by rw [Term.stlc_ty_wk]);
       intro x;
       apply congr (congr rfl _) _;
@@ -332,17 +331,17 @@ theorem HasType.wk_eq
         rw [rec_to_cast']
       }
       {
-        rw [@IB 
-          ((Hyp.mk _ (HypKind.val type))::Γ) 
-          _ _ _ (x, G) R.lift rfl];            
+        rw [@IB
+          ((Hyp.mk _ (HypKind.val type))::Γ)
+          _ _ _ (x, G) R.lift rfl];
         apply congr (congr rfl _) rfl;
         rw [<-Stlc.Context.interp.wk_lift]
         let Δ'' := Term.stlc_ty A :: Context.stlc (Context.upgrade Δ');
-        let f: 
-          (Γ: Stlc.Context) -> Γ.interp 
+        let f:
+          (Γ: Stlc.Context) -> Γ.interp
           -> Stlc.WkCtx ρ.lift Γ Δ'' -> (Stlc.Context.interp Δ'')
           := λΓ => @Stlc.Context.interp.wk Γ Δ'' ρ.lift;
-        have Hf: ∀Γ, @Stlc.Context.interp.wk Γ Δ'' ρ.lift = f Γ 
+        have Hf: ∀Γ, @Stlc.Context.interp.wk Γ Δ'' ρ.lift = f Γ
           := by intros; rfl;
         rw [Hf]
         rw [Hf]
@@ -367,7 +366,7 @@ theorem HasType.wk_eq
           rfl
         }
       }
-    | @dimplies Δ' A B _ _ IA IB => 
+    | @dimplies Δ' A B _ _ IA IB =>
       dsimp only [Term.denote_ty]
       apply arrow_equivalence;
       {
@@ -375,18 +374,18 @@ theorem HasType.wk_eq
         rw [interp_eq_none]
       }
       {
-        rw [@IB 
-          ((Hyp.mk _ (HypKind.val prop))::Γ) 
+        rw [@IB
+          ((Hyp.mk _ (HypKind.val prop))::Γ)
           _ _ _ (none, G) R.lift rfl];
         apply congr (congr rfl _) _;
         {
           rw [<-Stlc.Context.interp.wk_lift]
           let Δ'' := Term.stlc_ty A :: Context.stlc (Context.upgrade Δ');
-          let f: 
-            (Γ: Stlc.Context) -> Γ.interp 
+          let f:
+            (Γ: Stlc.Context) -> Γ.interp
             -> Stlc.WkCtx ρ.lift Γ Δ'' -> (Stlc.Context.interp Δ'')
             := λΓ => @Stlc.Context.interp.wk Γ Δ'' ρ.lift;
-          have Hf: ∀Γ, @Stlc.Context.interp.wk Γ Δ'' ρ.lift = f Γ 
+          have Hf: ∀Γ, @Stlc.Context.interp.wk Γ Δ'' ρ.lift = f Γ
             := by intros; rfl;
           rw [Hf]
           rw [Hf]
@@ -412,27 +411,26 @@ theorem HasType.wk_eq
         }
         rw [interp_eq_none]
       }
-    | @dand Δ' A B _ _ IA IB => 
+    | @dand Δ' A B _ _ IA IB =>
       dsimp only [Term.denote_ty]
-      simp only [pure]
       apply congr (congr rfl _) _;
       {
         rw [IA R rfl]
         rw [interp_eq_none]
       }
       {
-        rw[@IB 
-          ((Hyp.mk _ (HypKind.val prop))::Γ) 
+        rw[@IB
+          ((Hyp.mk _ (HypKind.val prop))::Γ)
           _ _ _ (none, G) R.lift rfl]
         apply congr (congr rfl _) _;
         {
           rw [<-Stlc.Context.interp.wk_lift]
           let Δ'' := Term.stlc_ty A :: Context.stlc (Context.upgrade Δ');
-          let f: 
-            (Γ: Stlc.Context) -> Γ.interp 
+          let f:
+            (Γ: Stlc.Context) -> Γ.interp
             -> Stlc.WkCtx ρ.lift Γ Δ'' -> (Stlc.Context.interp Δ'')
             := λΓ => @Stlc.Context.interp.wk Γ Δ'' ρ.lift;
-          have Hf: ∀Γ, @Stlc.Context.interp.wk Γ Δ'' ρ.lift = f Γ 
+          have Hf: ∀Γ, @Stlc.Context.interp.wk Γ Δ'' ρ.lift = f Γ
             := by intros; rfl;
           rw [Hf]
           rw [Hf]
@@ -464,7 +462,7 @@ theorem HasType.wk_eq
       rw [interp_eq_none]
       rw [IB R rfl]
       rw [interp_eq_none]
-    | @forall_ Δ' A B _ _ IA IB => 
+    | @forall_ Δ' A B _ _ IA IB =>
       dsimp only [Term.denote_ty]
       apply forall_helper_dep (by rw [Term.stlc_ty_wk]);
       intro x;
@@ -475,18 +473,18 @@ theorem HasType.wk_eq
         rw [rec_to_cast']
       }
       {
-        rw [@IB 
-          ((Hyp.mk _ (HypKind.val type))::Γ) 
+        rw [@IB
+          ((Hyp.mk _ (HypKind.val type))::Γ)
           _ _ _ (x, G) R.lift rfl];
         apply congr (congr rfl _) _;
         {
           rw [<-Stlc.Context.interp.wk_lift]
           let Δ'' := Term.stlc_ty A :: Context.stlc (Context.upgrade Δ');
-          let f: 
-            (Γ: Stlc.Context) -> Γ.interp 
+          let f:
+            (Γ: Stlc.Context) -> Γ.interp
             -> Stlc.WkCtx ρ.lift Γ Δ'' -> (Stlc.Context.interp Δ'')
             := λΓ => @Stlc.Context.interp.wk Γ Δ'' ρ.lift;
-          have Hf: ∀Γ, @Stlc.Context.interp.wk Γ Δ'' ρ.lift = f Γ 
+          have Hf: ∀Γ, @Stlc.Context.interp.wk Γ Δ'' ρ.lift = f Γ
             := by intros; rfl;
           rw [Hf]
           rw [Hf]
@@ -515,9 +513,8 @@ theorem HasType.wk_eq
           rw [interp_eq_none]
         }
       }
-    | @exists_ Δ' A B _ _ IA IB => 
+    | @exists_ Δ' A B _ _ IA IB =>
       dsimp only [Term.denote_ty]
-      simp only [pure]
       apply existential_forall_helper_dep (by rw [Term.stlc_ty_wk]);
       intro x;
       apply congr (congr rfl _) _;
@@ -527,18 +524,18 @@ theorem HasType.wk_eq
         rw [rec_to_cast']
       }
       {
-        rw [@IB 
-          ((Hyp.mk _ (HypKind.val type))::Γ) 
-          _ _ _ (x, G) R.lift rfl];            
+        rw [@IB
+          ((Hyp.mk _ (HypKind.val type))::Γ)
+          _ _ _ (x, G) R.lift rfl];
         apply congr (congr rfl _) _;
         {
           rw [<-Stlc.Context.interp.wk_lift]
           let Δ'' := Term.stlc_ty A :: Context.stlc (Context.upgrade Δ');
-          let f: 
-            (Γ: Stlc.Context) -> Γ.interp 
+          let f:
+            (Γ: Stlc.Context) -> Γ.interp
             -> Stlc.WkCtx ρ.lift Γ Δ'' -> (Stlc.Context.interp Δ'')
             := λΓ => @Stlc.Context.interp.wk Γ Δ'' ρ.lift;
-          have Hf: ∀Γ, @Stlc.Context.interp.wk Γ Δ'' ρ.lift = f Γ 
+          have Hf: ∀Γ, @Stlc.Context.interp.wk Γ Δ'' ρ.lift = f Γ
             := by intros; rfl;
           rw [Hf]
           rw [Hf]
@@ -603,7 +600,7 @@ theorem HasType.wk_eq
 
 
 theorem HasType.wk_eq'
-  {Γ Δ: Context} {ρ} {A A': Term} {a a' s} 
+  {Γ Δ: Context} {ρ} {A A': Term} {a a' s}
   {G: Γ.upgrade.stlc.interp}
   {D: Δ.upgrade.stlc.interp}
   (HΓ: Δ ⊢ A: sort s)
@@ -611,7 +608,7 @@ theorem HasType.wk_eq'
   (HAA': A' = A.wk ρ)
   (Haa': a' = A.stlc_ty_wk ρ ▸ HAA' ▸ a)
   (HD: D = G.wk R.stlc)
-  : A'.denote_ty G a 
+  : A'.denote_ty G a
   = A.denote_ty D a'
   := by {
     cases HAA';
@@ -625,12 +622,12 @@ theorem HasType.wk_eq'
 theorem HasType.denote_wk1_eq
   {Γ: Context}  {A B: Term}  {s}
   (HΓ: Γ ⊢ A: sort s)
-  (x: Option B.stlc_ty.interp) 
+  (x: Option B.stlc_ty.interp)
   (G: Γ.upgrade.stlc.interp)
   (a: Option A.stlc_ty.interp)
   (a': Option A.wk1.stlc_ty.interp)
   (Haa': a' = (A.stlc_ty_wk Wk.wk1) ▸ a)
-  : A.denote_ty G a 
+  : A.denote_ty G a
   = @Term.denote_ty A.wk1 (B.stlc_ty::Γ.upgrade.stlc) (x, G) a'
   := by {
     rw [
@@ -648,12 +645,12 @@ theorem HasType.denote_wk1_eq
 theorem HasType.denote_wk1
   {Γ: Context}  {A B: Term}  {s}
   (HΓ: Γ ⊢ A: sort s)
-  (x: Option B.stlc_ty.interp) 
-  (G: Γ.upgrade.stlc.interp) 
+  (x: Option B.stlc_ty.interp)
+  (G: Γ.upgrade.stlc.interp)
   (a: Option A.stlc_ty.interp)
   (a': Option A.wk1.stlc_ty.interp)
   (Haa': a' = A.stlc_ty_wk1 ▸ a)
-  (H: A.denote_ty G a) 
+  (H: A.denote_ty G a)
   : @Term.denote_ty A.wk1 (B.stlc_ty::Γ.upgrade.stlc) (x, G) a'
   := by {
     rw [denote_wk1_eq] at H;
@@ -679,22 +676,22 @@ theorem cast_bin_cast_helper
 theorem HasType.denote_wk2_eq
   {Γ: Context}  {A B X: Term}  {s k}
   (HA: HasType ((Hyp.mk B k)::Γ) A (sort s))
-  (b: Option B.wk1.stlc_ty.interp) 
-  (x: Option X.stlc_ty.interp) 
+  (b: Option B.wk1.stlc_ty.interp)
+  (x: Option X.stlc_ty.interp)
   (G: Γ.upgrade.stlc.interp)
   (a: Option A.stlc_ty.interp)
   (a': Option (A.wknth 1).stlc_ty.interp)
   (Haa': a' = (A.stlc_ty_wk (Wk.wknth 1)) ▸ a)
-  : @Term.denote_ty A (B.stlc_ty::Γ.upgrade.stlc) (B.stlc_ty_wk _ ▸ b, G) a 
+  : @Term.denote_ty A (B.stlc_ty::Γ.upgrade.stlc) (B.stlc_ty_wk _ ▸ b, G) a
   = @Term.denote_ty (A.wknth 1) (B.wk1.stlc_ty::X.stlc_ty::Γ.upgrade.stlc) (b, x, G) a'
   := by {
     simp only [Term.wknth]
     cases k with
-    | val s =>       
+    | val s =>
       rw [
-        <-@HasType.wk_eq' 
-        ((Hyp.mk (B.wk1) (HypKind.val s))::(Hyp.mk X (HypKind.val type))::Γ) 
-        ((Hyp.mk B (HypKind.val s))::Γ) 
+        <-@HasType.wk_eq'
+        ((Hyp.mk (B.wk1) (HypKind.val s))::(Hyp.mk X (HypKind.val type))::Γ)
+        ((Hyp.mk B (HypKind.val s))::Γ)
         (Wk.wknth 1) _ _ _ _ _
         (b, x, G) _ HA (by repeat constructor) rfl
       ]
@@ -719,9 +716,9 @@ theorem HasType.denote_wk2_eq
       }
     | gst =>
       rw [
-        <-@HasType.wk_eq' 
-        ((Hyp.mk (B.wk1) HypKind.gst)::(Hyp.mk X (HypKind.val type))::Γ) 
-        ((Hyp.mk B HypKind.gst)::Γ) 
+        <-@HasType.wk_eq'
+        ((Hyp.mk (B.wk1) HypKind.gst)::(Hyp.mk X (HypKind.val type))::Γ)
+        ((Hyp.mk B HypKind.gst)::Γ)
         (Wk.wknth 1) _ _ _ _ _
         (b, x, G) _ HA (by repeat constructor) rfl
       ]
@@ -749,8 +746,8 @@ theorem HasType.denote_wk2_eq
 theorem HasType.denote_wk2_eq'
   {Γ: Context} {Δ: Stlc.Context} {A B X: Term}  {s k}
   (HA: HasType ((Hyp.mk B k)::Γ) A (sort s))
-  (b: Option B.wk1.stlc_ty.interp) 
-  (x: Option X.stlc_ty.interp) 
+  (b: Option B.wk1.stlc_ty.interp)
+  (x: Option X.stlc_ty.interp)
   (G: Γ.upgrade.stlc.interp)
   (D: Δ.interp)
   (a: Option A.stlc_ty.interp)
@@ -758,7 +755,7 @@ theorem HasType.denote_wk2_eq'
   (Haa': a' = (A.stlc_ty_wk (Wk.wknth 1)) ▸ a)
   (HΔ: Δ = (B.wk1.stlc_ty::X.stlc_ty::Γ.upgrade.stlc))
   (HD: D = HΔ ▸ (b, x, G))
-  : @Term.denote_ty A (B.stlc_ty::Γ.upgrade.stlc) (B.stlc_ty_wk _ ▸ b, G) a 
+  : @Term.denote_ty A (B.stlc_ty::Γ.upgrade.stlc) (B.stlc_ty_wk _ ▸ b, G) a
   = @Term.denote_ty (A.wknth 1) Δ D a'
   := by {
     cases HΔ; cases HD;

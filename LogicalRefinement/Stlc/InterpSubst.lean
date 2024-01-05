@@ -8,7 +8,7 @@ import LogicalRefinement.Utils
 open Annot
 open AnnotSort
 
-def Subst.stlc (σ: Subst): Stlc.Subst := 
+def Subst.stlc (σ: Subst): Stlc.Subst :=
   λv => (σ v).stlc
 
 theorem Subst.stlc_lift {σ: Subst}
@@ -29,7 +29,7 @@ theorem Stlc.HasVar.interp_inv {Γ: _root_.Context} (H: Stlc.HasVar Γ.stlc n A)
     | zero =>
       cases Γ with
       | nil => cases HΓ'
-      | cons Hy Γ => 
+      | cons Hy Γ =>
         cases Hy with
         | mk A' k =>
           exists A'.wk1, k;
@@ -41,7 +41,7 @@ theorem Stlc.HasVar.interp_inv {Γ: _root_.Context} (H: Stlc.HasVar Γ.stlc n A)
     | succ Hv I =>
       cases Γ with
       | nil => cases HΓ'
-      | cons Hy Γ => 
+      | cons Hy Γ =>
         rw [Context.stlc_hyp] at HΓ'
         cases HΓ';
         have ⟨A', k, Hv', HA⟩ := I rfl;
@@ -64,7 +64,7 @@ theorem SubstCtx.stlc {σ Γ Δ} (S: SubstCtx σ Γ Δ) (HΔ: IsCtx Δ)
       simp only [Subst.stlc, <-HA', stlc_ty] at *;
       rw [(HΔ.var_valid Hv').stlc_ty_subst] at E'
       exact E'
-    | var Hn HA Hg => 
+    | var Hn HA Hg =>
       simp only [Subst.stlc, Hn]
       constructor;
       have Hg' := Hg.stlc_hyp;
@@ -81,18 +81,18 @@ theorem HasType.subst_stlc_commute {σ Γ a A}
   := by {
     induction H generalizing σ with
     | var => rfl
-    | _ => 
+    | _ =>
       (try rename AnnotSort => k <;> cases k) <;>
       dsimp only [
         Term.stlc, Stlc.subst, Stlc.Subst.liftn, Subst.liftn] <;>
-      (try rw [HasType.stlc_ty_subst] 
-        <;> first 
-          | assumption 
+      (try rw [HasType.stlc_ty_subst]
+        <;> first
+          | assumption
           | (apply HasType.expr_regular <;> assumption) | skip) <;>
       simp only [*, Subst.stlc_lift]
   }
 
-theorem HasType.term_subst_stlc_commute {σ a} 
+theorem HasType.term_subst_stlc_commute {σ a}
   (H: Δ ⊢ a: term A)
   : (a.subst σ).stlc
   = (a.stlc).subst σ.stlc
@@ -105,13 +105,13 @@ abbrev SubstCtx.interp {σ Γ Δ} (S: SubstCtx σ Γ Δ) (IΔ: IsCtx Δ)
 theorem SubstCtx.interp_lift
   {σ: Subst} {Γ Δ: Context} {A s}
   (S: SubstCtx σ Γ Δ)
-  (S': 
-    SubstCtx σ.lift 
-      ({ ty := A.subst σ, kind := HypKind.val s }::Γ) 
+  (S':
+    SubstCtx σ.lift
+      ({ ty := A.subst σ, kind := HypKind.val s }::Γ)
       ({ ty := A, kind := HypKind.val s }::Δ))
   (IΔ: IsCtx Δ)
   (HA: Δ ⊢ A: sort s)
-  : S'.interp (IsCtx.cons_val IΔ HA) 
+  : S'.interp (IsCtx.cons_val IΔ HA)
   = cast (by simp only [Context.stlc]; rw [HA.stlc_ty_subst])
     (@Stlc.InterpSubst.lift A.stlc_ty Γ.stlc Δ.stlc (S.interp IΔ))
   := by {
@@ -120,49 +120,49 @@ theorem SubstCtx.interp_lift
     | mk x G =>
       unfold Stlc.InterpSubst;
       rw [
-        cast_app_pull_in_dep _ _ _ _ _ 
-        (by simp only [Context.stlc]; rw [HA.stlc_ty_subst]) 
-        (by simp only [Context.stlc]; rw [HA.stlc_ty_subst]) 
+        cast_app_pull_in_dep _ _ _ _ _
+        (by simp only [Context.stlc]; rw [HA.stlc_ty_subst])
+        (by simp only [Context.stlc]; rw [HA.stlc_ty_subst])
         (by simp only [Context.stlc]; rw [HA.stlc_ty_subst])
       ]
       rw [
-          cast_app_pull_in_dep _ _ _ _ _ 
-          (by simp only [Context.stlc]; rw [HA.stlc_ty_subst]) 
-          (by simp only [Context.stlc]; rw [HA.stlc_ty_subst]) 
+          cast_app_pull_in_dep _ _ _ _ _
+          (by simp only [Context.stlc]; rw [HA.stlc_ty_subst])
+          (by simp only [Context.stlc]; rw [HA.stlc_ty_subst])
           (by simp only [Context.stlc]; rw [HA.stlc_ty_subst])]
       rw [cast_app_pull_in _ _ _]
       cases n with
       | zero =>
-        simp only [Stlc.InterpSubst.lift]
         cases Hv;
         rw [cast_lam _ _ _ _ _ _
           (by simp only [Context.stlc]; rw [HA.stlc_ty_subst])]
         rw [
-          cast_pair' 
-          (by rw [HA.stlc_ty_subst]) 
+          cast_pair'
+          (by rw [HA.stlc_ty_subst])
           rfl _]
         rfl
         intros;
-        exact 
-          congr 
-            (congr rfl (congr (congr rfl HA.stlc_ty_subst.symm) rfl)) 
+        exact
+          congr
+            (congr rfl (congr (congr rfl HA.stlc_ty_subst.symm) rfl))
             rfl;
-      | succ n => 
-        simp only [Stlc.InterpSubst.lift]
+      | succ n =>
         rw [
-          cast_lam _ _ _ _ _ _ 
+          cast_lam _ _ _ _ _ _
           (by simp only [Context.stlc]; rw [HA.stlc_ty_subst])]
         cases Hv;
         rw [
-          cast_pair' 
-          (by rw [HA.stlc_ty_subst])  
+          cast_pair'
+          (by rw [HA.stlc_ty_subst])
           rfl _]
         simp only [
-          cast, interp, 
+          cast, interp,
           Stlc.SubstCtx.interp, Stlc.HasType.interp
         ]
         conv =>
           rhs
+          simp only [Stlc.InterpSubst.lift]
+          rw [Stlc.SubstCtx.interp]
           rw [<-Stlc.HasType.interp_wk1 _ x]
         apply congr _ rfl;
         apply interp_congr;
@@ -189,9 +189,9 @@ abbrev SubstCtx.transport_interp {σ Γ Δ}
 theorem SubstCtx.transport_interp_lift
   {σ: Subst} {Γ Δ: Context} {A s}
   (S: SubstCtx σ Γ Δ)
-  (S': 
-    SubstCtx σ.lift 
-      ({ ty := A.subst σ, kind := HypKind.val s }::Γ) 
+  (S':
+    SubstCtx σ.lift
+      ({ ty := A.subst σ, kind := HypKind.val s }::Γ)
       ({ ty := A, kind := HypKind.val s }::Δ))
   (IΔ: IsCtx Δ)
   (HA: Δ ⊢ A: sort s)
@@ -209,9 +209,9 @@ theorem SubstCtx.transport_interp_lift
       unfold interp;
       unfold Stlc.SubstCtx.interp;
       simp only [
-        Stlc.HasType.interp_var, 
-        Stlc.HasVar.interp, 
-        Sparsity.ix, p, 
+        Stlc.HasType.interp_var,
+        Stlc.HasVar.interp,
+        Sparsity.ix, p,
         Eq.mp, rec_to_cast'
       ]
     }
@@ -243,9 +243,9 @@ abbrev SubstCtx.transport_interp_up {σ Γ Δ}
 theorem SubstCtx.transport_interp_up_lift
   {σ: Subst} {Γ Δ: Context} {A s}
   (S: SubstCtx σ Γ Δ)
-  (S': 
-    SubstCtx σ.lift 
-      ({ ty := A.subst σ, kind := HypKind.val s }::Γ) 
+  (S':
+    SubstCtx σ.lift
+      ({ ty := A.subst σ, kind := HypKind.val s }::Γ)
       ({ ty := A, kind := HypKind.val s }::Δ))
   (IΔ: IsCtx Δ)
   (HA: Δ ⊢ A: sort s)
@@ -261,8 +261,8 @@ theorem SubstCtx.transport_interp_up_lift
     exact HA.upgrade
   }
 
-theorem HasType.subst_stlc_interp_commute {Γ Δ σ a} 
-  (H: Δ ⊢ a: term A) 
+theorem HasType.subst_stlc_interp_commute {Γ Δ σ a}
+  (H: Δ ⊢ a: term A)
   (S: SubstCtx σ Γ Δ)
   (IΔ: IsCtx Δ)
   (G: Γ.stlc.interp)
@@ -276,9 +276,9 @@ theorem HasType.subst_stlc_interp_commute {Γ Δ σ a}
     assumption
     rw [Annot.stlc_ty_subst H.expr_regular]
   }
-  
-theorem HasType.subst_stlc_interp_up_commute {Γ Δ σ a} 
-  (H: Δ.upgrade ⊢ a: term A) 
+
+theorem HasType.subst_stlc_interp_up_commute {Γ Δ σ a}
+  (H: Δ.upgrade ⊢ a: term A)
   (S: SubstCtx σ Γ Δ)
   (IΔ: IsCtx Δ)
   (G: Γ.upgrade.stlc.interp)
@@ -293,8 +293,8 @@ theorem HasType.subst_stlc_interp_up_commute {Γ Δ σ a}
     rw [Annot.stlc_ty_subst H.expr_regular]
   }
 
-theorem HasType.subst_stlc_interp_commute' {Γ Δ σ a} 
-  (H: Δ ⊢ a: term A) 
+theorem HasType.subst_stlc_interp_commute' {Γ Δ σ a}
+  (H: Δ ⊢ a: term A)
   (S: SubstCtx σ Γ Δ)
   (IΔ: IsCtx Δ)
   (G: Γ.stlc.interp)
@@ -306,11 +306,11 @@ theorem HasType.subst_stlc_interp_commute' {Γ Δ σ a}
     rw [Stlc.HasType.interp_transport_cast']
     rw [HasType.term_subst_stlc_commute]
     assumption
-    rw [Annot.stlc_ty_subst H.expr_regular]
+    exact Annot.stlc_ty_subst H.expr_regular
   }
-  
-theorem HasType.subst_stlc_interp_up_commute' {Γ Δ σ a} 
-  (H: Δ.upgrade ⊢ a: term A) 
+
+theorem HasType.subst_stlc_interp_up_commute' {Γ Δ σ a}
+  (H: Δ.upgrade ⊢ a: term A)
   (S: SubstCtx σ Γ Δ)
   (IΔ: IsCtx Δ)
   (G: Γ.upgrade.stlc.interp)
@@ -322,11 +322,11 @@ theorem HasType.subst_stlc_interp_up_commute' {Γ Δ σ a}
     rw [Stlc.HasType.interp_transport_cast']
     rw [HasType.term_subst_stlc_commute]
     assumption
-    rw [Annot.stlc_ty_subst H.expr_regular]
+    exact Annot.stlc_ty_subst H.expr_regular
   }
 
-theorem HasType.subst0_stlc_interp_commute {Γ: Context} {a b A B s} 
-  (Ha: ((Hyp.mk B (HypKind.val s))::Γ) ⊢ a: term A) 
+theorem HasType.subst0_stlc_interp_commute {Γ: Context} {a b A B s}
+  (Ha: ((Hyp.mk B (HypKind.val s))::Γ) ⊢ a: term A)
   (Hb: Γ ⊢ b: expr s B)
   (IΓ: IsCtx Γ)
   (G: Γ.stlc.interp)
@@ -341,13 +341,13 @@ theorem HasType.subst0_stlc_interp_commute {Γ: Context} {a b A B s}
     rw [Annot.stlc_ty_subst Ha.expr_regular]
   }
 
-theorem HasType.subst0_gst_stlc_interp_commute {Γ: Context} {a b A B} 
-  (Ha: ((Hyp.mk B HypKind.gst)::Γ) ⊢ a: term A) 
+theorem HasType.subst0_gst_stlc_interp_commute {Γ: Context} {a b A B}
+  (Ha: ((Hyp.mk B HypKind.gst)::Γ) ⊢ a: term A)
   (Hb: Γ ⊢ b: term B)
   (IΓ: IsCtx Γ)
   (G: Γ.stlc.interp)
   : ((Ha.sub (Context.is_sub.refl.cons (Hyp.is_sub.refl_ty HypKind.is_sub.gst))).subst (Hb.to_subst IΓ)).stlc.interp G
-  = (Annot.stlc_ty_subst Ha.expr_regular) ▸ 
+  = (Annot.stlc_ty_subst Ha.expr_regular) ▸
     (Ha.sub (Context.is_sub.refl.cons (Hyp.is_sub.refl_ty HypKind.is_sub.gst))).stlc.interp.subst ((Hb.to_subst IΓ).interp (IΓ.cons_val Hb.expr_regular)) G
   := by {
     rw [<-Stlc.HasType.subst_interp_dist]
@@ -358,8 +358,8 @@ theorem HasType.subst0_gst_stlc_interp_commute {Γ: Context} {a b A B}
     rw [Annot.stlc_ty_subst Ha.expr_regular]
   }
 
-theorem HasType.subst01_stlc_interp_commute {Γ: Context} {e l r A B C sl sr} 
-  (He: HasType 
+theorem HasType.subst01_stlc_interp_commute {Γ: Context} {e l r A B C sl sr}
+  (He: HasType
     ((Hyp.mk B (HypKind.val sl))
     ::(Hyp.mk A (HypKind.val sr))::Γ) e (term C))
   (Hl: HasType Γ l (expr sl (B.subst0 r)))
@@ -368,8 +368,8 @@ theorem HasType.subst01_stlc_interp_commute {Γ: Context} {e l r A B C sl sr}
   (IΓ: IsCtx Γ)
   (G: Γ.stlc.interp)
   : (He.subst (Hl.to_subst01 Hr IΓ)).stlc.interp G
-  = (Annot.stlc_ty_subst He.expr_regular) 
-    ▸ He.stlc.interp.subst 
+  = (Annot.stlc_ty_subst He.expr_regular)
+    ▸ He.stlc.interp.subst
       ((Hl.to_subst01 Hr IΓ).interp ((IΓ.cons_val Hr.expr_regular).cons_val HB)) G
   := by {
     rw [<-Stlc.HasType.subst_interp_dist]
@@ -380,8 +380,8 @@ theorem HasType.subst01_stlc_interp_commute {Γ: Context} {e l r A B C sl sr}
     rw [Annot.stlc_ty_subst He.expr_regular]
   }
 
-theorem HasType.subst01_stlc_interp_commute' {Γ: Context} {e l r A B C sl sr} 
-  (He: HasType 
+theorem HasType.subst01_stlc_interp_commute' {Γ: Context} {e l r A B C sl sr}
+  (He: HasType
     ((Hyp.mk B (HypKind.val sl))
     ::(Hyp.mk A (HypKind.val sr))::Γ) e (term C))
   (He': Γ.stlc ⊧ e': C')
@@ -393,8 +393,8 @@ theorem HasType.subst01_stlc_interp_commute' {Γ: Context} {e l r A B C sl sr}
   (IΓ: IsCtx Γ)
   (G: Γ.stlc.interp)
   : He'.interp G
-  = HCC' 
-    ▸ He.stlc.interp.subst 
+  = HCC'
+    ▸ He.stlc.interp.subst
       ((Hl.to_subst01 Hr IΓ).interp ((IΓ.cons_val Hr.expr_regular).cons_val HB)) G
   := by {
     cases Hee';
@@ -408,9 +408,9 @@ theorem HasType.subst01_stlc_interp_commute' {Γ: Context} {e l r A B C sl sr}
     rfl
     rfl
   }
-  
-theorem HasType.subst01_gst_stlc_interp_commute {Γ: Context} {e l r A B C sl} 
-  (He: HasType 
+
+theorem HasType.subst01_gst_stlc_interp_commute {Γ: Context} {e l r A B C sl}
+  (He: HasType
     ((Hyp.mk B (HypKind.val sl))
     ::(Hyp.mk A HypKind.gst)::Γ) e (term C))
   (Hl: HasType Γ l (expr sl (B.subst0 r)))
@@ -419,8 +419,8 @@ theorem HasType.subst01_gst_stlc_interp_commute {Γ: Context} {e l r A B C sl}
   (IΓ: IsCtx Γ)
   (G: Γ.stlc.interp)
   : ((He.sub (by repeat first | exact Context.is_sub.refl | constructor)).subst (Hl.to_subst01 Hr IΓ)).stlc.interp G
-  = (Annot.stlc_ty_subst He.expr_regular) 
-    ▸ (He.sub (by repeat first | exact Context.is_sub.refl | constructor)).stlc.interp.subst 
+  = (Annot.stlc_ty_subst He.expr_regular)
+    ▸ (He.sub (by repeat first | exact Context.is_sub.refl | constructor)).stlc.interp.subst
       ((Hl.to_subst01 Hr IΓ).interp ((IΓ.cons_val Hr.expr_regular).cons_val HB)) G
   := by {
     rw [<-Stlc.HasType.subst_interp_dist]
@@ -431,8 +431,8 @@ theorem HasType.subst01_gst_stlc_interp_commute {Γ: Context} {e l r A B C sl}
     rw [Annot.stlc_ty_subst He.expr_regular]
   }
 
-theorem HasType.subst01_gst_stlc_interp_commute' {Γ: Context} {e l r A B C sl e' C'} 
-  (He: HasType 
+theorem HasType.subst01_gst_stlc_interp_commute' {Γ: Context} {e l r A B C sl e' C'}
+  (He: HasType
     ((Hyp.mk B (HypKind.val sl))
     ::(Hyp.mk A HypKind.gst)::Γ) e (term C))
   (He': Γ.stlc ⊧ e': C')
@@ -444,8 +444,8 @@ theorem HasType.subst01_gst_stlc_interp_commute' {Γ: Context} {e l r A B C sl e
   (IΓ: IsCtx Γ)
   (G: Γ.stlc.interp)
   : He'.interp G
-  = HCC' 
-    ▸ (He.sub (by repeat first | exact Context.is_sub.refl | constructor)).stlc.interp.subst 
+  = HCC'
+    ▸ (He.sub (by repeat first | exact Context.is_sub.refl | constructor)).stlc.interp.subst
       ((Hl.to_subst01 Hr IΓ).interp ((IΓ.cons_val Hr.expr_regular).cons_val HB)) G
   := by {
     cases Hee';

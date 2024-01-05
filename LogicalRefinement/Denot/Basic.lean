@@ -8,32 +8,32 @@ open Annot
 -- NOTE: this can't be an inductive type as far as I can tell, since'
 -- the type former for pi is not strictly positive.
 -- TODO: report spurious unused variable warning...
-def Term.denote_ty (A: Term) 
+def Term.denote_ty (A: Term)
   {Γ: Stlc.Context}
   (G: Γ.interp)
   (a: Option A.stlc_ty.interp): Prop
   := match A with
-  | const TermKind.unit => 
+  | const TermKind.unit =>
     match a with
     | some () => True
     | none => False
-  | abs TermKind.pi A B => 
+  | abs TermKind.pi A B =>
     match a with
     | some a =>
       ∀x: Option A.stlc_ty.interp,
         A.denote_ty G x ->
         @denote_ty B (A.stlc_ty::Γ) (x, G) (x.bind a)
     | none => False
-  | abs TermKind.sigma A B => 
+  | abs TermKind.sigma A B =>
     match a with
-    | some (a, b) => 
+    | some (a, b) =>
       let a := return a;
       let b := return b;
       A.denote_ty G a ∧ @denote_ty B (A.stlc_ty::Γ) (a, G) b
     | none => False
   | bin TermKind.coprod A B =>
     match a with
-    | some a => 
+    | some a =>
       match a with
       | Sum.inl a => A.denote_ty G (return a)
       | Sum.inr b => B.denote_ty G (return b)
@@ -43,7 +43,7 @@ def Term.denote_ty (A: Term)
     | some a =>
       (φ.denote_ty G none -> @denote_ty A (φ.stlc_ty::Γ) (none, G) (a ()))
     | none => False
-  | abs TermKind.set A φ => 
+  | abs TermKind.set A φ =>
     A.denote_ty G a ∧ @denote_ty φ (A.stlc_ty::Γ) (a, G) none
   | abs TermKind.intersect A B =>
     match a with
@@ -58,38 +58,38 @@ def Term.denote_ty (A: Term)
       @denote_ty B (A.stlc_ty::Γ) (x, G) a
   | const TermKind.top => True
   | const TermKind.bot => False
-  | abs TermKind.dimplies A B => 
+  | abs TermKind.dimplies A B =>
     (A.denote_ty G none) -> (@denote_ty B (A.stlc_ty::Γ) (none, G) none)
   | abs TermKind.dand A B =>
     A.denote_ty G none ∧ @denote_ty B (A.stlc_ty::Γ) (none, G) none
-  | bin TermKind.or A B => 
+  | bin TermKind.or A B =>
     A.denote_ty G none ∨ B.denote_ty G none
-  | abs TermKind.forall_ A φ => 
+  | abs TermKind.forall_ A φ =>
     ∀x: Option A.stlc_ty.interp,
       A.denote_ty G x ->
       @denote_ty φ (A.stlc_ty::Γ) (x, G) none
-  | abs TermKind.exists_ A φ => 
+  | abs TermKind.exists_ A φ =>
     ∃x: Option A.stlc_ty.interp,
       A.denote_ty G x ∧
       @denote_ty φ (A.stlc_ty::Γ) (x, G) none
-  | tri TermKind.eq A x y => 
+  | tri TermKind.eq A x y =>
     --TODO: this should probably be a forall; makes life a little easier...
-    ∃ px: Γ ⊧ x.stlc: A.stlc_ty, 
+    ∃ px: Γ ⊧ x.stlc: A.stlc_ty,
     ∃ py: Γ ⊧ y.stlc: A.stlc_ty,
     px.interp G = py.interp G
-  | const TermKind.nats => 
+  | const TermKind.nats =>
     match a with
     | some _ => True
     | none => False
   | _ => False
 
-theorem Term.denote_ctx_cast {A Γ} {X X': Ty} {x G a} 
+theorem Term.denote_ctx_cast {A Γ} {X X': Ty} {x G a}
   (H: X = X'):
   @Term.denote_ty A (X'::Γ) (cast (by cases H; rfl) x, G) a
   = @Term.denote_ty A (X::Γ) (x, G) a
   := by cases H; rfl
 
-abbrev Term.denote_prop (A: Term) 
+abbrev Term.denote_prop (A: Term)
   {Γ: Stlc.Context}
   (G: Γ.interp): Prop
   := A.denote_ty G none
@@ -113,7 +113,7 @@ theorem HasType.denote_prop_eq' {Γ Γs G} {A: Term} {a a'}
     induction HA with
     | _ => first | rfl | cases Hs
   }
-  
+
 theorem HasType.denote_prop_none {Γ Γs G} {A: Term} {a}
   (HA: HasType Γ A prop)
   : @Term.denote_ty A Γs G a -> A.denote_prop G
@@ -124,7 +124,7 @@ theorem HasType.denote_prop_none {Γ Γs G} {A: Term} {a}
 
 notation G "⊧" a "∈" A => Term.denote_ty A G a
 
-theorem Term.denote_ty_transport 
+theorem Term.denote_ty_transport
   {A: Term} {Γ G} {a: Option A.stlc_ty.interp}
   {A' Γ' G' a'}
   (HA: A = A')
@@ -140,7 +140,7 @@ theorem Term.denote_ty_transport
     exact id
   }
 
-theorem HasType.denote_ty_non_null 
+theorem HasType.denote_ty_non_null
   {Γ} {Δ: Stlc.Context} {G: Δ.interp} {A}:
   (Γ ⊢ A: type) ->
   ¬(A.denote_ty G none)
@@ -148,11 +148,11 @@ theorem HasType.denote_ty_non_null
     generalize HS: sort type = S;
     intro HA;
     induction HA generalizing Δ with
-    | set _ _ IA _ => 
+    | set _ _ IA _ =>
       dsimp only [Term.denote_ty]
       intro ⟨HA, _⟩;
       exact IA rfl HA
-    | union _ _ _ IB => 
+    | union _ _ _ IB =>
       intro ⟨_, _, Hn⟩
       exact IB rfl Hn
     | _ => cases HS <;> intro H <;> cases H
@@ -180,7 +180,7 @@ notation G "⊧" a "∈" A => Annot.denote A G a
 
 def Context.denote: (Γ: Context) -> Γ.upgrade.stlc.interp -> Prop
 | [], () => True
-| (Hyp.mk A (HypKind.val _))::Γ, (a, G) => 
+| (Hyp.mk A (HypKind.val _))::Γ, (a, G) =>
   A.denote_ty G a ∧ denote Γ G
 | (Hyp.mk A HypKind.gst)::Γ, (a, G) =>
   A.denote_ty G a ∧ denote Γ G
@@ -204,8 +204,8 @@ theorem Context.denote.upgrade_helper {Γ: Context}
           {
             simp only []
             apply congr _ rfl;
-            let f: 
-              (Γ : Stlc.Context) → Stlc.Context.interp Γ → 
+            let f:
+              (Γ : Stlc.Context) → Stlc.Context.interp Γ →
               Option (Ty.interp (Term.stlc_ty A)) ->
               Prop
               := @Term.denote_ty A;
@@ -266,8 +266,8 @@ theorem Term.denote_upgrade_eq_cast {Γ: Context} {G: Γ.upgrade.stlc.interp} {A
   }
 
 
-theorem HasType.succ_nat_stlc_denote {Γ Γ' e G D} 
-  (H: Γ ⊢ e: term Term.nats) 
+theorem HasType.succ_nat_stlc_denote {Γ Γ' e G D}
+  (H: Γ ⊢ e: term Term.nats)
   (HD: @Term.denote_ty Term.nats Γ' G (H.stlc.interp D)):
   Term.nats.denote_ty G (H.succ_nat.stlc.interp D)
   := by {
@@ -276,7 +276,6 @@ theorem HasType.succ_nat_stlc_denote {Γ Γ' e G D}
     cases Se with
     | none => exact HD.elim
     | some Se =>
-      dsimp only [Term.succ_nat]
       rw [Stlc.HasType.interp_app]
       rw [HSe]
       exact True.intro
@@ -286,7 +285,7 @@ theorem HasType.succ_nat_stlc_denote {Γ Γ' e G D}
 
 notation G "⊧" "✓" Γ => Context.denote Γ G
 
-theorem denote_ty_cast_spine 
+theorem denote_ty_cast_spine
   {A B Γ Δ} {G: Γ.interp} {D: Δ.interp} {a b}
   (HAB: A = B)
   (HΓΔ: Γ = Δ)
@@ -301,9 +300,9 @@ theorem denote_ty_cast_spine
     rfl
   }
 
-theorem Term.denote_ty.inl {A B: Term} {Γ: Stlc.Context} 
-  {G: Γ.interp} 
-  {a: A.stlc_ty.interp} 
+theorem Term.denote_ty.inl {A B: Term} {Γ: Stlc.Context}
+  {G: Γ.interp}
+  {a: A.stlc_ty.interp}
   (H: A.denote_ty G (some a))
   : ((A.coprod B).denote_ty G (some (Sum.inl a)))
   := by {

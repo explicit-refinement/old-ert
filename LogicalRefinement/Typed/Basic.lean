@@ -10,34 +10,34 @@ open AnnotSort
 
 inductive HasVar: Context -> Nat -> HypKind -> Term -> Prop
   | zero {Γ: Context} {A: Term} {k: HypKind}:
-    HasVar ((Hyp.mk A k)::Γ) 0 k A.wk1 
+    HasVar ((Hyp.mk A k)::Γ) 0 k A.wk1
   | succ {Γ: Context} {A: Term} {k: HypKind} {H: Hyp} {n: Nat}:
     HasVar Γ n k A -> HasVar (H::Γ) (n + 1) k A.wk1
 
 inductive HasVar': Context -> Nat -> HypKind -> Term -> Prop
   | zero {Γ: Context} {A: Term} {k k': HypKind}:
-    k'.is_sub k -> HasVar' ((Hyp.mk A k)::Γ) 0 k' A.wk1 
+    k'.is_sub k -> HasVar' ((Hyp.mk A k)::Γ) 0 k' A.wk1
   | succ {Γ: Context} {A: Term} {k: HypKind} {H: Hyp} {n: Nat}:
     HasVar' Γ n k A -> HasVar' (H::Γ) (n + 1) k A.wk1
 
-theorem HasVar.sub' {k k': HypKind} 
-  (H: HasVar Γ n k A) 
+theorem HasVar.sub' {k k': HypKind}
+  (H: HasVar Γ n k A)
   (Hk: k'.is_sub k): HasVar' Γ n k' A := by {
   induction H with
-  | zero => 
+  | zero =>
     constructor
     assumption
-  | succ _ I => 
+  | succ _ I =>
     constructor
     exact I Hk
 }
 
-theorem HasVar.v 
-  (H: HasVar Γ n k A): HasVar' Γ n k A := 
+theorem HasVar.v
+  (H: HasVar Γ n k A): HasVar' Γ n k A :=
   H.sub' HypKind.is_sub.refl
 
-theorem HasVar'.v 
-  (H: HasVar' Γ n (HypKind.val s) A): HasVar Γ n (HypKind.val s) A := 
+theorem HasVar'.v
+  (H: HasVar' Γ n (HypKind.val s) A): HasVar Γ n (HypKind.val s) A :=
   by {
     generalize Hk: HypKind.val s = k;
     rw [Hk] at H;
@@ -52,12 +52,12 @@ theorem HasVar'.v
   }
 
 theorem HasVar.v_eq {Γ n s A}:
-  HasVar Γ n (HypKind.val s) A = HasVar' Γ n (HypKind.val s) A := 
+  HasVar Γ n (HypKind.val s) A = HasVar' Γ n (HypKind.val s) A :=
   propext (Iff.intro HasVar.v HasVar'.v)
 
 
 theorem HasVar'.e_eq {Γ n k A}:
-  HasVar' Γ n k A = ∃k', k.is_sub k' ∧ HasVar Γ n k' A := 
+  HasVar' Γ n k A = ∃k', k.is_sub k' ∧ HasVar Γ n k' A :=
   by {
     apply propext; apply Iff.intro;
     {
@@ -96,7 +96,7 @@ theorem HasVar'.fv (H: HasVar' Γ n s A): n < Γ.length := by {
     assumption
 }
 
-theorem HasVar'.sub (HΓ: HasVar' Γ A s n): 
+theorem HasVar'.sub (HΓ: HasVar' Γ A s n):
   Γ.is_sub Δ -> HasVar' Δ A s n := by {
   revert Γ n s A Δ;
   intro Γ;
@@ -105,7 +105,7 @@ theorem HasVar'.sub (HΓ: HasVar' Γ A s n):
   | cons H Γ I =>
     intro Δ A s n HΓ HΔ;
     cases HΔ with
-    | @cons Γ Δ _ H HΓΔ HH =>  
+    | @cons Γ Δ _ H HΓΔ HH =>
       cases HH;
       cases HΓ with
       | zero =>
@@ -135,57 +135,57 @@ inductive HasType: Context -> Term -> Annot -> Prop
   -- Types
   | unit {Γ: Context}: HasType Γ unit type
   | pi {Γ: Context} {A B: Term}:
-    HasType Γ A type -> 
+    HasType Γ A type ->
     HasType ((Hyp.mk A (HypKind.val type))::Γ) B type ->
     HasType Γ (pi A B) type
   | sigma {Γ: Context} {A B: Term}:
-    HasType Γ A type -> 
+    HasType Γ A type ->
     HasType ((Hyp.mk A (HypKind.val type))::Γ) B type ->
     HasType Γ (sigma A B) type
   | coprod {Γ: Context} {A B: Term}:
     HasType Γ A type -> HasType Γ B type ->
     HasType Γ (coprod A B) type
   | set {Γ: Context} {A B: Term}:
-    HasType Γ A type -> 
+    HasType Γ A type ->
     HasType ((Hyp.mk A (HypKind.val type))::Γ) B prop ->
     HasType Γ (set A B) type
   | assume {Γ: Context} {φ A: Term}:
-    HasType Γ φ prop -> 
+    HasType Γ φ prop ->
     HasType ((Hyp.mk φ (HypKind.val prop))::Γ) A type ->
     HasType Γ (assume φ A) type
   | intersect {Γ: Context} {A B: Term}:
-    HasType Γ A type -> 
+    HasType Γ A type ->
     HasType ((Hyp.mk A (HypKind.val type))::Γ) B type ->
     HasType Γ (intersect A B) type
   | union {Γ: Context} {A B: Term}:
-    HasType Γ A type -> 
+    HasType Γ A type ->
     HasType ((Hyp.mk A (HypKind.val type))::Γ) B type ->
     HasType Γ (union A B) type
-  
+
   -- Propositions
   | top {Γ}: HasType Γ top prop
   | bot {Γ}: HasType Γ bot prop
   | dand {Γ: Context} {φ ψ: Term}:
-    HasType Γ φ prop -> 
+    HasType Γ φ prop ->
     HasType ((Hyp.mk φ (HypKind.val prop))::Γ) ψ prop ->
     HasType Γ (dand φ ψ) prop
   | or {Γ: Context} {φ ψ: Term}:
     HasType Γ φ prop -> HasType Γ ψ prop ->
     HasType Γ (or φ ψ) prop
   | dimplies {Γ: Context} {φ ψ: Term}:
-    HasType Γ φ prop -> 
+    HasType Γ φ prop ->
     HasType ((Hyp.mk φ (HypKind.val prop))::Γ) ψ prop ->
     HasType Γ (dimplies φ ψ) prop
   | forall_ {Γ: Context} {A φ: Term}:
-    HasType Γ A type -> 
+    HasType Γ A type ->
     HasType ((Hyp.mk A (HypKind.val type))::Γ) φ prop ->
     HasType Γ (forall_ A φ) prop
   | exists_ {Γ: Context} {A φ: Term}:
-    HasType Γ A type -> 
+    HasType Γ A type ->
     HasType ((Hyp.mk A (HypKind.val type))::Γ) φ prop ->
     HasType Γ (exists_ A φ) prop
   | eq {Γ: Context} {A l r: Term}:
-    HasType Γ A type -> 
+    HasType Γ A type ->
     HasType Γ.upgrade l (term A) -> HasType Γ.upgrade r (term A) ->
     HasType Γ (eq A l r) prop
 
@@ -208,8 +208,8 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType Γ A type ->
     HasType ((Hyp.mk A (HypKind.val type))::Γ) B type ->
     HasType ((Hyp.mk (sigma A B) (HypKind.val type))::Γ) C type ->
-    HasType 
-    ((Hyp.mk B (HypKind.val type))::(Hyp.mk A (HypKind.val type))::Γ) 
+    HasType
+    ((Hyp.mk B (HypKind.val type))::(Hyp.mk A (HypKind.val type))::Γ)
     e' (expr type ((C.wknth 1).alpha0 (pair (var 1) (var 0)))) ->
     HasType Γ (let_pair type (sigma A B) e e') (expr type (C.subst0 e))
   | inj_l {Γ: Context} {A B e: Term}:
@@ -235,8 +235,8 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType Γ A type ->
     HasType ((Hyp.mk A (HypKind.val type))::Γ) φ prop ->
     HasType ((Hyp.mk (set A φ) (HypKind.val type))::Γ) C type ->
-    HasType 
-    ((Hyp.mk φ (HypKind.val prop))::(Hyp.mk A (HypKind.val type))::Γ) 
+    HasType
+    ((Hyp.mk φ (HypKind.val prop))::(Hyp.mk A (HypKind.val type))::Γ)
     e' (expr type ((C.wknth 1).alpha0 (elem (var 1) (var 0)))) ->
     HasType Γ (let_set type (set A φ) e e') (expr type (C.subst0 e))
   | lam_pr {Γ: Context} {φ s A: Term}:
@@ -264,8 +264,8 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType Γ A type ->
     HasType ((Hyp.mk A HypKind.gst)::Γ) B type ->
     HasType ((Hyp.mk (union A B) (HypKind.val type))::Γ) C type ->
-    HasType 
-    ((Hyp.mk B (HypKind.val type))::(Hyp.mk A HypKind.gst)::Γ) 
+    HasType
+    ((Hyp.mk B (HypKind.val type))::(Hyp.mk A HypKind.gst)::Γ)
     e' (expr type ((C.wknth 1).alpha0 (repr (var 1) (var 0)))) ->
     HasType Γ (let_repr type (union A B) e e') (expr type (C.subst0 e))
 
@@ -284,8 +284,8 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType Γ A prop ->
     HasType ((Hyp.mk A (HypKind.val prop))::Γ) B prop ->
     HasType ((Hyp.mk (dand A B) (HypKind.val prop))::Γ) C prop ->
-    HasType 
-    ((Hyp.mk B (HypKind.val prop))::(Hyp.mk A (HypKind.val prop))::Γ) 
+    HasType
+    ((Hyp.mk B (HypKind.val prop))::(Hyp.mk A (HypKind.val prop))::Γ)
     e' (proof ((C.wknth 1).alpha0 (dconj (var 1) (var 0)))) ->
     HasType Γ (let_conj (dand A B) e e') (proof (C.subst0 e))
   | disj_l {Γ: Context} {A B e: Term}:
@@ -318,7 +318,7 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType Γ (general A s) (proof (forall_ A φ))
   | inst {Γ: Context} {A φ l r: Term}:
     HasType Γ (forall_ A φ) prop ->
-    HasType Γ l (proof (forall_ A φ)) -> 
+    HasType Γ l (proof (forall_ A φ)) ->
     HasType Γ.upgrade r (term A) ->
     HasType Γ (inst (forall_ A φ) l r) (proof (φ.subst0 r))
   | wit {Γ: Context} {A φ l r: Term}:
@@ -330,8 +330,8 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType Γ A type ->
     HasType ((Hyp.mk A HypKind.gst)::Γ) φ prop ->
     HasType ((Hyp.mk (exists_ A φ) (HypKind.val prop))::Γ) C prop ->
-    HasType 
-    ((Hyp.mk φ (HypKind.val prop))::(Hyp.mk A (HypKind.val type))::Γ) 
+    HasType
+    ((Hyp.mk φ (HypKind.val prop))::(Hyp.mk A (HypKind.val type))::Γ)
     e' (proof ((C.wknth 1).alpha0 (wit (var 1) (var 0)))) ->
     HasType Γ (let_wit (exists_ A φ) e e') (proof (C.subst0 e))
   | case_prop {Γ: Context} {A B C e l r: Term}:
@@ -347,8 +347,8 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType Γ A type ->
     HasType ((Hyp.mk A (HypKind.val type))::Γ.upgrade) B type ->
     HasType ((Hyp.mk (sigma A B) (HypKind.val type))::Γ.upgrade) C prop ->
-    HasType 
-    ((Hyp.mk B (HypKind.val type))::(Hyp.mk A (HypKind.val type))::Γ.upgrade) 
+    HasType
+    ((Hyp.mk B (HypKind.val type))::(Hyp.mk A (HypKind.val type))::Γ.upgrade)
     e' (expr prop ((C.wknth 1).alpha0 (pair (var 1) (var 0)))) ->
     HasType Γ (let_pair prop (sigma A B) e e') (expr prop (C.subst0 e))
   | let_set_prop {Γ: Context} {A φ C e e': Term}:
@@ -356,8 +356,8 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType Γ A type ->
     HasType ((Hyp.mk A (HypKind.val type))::Γ) φ prop ->
     HasType ((Hyp.mk (set A φ) (HypKind.val type))::Γ) C prop ->
-    HasType 
-    ((Hyp.mk φ (HypKind.val prop))::(Hyp.mk A (HypKind.val type))::Γ.upgrade) 
+    HasType
+    ((Hyp.mk φ (HypKind.val prop))::(Hyp.mk A (HypKind.val type))::Γ.upgrade)
     e' (expr prop ((C.wknth 1).alpha0 (elem (var 1) (var 0)))) ->
     HasType Γ (let_set prop (set A φ) e e') (expr prop (C.subst0 e))
   | let_repr_prop {Γ: Context} {A B C e e': Term}:
@@ -365,8 +365,8 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType Γ A type ->
     HasType ((Hyp.mk A HypKind.gst)::Γ) B type ->
     HasType ((Hyp.mk (union A B) (HypKind.val type))::Γ) C prop ->
-    HasType 
-    ((Hyp.mk B (HypKind.val type))::(Hyp.mk A HypKind.gst)::Γ.upgrade) 
+    HasType
+    ((Hyp.mk B (HypKind.val type))::(Hyp.mk A HypKind.gst)::Γ.upgrade)
     e' (expr prop ((C.wknth 1).alpha0 (repr (var 1) (var 0)))) ->
     HasType Γ (let_repr prop (union A B) e e') (expr prop (C.subst0 e))
 
@@ -381,13 +381,13 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType Γ.upgrade a (term unit) ->
     HasType Γ (unit_unique a) (proof (eq unit a nil))
   | cong {Γ: Context} {A P p e x y: Term}:
-    HasType ((Hyp.mk A (HypKind.val type))::Γ) P prop -> 
+    HasType ((Hyp.mk A (HypKind.val type))::Γ) P prop ->
     HasType Γ A type ->
     HasType Γ p (proof (eq A x y)) ->
     HasType Γ e (proof (P.subst0 x)) ->
     HasType Γ (cong p e P) (proof (P.subst0 y))
   -- | trans {Γ: Context} {A B p e x y: Term}:
-  --   HasType ((Hyp.mk A (HypKind.val type))::Γ) B type -> 
+  --   HasType ((Hyp.mk A (HypKind.val type))::Γ) B type ->
   --   HasType Γ A type ->
   --   HasType Γ p (proof (eq A x y)) ->
   --   HasType Γ e (term (B.subst0 x)) ->
@@ -396,23 +396,23 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType ((Hyp.mk A (HypKind.val type))::Γ.upgrade) s (term B) ->
     HasType Γ A type ->
     HasType Γ.upgrade t (term A) ->
-    HasType Γ (beta t s) 
-    (proof (eq (B.subst0 t) 
+    HasType Γ (beta t s)
+    (proof (eq (B.subst0 t)
     (app (pi A B) (lam A s) t) (s.subst0 t)))
   | beta_pr {Γ: Context} {φ A s p: Term}:
     HasType ((Hyp.mk φ (HypKind.val prop))::Γ.upgrade) s (term A) ->
     HasType Γ φ prop ->
     HasType Γ.upgrade p (proof φ) ->
-    HasType Γ (beta_pr p s) 
-    (proof (eq (A.subst0 p) 
+    HasType Γ (beta_pr p s)
+    (proof (eq (A.subst0 p)
     (app_pr (assume φ A) (lam_pr φ s) p) (s.subst0 p)))
   | beta_ir {Γ: Context} {A B s t: Term}:
   --TODO: val_type?
     HasType ((Hyp.mk A HypKind.gst)::Γ.upgrade) s (term B) ->
     HasType Γ A type ->
     HasType Γ.upgrade t (term A) ->
-    HasType Γ (beta_ir t s) 
-    (proof (eq (B.subst0 t) 
+    HasType Γ (beta_ir t s)
+    (proof (eq (B.subst0 t)
     (app_irrel (intersect A B) (lam_irrel A s) t) (s.subst0 t)))
   | eta {Γ: Context} {A B f: Term}:
     HasType Γ.upgrade f (term (pi A B)) ->
@@ -422,10 +422,10 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType Γ.upgrade f (term (const_arrow A B)) ->
     HasType Γ.upgrade x (term A) ->
     HasType Γ.upgrade y (term A) ->
-    HasType Γ (irir f x y) 
+    HasType Γ (irir f x y)
     (proof (eq B (irir_ex A B f x) (irir_ex A B f y)))
   | prir {Γ: Context} {A P x y: Term}:
-    HasType ((Hyp.mk A (HypKind.val prop))::Γ) P prop -> 
+    HasType ((Hyp.mk A (HypKind.val prop))::Γ) P prop ->
     HasType Γ A prop ->
     HasType Γ x (proof A) ->
     HasType Γ y (proof A) ->
@@ -437,11 +437,11 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType ((Hyp.mk (coprod A B) (HypKind.val type))::Γ) C type ->
     HasType ((Hyp.mk A (HypKind.val type))::Γ.upgrade) l (expr type (C.alpha0 (inj 0 (var 0)))) ->
     HasType ((Hyp.mk B (HypKind.val type))::Γ.upgrade) r (expr type (C.alpha0 (inj 1 (var 0)))) ->
-    HasType Γ (beta_left (coprod A B) (inj 0 e) l r) 
-    (proof 
-      (eq 
-        (C.subst0 (inj 0 e)) 
-        (case type (coprod A B) (inj 0 e) l r) 
+    HasType Γ (beta_left (coprod A B) (inj 0 e) l r)
+    (proof
+      (eq
+        (C.subst0 (inj 0 e))
+        (case type (coprod A B) (inj 0 e) l r)
         (l.subst0 e)))
   | beta_right {Γ: Context} {A B C e l r: Term}:
     HasType Γ.upgrade e (term B) ->
@@ -450,11 +450,11 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType ((Hyp.mk (coprod A B) (HypKind.val type))::Γ) C type ->
     HasType ((Hyp.mk A (HypKind.val type))::Γ.upgrade) l (expr type (C.alpha0 (inj 0 (var 0)))) ->
     HasType ((Hyp.mk B (HypKind.val type))::Γ.upgrade) r (expr type (C.alpha0 (inj 1 (var 0)))) ->
-    HasType Γ (beta_right (coprod A B) (inj 1 e) l r) 
-    (proof 
-      (eq 
-        (C.subst0 (inj 1 e)) 
-        (case type (coprod A B) (inj 1 e) l r) 
+    HasType Γ (beta_right (coprod A B) (inj 1 e) l r)
+    (proof
+      (eq
+        (C.subst0 (inj 1 e))
+        (case type (coprod A B) (inj 1 e) l r)
         (r.subst0 e)))
   | beta_pair {Γ: Context} {A B C l r e: Term}:
     HasType Γ.upgrade l (term A) ->
@@ -462,10 +462,10 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType Γ A type ->
     HasType ((Hyp.mk A (HypKind.val type))::Γ) B type ->
     HasType ((Hyp.mk (sigma A B) (HypKind.val type))::Γ) C type ->
-    HasType 
-    ((Hyp.mk B (HypKind.val type))::(Hyp.mk A (HypKind.val type))::Γ.upgrade) 
+    HasType
+    ((Hyp.mk B (HypKind.val type))::(Hyp.mk A (HypKind.val type))::Γ.upgrade)
     e (expr type ((C.wknth 1).alpha0 (pair (var 1) (var 0)))) ->
-    HasType Γ 
+    HasType Γ
       (beta_pair (sigma A B) l r e)
       (expr prop (eq (C.subst0 (pair l r)) (let_pair type (sigma A B) (pair l r) e) (e.subst01 r l)))
   | beta_set {Γ: Context} {A φ C l r e: Term}:
@@ -474,10 +474,10 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType Γ A type ->
     HasType ((Hyp.mk A (HypKind.val type))::Γ) φ prop ->
     HasType ((Hyp.mk (set A φ) (HypKind.val type))::Γ) C type ->
-    HasType 
-    ((Hyp.mk φ (HypKind.val prop))::(Hyp.mk A (HypKind.val type))::Γ.upgrade) 
+    HasType
+    ((Hyp.mk φ (HypKind.val prop))::(Hyp.mk A (HypKind.val type))::Γ.upgrade)
     e (expr type ((C.wknth 1).alpha0 (elem (var 1) (var 0)))) ->
-    HasType Γ 
+    HasType Γ
       (beta_set (set A φ) l r e)
       (expr prop (eq (C.subst0 (elem l r)) (let_set type (set A φ) (elem l r) e) (e.subst01 r l)))
   | beta_repr {Γ: Context} {A B C l r e: Term}:
@@ -486,10 +486,10 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType Γ A type ->
     HasType ((Hyp.mk A HypKind.gst)::Γ) B type ->
     HasType ((Hyp.mk (union A B) (HypKind.val type))::Γ) C type ->
-    HasType 
-    ((Hyp.mk B (HypKind.val type))::(Hyp.mk A HypKind.gst)::Γ.upgrade) 
+    HasType
+    ((Hyp.mk B (HypKind.val type))::(Hyp.mk A HypKind.gst)::Γ.upgrade)
     e (expr type ((C.wknth 1).alpha0 (repr (var 1) (var 0)))) ->
-    HasType Γ 
+    HasType Γ
       (beta_repr (union A B) l r e)
       (expr prop (eq (C.subst0 (repr l r)) (let_repr type (union A B) (repr l r) e) (e.subst01 r l)))
   --TODO: trans?
@@ -510,32 +510,32 @@ inductive HasType: Context -> Term -> Annot -> Prop
     HasType ((Hyp.mk nats HypKind.gst)::Γ) C prop ->
     HasType Γ.upgrade e (term nats) ->
     HasType Γ.upgrade z (term (C.subst0 zero)) ->
-    HasType 
+    HasType
       ((Hyp.mk C (HypKind.val prop))::(Hyp.mk nats HypKind.gst)::Γ.upgrade) s
     (term ((C.wknth 1).alpha0 (app (arrow nats nats) succ (var 1)))) ->
     HasType Γ (natrec prop C e z s) (expr prop (C.subst0 e))
   | beta_zero {Γ: Context} {C z s: Term}:
     HasType ((Hyp.mk nats HypKind.gst)::Γ) C type ->
     HasType Γ.upgrade z (term (C.subst0 zero)) ->
-    HasType 
+    HasType
     ((Hyp.mk C (HypKind.val type))::(Hyp.mk nats HypKind.gst)::Γ.upgrade) s
     (term ((C.wknth 1).alpha0 (app (arrow nats nats) succ (var 1)))) ->
-    HasType Γ 
-      (beta_zero C z s) 
+    HasType Γ
+      (beta_zero C z s)
       (expr prop (eq (C.subst0 zero) (natrec type C zero z s) z))
   | beta_succ {Γ: Context} {C e z s: Term}:
     HasType ((Hyp.mk nats HypKind.gst)::Γ) C type ->
     HasType Γ.upgrade e (term nats) ->
     HasType Γ.upgrade z (term (C.subst0 zero)) ->
-    HasType 
+    HasType
       ((Hyp.mk C (HypKind.val type))::(Hyp.mk nats HypKind.gst)::Γ.upgrade) s
     (term ((C.wknth 1).alpha0 (app (arrow nats nats) succ (var 1)))) ->
-    HasType Γ 
+    HasType Γ
       (beta_succ C e z s)
       --ENHANCE: make succ a builtin operator instead?
       (expr prop (eq
         (C.subst0 (app (arrow nats nats) succ e))
-        (natrec type C 
+        (natrec type C
           (app (arrow nats nats) succ e) z s)
         (s.subst01 (natrec type C e z s) e)
       ))
@@ -549,8 +549,8 @@ theorem HasType.succ_nat {Γ n} (H: Γ ⊢ n: term Term.nats)
   := by repeat first | assumption | constructor
 
 theorem HasType.fv {Γ a A} (P: Γ ⊢ a: A): a.fv ≤ Γ.length := by {
-  induction P 
-  <;> intros 
+  induction P
+  <;> intros
   <;> try apply Nat.zero_le -- constants, e.g. nats, nil, zero
   case var =>
     apply HasVar.fv
@@ -558,24 +558,24 @@ theorem HasType.fv {Γ a A} (P: Γ ⊢ a: A): a.fv ≤ Γ.length := by {
 
   all_goals (
     simp only [
-      Term.fv, 
-      Nat.max_r_le_split, 
+      Term.fv,
+      Nat.max_r_le_split,
       Nat.le_sub_is_le_add
     ] at *;
-    simp only [
+    try simp only [
       Context.upgrade_length_is_length,
       List.length
     ] at *
-    repeat first 
+    repeat first
     | assumption
     | apply And.intro
   )
 }
 
-theorem HasVar'.upgrade (p: HasVar' Γ A k n): 
+theorem HasVar'.upgrade (p: HasVar' Γ A k n):
   HasVar' Γ.upgrade A (HypKind.val k.annot) n := by {
   induction p with
-  | zero H => 
+  | zero H =>
     rename_i k k';
     simp only [Context.upgrade, Hyp.upgrade]
     apply zero
@@ -585,27 +585,26 @@ theorem HasVar'.upgrade (p: HasVar' Γ A k n):
   | succ => apply succ; assumption
 }
 
-theorem HasVar'.wk_sort {k k'} (Hk: k.is_sub k') (p: HasVar' Γ A k' n): 
+theorem HasVar'.wk_sort {k k'} (Hk: k.is_sub k') (p: HasVar' Γ A k' n):
   HasVar' Γ A k n := by {
   induction p with
-  | zero H => 
+  | zero H =>
     rename_i k k';
-    simp only [Context.upgrade, Hyp.upgrade]
     apply zero
     cases H;
     apply Hk
     cases Hk
     constructor
-  | succ _ I => 
+  | succ _ I =>
     apply succ
     apply I
     apply Hk
 }
 
-theorem HasVar'.upgrade_weak (p: HasVar' Γ A k n): 
+theorem HasVar'.upgrade_weak (p: HasVar' Γ A k n):
   HasVar' Γ.upgrade A k n := by {
   induction p with
-  | zero H => 
+  | zero H =>
     rename_i k k';
     simp only [Context.upgrade, Hyp.upgrade]
     apply zero
@@ -615,11 +614,11 @@ theorem HasVar'.upgrade_weak (p: HasVar' Γ A k n):
   | succ => apply succ; assumption
 }
 
-theorem HasVar'.downgrade_helper: {Γ Γ': Context} -> Γ' = Γ.upgrade -> 
+theorem HasVar'.downgrade_helper: {Γ Γ': Context} -> Γ' = Γ.upgrade ->
   ∀ {n A k}, HasVar' Γ' A k n -> HasVar' Γ A k.downgrade n := by {
   intro Γ;
   induction Γ with
-  | nil => 
+  | nil =>
     intro Γ' HΓ';
     rw [HΓ']
     intro n a K H;
@@ -633,18 +632,18 @@ theorem HasVar'.downgrade_helper: {Γ Γ': Context} -> Γ' = Γ.upgrade ->
       apply zero
       apply HypKind.downgrade_wk
       assumption
-    | succ => 
+    | succ =>
       apply succ
       apply I rfl
       assumption
   }
 
-theorem HasVar'.downgrade {Γ n A k}: 
+theorem HasVar'.downgrade {Γ n A k}:
   HasVar' Γ.upgrade A k n -> HasVar' Γ A k.downgrade n :=
   downgrade_helper rfl
 
-theorem HasVar.downgrade {Γ n A k}: 
-  HasVar Γ.upgrade A k n -> 
+theorem HasVar.downgrade {Γ n A k}:
+  HasVar Γ.upgrade A k n ->
     ∃k', k.downgrade.is_sub k' ∧ HasVar Γ A k' n :=
   by {
     intro Hv;
@@ -653,11 +652,11 @@ theorem HasVar.downgrade {Γ n A k}:
     exact Hv';
   }
 
-theorem HasVar'.upgrade_val (p: HasVar' Γ n (HypKind.val s) A): 
+theorem HasVar'.upgrade_val (p: HasVar' Γ n (HypKind.val s) A):
   HasVar' Γ.upgrade n (HypKind.val s) A := HasVar'.upgrade p
 
-theorem HasVar.upgrade_val (p: HasVar Γ n (HypKind.val s) A): 
-  HasVar Γ.upgrade n (HypKind.val s) A := 
+theorem HasVar.upgrade_val (p: HasVar Γ n (HypKind.val s) A):
+  HasVar Γ.upgrade n (HypKind.val s) A :=
   HasVar.v_eq ▸ HasVar'.upgrade (HasVar.v_eq ▸ p)
 
 theorem HasVar'.upgrade_upgraded:
@@ -669,11 +668,11 @@ theorem HasVar'.upgrade_upgraded:
 }
 
 theorem HasVar'.upgrade_downgraded:
-  HasVar' Γ n k.downgrade A -> HasVar' Γ.upgrade n k A 
+  HasVar' Γ n k.downgrade A -> HasVar' Γ.upgrade n k A
   := upgrade_upgraded HypKind.downgrade_is_sub
 
 theorem HasVar.ghost_up:
-  HasVar Γ n HypKind.gst A -> HasVar Γ.upgrade n (HypKind.val type) A 
+  HasVar Γ n HypKind.gst A -> HasVar Γ.upgrade n (HypKind.val type) A
   := by {
     intro Hv;
     generalize Hk': HypKind.gst = k';
@@ -690,7 +689,7 @@ theorem HasVar.uniq {Γ: Context} {n k k' A A'}
   := by {
     induction H generalizing k' A' with
     | zero => cases H'; exact ⟨rfl, rfl⟩
-    | succ _ I => 
+    | succ _ I =>
       cases H' with
       | succ H' =>
         have ⟨Hk, HA⟩ := I H';
@@ -714,7 +713,7 @@ theorem HasVar.no_ghosts {Γ: Context} {A n}:
         cases H with
         | mk A k =>
           cases k <;> cases Hk
-    | succ _ I => 
+    | succ _ I =>
       cases Γ with
       | nil => cases HΓ
       | cons H Γ =>
@@ -741,16 +740,16 @@ theorem HasType.sub (p: Γ ⊢ a: A): ∀{Δ}, Γ.is_sub Δ -> Δ ⊢ a: A := by
   )
 }
 
-theorem HasType.upgrade (p: Γ ⊢ a: A): Γ.upgrade ⊢ a: A 
+theorem HasType.upgrade (p: Γ ⊢ a: A): Γ.upgrade ⊢ a: A
   := HasType.sub p Context.is_sub.upgrade
 
 inductive IsCtx: Context -> Prop
   | nil: IsCtx []
-  | cons_val {Γ A s}: 
-    IsCtx Γ -> (Γ ⊢ A: sort s) 
+  | cons_val {Γ A s}:
+    IsCtx Γ -> (Γ ⊢ A: sort s)
     -> IsCtx ((Hyp.mk A (HypKind.val s))::Γ)
-  | cons_gst {Γ A}: 
-    IsCtx Γ -> (Γ ⊢ A: type) -> 
+  | cons_gst {Γ A}:
+    IsCtx Γ -> (Γ ⊢ A: type) ->
     IsCtx ((Hyp.mk A HypKind.gst)::Γ)
 
 theorem IsCtx.upgrade {Γ} (H: IsCtx Γ): IsCtx Γ.upgrade
@@ -776,9 +775,9 @@ macro_rules
 
 macro_rules
   | `(tactic| upgrade_ctx_helper $_) => `(tactic|
-      first 
-        | apply Context.is_sub.refl 
-        | apply Context.is_sub.upgrade 
+      first
+        | apply Context.is_sub.refl
+        | apply Context.is_sub.upgrade
         | apply Context.is_sub.cons
         | apply Hyp.is_sub.refl
         | apply Hyp.is_sub.upgrade
@@ -792,7 +791,7 @@ syntax "upgrade_ctx" tactic: tactic
 
 macro_rules
   | `(tactic| upgrade_ctx $t) => `(tactic|
-      simp only [Context.upgrade_idem];
+      (try simp only [Context.upgrade_idem]);
       apply HasType.sub <;>
       repeat upgrade_ctx_helper $t
   )

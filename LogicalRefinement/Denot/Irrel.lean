@@ -7,7 +7,7 @@ open AnnotSort
 open Annot
 
 theorem HasType.eq_lrt_ty_denot
-  {Γ Δ: Context} {A a s} 
+  {Γ Δ: Context} {A a s}
   {G: Γ.upgrade.stlc.interp}
   {D: Δ.upgrade.stlc.interp}
   (HΓ: Γ ⊢ A: sort s)
@@ -19,10 +19,10 @@ theorem HasType.eq_lrt_ty_denot
     rw [HS] at HΓ;
     induction HΓ generalizing Δ s with
     | pi _ _ IA IB =>
-      cases HΔ; 
+      cases HΔ;
       cases a with
       | none => rfl
-      | some a => 
+      | some a =>
         dsimp only [Term.denote_ty]
         apply forall_helper;
         intro x;
@@ -31,17 +31,17 @@ theorem HasType.eq_lrt_ty_denot
         assumption
         exact HGD;
         rfl
-        apply @IB 
-          ((Hyp.mk _ (HypKind.val type))::Δ) 
+        apply @IB
+          ((Hyp.mk _ (HypKind.val type))::Δ)
           (x.bind a) _ (x, G) (x, D);
         assumption
         exact HGD.extend
         rfl
-    | sigma _ _ IA IB => 
-      cases HΔ; 
+    | sigma _ _ IA IB =>
+      cases HΔ;
       cases a with
       | none => rfl
-      | some a => 
+      | some a =>
         cases a with
         | mk a b =>
           dsimp only [Term.denote_ty]
@@ -49,53 +49,53 @@ theorem HasType.eq_lrt_ty_denot
           apply congr (congr rfl _) _;
           apply IA <;> assumption
           apply @IB
-            ((Hyp.mk _ (HypKind.val type))::Δ) 
+            ((Hyp.mk _ (HypKind.val type))::Δ)
             (some b) _ (some a, G) (some a, D);
           assumption
           exact HGD.extend
           rfl
-    | coprod _ _ IA IB => 
-      cases HΔ; 
+    | coprod _ _ IA IB =>
+      cases HΔ;
       cases a with
       | none => rfl
-      | some a => 
+      | some a =>
         cases a with
         | inl a => exact IA (by assumption) HGD rfl
         | inr a => exact IB (by assumption) HGD rfl
-    | assume _ _ IA IB => 
-      cases HΔ; 
+    | assume _ _ IA IB =>
+      cases HΔ;
       cases a with
       | none => rfl
-      | some a => 
+      | some a =>
         dsimp only [Term.denote_ty]
         apply arrow_equivalence;
         apply IA;
         assumption
         exact HGD;
         rfl
-        apply @IB 
-          ((Hyp.mk _ (HypKind.val prop))::Δ) 
+        apply @IB
+          ((Hyp.mk _ (HypKind.val prop))::Δ)
           (a ()) _ (none, G) (none, D);
         assumption
         exact HGD.extend
         rfl
-    | set _ _ IA IB => 
-      cases HΔ; 
+    | set _ _ IA IB =>
+      cases HΔ;
       dsimp only [Term.denote_ty]
       dsimp only [Term.stlc_ty] at a;
       apply congr (congr rfl _) _;
       apply IA <;> assumption
       apply @IB
-        ((Hyp.mk _ (HypKind.val type))::Δ) 
+        ((Hyp.mk _ (HypKind.val type))::Δ)
         none _ (a, G) (a, D);
       assumption
       exact HGD.extend
       rfl
-    | intersect _ _ IA IB => 
-      cases HΔ; 
+    | intersect _ _ IA IB =>
+      cases HΔ;
       cases a with
       | none => rfl
-      | some a => 
+      | some a =>
         dsimp only [Term.denote_ty]
         apply forall_helper;
         intro x;
@@ -104,16 +104,15 @@ theorem HasType.eq_lrt_ty_denot
         assumption
         exact HGD;
         rfl
-        apply @IB 
-          ((Hyp.mk _ (HypKind.val type))::Δ) 
+        apply @IB
+          ((Hyp.mk _ (HypKind.val type))::Δ)
           (a ()) _ (x, G) (x, D);
         assumption
         exact HGD.extend
         rfl
-    | union _ _ IA IB =>  
+    | union _ _ IA IB =>
       cases HΔ;
       dsimp only [Term.denote_ty]
-      simp only [pure]
       apply congr rfl _;
       funext x;
       apply congr (congr rfl _) _;
@@ -121,13 +120,13 @@ theorem HasType.eq_lrt_ty_denot
       assumption
       exact HGD
       rfl
-      apply @IB 
-        ((Hyp.mk _ (HypKind.val type))::Δ) 
+      apply @IB
+        ((Hyp.mk _ (HypKind.val type))::Δ)
         a _ (x, G) (x, D);
       assumption
       exact HGD.extend
       rfl
-    | dimplies _ _ IA IB => 
+    | dimplies _ _ IA IB =>
       cases HΔ;
       dsimp only [Term.denote_ty]
       apply arrow_equivalence;
@@ -135,35 +134,34 @@ theorem HasType.eq_lrt_ty_denot
       assumption
       exact HGD;
       rfl
-      apply @IB 
-        ((Hyp.mk _ (HypKind.val prop))::Δ) 
+      apply @IB
+        ((Hyp.mk _ (HypKind.val prop))::Δ)
         none _ (none, G) (none, D);
       assumption
       exact HGD.extend
       rfl
-    | dand _ _ IA IB =>  
+    | dand _ _ IA IB =>
       cases HΔ;
       dsimp only [Term.denote_ty]
-      simp only [pure]
       apply congr (congr rfl _) _;
       apply IA;
       assumption
       exact HGD
       rfl
-      apply @IB 
-        ((Hyp.mk _ (HypKind.val prop))::Δ) 
+      apply @IB
+        ((Hyp.mk _ (HypKind.val prop))::Δ)
         none _ (none, G) (none, D);
       assumption
       exact HGD.extend
       rfl
-    | or _ _ IA IB => 
+    | or _ _ IA IB =>
       cases HΔ;
       dsimp only [Term.denote_ty]
-      exact congr 
-        (congr rfl (IA (by assumption) HGD rfl)) 
+      exact congr
+        (congr rfl (IA (by assumption) HGD rfl))
         (IB (by assumption) HGD rfl);
-    | forall_ _ _ IA IB =>  
-      cases HΔ; 
+    | forall_ _ _ IA IB =>
+      cases HΔ;
       dsimp only [Term.denote_ty]
       apply forall_helper;
       intro x;
@@ -172,16 +170,15 @@ theorem HasType.eq_lrt_ty_denot
       assumption
       exact HGD;
       rfl
-      apply @IB 
-        ((Hyp.mk _ (HypKind.val type))::Δ) 
+      apply @IB
+        ((Hyp.mk _ (HypKind.val type))::Δ)
         none _ (x, G) (x, D);
       assumption
       exact HGD.extend
       rfl
-    | exists_ _ _ IA IB => 
+    | exists_ _ _ IA IB =>
       cases HΔ;
       dsimp only [Term.denote_ty]
-      simp only [pure]
       apply congr rfl _;
       funext x;
       apply congr (congr rfl _) _;
@@ -189,8 +186,8 @@ theorem HasType.eq_lrt_ty_denot
       assumption
       exact HGD
       rfl
-      apply @IB 
-        ((Hyp.mk _ (HypKind.val type))::Δ) 
+      apply @IB
+        ((Hyp.mk _ (HypKind.val type))::Δ)
         none _ (x, G) (x, D);
       assumption
       exact HGD.extend
@@ -220,7 +217,7 @@ theorem HasType.eq_lrt_ty_denot
 
 
 theorem HasType.eq_lrt_ty_denote_ty_spine
-  {Γ Δ: Context} {A B: Term} {a b s} 
+  {Γ Δ: Context} {A B: Term} {a b s}
   {G: Γ.upgrade.stlc.interp} {D: Δ.upgrade.stlc.interp}
   (HΓ: Γ ⊢ A: sort s)
   (HΔ: Δ ⊢ A: sort s)
@@ -236,7 +233,7 @@ theorem HasType.eq_lrt_ty_denote_ty_spine
 
 
 theorem HasType.eq_lrt_ty_denote_ty_spine''
-  {Γ' Δ': Stlc.Context} {Γ Δ: Context} {A B: Term} {a b s} 
+  {Γ' Δ': Stlc.Context} {Γ Δ: Context} {A B: Term} {a b s}
   {G: Γ'.interp} {D: Δ'.interp}
   (HΓ: Γ ⊢ A: sort s)
   (HΔ: Δ ⊢ A: sort s)
@@ -255,7 +252,7 @@ theorem HasType.eq_lrt_ty_denote_ty_spine''
   }
 
 theorem HasType.eq_lrt_ty_denot'
-  {Γ: Context} {A a s} 
+  {Γ: Context} {A a s}
   {G D: Γ.upgrade.stlc.interp}
   (HΓ: Γ ⊢ A: sort s)
   (HGD: G.eq_mod_lrt D Γ.upgrade Γ.upgrade)
@@ -264,7 +261,7 @@ theorem HasType.eq_lrt_ty_denot'
 
 
 theorem HasType.eq_lrt_ty_denote_ty_spine'
-  {Γ: Context} {A B: Term} {a b s} 
+  {Γ: Context} {A B: Term} {a b s}
   {G D: Γ.upgrade.stlc.interp}
   (HΓ: Γ ⊢ A: sort s)
   (HAB: A = B)
