@@ -34,14 +34,14 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
   case app A B _ r HP _ Hr _ _ _ =>
     constructor
     apply subst_sort'
-    cases HP <;> assumption
+    cases HP; assumption
     intro n A k;
     apply Hr.to_subst'
 
   case app_pr A B _ r HP _ Hr _ _ _ =>
     constructor
     apply subst_sort'
-    cases HP <;> assumption
+    cases HP; assumption
     intro n A k;
     apply Hr.to_subst'
 
@@ -60,7 +60,7 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
     constructor
     apply HasType.downgrade
     apply subst_sort'
-    cases HP <;> assumption
+    cases HP; assumption
     intro n A k Hv;
     cases k with
     | val s =>
@@ -180,9 +180,9 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
     constructor
     constructor
     apply HasType.downgrade
-    cases If <;> assumption
+    cases If; assumption
     apply HasType.eta_ex_ty;
-    cases If <;> assumption
+    cases If; assumption
     exact Hf
     exact Hf
 
@@ -242,7 +242,6 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
     upgrade_ctx assumption
     upgrade_ctx assumption
     upgrade_ctx assumption
-    upgrade_ctx assumption
     apply subst0_gen
     assumption
     assumption
@@ -261,7 +260,6 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
     constructor
     constructor
     assumption
-    upgrade_ctx assumption
     upgrade_ctx assumption
     upgrade_ctx assumption
     upgrade_ctx assumption
@@ -576,12 +574,6 @@ theorem HasType.downgrade_prop {Γ: Context} {p ϕ}
           | exact Context.upgrade_idem ▸ I6.upgrade
           | exact Context.upgrade_idem ▸ I7.upgrade
           | exact Context.upgrade_idem ▸ I8.upgrade
-          | exact Context.upgrade_idem ▸ I9.upgrade
-          | exact Context.upgrade_idem ▸ IA.upgrade
-          | exact Context.upgrade_idem ▸ IB.upgrade
-          | exact Context.upgrade_idem ▸ IC.upgrade
-          | exact Context.upgrade_idem ▸ ID.upgrade
-          | upgrade_ctx assumption
         )
         | upgrade_ctx assumption)
   }

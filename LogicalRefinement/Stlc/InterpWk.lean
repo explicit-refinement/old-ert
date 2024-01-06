@@ -38,7 +38,7 @@ theorem WkCtx.stlc {ρ Γ Δ} (R: WkCtx ρ Γ Δ): Stlc.WkCtx ρ Γ.stlc Δ.stlc
   := by {
     induction R with
     | id => constructor
-    | step => simp [Context.stlc_hyp]; constructor <;> assumption
+    | step => simp [Context.stlc_hyp]; constructor; assumption
     | lift =>
       --TODO: clean?
       rename HypKind => k;

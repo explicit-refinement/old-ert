@@ -1075,7 +1075,7 @@ theorem HasType.denote
       -- stop -- GOOD!
       apply And.intro (Il HΓ G HG);
       dsimp only [Annot.stlc_ty, Term.stlc_ty]
-      have Hφ: _ ⊢ φ: _ := by cases HAφ <;> assumption;
+      have Hφ: _ ⊢ φ: _ := by cases HAφ; assumption;
       rw [Hl.denote_val_subst0 HΓ HG Hφ]
       rw [(Hφ.subst0 Hl).denote_prop_eq']
       exact Ir HΓ G HG;
@@ -1194,10 +1194,10 @@ theorem HasType.denote
       | some l =>
         simp only [] at *;
         dsimp only [Ty.interp.app, Option.bind]
-        have HA: _ ⊢ A: _ := by cases HφA <;> assumption;
+        have HA: _ ⊢ A: _ := by cases HφA; assumption;
         rw [<-
           Hr.denote_val_subst0' HΓ HG
-          (by cases HφA <;> assumption)
+          (by cases HφA; assumption)
           (by rw [HA.stlc_ty_subst0])
           (by rw [Eq.mp, rec_to_cast', rec_to_cast'])
           rfl
@@ -1243,7 +1243,7 @@ theorem HasType.denote
         });
         simp only [] at *;
         dsimp only [Ty.interp.app, Option.bind]
-        have HB: _ ⊢ B: _ := by cases HAB <;> assumption;
+        have HB: _ ⊢ B: _ := by cases HAB; assumption;
         rw [Term.denote_upgrade_eq]
         rw [<-
           Hr.denote_val_subst0' HΓ.upgrade HG.upgrade HB.upgrade
@@ -1275,7 +1275,7 @@ theorem HasType.denote
       rw [Stlc.Context.interp.downgrade_cast] at Il';
       rw [
         <-Hl.denote_val_subst0_upgrade' HΓ HG
-        (by cases HAB <;> assumption)
+        (by cases HAB; assumption)
       ] at Ir';
       exact ⟨
         Hl.stlc.interp G,
@@ -1384,8 +1384,8 @@ theorem HasType.denote
       rw [HasType.denote_prop_eq]
       exact Hr.proof_regular
       rw [HasType.stlc_ty_subst0]
-      cases HAB <;> assumption
-      cases HAB <;> assumption
+      cases HAB; assumption
+      cases HAB; assumption
       {
         apply Stlc.Context.interp.eq_mod_lrt.extend_prop;
         apply Stlc.Context.interp.eq_mod_lrt_refl;
@@ -1488,7 +1488,7 @@ theorem HasType.denote
         Stlc.HasType.interp, Term.stlc, Term.stlc_ty, stlc_ty,
         Term.denote_ty, Ty.abort, Annot.denote
       ] at *
-      have Hψ: _ ⊢ ψ: prop := by cases Hϕψ <;> assumption;
+      have Hψ: _ ⊢ ψ: prop := by cases Hϕψ; assumption;
       rw [<-Hr.denote_prop_subst0 HΓ HG]
       exact Il HΓ G HG (Hr.proof_regular.denote_prop_none (Ir HΓ G HG))
       exact Hψ;
@@ -1504,7 +1504,7 @@ theorem HasType.denote
         Term.denote_ty, Ty.abort, Annot.denote
       ] at *
       rw [<-Hr.denote_val_subst0_upgrade' HΓ HG
-        (by cases HAφ <;> assumption)
+        (by cases HAφ; assumption)
         (by rw [interp_eq_none])
         rfl
       ]
@@ -1525,11 +1525,11 @@ theorem HasType.denote
       have Ir' := Ir HΓ G HG;
       rw [
         <-Hl.denote_val_subst0_upgrade' HΓ HG
-        (by cases HAφ <;> assumption)
+        (by cases HAφ; assumption)
         (by rw [rec_to_cast']; apply doublecast_self)
         rfl
       ] at Ir';
-      rw [HasType.denote_prop_eq (by cases HAφ <;> assumption)] at Ir';
+      rw [HasType.denote_prop_eq (by cases HAφ; assumption)] at Ir';
       exact Ir'
     | @let_wit Γ A B C e e' He HA HB HC He' Ie _ _ _ Ie' =>
       -- stop -- GOOD!
@@ -1871,8 +1871,8 @@ theorem HasType.denote
       -- stop -- GOOD!
       have Ie' := Ie HΓ G HG;
       have ⟨Sx, Sy, Exy⟩ := Ip HΓ G HG;
-      have Hx: Γ.upgrade ⊢ x: term A := by cases Hp.proof_regular <;> assumption;
-      have Hy: Γ.upgrade ⊢ y: term A := by cases Hp.proof_regular <;> assumption;
+      have Hx: Γ.upgrade ⊢ x: term A := by cases Hp.proof_regular; assumption;
+      have Hy: Γ.upgrade ⊢ y: term A := by cases Hp.proof_regular; assumption;
       dsimp only [
         Term.denote_ty, Term.stlc, Annot.denote,
         stlc_ty, Term.stlc_ty, Stlc.HasType.interp,
@@ -3109,7 +3109,7 @@ theorem HasType.denote
                 . {
                   rw [<-Ez']
                   apply Stlc.HasType.interp_irrel_cast
-                  <;> simp only [HC.stlc_ty_subst0, Annot.stlc_ty]
+                  simp only [HC.stlc_ty_subst0, Annot.stlc_ty]
                 }
                 . {
                   funext c;
