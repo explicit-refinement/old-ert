@@ -559,8 +559,8 @@ theorem HasType.fv {Γ a A} (P: Γ ⊢ a: A): a.fv ≤ Γ.length := by {
   all_goals (
     simp only [
       Term.fv,
-      Nat.max_r_le_split,
-      Nat.le_sub_is_le_add
+      max_le_iff,
+      Nat.sub_le_iff_le_add
     ] at *;
     try simp only [
       Context.upgrade_length_is_length,
@@ -762,7 +762,7 @@ theorem IsCtx.upgrade {Γ} (H: IsCtx Γ): IsCtx Γ.upgrade
 def IsHyp (Γ: Context) (H: Hyp): Prop := Γ ⊢ H.ty: sort H.kind.annot
 
 theorem HasType.to_var {s A n} (H: Γ ⊢ Term.var n: expr s A):
-  HasVar Γ n (HypKind.val s) A := by cases H <;> assumption
+  HasVar Γ n (HypKind.val s) A := by cases H; assumption
 
 --TODO: ask about weird goal hints here...
 

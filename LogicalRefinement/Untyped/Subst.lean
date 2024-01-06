@@ -23,7 +23,7 @@ def Subst.lift (σ: Subst): Subst
   | 0 => Term.var 0
   | Nat.succ n => wk1 σ n
 
-def Wk.to_subst_lift {σ: Wk}: 
+def Wk.to_subst_lift {σ: Wk}:
   (to_subst σ).lift = to_subst σ.lift := by {
   funext v;
   cases v with
@@ -47,7 +47,7 @@ def Subst.liftn (σ: Subst): Nat -> Subst
 @[simp]
 def Subst.liftn_succ {σ: Subst} {l}: σ.liftn (Nat.succ l) = (σ.liftn l).lift := rfl
 
-def Subst.liftn_add {σ: Subst}: σ.liftn m (v + m) = (σ v).wkn m 
+def Subst.liftn_add {σ: Subst}: σ.liftn m (v + m) = (σ v).wkn m
 := by {
   induction m with
   | zero => simp
@@ -76,25 +76,25 @@ def Wk.to_subst_liftn: {n: Nat} -> {σ: Wk} ->
 }
 
 theorem Subst.liftn_lift_commute {σ: Subst}
-  : σ.lift.liftn n = (σ.liftn n).lift 
+  : σ.lift.liftn n = (σ.liftn n).lift
   := by induction n <;> simp [*]
 
 theorem Subst.liftn_commute {σ: Subst}
-  : (σ.liftn m).liftn n = (σ.liftn n).liftn m  
+  : (σ.liftn m).liftn n = (σ.liftn n).liftn m
   := by induction n <;> simp [liftn, Subst.liftn_lift_commute, *]
 
 theorem Subst.lift_liftn_merge {n: Nat} {σ: Subst}:
   (σ.liftn n).lift = σ.liftn (n + 1) := rfl
 
 theorem Subst.liftn_merge_outer {m: Nat}
-  : {n: Nat} -> {σ: Subst} -> (σ.liftn m).liftn n = σ.liftn (n + m) 
+  : {n: Nat} -> {σ: Subst} -> (σ.liftn m).liftn n = σ.liftn (n + m)
   := by induction m <;> simp [liftn, <-liftn_lift_commute, *]
 
 theorem Subst.liftn_merge
-  : {m n: Nat} -> {σ: Subst} -> (σ.liftn m).liftn n  = σ.liftn (m + n) 
+  : {m n: Nat} -> {σ: Subst} -> (σ.liftn m).liftn n  = σ.liftn (m + n)
   := by intros; simp [liftn_merge_outer, Nat.add_comm]
 
-theorem Subst.liftn_base_nil {σ: Subst}: {base v: Nat} -> 
+theorem Subst.liftn_base_nil {σ: Subst}: {base v: Nat} ->
   v < base -> σ.liftn base v = Term.var v := by {
   intros base;
   revert σ;
@@ -107,15 +107,15 @@ theorem Subst.liftn_base_nil {σ: Subst}: {base v: Nat} ->
     simp only [liftn];
     cases v with
     | zero => rfl
-    | succ v => 
+    | succ v =>
       simp only [lift, wk1]
       rw [I]
       rfl
-      rw [<-Nat.succ_lt_succ_is_lt]
+      rw [<-Nat.succ_lt_succ_iff]
       apply H
 }
 
-theorem Subst.liftn_above_wk {σ: Subst}: {base v: Nat} -> 
+theorem Subst.liftn_above_wk {σ: Subst}: {base v: Nat} ->
   base ≤ v -> σ.liftn base v = (σ (v - base)).wkn base := by {
     intros base;
     revert σ;
@@ -126,7 +126,7 @@ theorem Subst.liftn_above_wk {σ: Subst}: {base v: Nat} ->
       simp only [liftn, Term.wkn, Wk.wkn]
       cases v with
       | zero => cases H
-      | succ v => 
+      | succ v =>
         simp only [lift, wk1, Term.wk1]
         rw [Nat.succ_sub_succ_eq_sub]
         rw [<-Wk.step_is_comp_wk1]
@@ -142,15 +142,15 @@ def Term.subst: Term -> Subst -> Term
   | var v, σ => σ v
   | const c, _ => const c
   | unary k t, σ => unary k (t.subst σ)
-  | let_bin k P e e', σ => 
+  | let_bin k P e e', σ =>
     let_bin k (P.subst σ) (e.subst σ) (e'.subst (σ.liftn 2))
-  | let_bin_beta k P l r e', σ => 
+  | let_bin_beta k P l r e', σ =>
     let_bin_beta k (P.subst σ) (l.subst σ) (r.subst σ) (e'.subst (σ.liftn 2))
   | bin k l r, σ => bin k (l.subst σ) (r.subst σ)
   | abs k A t, σ => abs k (A.subst σ) (t.subst σ.lift)
   | tri k A l r, σ => tri k (A.subst σ) (l.subst σ) (r.subst σ)
   | ir k x y P, σ => ir k (x.subst σ) (y.subst σ) (P.subst σ.lift)
-  | cases k K d l r, σ => 
+  | cases k K d l r, σ =>
     cases k (K.subst σ) (d.subst σ) (l.subst σ.lift) (r.subst σ.lift)
   | nr k K e z s, σ =>
     nr k (K.subst σ.lift) (e.subst σ) (z.subst σ) (s.subst (σ.liftn 2))
@@ -158,19 +158,13 @@ def Term.subst: Term -> Subst -> Term
     nz k (K.subst σ.lift) (z.subst σ) (s.subst (σ.liftn 2))
 
 -- TODO: automate
-theorem Subst.lift_var: {n v: Nat} -> {σ: Subst} -> 
-  (σ.liftn (n + 1)) (Wk.var (Wk.wknth n) v) 
+theorem Subst.lift_var: {n v: Nat} -> {σ: Subst} ->
+  (σ.liftn (n + 1)) (Wk.var (Wk.wknth n) v)
   = (σ.liftn n v).wknth n
   := by {
     intros n v σ;
-    cases Nat.le_or_lt v n with
+    cases le_or_lt n v with
     | inl Hnv =>
-      rw [liftn_base_nil Hnv]
-      rw [liftn_base_nil]
-      simp only [Term.wknth, Term.wk]
-      rw [Wk.wknth_small Hnv]
-      exact Nat.le_step Hnv
-    | inr Hnv =>
       rw [liftn_above_wk Hnv]
       rw [liftn_above_wk]
       simp only [
@@ -182,6 +176,12 @@ theorem Subst.lift_var: {n v: Nat} -> {σ: Subst} ->
       rfl
       rw [Wk.wknth_big Hnv]
       exact Nat.succ_le_succ Hnv
+    | inr Hnv =>
+      rw [liftn_base_nil Hnv]
+      rw [liftn_base_nil]
+      simp only [Term.wknth, Term.wk]
+      rw [Wk.wknth_small Hnv]
+      exact Nat.le_step Hnv
   }
 
 --TODO: automate
@@ -194,7 +194,7 @@ theorem Term.liftn_wk {u: Term}: {σ: Subst} -> (n: Nat) ->
       intros σ n;
       simp only [subst, Subst.lift_var]
     | const c => simp
-    | unary k t I => 
+    | unary k t I =>
       intros σ n
       simp only [wknth] at I
       simp only [wknth, wk, subst, I]
@@ -217,14 +217,14 @@ theorem Term.liftn_wk {u: Term}: {σ: Subst} -> (n: Nat) ->
       simp only [wknth, wk, subst]
       simp only [wknth] at *
       rw [Il, Ir]
-    | abs k A t IA It => 
+    | abs k A t IA It =>
       intros σ n
       simp only [wknth, wk, subst]
       simp only [wknth] at *
       rw [
-        IA, 
-        Wk.lift_wknth_merge, 
-        Subst.lift_liftn_merge, 
+        IA,
+        Wk.lift_wknth_merge,
+        Subst.lift_liftn_merge,
         Subst.lift_liftn_merge,
         It]
     | tri k A l r IA Il Ir =>
@@ -295,7 +295,7 @@ theorem Subst.liftn_wkn {u: Term} {σ: Subst} {n: Nat}:
 def Subst.comp (σ ρ: Subst): Subst
   | v => (ρ v).subst σ
 
-@[simp] theorem Subst.lift_comp {ρ σ: Subst}: 
+@[simp] theorem Subst.lift_comp {ρ σ: Subst}:
   comp (lift ρ) (lift σ) = lift (comp ρ σ) := by {
     funext v;
     cases v with
@@ -303,8 +303,8 @@ def Subst.comp (σ ρ: Subst): Subst
     | succ v => simp only [lift_succ, comp, wk1, lift_wk]
   }
 
-@[simp] theorem Subst.liftn_comp {ρ σ: Subst} {l: Nat}: 
-  comp (liftn ρ l) (liftn σ l) = liftn (comp ρ σ) l 
+@[simp] theorem Subst.liftn_comp {ρ σ: Subst} {l: Nat}:
+  comp (liftn ρ l) (liftn σ l) = liftn (comp ρ σ) l
   := by induction l <;> simp [*]
 
 @[simp] theorem Subst.lift_id_equiv: Subst.id.lift = Subst.id
@@ -312,9 +312,9 @@ def Subst.comp (σ ρ: Subst): Subst
 
 @[simp] theorem Term.subst_id (u: Term): u.subst Subst.id = u
   := by {
-    induction u 
-    <;> simp only [*, Subst.lift_id_equiv, Subst.liftn, subst] 
-    <;> rfl
+    induction u
+    <;> simp only [*, Subst.lift_id_equiv, Subst.liftn, subst]
+    rfl
   }
 
 @[simp] theorem Term.subst_composes (u: Term):
@@ -337,8 +337,8 @@ def Subst.comp (σ ρ: Subst): Subst
   induction u <;> {
     intros;
     simp only [
-      Term.subst, 
-      Wk.to_subst_lift, Wk.to_subst_liftn, 
+      Term.subst,
+      Wk.to_subst_lift, Wk.to_subst_liftn,
       *]
     rfl
   }
@@ -346,7 +346,7 @@ def Subst.comp (σ ρ: Subst): Subst
 
 def subst_maps (n m: Nat) (σ: Subst) := ∀v, v < m -> Term.fv (σ v) ≤ n
 
-def Subst.wk_bounds {ρ: Wk} {n m: Nat}: 
+def Subst.wk_bounds {ρ: Wk} {n m: Nat}:
   ρ.maps n m -> subst_maps n m ρ := by {
   intros Hρ v Hv;
   simp only [Wk.to_subst, Term.fv]
@@ -362,7 +362,7 @@ def Subst.wk1_subst: {σ: Subst} -> {n m: Nat} ->
     exact Hσ _ Hv
   }
 
-def Subst.lift_subst: {σ: Subst} -> {n m: Nat} -> 
+def Subst.lift_subst: {σ: Subst} -> {n m: Nat} ->
   subst_maps n m σ -> subst_maps (n + 1) (m + 1) (lift σ) := by {
     intros σ n m Hσ v Hv;
     cases v with
@@ -388,17 +388,17 @@ def Subst.liftn_subst:  {l n m: Nat} -> {σ: Subst} ->
   }
 
 --TODO: simplify, automate
-theorem Term.subst_bounds: 
-  {u: Term} -> {σ: Subst} -> {n m: Nat} -> 
+theorem Term.subst_bounds:
+  {u: Term} -> {σ: Subst} -> {n m: Nat} ->
   fv u ≤ m -> subst_maps n m σ -> fv (u.subst σ) ≤ n := by {
   intro u;
   induction u with
-  | var v => 
-    intros _ _ _ Hv Hσ; 
+  | var v =>
+    intros _ _ _ Hv Hσ;
     simp at Hv
     exact Hσ _ Hv
-  | const c => 
-    intros σ n _ _ _; 
+  | const c =>
+    intros σ n _ _ _;
     simp only [fv, subst]
     apply Nat.zero_le
   | unary k t I =>
@@ -406,7 +406,7 @@ theorem Term.subst_bounds:
     simp only [fv, subst];
     exact I Hv Hσ
   | let_bin k P e e' IP Ie Ie' =>
-    simp only [fv, subst, Nat.max_r_le_split, Nat.le_sub_is_le_add]
+    simp only [fv, subst, max_le_iff, Nat.sub_le_iff_le_add]
     intro σ n m ⟨HP, He, He'⟩ Hσ;
     apply And.intro
     exact IP HP Hσ
@@ -414,7 +414,7 @@ theorem Term.subst_bounds:
     exact Ie He Hσ
     exact Ie' He' (Subst.liftn_subst Hσ)
   | let_bin_beta k P l r e' IP Il Ir Ie' =>
-    simp only [fv, subst, Nat.max_r_le_split, Nat.le_sub_is_le_add]
+    simp only [fv, subst, max_le_iff, Nat.sub_le_iff_le_add]
     intro σ n m ⟨HP, Hl, Hr, He'⟩ Hσ;
     apply And.intro
     exact IP HP Hσ
@@ -425,59 +425,59 @@ theorem Term.subst_bounds:
     exact Ie' He' (Subst.liftn_subst Hσ)
   | bin k l r Il Ir =>
     intros σ n m;
-    simp only [Term.fv, Nat.max_r_le_split]
+    simp only [Term.fv, max_le_iff]
     intro ⟨Hl, Hr⟩ Hσ
     exact ⟨Il Hl Hσ, Ir Hr Hσ⟩
   | abs k A s IA Is =>
     intros σ n m;
-    simp only [Term.fv, Nat.max_r_le_split, Nat.le_sub_is_le_add]
+    simp only [Term.fv, max_le_iff, Nat.sub_le_iff_le_add]
     intro ⟨HA, Hs⟩ Hσ
     --TODO: move lift_subst to subst_maps?
     exact ⟨IA HA Hσ, Is Hs (Subst.lift_subst Hσ)⟩
   | tri k A l r IA Il Ir =>
     intros σ n m;
-    simp only [Term.fv, Nat.max_r_le_split]
+    simp only [Term.fv, max_le_iff]
     intro ⟨HA, Hl, Hr⟩ Hσ
     exact ⟨IA HA Hσ, Il Hl Hσ, Ir Hr Hσ⟩
   | ir k x y P Ix Iy IP =>
     intros σ n m;
-    simp only [Term.fv, Nat.max_r_le_split, Nat.le_sub_is_le_add]
+    simp only [Term.fv, max_le_iff, Nat.sub_le_iff_le_add]
     intro ⟨Hx, Hy, HP⟩ Hσ
     exact ⟨
-      Ix Hx Hσ, 
+      Ix Hx Hσ,
       Iy Hy Hσ,
       IP HP (Subst.lift_subst Hσ)
       ⟩
   | cases k K d l r IK Id Il Ir =>
     intros σ n m;
-    simp only [Term.fv, Nat.max_r_le_split, Nat.le_sub_is_le_add]
+    simp only [Term.fv, max_le_iff, Nat.sub_le_iff_le_add]
     intro ⟨HK, Hd, Hl, Hr⟩ Hσ
     exact ⟨
-      IK HK Hσ, 
-      Id Hd Hσ, Il Hl (Subst.lift_subst Hσ), 
+      IK HK Hσ,
+      Id Hd Hσ, Il Hl (Subst.lift_subst Hσ),
       Ir Hr (Subst.lift_subst Hσ)
       ⟩
   | nr k K e z s IK Ie Iz Is =>
     intros σ n m;
-    simp only [Term.fv, Nat.max_r_le_split, Nat.le_sub_is_le_add]
+    simp only [Term.fv, max_le_iff, Nat.sub_le_iff_le_add]
     intro ⟨HK, He, Hz, Hs⟩ Hσ
     exact ⟨
-      IK HK (Subst.lift_subst Hσ), 
-      Ie He Hσ, Iz Hz Hσ, 
+      IK HK (Subst.lift_subst Hσ),
+      Ie He Hσ, Iz Hz Hσ,
       Is Hs (Subst.liftn_subst Hσ)
       ⟩
   | nz k K z s IK Iz Is =>
     intros σ n m;
-    simp only [Term.fv, Nat.max_r_le_split, Nat.le_sub_is_le_add]
+    simp only [Term.fv, max_le_iff, Nat.sub_le_iff_le_add]
     intro ⟨HK, Hz, Hs⟩ Hσ
     exact ⟨
-      IK HK (Subst.lift_subst Hσ), 
-      Iz Hz Hσ, 
+      IK HK (Subst.lift_subst Hσ),
+      Iz Hz Hσ,
       Is Hs (Subst.liftn_subst Hσ)
       ⟩
 }
 
-theorem Term.liftn_base {σ: Subst} {base: Nat} {u: Term}: 
+theorem Term.liftn_base {σ: Subst} {base: Nat} {u: Term}:
   u.fv ≤ base -> u.subst (σ.liftn base) = u := by {
   revert σ base;
   induction u;
@@ -488,25 +488,25 @@ theorem Term.liftn_base {σ: Subst} {base: Nat} {u: Term}:
 
   all_goals (
     simp only [
-      fv, Nat.max_r_le_split, subst, Subst.lift_liftn_merge,  Subst.liftn_merge,
-      Nat.le_sub_is_le_add, and_imp_decompose
+      fv, max_le_iff, subst, Subst.lift_liftn_merge,  Subst.liftn_merge,
+      Nat.sub_le_iff_le_add, and_imp_decompose
       ]
     intros
     simp only [*]
   )
 }
 
-theorem Term.liftn_wk_base {ρ: Wk} {base: Nat} {u: Term}: 
+theorem Term.liftn_wk_base {ρ: Wk} {base: Nat} {u: Term}:
   u.fv ≤ base -> u.wk (ρ.liftn base) = u := by {
     rw [<-Subst.subst_wk_compat]
     rw [<-Wk.to_subst_liftn]
     exact liftn_base
 }
 
-theorem Term.lift_base {σ: Subst} {u: Term}: 
+theorem Term.lift_base {σ: Subst} {u: Term}:
   u.fv ≤ 1 -> u.subst (σ.lift) = u := liftn_base
 
-theorem Term.lift_wk_base {ρ: Wk} {u: Term}: 
+theorem Term.lift_wk_base {ρ: Wk} {u: Term}:
   u.fv ≤ 1 -> u.wk (ρ.lift) = u := liftn_wk_base
 
 @[simp]
@@ -544,7 +544,7 @@ def Term.subst0: Term -> Term -> Term
 def Term.alpha0: Term -> Term -> Term
   | u, v => u.subst v.to_alpha
 
-def Term.alpha0_wknth_comp {u v: Term}: 
+def Term.alpha0_wknth_comp {u v: Term}:
   u.alpha0 v = u.subst (v.to_subst.comp (Wk.wknth 1).to_subst) := by {
     simp only [alpha0]
     rw [to_alpha_lift]
@@ -560,11 +560,11 @@ def Term.alpha0_wknth {u v: Term}:
   }
 
 @[simp]
-def Term.subst0_def {u v: Term}: 
+def Term.subst0_def {u v: Term}:
   u.subst0 v = u.subst v.to_subst := rfl
 
 @[simp]
-def Term.alpha0_def {u v: Term}: 
+def Term.alpha0_def {u v: Term}:
   u.alpha0 v = u.subst v.to_alpha := rfl
 
 def Term.substnth: Term -> Nat -> Term -> Term
@@ -581,32 +581,32 @@ def Term.substnth_def {u v: Term} {l}:
 def Term.alphanth_def {u v: Term} {l}:
   u.alphanth l v = u.subst (v.to_alpha.liftn l) := rfl
 
--- TODO: this is probably much easier to prove by just 
+-- TODO: this is probably much easier to prove by just
 -- converting to substitution form first...
 theorem Term.substnth_wknth {u: Term}: {v: Term} -> {l: Nat} ->
   (u.wknth l).substnth l v = u := by {
   induction u <;> intros v l;
   case var n =>
     simp only [substnth, wknth, wk, subst]
-    cases (Nat.le_or_lt n l) with
+    cases le_or_lt l n with
     | inl H =>
-      rw [Subst.liftn_base_nil] <;>
-      rw [Wk.wknth_small H] <;>
-      exact H
-    | inr H =>
       rw [Subst.liftn_above_wk]
       rw [Wk.wknth_big H]
-      rw [Nat.succ_sub_gt H]
+      rw [Nat.succ_sub H]
       rw [to_subst_succ]
-      simp [Nat.add_sub_self_gt H]
+      simp only [wkn, wk, Wk.wkn_var, var.injEq, Nat.sub_add_cancel H]
       rw [Wk.wknth_big H]
       exact Nat.le_succ_of_le H
+    | inr H =>
+      rw [Subst.liftn_base_nil] <;>
+      rw [Wk.wknth_small H]
+      exact H
 
   all_goals (
     simp only [substnth, subst]
-    repeat first 
-    | rw [Wk.lift_wknth_merge] 
-    | rw [Wk.liftn_wknth_merge] 
+    repeat first
+    | rw [Wk.lift_wknth_merge]
+    | rw [Wk.liftn_wknth_merge]
     | rw [Subst.lift_liftn_merge]
     | rw [Subst.liftn_merge]
     try simp only [<-substnth_def, <-wknth_def]
@@ -648,7 +648,7 @@ def Term.to_alpha_succ {u: Term}: u.to_alpha (Nat.succ n) = var (Nat.succ n) := 
 def Term.alpha_succ: (var (n + 1)).alpha0 u = var (n + 1) := rfl
 
 @[simp]
-def Term.subst_to_alpha_succ {u: Term}: 
+def Term.subst_to_alpha_succ {u: Term}:
   (var (n + 1)).subst u.to_alpha = var (n + 1) := rfl
 
 def Term.alphanth_wknth {u v: Term} {l: Nat}:
@@ -680,14 +680,14 @@ def Term.alphanth_wkn {l: Nat}: {u v: Term} ->
   }
 
 theorem Subst.subst0_subst_composes {σ: Subst} {u: Term}:
-  Subst.comp σ u.to_subst = 
+  Subst.comp σ u.to_subst =
   Subst.comp (u.subst σ).to_subst σ.lift := by {
   funext v;
   cases v with
-  | zero => 
+  | zero =>
     simp only [
-      comp, 
-      Term.to_subst, 
+      comp,
+      Term.to_subst,
       Term.subst]
   | succ v =>
     simp only [
@@ -702,16 +702,16 @@ theorem Subst.subst0_subst_composes {σ: Subst} {u: Term}:
 
 --TODO: rewrite as application of subst0_subst_composes with appropriate lemmas
 theorem Subst.subst0_wk_composes {ρ: Wk} {u: Term}:
-  Subst.comp ρ u.to_subst = 
+  Subst.comp ρ u.to_subst =
   Subst.comp (u.wk ρ).to_subst ρ.lift := by {
   funext v;
   cases v with
-  | zero => 
+  | zero =>
     simp only [
-      comp, 
-      Term.to_subst, 
-      Wk.to_subst, 
-      Wk.var, 
+      comp,
+      Term.to_subst,
+      Wk.to_subst,
+      Wk.var,
       Term.subst]
     apply Subst.subst_wk_compat
   | succ v =>
@@ -759,7 +759,7 @@ theorem Term.liftn_below {u: Term}:
     try rw [I2]
     try rw [I3]
     all_goals (
-      simp only [fv, Nat.max_r_le_split, Nat.le_sub_is_le_add] at H
+      simp only [fv, max_le_iff, Nat.sub_le_iff_le_add] at H
       (try exact H) <;>
       (have ⟨Hh, H⟩ := H) <;>
       (try exact Hh) <;>
@@ -775,15 +775,15 @@ theorem Term.liftn_below {u: Term}:
 }
 
 theorem Term.subst_closed' {u: Term} {σ: Subst} (H: u.fv ≤ 0)
-  : u.subst σ = u 
+  : u.subst σ = u
   := liftn_below H
 
 theorem Term.subst_closed {u: Term} {σ: Subst} (H: u.fv = 0)
-  : u.subst σ = u 
+  : u.subst σ = u
   := subst_closed' (by simp [H])
 
 theorem Term.wk_closed {u: Term} {ρ: Wk} (H: u.fv = 0)
-  : u.wk ρ = u 
+  : u.wk ρ = u
   := by {
     rw [<-Subst.subst_wk_compat]
     exact subst_closed H
@@ -801,13 +801,13 @@ theorem Term.wknth_closed {u: Term} {n} (H: u.fv = 0)
   : u.wknth n = u
   := Term.wk_closed H
 
-theorem Term.lift_below {u: Term} {σ: Subst} (H: u.fv ≤ 1): u.subst σ.lift = u 
+theorem Term.lift_below {u: Term} {σ: Subst} (H: u.fv ≤ 1): u.subst σ.lift = u
   := liftn_below H
 
 theorem Term.alphann_comm {u v: Term} {σ: Subst} {n: Nat}:
-  v.fv ≤ 1 -> 
-  (u.subst (σ.liftn (n + 1))).alphanth n v 
-  = (u.alphanth n v).subst (σ.liftn (n + 1)) 
+  v.fv ≤ 1 ->
+  (u.subst (σ.liftn (n + 1))).alphanth n v
+  = (u.alphanth n v).subst (σ.liftn (n + 1))
   := by {
     intro H;
     revert n σ v;
@@ -816,13 +816,8 @@ theorem Term.alphann_comm {u v: Term} {σ: Subst} {n: Nat}:
     --TODO: clean... a lot...
     case var m =>
       intro v σ n
-      cases (Nat.le_or_lt m n) with
+      cases le_or_lt n m with
       | inl H =>
-        intro;
-        simp only [alphanth, subst]
-        repeat first | rw [Subst.liftn_base_nil] | simp only [subst]
-        repeat first | exact H | exact (Nat.le_succ_of_le H)
-      | inr H =>
         intro H';
         simp only [alphanth, subst]
         rw [Subst.liftn_above_wk H]
@@ -847,7 +842,7 @@ theorem Term.alphann_comm {u v: Term} {σ: Subst} {n: Nat}:
         | step H =>
           rw [Subst.liftn_above_wk (Nat.succ_le_succ H)]
           simp only [Nat.succ_sub_succ_eq_sub]
-          simp only [Nat.succ_sub_gt H]
+          simp only [Nat.succ_sub H]
           simp only [to_alpha_succ]
           rw [<-alphanth_def]
           rw [alphanth_wkn]
@@ -872,6 +867,11 @@ theorem Term.alphann_comm {u v: Term} {σ: Subst} {n: Nat}:
             rw [Subst.liftn_above_wk Hn]
             simp only [wkn, wk1, wk_composes, Wk.step_is_comp_wk1]
             rfl
+      | inr H =>
+        intro;
+        simp only [alphanth, subst]
+        repeat first | rw [Subst.liftn_base_nil] | simp only [subst]
+        repeat first | exact H | exact (Nat.le_succ_of_le H)
 
 
     all_goals (
@@ -887,8 +887,8 @@ theorem Term.alphann_comm {u v: Term} {σ: Subst} {n: Nat}:
 
 
 theorem Term.alphann_wk_comm {u v: Term} {ρ: Wk} {n: Nat}:
-  v.fv ≤ 1 -> 
-  (u.wk (ρ.liftn (n + 1))).alphanth n v 
+  v.fv ≤ 1 ->
+  (u.wk (ρ.liftn (n + 1))).alphanth n v
   = (u.alphanth n v).wk (ρ.liftn (n + 1)) := by {
     intro H;
     simp only [<-Subst.subst_wk_compat, <-Wk.to_subst_liftn];
@@ -896,14 +896,14 @@ theorem Term.alphann_wk_comm {u v: Term} {ρ: Wk} {n: Nat}:
   }
 
 theorem Term.alpha00_comm {u v: Term} {σ: Subst}:
-  v.fv ≤ 1 -> 
-  (u.subst σ.lift).alpha0 v 
+  v.fv ≤ 1 ->
+  (u.subst σ.lift).alpha0 v
   = (u.alpha0 v).subst σ.lift
   := @alphann_comm u v σ 0
 
 theorem Term.alpha00_wk_comm {u v: Term} {ρ: Wk}:
-  v.fv ≤ 1 -> 
-  (u.wk ρ.lift).alpha0 v 
+  v.fv ≤ 1 ->
+  (u.wk ρ.lift).alpha0 v
   = (u.alpha0 v).wk ρ.lift
   := by {
     intro H;
@@ -911,7 +911,7 @@ theorem Term.alpha00_wk_comm {u v: Term} {ρ: Wk}:
     exact alpha00_comm H
   }
 
-theorem Term.tmp_fill {A T: Term} {σ: Subst} (H: T.fv ≤ 1): 
+theorem Term.tmp_fill {A T: Term} {σ: Subst} (H: T.fv ≤ 1):
   (T.subst0 A).subst σ = T.subst0 (A.subst σ) := by rw [subst0_subst, lift_below H]
 
 theorem Term.tmp_fill_wk {A T: Term} {ρ: Wk} (H: T.fv ≤ 1):
@@ -932,7 +932,7 @@ theorem Term.var2_alpha_subst {σ: Subst} {u: Term}:
   | succ v =>
     simp only [Subst.comp]
     have Hv
-      : Wk.to_subst (Wk.wknth 1) (Nat.succ v) = var (v + 1 + 1) 
+      : Wk.to_subst (Wk.wknth 1) (Nat.succ v) = var (v + 1 + 1)
       := rfl;
     rw [Hv]
     rw [subst_to_alpha_succ]
@@ -952,11 +952,11 @@ theorem Term.var2_alpha_subst {σ: Subst} {u: Term}:
 }
 
 theorem Term.let_bin_ty_alpha_subst {σ: Subst} {k: TermKind [0, 0]}:
-  (bin k (var 1) (var 0)).to_alpha.comp 
+  (bin k (var 1) (var 0)).to_alpha.comp
     ((Wk.wknth 1).to_subst.comp σ.lift) =
-  (σ.liftn 2).comp 
+  (σ.liftn 2).comp
     ((bin k (var 1) (var 0)).to_alpha.comp (Wk.wknth 1))
-  := var2_alpha_subst (by simp)
+  := var2_alpha_subst (by simp [Nat.succ_le_succ])
 
 theorem Term.var2_var1_alpha {C: Term} {σ: Subst}:
   ((C.subst σ.lift).wknth 1).alpha0 (var 1) =
@@ -1001,52 +1001,52 @@ theorem Term.let_bin_ty_alpha_wk {C: Term} {ρ: Wk} {k: TermKind [0, 0]}:
 
 theorem Term.let_bin_ty_alpha_pair {C: Term} {σ: Subst}:
   ((C.subst σ.lift).wknth 1).alpha0 (pair (var 1) (var 0)) =
-  ((C.wknth 1).alpha0 (pair (var 1) (var 0))).subst (σ.liftn 2) 
+  ((C.wknth 1).alpha0 (pair (var 1) (var 0))).subst (σ.liftn 2)
   := let_bin_ty_alpha
 
 theorem Term.let_bin_ty_alpha_wk_pair {C: Term} {ρ: Wk}:
   ((C.wk ρ.lift).wknth 1).alpha0 (pair (var 1) (var 0)) =
-  ((C.wknth 1).alpha0 (pair (var 1) (var 0))).wk (ρ.liftn 2) 
+  ((C.wknth 1).alpha0 (pair (var 1) (var 0))).wk (ρ.liftn 2)
   := let_bin_ty_alpha_wk
 
 theorem Term.let_bin_ty_alpha_elem {C: Term} {σ: Subst}:
   ((C.subst σ.lift).wknth 1).alpha0 (elem (var 1) (var 0)) =
-  ((C.wknth 1).alpha0 (elem (var 1) (var 0))).subst (σ.liftn 2) 
+  ((C.wknth 1).alpha0 (elem (var 1) (var 0))).subst (σ.liftn 2)
   := let_bin_ty_alpha
 
 theorem Term.let_bin_ty_alpha_wk_elem {C: Term} {ρ: Wk}:
   ((C.wk ρ.lift).wknth 1).alpha0 (elem (var 1) (var 0)) =
-  ((C.wknth 1).alpha0 (elem (var 1) (var 0))).wk (ρ.liftn 2) 
+  ((C.wknth 1).alpha0 (elem (var 1) (var 0))).wk (ρ.liftn 2)
   := let_bin_ty_alpha_wk
 
 theorem Term.let_bin_ty_alpha_repr {C: Term} {σ: Subst}:
   ((C.subst σ.lift).wknth 1).alpha0 (repr (var 1) (var 0)) =
-  ((C.wknth 1).alpha0 (repr (var 1) (var 0))).subst (σ.liftn 2) 
+  ((C.wknth 1).alpha0 (repr (var 1) (var 0))).subst (σ.liftn 2)
   := let_bin_ty_alpha
 
 theorem Term.let_bin_ty_alpha_wk_repr {C: Term} {ρ: Wk}:
   ((C.wk ρ.lift).wknth 1).alpha0 (repr (var 1) (var 0)) =
-  ((C.wknth 1).alpha0 (repr (var 1) (var 0))).wk (ρ.liftn 2) 
+  ((C.wknth 1).alpha0 (repr (var 1) (var 0))).wk (ρ.liftn 2)
   := let_bin_ty_alpha_wk
 
 theorem Term.let_bin_ty_alpha_wit {C: Term} {σ: Subst}:
   ((C.subst σ.lift).wknth 1).alpha0 (wit (var 1) (var 0)) =
-  ((C.wknth 1).alpha0 (wit (var 1) (var 0))).subst (σ.liftn 2) 
+  ((C.wknth 1).alpha0 (wit (var 1) (var 0))).subst (σ.liftn 2)
   := let_bin_ty_alpha
 
 theorem Term.let_bin_ty_alpha_wk_wit {C: Term} {ρ: Wk}:
   ((C.wk ρ.lift).wknth 1).alpha0 (wit (var 1) (var 0)) =
-  ((C.wknth 1).alpha0 (wit (var 1) (var 0))).wk (ρ.liftn 2) 
+  ((C.wknth 1).alpha0 (wit (var 1) (var 0))).wk (ρ.liftn 2)
   := let_bin_ty_alpha_wk
 
   theorem Term.let_bin_ty_alpha_conj {C: Term} {σ: Subst}:
   ((C.subst σ.lift).wknth 1).alpha0 (dconj (var 1) (var 0)) =
-  ((C.wknth 1).alpha0 (dconj (var 1) (var 0))).subst (σ.liftn 2) 
+  ((C.wknth 1).alpha0 (dconj (var 1) (var 0))).subst (σ.liftn 2)
   := let_bin_ty_alpha
 
 theorem Term.let_bin_ty_alpha_wk_conj {C: Term} {ρ: Wk}:
   ((C.wk ρ.lift).wknth 1).alpha0 (dconj (var 1) (var 0)) =
-  ((C.wknth 1).alpha0 (dconj (var 1) (var 0))).wk (ρ.liftn 2) 
+  ((C.wknth 1).alpha0 (dconj (var 1) (var 0))).wk (ρ.liftn 2)
   := let_bin_ty_alpha_wk
 
 theorem Subst.subst00_wknth_id
@@ -1074,11 +1074,11 @@ def Term.to_subst01 (u v: Term): Subst
 def Term.subst01 (e u v: Term): Term := e.subst (u.to_subst01 v)
 
 theorem Subst.subst01_subst {e u v: Term} (σ: Subst):
-  (e.subst01 u v).subst σ 
+  (e.subst01 u v).subst σ
   = (e.subst (σ.liftn 2)).subst01 (u.subst σ) (v.subst σ)
   := by {
     simp only [
-      Term.subst01, Term.wk1, Term.subst0, 
+      Term.subst01, Term.wk1, Term.subst0,
       <-Subst.subst_wk_compat,
       Term.subst_composes
     ]
@@ -1086,13 +1086,13 @@ theorem Subst.subst01_subst {e u v: Term} (σ: Subst):
     funext n;
     cases n with
     | zero => rfl
-    | succ n => 
+    | succ n =>
       cases n with
       | zero => rfl
       | succ n =>
         simp [Subst.comp, Term.subst, wk1]
         simp only [
-          Term.subst01, Term.wk1, Term.subst0, 
+          Term.subst01, Term.wk1, Term.subst0,
           <-Subst.subst_wk_compat,
           Term.subst_composes
         ]
@@ -1102,7 +1102,7 @@ theorem Subst.subst01_subst {e u v: Term} (σ: Subst):
   }
 
 theorem Wk.subst01_wk {e u v: Term} (ρ: Wk):
-  (e.subst01 u v).wk ρ 
+  (e.subst01 u v).wk ρ
   = (e.wk (ρ.liftn 2)).subst01 (u.wk ρ) (v.wk ρ)
   := by {
     simp only [<-Subst.subst_wk_compat, <-Wk.to_subst_liftn]
@@ -1110,7 +1110,7 @@ theorem Wk.subst01_wk {e u v: Term} (ρ: Wk):
   }
 
 theorem Term.subst01_def {C l r: Term}:
-  C.subst (l.to_subst01 r) = C.subst01 l r 
+  C.subst (l.to_subst01 r) = C.subst01 l r
   := rfl
 
 theorem Subst.subst01_wk1 {l r: Term}:
@@ -1121,7 +1121,7 @@ theorem Term.subst01_wk1 {C l r: Term}:
   C.wk1.subst01 l r = C.subst0 r
   := by {
     simp only [
-      subst01, wk1, subst0, 
+      subst01, wk1, subst0,
       <-Subst.subst_wk_compat,
       subst_composes
     ]
@@ -1132,7 +1132,7 @@ theorem Term.subst01_wk1_wk1 {C l r: Term}:
   C.wk1.wk1.subst01 l r = C
   := by {
     simp only [
-      subst01, wk1, subst0, 
+      subst01, wk1, subst0,
       <-Subst.subst_wk_compat,
       subst_composes
     ]
@@ -1144,7 +1144,7 @@ theorem Term.subst01_wk1_wk1 {C l r: Term}:
   }
 
 theorem Term.alpha0_subst01_bin {k} {C l r: Term}:
-  ((C.wknth 1).alpha0 (bin k (var 1) (var 0))).subst01 r l 
+  ((C.wknth 1).alpha0 (bin k (var 1) (var 0))).subst01 r l
   = C.subst0 (bin k l r)
   := by {
     simp only [

@@ -171,7 +171,7 @@ def HypKind.annot_is_sub {k: HypKind}: k.is_sub (val k.annot)
     cases k <;> simp <;> constructor
   }
 
-def HypKind.annot_other_is_sub {k k': HypKind}: 
+def HypKind.annot_other_is_sub {k k': HypKind}:
   k.is_sub k' -> k'.is_sub (val k.annot)
   := by {
     intro H;
@@ -185,7 +185,7 @@ theorem HypKind.upgrade_idem: upgrade (upgrade h) = upgrade h := by {
   cases h; repeat rfl
 }
 
-theorem HypKind.upgrade_regular {s} {h: HypKind} (p: h.regular s): 
+theorem HypKind.upgrade_regular {s} {h: HypKind} (p: h.regular s):
   h.upgrade.regular s := by {
     cases s <;> cases h <;> cases p <;> constructor
   }
@@ -222,11 +222,11 @@ theorem Hyp.upgrade_idem: upgrade (upgrade h) = upgrade h := by {
 }
 
 @[simp]
-theorem Hyp.upgrade_wk_commute {h: Hyp}: 
+theorem Hyp.upgrade_wk_commute {h: Hyp}:
   upgrade (h.wk ρ) = h.upgrade.wk ρ := by simp
 
 inductive Hyp.is_sub: Hyp -> Hyp -> Prop
-  | refl_ty {A k k'}: HypKind.is_sub k k' -> is_sub (Hyp.mk A k) (Hyp.mk A k') 
+  | refl_ty {A k k'}: HypKind.is_sub k k' -> is_sub (Hyp.mk A k) (Hyp.mk A k')
 
 theorem Hyp.is_sub.refl {H: Hyp}: H.is_sub H := by {
   constructor;
@@ -265,15 +265,15 @@ def Context.upgrade: Context -> Context
 def Context.upgrade_length_is_length {Γ: Context}: Γ.upgrade.length = Γ.length := by {
   induction Γ with
   | nil => rfl
-  | cons _ _ I => simp [I] 
+  | cons _ _ I => simp [I]
 }
 
 @[simp]
 theorem Context.upgrade_idem: upgrade (upgrade Γ) = upgrade Γ := by {
   induction Γ with
   | nil => rfl
-  | cons A Γ I => 
-    simp only [upgrade, Hyp.upgrade_idem]; 
+  | cons A Γ I =>
+    simp only [upgrade, Hyp.upgrade_idem];
     simp [I]
 }
 
@@ -281,7 +281,7 @@ inductive Context.is_sub: Context -> Context -> Prop
   | nil: is_sub [] []
   | cons {Γ Δ H H'}: is_sub Γ Δ -> Hyp.is_sub H H' -> is_sub (H::Γ) (H'::Δ)
 
-theorem Context.is_sub.step {Γ Δ: Context} {H: Hyp} (p: Γ.is_sub Δ): Context.is_sub (H::Γ) (H::Δ) 
+theorem Context.is_sub.step {Γ Δ: Context} {H: Hyp} (p: Γ.is_sub Δ): Context.is_sub (H::Γ) (H::Δ)
   := cons p Hyp.is_sub.refl
 
 theorem Context.is_sub.refl {Γ: Context}: Γ.is_sub Γ := by {
@@ -310,32 +310,32 @@ theorem Context.is_sub.upgrade_bin {Γ Δ: Context} (H: Γ.is_sub Δ)
 }
 
 @[simp]
-theorem Term.arrow_wk: (arrow A B).wk ρ = arrow (A.wk ρ) (B.wk ρ) 
+theorem Term.arrow_wk: (arrow A B).wk ρ = arrow (A.wk ρ) (B.wk ρ)
   := by simp [arrow, pi]
 @[simp]
-theorem Term.implies_wk: (implies φ ψ).wk ρ = implies (φ.wk ρ) (ψ.wk ρ) 
+theorem Term.implies_wk: (implies φ ψ).wk ρ = implies (φ.wk ρ) (ψ.wk ρ)
   := by simp [implies, dimplies]
 @[simp]
-theorem Term.const_arrow_wk: (const_arrow A B).wk ρ = const_arrow (A.wk ρ) (B.wk ρ) 
+theorem Term.const_arrow_wk: (const_arrow A B).wk ρ = const_arrow (A.wk ρ) (B.wk ρ)
   := by simp [const_arrow, intersect]
 @[simp]
-theorem Term.assume_wf_wk: (assume_wf φ A).wk ρ = assume_wf (φ.wk ρ) (A.wk ρ) 
+theorem Term.assume_wf_wk: (assume_wf φ A).wk ρ = assume_wf (φ.wk ρ) (A.wk ρ)
   := by simp [assume_wf, assume]
 @[simp]
-theorem Term.and_wk: (and φ ψ).wk ρ = and (φ.wk ρ) (ψ.wk ρ) 
+theorem Term.and_wk: (and φ ψ).wk ρ = and (φ.wk ρ) (ψ.wk ρ)
   := by simp [and, dand]
 
 @[simp]
-theorem Term.arrow_subst: (arrow A B).subst σ = arrow (A.subst σ) (B.subst σ) 
+theorem Term.arrow_subst: (arrow A B).subst σ = arrow (A.subst σ) (B.subst σ)
   := by simp only [arrow, pi, subst, Subst.lift_wk]
 @[simp]
-theorem Term.const_arrow_subst: (const_arrow A B).subst σ = const_arrow (A.subst σ) (B.subst σ) 
+theorem Term.const_arrow_subst: (const_arrow A B).subst σ = const_arrow (A.subst σ) (B.subst σ)
   := by simp only [const_arrow, intersect, subst, Subst.lift_wk]
 @[simp]
-theorem Term.implies_subst: (implies φ ψ).subst σ = implies (φ.subst σ) (ψ.subst σ) 
+theorem Term.implies_subst: (implies φ ψ).subst σ = implies (φ.subst σ) (ψ.subst σ)
   := by simp only [implies, dimplies, subst, Subst.lift_wk]
 @[simp]
-theorem Term.assume_wf_subst: (assume_wf φ A).subst σ = assume_wf (φ.subst σ) (A.subst σ) 
+theorem Term.assume_wf_subst: (assume_wf φ A).subst σ = assume_wf (φ.subst σ) (A.subst σ)
   := by simp only [assume_wf, assume, subst, Subst.lift_wk]
 @[simp]
 theorem Term.and_subst: (and φ ψ).subst σ = and (φ.subst σ) (ψ.subst σ)
@@ -379,9 +379,9 @@ def Term.sym_ty (A: Term): Term := sym_ty_tmp.subst0 A
 def Term.trans_ty (A: Term): Term := trans_ty_tmp.subst0 A
 
 theorem Term.sym_ty_subst {A σ}: (sym_ty A).subst σ = (sym_ty (A.subst σ)) :=
-  tmp_fill (by simp)
+  tmp_fill (by decide)
 theorem Term.trans_ty_subst {A σ}: (trans_ty A).subst σ = (trans_ty (A.subst σ)) :=
-  tmp_fill (by simp)
+  tmp_fill (by decide)
 
 theorem Annot.sym_ty_subst {A σ}: (proof (sym_ty A)).subst σ = proof (sym_ty (A.subst σ)) :=
   by simp only [proof, Annot.subst, Term.sym_ty_subst]
@@ -389,20 +389,20 @@ theorem Annot.trans_ty_subst {A σ}: (proof (trans_ty A)).subst σ = proof (tran
   by simp only [proof, Annot.subst, Term.trans_ty_subst]
 
 theorem Term.sym_ty_wk {A ρ}: (sym_ty A).wk ρ = (sym_ty (A.wk ρ)) :=
-  tmp_fill_wk (by simp)
+  tmp_fill_wk (by decide)
 theorem Term.trans_ty_wk {A ρ}: (trans_ty A).wk ρ = (trans_ty (A.wk ρ)) :=
-  tmp_fill_wk (by simp)
+  tmp_fill_wk (by decide)
 
 theorem Annot.sym_ty_wk {A ρ}: (proof (sym_ty A)).wk ρ = proof (sym_ty (A.wk ρ)) :=
   by simp only [proof, Annot.wk, Term.sym_ty_wk]
 theorem Annot.trans_ty_wk {A ρ}: (proof (trans_ty A)).wk ρ = proof (trans_ty (A.wk ρ)) :=
   by simp only [proof, Annot.wk, Term.trans_ty_wk]
 
-abbrev Term.eta_ex (A B f: Term) := 
+abbrev Term.eta_ex (A B f: Term) :=
   lam A (app (pi A.wk1 (B.wknth 1)) f.wk1 (var 0))
 
-theorem Term.eta_ex_subst {A B f: Term} {σ}: 
-  (eta_ex A B f).subst σ 
+theorem Term.eta_ex_subst {A B f: Term} {σ}:
+  (eta_ex A B f).subst σ
   = eta_ex (A.subst σ) (B.subst σ.lift) (f.subst σ)
   := by {
     simp only [subst, Subst.lift_wk];
@@ -412,16 +412,16 @@ theorem Term.eta_ex_subst {A B f: Term} {σ}:
     rfl
   }
 
-theorem Term.eta_ex_wk {A B f: Term} {ρ}: 
-  (eta_ex A B f).wk ρ 
+theorem Term.eta_ex_wk {A B f: Term} {ρ}:
+  (eta_ex A B f).wk ρ
   = eta_ex (A.wk ρ) (B.wk ρ.lift) (f.wk ρ) := by {
   simp only [<-Subst.subst_wk_compat, <-Wk.to_subst_lift]
   exact eta_ex_subst
 }
 
-theorem Term.eta_ex_eq_subst {P A B f r: Term} {σ}: 
-  (eq P (eta_ex A B f) r).subst σ 
-  = eq (P.subst σ) 
+theorem Term.eta_ex_eq_subst {P A B f r: Term} {σ}:
+  (eq P (eta_ex A B f) r).subst σ
+  = eq (P.subst σ)
   (eta_ex (A.subst σ) (B.subst σ.lift) (f.subst σ)) (r.subst σ)
   := by {
     rw [<-Term.eta_ex_subst]
@@ -429,8 +429,8 @@ theorem Term.eta_ex_eq_subst {P A B f r: Term} {σ}:
   }
 
 theorem Term.eta_ex_eq_wk {P A B f r: Term} {ρ}:
-  (eq P (eta_ex A B f) r).wk ρ 
-  = eq (P.wk ρ) (eta_ex (A.wk ρ) (B.wk ρ.lift) (f.wk ρ)) (r.wk ρ) 
+  (eq P (eta_ex A B f) r).wk ρ
+  = eq (P.wk ρ) (eta_ex (A.wk ρ) (B.wk ρ.lift) (f.wk ρ)) (r.wk ρ)
   := by {
     rw [<-Term.eta_ex_wk]
     rfl
@@ -438,25 +438,25 @@ theorem Term.eta_ex_eq_wk {P A B f r: Term} {ρ}:
 
 def Term.irir_ex (A B f x) := app_irrel (const_arrow A B) f x
 
-theorem Term.irir_ex_subst: 
-  (irir_ex A B f x).subst σ 
+theorem Term.irir_ex_subst:
+  (irir_ex A B f x).subst σ
   = irir_ex (A.subst σ) (B.subst σ) (f.subst σ) (x.subst σ)
   := by {
     simp only [subst, Subst.lift_wk]
     rfl
   }
 
-theorem Term.irir_ex_wk: 
-  (irir_ex A B f x).wk ρ 
+theorem Term.irir_ex_wk:
+  (irir_ex A B f x).wk ρ
   = irir_ex (A.wk ρ) (B.wk ρ) (f.wk ρ) (x.wk ρ)
   := by {
     simp only [<-Subst.subst_wk_compat, <-Wk.to_subst_lift]
     exact irir_ex_subst
   }
 
-theorem Term.irir_ex_eq_subst: 
-  (eq P (irir_ex A B f x) (irir_ex A B f y)).subst σ 
-  = eq (P.subst σ) 
+theorem Term.irir_ex_eq_subst:
+  (eq P (irir_ex A B f x) (irir_ex A B f y)).subst σ
+  = eq (P.subst σ)
   (irir_ex (A.subst σ) (B.subst σ) (f.subst σ) (x.subst σ))
   (irir_ex (A.subst σ) (B.subst σ) (f.subst σ) (y.subst σ))
   := by {
@@ -464,9 +464,9 @@ theorem Term.irir_ex_eq_subst:
     rfl
   }
 
-theorem Term.irir_ex_eq_wk: 
-  (eq P (irir_ex A B f x) (irir_ex A B f y)).wk ρ 
-  = eq (P.wk ρ) 
+theorem Term.irir_ex_eq_wk:
+  (eq P (irir_ex A B f x) (irir_ex A B f y)).wk ρ
+  = eq (P.wk ρ)
   (irir_ex (A.wk ρ) (B.wk ρ) (f.wk ρ) (x.wk ρ))
   (irir_ex (A.wk ρ) (B.wk ρ) (f.wk ρ) (y.wk ρ))
   := by {
@@ -476,25 +476,25 @@ theorem Term.irir_ex_eq_wk:
 
 def Term.prir_ex (A B f x) := app_pr (assume_wf A B) f x
 
-theorem Term.prir_ex_subst: 
-  (prir_ex A B f x).subst σ 
+theorem Term.prir_ex_subst:
+  (prir_ex A B f x).subst σ
   = prir_ex (A.subst σ) (B.subst σ) (f.subst σ) (x.subst σ)
   := by {
     simp only [subst, Subst.lift_wk]
     rfl
   }
 
-theorem Term.prir_ex_wk: 
-  (prir_ex A B f x).wk ρ 
+theorem Term.prir_ex_wk:
+  (prir_ex A B f x).wk ρ
   = prir_ex (A.wk ρ) (B.wk ρ) (f.wk ρ) (x.wk ρ)
   := by {
     simp only [<-Subst.subst_wk_compat, <-Wk.to_subst_lift]
     exact prir_ex_subst
   }
 
-theorem Term.prir_ex_eq_subst: 
-  (eq P (prir_ex A B f x) (prir_ex A B f y)).subst σ 
-  = eq (P.subst σ) 
+theorem Term.prir_ex_eq_subst:
+  (eq P (prir_ex A B f x) (prir_ex A B f y)).subst σ
+  = eq (P.subst σ)
   (prir_ex (A.subst σ) (B.subst σ) (f.subst σ) (x.subst σ))
   (prir_ex (A.subst σ) (B.subst σ) (f.subst σ) (y.subst σ))
   := by {
@@ -502,9 +502,9 @@ theorem Term.prir_ex_eq_subst:
     rfl
   }
 
-theorem Term.prir_ex_eq_wk: 
-  (eq P (prir_ex A B f x) (prir_ex A B f y)).wk ρ 
-  = eq (P.wk ρ) 
+theorem Term.prir_ex_eq_wk:
+  (eq P (prir_ex A B f x) (prir_ex A B f y)).wk ρ
+  = eq (P.wk ρ)
   (prir_ex (A.wk ρ) (B.wk ρ) (f.wk ρ) (x.wk ρ))
   (prir_ex (A.wk ρ) (B.wk ρ) (f.wk ρ) (y.wk ρ))
   := by {

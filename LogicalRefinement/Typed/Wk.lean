@@ -33,7 +33,7 @@ theorem WkCtx.upgrade: WkCtx ρ Γ Δ
   | step _ => apply step; assumption
   | lift R =>
     simp only [Context.upgrade, Hyp.upgrade_wk_commute]
-    apply lift <;> assumption
+    apply lift; assumption
 }
 
 theorem HasVar.wk:
@@ -251,5 +251,5 @@ theorem HasType.eta_ex_ty {Γ f A B}
     cases HAB with
     | pi HA => exact HA.wk1
     constructor
-    cases HAB <;> assumption
+    cases HAB; assumption
   }

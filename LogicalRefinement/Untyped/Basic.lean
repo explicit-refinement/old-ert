@@ -1,4 +1,5 @@
 import LogicalRefinement.Utils
+import Mathlib.Order.MinMax
 
 inductive AnnotSort
   | type
@@ -235,19 +236,19 @@ abbrev Term.beta_succ := nr TermKind.beta_succ
 theorem Term.has_dep_dimplies_fv (u: Term): {i: Nat} ->
   has_dep u i -> i < fv u := by {
     induction u <;>
-    simp only [has_dep, fv, Nat.max_l_lt_split];
+    simp only [has_dep, fv, lt_max_iff];
     case var v =>
       intro i H
-      apply Nat.le_lt_succ
-      apply Nat.le_of_eq
+      apply Nat.le_of_lt_succ
       rw [H]
+      apply Nat.le_refl
 
     all_goals (
       intro i;
       repeat any_goals (apply or_imp_decompose; apply And.intro);
       all_goals (
         intro H
-        try apply Nat.lt_sub_lt_add
+        try apply Nat.lt_sub_of_add_lt
         revert H
       )
       try any_goals simp

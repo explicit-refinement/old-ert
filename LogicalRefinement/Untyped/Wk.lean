@@ -11,7 +11,7 @@ import LogicalRefinement.Untyped.Basic
   | bin k l r, ρ => bin k (l.wk ρ) (r.wk ρ)
   | abs k A t, ρ => abs k (A.wk ρ) (t.wk ρ.lift)
   | tri k A l r, ρ => tri k (A.wk ρ) (l.wk ρ) (r.wk ρ)
-  | cases k K d l r, ρ => 
+  | cases k K d l r, ρ =>
     cases k (K.wk ρ) (d.wk ρ) (l.wk ρ.lift) (r.wk ρ.lift)
   | ir k x y P, ρ =>
     ir k (x.wk ρ) (y.wk ρ) (P.wk ρ.lift)
@@ -20,7 +20,7 @@ import LogicalRefinement.Untyped.Basic
   | nz k K z s, ρ =>
     nz k (K.wk ρ.lift) (z.wk ρ) (s.wk (ρ.liftn 2))
 
-@[simp] def Term.wk1 (u: Term) 
+@[simp] def Term.wk1 (u: Term)
   := u.wk Wk.wk1
 
 -- wk1 based type formers
@@ -30,17 +30,17 @@ abbrev Term.and (φ ψ: Term) := dand φ ψ.wk1
 abbrev Term.const_arrow (A B: Term) := intersect A (wk1 B)
 abbrev Term.assume_wf (φ A: Term) := assume φ (A.wk1)
 
-abbrev Term.succ_nat (n: Term): Term := 
+abbrev Term.succ_nat (n: Term): Term :=
   Term.app (Term.arrow Term.nats Term.nats) Term.succ n
 
 def Term.wk1_def {u: Term}: u.wk1 = u.wk Wk.wk1 := rfl
 
 @[simp] def Term.lift1 (u: Term) := u.wk (Wk.lift Wk.id)
 
-@[simp] def Term.wkn (u: Term) (n: Nat) 
+@[simp] def Term.wkn (u: Term) (n: Nat)
   := u.wk (Wk.wkn n)
 
-@[simp] def Term.wknth (u: Term) (n: Nat) 
+@[simp] def Term.wknth (u: Term) (n: Nat)
   := u.wk (Wk.wknth n)
 
 def Term.wknth_def {u: Term} {n}: u.wknth n = u.wk (Wk.wknth n) := rfl
@@ -52,11 +52,11 @@ def Term.wknth_def {u: Term} {n}: u.wknth n = u.wk (Wk.wknth n) := rfl
   | var v => intros ρ σ H; simp only [wk]; rw [H]
   | const c => simp
   | unary k t I => intros ρ σ H; simp [I H]
-  | let_bin k P e e' IP Ie Ie' => 
+  | let_bin k P e e' IP Ie Ie' =>
     intros ρ σ H;
     simp only [wk];
     simp only [IP H, Ie H, Ie' (Wk.liftn_equiv H)]
-  | let_bin_beta k P l r e' IP Il Ir Ie' => 
+  | let_bin_beta k P l r e' IP Il Ir Ie' =>
     intros ρ σ H;
     simp only [wk];
     simp only [IP H, Il H, Ir H, Ie' (Wk.liftn_equiv H)]
@@ -66,24 +66,24 @@ def Term.wknth_def {u: Term} {n}: u.wknth n = u.wk (Wk.wknth n) := rfl
     simp only [wk];
     simp only [IHA H, IHs (Wk.lift_equiv H)]
   | tri k A l r IA Il Ir => intros ρ σ H; simp [IA H, Il H, Ir H]
-  | ir k x y P Ix Iy IP => 
+  | ir k x y P Ix Iy IP =>
     intros ρ σ H;
     simp only [
       wk, Ix H, Iy H, IP (Wk.lift_equiv H)
     ]
-  | cases k K d l r IK Id Il Ir => 
+  | cases k K d l r IK Id Il Ir =>
     intros ρ σ H;
     simp only [
       wk, IK H, Id H, Il (Wk.lift_equiv H), Ir (Wk.lift_equiv H)
     ]
   | nr k K e z s IK Ie Iz Is =>
-    intros ρ σ H; 
+    intros ρ σ H;
     simp only [wk];
     simp only [
       Is (Wk.liftn_equiv H), IK (Wk.lift_equiv H), Ie H, Iz H
     ]
   | nz k K z s IK Iz Is =>
-    intros ρ σ H; 
+    intros ρ σ H;
     simp only [wk];
     simp only [
       Is (Wk.liftn_equiv H), IK (Wk.lift_equiv H), Iz H
@@ -94,7 +94,7 @@ def Term.wknth_def {u: Term} {n}: u.wknth n = u.wk (Wk.wknth n) := rfl
   induction u;
   case var => simp
   repeat simp only [
-    wk, Term.wk_coherent (Wk.liftn_id_equiv), 
+    wk, Term.wk_coherent (Wk.liftn_id_equiv),
     Term.wk_coherent Wk.lift_id_equiv,
   *]
 }
@@ -104,11 +104,11 @@ def Term.wk_bounds {u: Term}: {n m: Nat} -> {ρ: Wk} ->
     induction u with
     | var v => intros _ _ _ Hm; apply Hm
     | const => intros; apply Nat.zero_le
-    | unary _ _ IHt => 
+    | unary _ _ IHt =>
       intros _ _ ρ Hm
       apply IHt Hm
     | let_bin k P e e' IHP IHe IHe' =>
-      simp only [fv, Nat.max_r_le_split, Nat.le_sub_is_le_add]
+      simp only [fv, max_le_iff, Nat.sub_le_iff_le_add]
       intros n m ρ Hm
       intro ⟨HP, He, He'⟩
       apply And.intro
@@ -120,7 +120,7 @@ def Term.wk_bounds {u: Term}: {n m: Nat} -> {ρ: Wk} ->
       apply Hm
       apply He'
     | let_bin_beta k P l r e' IHP IHl IHr IHe' =>
-      simp only [fv, Nat.max_r_le_split, Nat.le_sub_is_le_add]
+      simp only [fv, max_le_iff, Nat.sub_le_iff_le_add]
       intros n m ρ Hm
       intro ⟨HP, Hl, Hr, He'⟩
       apply And.intro
@@ -134,22 +134,22 @@ def Term.wk_bounds {u: Term}: {n m: Nat} -> {ρ: Wk} ->
       apply Hm
       apply He'
     | bin k l r IHl IHr =>
-      simp only [fv, Nat.max_r_le_split]
+      simp only [fv, max_le_iff]
       intros n m ρ Hm
       intro ⟨Hl, Hr⟩
       apply And.intro;
       case bin.left => apply IHl Hm Hl
       case bin.right => apply IHr Hm Hr
     | abs k A s IHA IHs =>
-      simp only [fv, Nat.max_r_le_split, Nat.le_sub_is_le_add]
+      simp only [fv, max_le_iff, Nat.sub_le_iff_le_add]
       intros n m ρ Hm
       intro ⟨HA, Hs⟩
       apply And.intro;
       case abs.left => exact IHA Hm HA
-      case abs.right => 
+      case abs.right =>
         exact IHs (Wk.lift_maps Hm) Hs
     | tri k A l r IHA IHl IHr =>
-      simp only [fv, Nat.max_r_le_split]
+      simp only [fv, max_le_iff]
       intros n m ρ Hm
       intro ⟨HA, Hl, Hr⟩
       apply And.intro;
@@ -158,23 +158,23 @@ def Term.wk_bounds {u: Term}: {n m: Nat} -> {ρ: Wk} ->
         apply And.intro;
         case left => apply IHl Hm Hl
         case right => apply IHr Hm Hr
-    | ir k x y P Ix Iy IP => 
-      simp only [fv, Nat.max_r_le_split, Nat.le_sub_is_le_add]
+    | ir k x y P Ix Iy IP =>
+      simp only [fv, max_le_iff, Nat.sub_le_iff_le_add]
       intros n m ρ Hm
       intro ⟨Hx, Hy, HP⟩
       apply And.intro;
       case left => exact Ix Hm Hx
-      case right => 
+      case right =>
         apply And.intro;
         case left => exact Iy Hm Hy
         case right => apply IP (@Wk.liftn_maps ρ 1 n m Hm) HP
-    | cases k K d l r IK IHd IHl IHr => 
-      simp only [fv, Nat.max_r_le_split, Nat.le_sub_is_le_add]
+    | cases k K d l r IK IHd IHl IHr =>
+      simp only [fv, max_le_iff, Nat.sub_le_iff_le_add]
       intros n m ρ Hm
       intro ⟨HK, Hd, Hl, Hr⟩
       apply And.intro;
       case cases.left => exact IK Hm HK
-      case cases.right => 
+      case cases.right =>
         apply And.intro;
         case left => exact IHd Hm Hd
         case right =>
@@ -182,12 +182,12 @@ def Term.wk_bounds {u: Term}: {n m: Nat} -> {ρ: Wk} ->
           case left => apply IHl (@Wk.liftn_maps ρ 1 n m Hm) Hl
           case right => apply IHr (@Wk.liftn_maps ρ 1 n m Hm) Hr
     | nr k K e z s IK Ie Iz Is =>
-      simp only [fv, Nat.max_r_le_split, Nat.le_sub_is_le_add]
+      simp only [fv, max_le_iff, Nat.sub_le_iff_le_add]
       intros n m ρ Hm
       intro ⟨HK, He, Hz, Hs⟩
       apply And.intro;
       case left => apply IK (Wk.liftn_maps Hm) HK
-      case right => 
+      case right =>
         apply And.intro;
         case left => apply Ie Hm He
         case right =>
@@ -195,31 +195,31 @@ def Term.wk_bounds {u: Term}: {n m: Nat} -> {ρ: Wk} ->
           case left => apply Iz Hm Hz
           case right => apply Is (@Wk.liftn_maps ρ 2 n m Hm) Hs
     | nz k K z s IK Iz Is =>
-      simp only [fv, Nat.max_r_le_split, Nat.le_sub_is_le_add]
+      simp only [fv, max_le_iff, Nat.sub_le_iff_le_add]
       intros n m ρ Hm
       intro ⟨HK, Hz, Hs⟩
       apply And.intro;
       case left => apply IK (Wk.liftn_maps Hm) HK
-      case right => 
+      case right =>
         apply And.intro;
         case left => apply Iz Hm Hz
         case right => apply Is (@Wk.liftn_maps ρ 2 n m Hm) Hs
   }
 
-def Term.fv_wk1: fv (wk1 u) ≤ fv u + 1 
+def Term.fv_wk1: fv (wk1 u) ≤ fv u + 1
   := by apply wk_bounds Wk.wk1_maps; exact Nat.le_refl _
 
-@[simp] def Term.wk_composes {u: Term}: 
-  (σ ρ: Wk) -> (u.wk ρ).wk σ = u.wk (σ.comp ρ) 
+@[simp] def Term.wk_composes {u: Term}:
+  (σ ρ: Wk) -> (u.wk ρ).wk σ = u.wk (σ.comp ρ)
   := by induction u <;> simp [*]
 
-theorem Term.wk_wk1 {u: Term}: u.wk Wk.wk1 = u.wk1 
+theorem Term.wk_wk1 {u: Term}: u.wk Wk.wk1 = u.wk1
   := rfl
-  
-theorem Term.step_wk1 {u: Term}: u.wk ρ.step = (u.wk ρ).wk1 
+
+theorem Term.step_wk1 {u: Term}: u.wk ρ.step = (u.wk ρ).wk1
   := by simp [<-Wk.step_is_comp_wk1]
 
-theorem Term.lift_wk1 {u: Term}: u.wk1.wk ρ.lift = (u.wk ρ).wk1 
+theorem Term.lift_wk1 {u: Term}: u.wk1.wk ρ.lift = (u.wk ρ).wk1
   := by simp
 
 theorem Term.wkn_wk1 {u: Term}: u.wkn (Nat.succ n) = (u.wkn n).wk1 := by {

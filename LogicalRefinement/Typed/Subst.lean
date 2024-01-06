@@ -32,7 +32,7 @@ theorem SubstVar'.wk_sort {σ Γ n A k k'} (H: SubstVar' σ Γ n A k) (Hk: k'.is
 theorem SubstVar.v {σ Γ n A k} (H: SubstVar σ Γ n A k): SubstVar' σ Γ n A k
   := by {
     cases H with
-    | expr => apply SubstVar'.expr <;> assumption
+    | expr => apply SubstVar'.expr ; assumption
     | var Hn _HA HΓ => exact SubstVar'.var Hn HΓ.v
   }
 
@@ -165,8 +165,7 @@ theorem SubstCtx'.upgrade (S: SubstCtx' σ Γ Δ): SubstCtx' σ Γ.upgrade Δ.up
       | gst => cases H.no_ghosts
     | gst =>
       cases k with
-      | val s => cases s <;> cases Hk' <;>
-        exact SubstVar'.var Hv HΓ.upgrade
+      | val s => cases s <;> cases Hk' ; exact SubstVar'.var Hv HΓ.upgrade
       | gst => cases H.no_ghosts;
 }
 
@@ -190,8 +189,7 @@ SubstCtx σ Γ.upgrade Δ.upgrade
       | gst => cases H.no_ghosts
     | gst =>
       cases k with
-      | val s => cases s <;> cases Hk' <;>
-        exact SubstVar.var Hv HA.upgrade HΓ.ghost_up
+      | val s => cases s <;> cases Hk' ; exact SubstVar.var Hv HA.upgrade HΓ.ghost_up
       | gst => cases H.no_ghosts;
 }
 
@@ -304,7 +302,7 @@ theorem HasType.subst' {σ Γ Δ a A} (HΔ: Δ ⊢ a: A) (S: SubstCtx' σ Γ Δ)
         | exact SubstCtx'.upgrade S
         | exact SubstCtx'.upgrade_left S
         | repeat any_goals (
-          apply SubstCtx'.lift_primitive _ (by constructor <;> simp only [HypKind, Hyp.subst]) <;>
+          apply SubstCtx'.lift_primitive _ (by constructor) <;>
           first
           | exact S
           | exact SubstCtx'.upgrade S
@@ -502,7 +500,7 @@ theorem HasType.to_subst01' {Γ l r sl sr A B}
       intro n A Hv;
       cases Hv with
       | zero =>
-        apply SubstVar'.expr <;>
+        apply SubstVar'.expr
         rw [<-Term.subst01_wk1] at Hl <;>
         exact Hl
     | succ n =>
@@ -513,8 +511,8 @@ theorem HasType.to_subst01' {Γ l r sl sr A B}
         | succ Hv =>
           cases Hv with
           | zero =>
-            apply SubstVar'.expr <;>
-            rw [Term.subst01_def, Term.subst01_wk1_wk1] <;>
+            apply SubstVar'.expr
+            rw [Term.subst01_def, Term.subst01_wk1_wk1]
             exact Hr
       | succ n =>
         intro n A Hv;
@@ -541,7 +539,7 @@ theorem HasType.to_subst01 {Γ l r sl sr A B}
       intro n A Hv;
       cases Hv with
       | zero =>
-        apply SubstVar.expr <;>
+        apply SubstVar.expr
         rw [<-Term.subst01_wk1] at Hl <;>
         exact Hl
     | succ n =>
@@ -552,8 +550,8 @@ theorem HasType.to_subst01 {Γ l r sl sr A B}
         | succ Hv =>
           cases Hv with
           | zero =>
-            apply SubstVar.expr <;>
-            rw [Term.subst01_def, Term.subst01_wk1_wk1] <;>
+            apply SubstVar.expr
+            rw [Term.subst01_def, Term.subst01_wk1_wk1]
             exact Hr
       | succ n =>
         intro n A Hv;

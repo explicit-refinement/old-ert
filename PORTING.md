@@ -1,3 +1,6 @@
+# Stuff which could be removed:
+- Utility `Nat` lemmas
+
 # Stuff that broke:
 - `simp`/`dsimp` now errors when it fails to make progress
     - Fixes:
