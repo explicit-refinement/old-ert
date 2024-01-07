@@ -469,11 +469,7 @@ theorem HasType.regular (p: Γ ⊢ a: A): A.regular Γ := by {
     constructor;
     first
     | assumption
-    | (
-      apply subst0_sort
-      assumption
-      assumption
-    )
+    | (apply subst0_sort <;> assumption)
     | (constructor <;> (
         first
         | assumption
@@ -547,21 +543,7 @@ theorem HasType.downgrade_prop {Γ: Context} {p ϕ}
       rename_i' I0 I1 I2 I3 I4 I5 I6 I7 I8 I9 IA IB IC ID <;>
       constructor <;>
       (first
-        | assumption
-        | exact I0 rfl rfl
-        | exact I1 rfl rfl
-        | exact I2 rfl rfl
-        | exact I3 rfl rfl
-        | exact I4 rfl rfl
-        | exact I5 rfl rfl
-        | exact I6 rfl rfl
-        | exact I7 rfl rfl
-        | exact I8 rfl rfl
-        | exact I9 rfl rfl
-        | exact IA rfl rfl
-        | exact IB rfl rfl
-        | exact IC rfl rfl
-        | exact ID rfl rfl
+        | (apply_assumption <;> rfl)
         | apply HasType.downgrade <;> (
           first
           | assumption
