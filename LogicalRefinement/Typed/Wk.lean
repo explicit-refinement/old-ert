@@ -1,9 +1,12 @@
+import Std.Tactic.SolveByElim
+
 import LogicalRefinement.Untyped
 import LogicalRefinement.Untyped.Subst
 import LogicalRefinement.Utils
 import LogicalRefinement.Tactics
 import LogicalRefinement.Typed.Context
 import LogicalRefinement.Typed.Basic
+
 open Term
 open Annot
 open AnnotSort
@@ -23,7 +26,8 @@ def WkCtx.lift_loose:
   }
 
 def WkCtx.wk1 {Γ H}: WkCtx Wk.wk1 (H::Γ) Γ := WkCtx.step WkCtx.id
-def WkCtx.wk2 {Γ A k X}: WkCtx (Wk.wknth 1) ((Hyp.mk A.wk1 k)::X::Γ) ((Hyp.mk A k)::Γ) := WkCtx.lift WkCtx.wk1
+def WkCtx.wk2 {Γ A k X}: WkCtx (Wk.wknth 1) ((Hyp.mk A.wk1 k)::X::Γ) ((Hyp.mk A k)::Γ) :=
+  WkCtx.lift WkCtx.wk1
 
 theorem WkCtx.upgrade: WkCtx ρ Γ Δ
   -> WkCtx ρ Γ.upgrade Δ.upgrade := by {
@@ -174,20 +178,18 @@ theorem HasType.wk {ρ Γ Δ a A} (HΔ: Δ ⊢ a: A) (R: WkCtx ρ Γ Δ):
       ] at *
       constructor <;>
       (try rw [Term.alpha00_wk_comm (by simp)]) <;>
-      (try rw [Term.let_bin_ty_alpha_wk_pair]) <;>
-      (try rw [Term.let_bin_ty_alpha_wk_elem]) <;>
-      (try rw [Term.let_bin_ty_alpha_wk_repr]) <;>
-      (try rw [Term.let_bin_ty_alpha_wk_wit]) <;>
-      (try rw [Term.var2_var1_alpha_wk]) <;>
-      (try rw [Term.let_bin_ty_alpha_wk_conj]) <;>
-      (try rw [Term.alpha0_natrec_wk_helper]) <;>
-      (repeat rw [Term.pi_funext_helper]) <;>
+      (try simp only [
+        Term.let_bin_ty_alpha_wk_pair,
+        Term.let_bin_ty_alpha_wk_elem,
+        Term.let_bin_ty_alpha_wk_repr,
+        Term.let_bin_ty_alpha_wk_wit,
+        Term.var2_var1_alpha_wk,
+        Term.let_bin_ty_alpha_wk_conj,
+        Term.alpha0_natrec_wk_helper,
+        Term.pi_funext_helper]) <;>
       (first | apply I0 | apply I1 | apply I2 | apply I3 | apply I4 | apply I5) <;>
       (try simp only [<-Hyp.wk_components]) <;>
-      first
-      | exact R
-      | (exact R.upgrade)
-      | {
+      {
         repeat (apply WkCtx.lift_loose rfl; rfl)
         first | exact R | exact R.upgrade
       }
